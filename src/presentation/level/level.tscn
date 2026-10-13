@@ -11,6 +11,7 @@
 [ext_resource type="Script" path="res://src/presentation/vfx/vfx_director.gd" id="9_vfx"]
 [ext_resource type="Script" path="res://src/ui/hud/hud.gd" id="10_hud"]
 [ext_resource type="Script" path="res://src/presentation/level/capture_controller.gd" id="11_capture"]
+[ext_resource type="Script" path="res://src/presentation/track/decor_view.gd" id="12_decor"]
 
 [node name="Level" type="Node3D"]
 script = ExtResource("1_runner")
@@ -30,6 +31,9 @@ script = ExtResource("4_track")
 
 [node name="SceneryView" type="Node3D" parent="."]
 script = ExtResource("5_scenery")
+
+[node name="DecorView" type="Node3D" parent="."]
+script = ExtResource("12_decor")
 
 [node name="ObstacleView" type="Node3D" parent="."]
 script = ExtResource("6_obstacles")

@@ -38,6 +38,7 @@ var _base_start_beat: float = -COUNT_IN_BEATS
 @onready var environment_director: EnvironmentDirector = $EnvironmentDirector
 @onready var track_view: TrackView = $TrackView
 @onready var scenery_view: SceneryView = $SceneryView
+@onready var decor_view: DecorView = $DecorView
 @onready var obstacle_view: ObstacleView = $ObstacleView
 @onready var player_view: PlayerView = $PlayerView
 @onready var camera_director: CameraDirector = $CameraDirector
@@ -58,7 +59,8 @@ func _ready() -> void:
 		hud.show_message("Cannot load chart or song:\n%s" % path)
 		return
 	_context = LevelContext.new(chart, config, TrackPath.build(chart), UserSettings.quality_tier)
-	for view: Node in [environment_director, track_view, obstacle_view, player_view, camera_director, vfx_director]:
+	for view: Node in [environment_director, track_view, decor_view, obstacle_view, player_view, camera_director,
+			vfx_director]:
 		view.call(&"setup", _context)
 	scenery_view.setup(_context, SCENERY_SEED)
 	_router = PresentationRouter.new(self, _context)
@@ -209,6 +211,7 @@ func _update_presentation(beat: float, delta: float) -> void:
 	player_view.update_pose(beat, simulation, delta)
 	camera_director.update_camera(beat, simulation.player_height_at(beat), delta)
 	environment_director.update_environment(beat, delta)
+	decor_view.update_view(beat)
 	vfx_director.follow_camera(camera_director.camera.global_position)
 	hud.set_progress(chart.progress_at(beat))
 

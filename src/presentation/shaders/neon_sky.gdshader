@@ -7,7 +7,7 @@ uniform vec3 mid_color : source_color = vec3(0.12, 0.04, 0.28);
 uniform vec3 horizon_color : source_color = vec3(0.55, 0.16, 0.6);
 uniform vec3 planet_color : source_color = vec3(0.35, 0.45, 1.0);
 uniform vec3 planet_direction = vec3(-0.55, 0.32, -0.77);
-uniform float planet_size = 0.22;
+uniform float planet_size = 0.17;
 uniform float energy = 0.5;
 uniform vec3 tint : source_color = vec3(1.0);
 
@@ -44,7 +44,7 @@ void sky() {
 	float rim = smoothstep(planet_size * 0.55, planet_size, planet_angle) * planet;
 	vec3 to_dir = dir - planet_axis * dot(dir, planet_axis);
 	float bands = 0.5 + 0.5 * sin(dot(to_dir, vec3(0.3, 1.0, 0.2)) * 60.0);
-	vec3 planet_shade = planet_color * (0.25 + 0.15 * bands) + planet_color * rim * 1.4;
+	vec3 planet_shade = planet_color * (0.25 + 0.15 * bands) + planet_color * rim * 0.9;
 	color = mix(color, planet_shade, planet);
 	color += planet_color * exp(-max(planet_angle - planet_size, 0.0) * 18.0) * 0.25 * (1.0 - planet);
 

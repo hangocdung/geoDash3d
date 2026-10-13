@@ -31,7 +31,7 @@ Trạng thái: `[ ]` chưa làm · `[~]` đang làm / làm một phần · `[x]`
 
 ## Phase 4 — Trình bày
 - [x] **GD3-040** `CameraDirector` (shot theo beat, blend, shake, FOV kick).
-- [ ] **GD3-041** Model bằng Blender script: nhân vật chi tiết hơn, cổng, bệ nhảy, cầu gai treo.
+- [x] **GD3-041** Model bằng Blender script (`assets/blender/generate_models.py`, quy ước material Body/Glow/GlowAlt → `NeonModel`): cổng vòng ở đầu mỗi đoạn nhạc, cầu gai treo đung đưa theo nhịp (`DecorView`).
 - [x] **GD3-042** Vật liệu neon, fog, bầu trời, màu theo section.
 - [x] **GD3-043** `VfxDirector`: trail, nhảy, tiếp đất, dash, perfect, chết, cue flash/shockwave/burst.
 - [x] **GD3-044** Beat pulse (global shader uniform) + quality tiers.
