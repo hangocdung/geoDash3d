@@ -105,6 +105,7 @@ func test_practice_checkpoints_restart_before_last_passed() -> void:
 	var chart: LevelChart = ChartFixtures.make_chart([{"beat": 17, "type": "jump"}, {"beat": 33, "type": "jump"}],
 			120.0, 7.0, 48.0)
 	var tracker := PracticeTracker.new(chart)
+	tracker.begin(-4.0)
 	assert_eq(tracker.checkpoints, PackedFloat64Array([16.0, 32.0]))
 	assert_almost_eq(tracker.restart_beat(-4.0), -4.0, 0.0001, "no checkpoint yet")
 	assert_false(tracker.update(16.2))
@@ -113,4 +114,16 @@ func test_practice_checkpoints_restart_before_last_passed() -> void:
 	assert_true(tracker.update(40.0))
 	# Run-up start 30 is safe (cue at 33 lies ahead with its spike).
 	assert_almost_eq(tracker.restart_beat(-4.0), 30.0, 0.0001)
+	assert_eq(tracker.reached_count(), 2)
+
+
+func test_practice_ignores_checkpoints_before_the_start() -> void:
+	var chart: LevelChart = ChartFixtures.make_chart([{"beat": 33, "type": "jump"}], 120.0, 7.0, 48.0)
+	var tracker := PracticeTracker.new(chart)
+	tracker.begin(30.0)
+	assert_false(tracker.update(31.0), "checkpoint 16 was not earned in this attempt")
+	assert_almost_eq(tracker.restart_beat(30.0), 30.0, 0.0001)
+	assert_true(tracker.update(33.0))
+	tracker.begin(30.0)
+	assert_false(tracker.update(33.0), "already earned")
 	assert_eq(tracker.reached_count(), 2)

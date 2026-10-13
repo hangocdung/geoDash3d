@@ -31,6 +31,8 @@ var _attempt: int = 0
 var _death_beat: float = 0.0
 var _restart_timer: float = 0.0
 var _practice: PracticeTracker
+## Where a run starts when no practice checkpoint has been earned.
+var _base_start_beat: float = -COUNT_IN_BEATS
 
 @onready var song_clock: SongClock = $SongClock
 @onready var environment_director: EnvironmentDirector = $EnvironmentDirector
@@ -73,6 +75,7 @@ func _ready() -> void:
 	_connect_hud()
 	if not is_nan(options.start_beat):
 		start_beat = chart.safe_start_beat(options.start_beat)
+	_base_start_beat = start_beat
 	if options.is_capture_run():
 		capture.begin(self, options)
 		return
@@ -91,6 +94,8 @@ func prepare_run() -> void:
 	simulation.player_died.connect(_on_player_died)
 	simulation.run_completed.connect(_on_run_completed)
 	_router.bind(simulation, start_beat)
+	if _practice != null:
+		_practice.begin(start_beat)
 	_autoplay = Autoplay.new(chart, start_beat) if options.autoplay else null
 	_pending_tap_times.clear()
 	for view: Node in [player_view, obstacle_view, camera_director, vfx_director, environment_director]:
@@ -210,7 +215,9 @@ func _on_player_died(_hazard_index: int, beat: float) -> void:
 	song_clock.stop()
 	_router.on_player_died(beat)
 	if _practice != null:
-		start_beat = _practice.restart_beat(-COUNT_IN_BEATS)
+		start_beat = _practice.restart_beat(_base_start_beat)
+		if options.debug_clock:
+			print("PRACTICE died at beat %.2f, restarting at %.2f" % [beat, start_beat])
 
 
 func _on_run_completed(_beat: float) -> void:

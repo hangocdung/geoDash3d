@@ -11,7 +11,10 @@ const PASS_MARGIN_BEATS: float = 0.5
 
 var checkpoints: PackedFloat64Array = []
 var _chart: LevelChart
+## Highest checkpoint earned so far (kept across attempts).
 var _reached_index: int = -1
+## Next checkpoint to watch in the current attempt.
+var _cursor: int = 0
 
 
 func _init(chart: LevelChart) -> void:
@@ -26,12 +29,21 @@ func _init(chart: LevelChart) -> void:
 	checkpoints.sort()
 
 
-## Returns true when `beat` passes a new checkpoint.
+## Call when an attempt starts: checkpoints before `start_beat` are not earned by this attempt.
+func begin(start_beat: float) -> void:
+	_cursor = 0
+	while _cursor < checkpoints.size() and checkpoints[_cursor] < start_beat:
+		_cursor += 1
+
+
+## Returns true when `beat` passes a checkpoint not earned before.
 func update(beat: float) -> bool:
 	var passed: bool = false
-	while _reached_index + 1 < checkpoints.size() and beat >= checkpoints[_reached_index + 1] + PASS_MARGIN_BEATS:
-		_reached_index += 1
-		passed = true
+	while _cursor < checkpoints.size() and beat >= checkpoints[_cursor] + PASS_MARGIN_BEATS:
+		if _cursor > _reached_index:
+			_reached_index = _cursor
+			passed = true
+		_cursor += 1
 	return passed
 
 

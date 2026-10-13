@@ -54,7 +54,7 @@ python tools/audio/draft_chart.py <analysis.json> <plan.json> <out.chart.json>
 # .sm (ArrowVortex/StepMania) → recording
 python tools/charting/sm_to_recording.py <song.sm> <out.recording.json>
 ```
-Main scene là menu; nếu có tham số level (sau `--`: `--start-beat=96 --autoplay --invincible --clock=delta --chart=res://...`,
+Main scene là menu; nếu có tham số level (sau `--`: `--start-beat=96 --autoplay --invincible --practice --rate=0.75 --clock=delta --chart=res://...`,
 `--capture…`) menu tự chuyển thẳng vào level. Scene: `Scenes.MAIN_MENU / LEVEL / CALIBRATION / METRONOME / RECORDER` (`src/ui/scenes.gd`).
 Menu truyền tùy chọn sang level qua `LaunchOptions.set_next_run()` (vd. practice).
 

@@ -2,12 +2,13 @@
 #   --chart=res://...  --start-beat=32  --autoplay  --invincible  --clock=delta|audio
 #   --capture=12.5,40 --capture-out=res://tools/capture/out  (screenshot song times, then quit)
 #   --capture-manual (capture without autoplay, to see deaths)  --debug-clock (print audio drift)
+#   --practice --rate=0.75 (practice mode with checkpoints, slower playback)
 # Related: src/presentation/level/level_runner.gd, tools/capture/README.md
 class_name LaunchOptions
 extends RefCounted
 
 const LEVEL_ARGUMENT_KEYS: PackedStringArray = ["chart", "start-beat", "autoplay", "invincible", "clock", "capture",
-		"capture-out", "capture-manual", "skip-start", "debug-clock"]
+		"capture-out", "capture-manual", "skip-start", "debug-clock", "practice", "rate"]
 
 var chart_path: String = ""
 var start_beat: float = NAN
@@ -57,6 +58,10 @@ static func from_command_line() -> LaunchOptions:
 				options.capture_without_autoplay = true
 			"debug-clock":
 				options.debug_clock = true
+			"practice":
+				options.practice = true
+			"rate":
+				options.playback_rate = clampf(value.to_float(), 0.25, 1.0)
 			_:
 				push_warning("LaunchOptions: unknown argument '%s'" % argument)
 	if not options.capture_times.is_empty():
