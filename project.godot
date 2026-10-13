@@ -71,3 +71,7 @@ beat_pulse={
 "type": "float",
 "value": 0.0
 }
+soft_glow={
+"type": "float",
+"value": 0.0
+}

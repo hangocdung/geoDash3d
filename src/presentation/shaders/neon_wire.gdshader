@@ -3,6 +3,7 @@
 shader_type spatial;
 
 global uniform float beat_pulse;
+global uniform float soft_glow;
 
 uniform vec3 body_color : source_color = vec3(0.04, 0.015, 0.06);
 uniform vec3 edge_color : source_color = vec3(1.0, 0.25, 0.85);
@@ -17,6 +18,8 @@ void fragment() {
 	vec3 widths = fwidth(bary) * edge_width;
 	vec3 edge_mask = 1.0 - smoothstep(widths * 0.5, widths * 1.5, bary);
 	float edge = max(edge_mask.x, max(edge_mask.y, edge_mask.z));
+	vec3 halo_mask = 1.0 - smoothstep(vec3(0.0), widths * 6.0, bary);
+	edge += max(halo_mask.x, max(halo_mask.y, halo_mask.z)) * 0.3 * soft_glow;
 	// Faces brighten toward the tip (top of the barycentric "a" corner) for a crystal look.
 	float glow = face_energy * (0.4 + 0.6 * bary.x);
 	float pulse = 1.0 + beat_pulse * pulse_gain + flash * 4.0;

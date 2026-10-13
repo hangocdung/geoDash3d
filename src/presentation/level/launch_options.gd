@@ -7,6 +7,7 @@
 class_name LaunchOptions
 extends RefCounted
 
+const DEBUG_ARGS_PATH: String = "user://debug_args.txt"
 const LEVEL_ARGUMENT_KEYS: PackedStringArray = ["chart", "start-beat", "autoplay", "invincible", "clock", "capture",
 		"capture-out", "capture-manual", "skip-start", "debug-clock", "practice", "rate", "perf"]
 
@@ -32,9 +33,18 @@ var playback_rate: float = 1.0
 static var _next_run: LaunchOptions
 
 
+## Arguments after `--`, plus (debug builds) whitespace-separated arguments from user://debug_args.txt,
+## which tools/device/perf_matrix.sh writes on Android where launch extras are not forwarded.
+static func user_args() -> PackedStringArray:
+	var arguments: PackedStringArray = OS.get_cmdline_user_args()
+	if OS.is_debug_build() and FileAccess.file_exists(DEBUG_ARGS_PATH):
+		arguments.append_array(FileAccess.get_file_as_string(DEBUG_ARGS_PATH).strip_edges().split(" ", false))
+	return arguments
+
+
 static func from_command_line() -> LaunchOptions:
 	var options := LaunchOptions.new()
-	for argument: String in OS.get_cmdline_user_args():
+	for argument: String in user_args():
 		var parts: PackedStringArray = argument.trim_prefix("--").split("=", true, 1)
 		var key: String = parts[0]
 		var value: String = parts[1] if parts.size() > 1 else ""
@@ -104,7 +114,7 @@ static func attract() -> LaunchOptions:
 
 ## True when the command line asks for the level directly (tools, capture, debugging).
 static func has_level_arguments() -> bool:
-	for argument: String in OS.get_cmdline_user_args():
+	for argument: String in user_args():
 		var key: String = argument.trim_prefix("--").get_slice("=", 0)
 		if LEVEL_ARGUMENT_KEYS.has(key):
 			return true

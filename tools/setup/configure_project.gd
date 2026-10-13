@@ -17,6 +17,7 @@ const MAIN_SCENE: String = "res://src/ui/menu/main_menu.tscn"
 ## Global shader uniforms (`global uniform float beat_pulse;`), set at runtime by EnvironmentDirector.
 const SHADER_GLOBALS: Dictionary[String, float] = {
 	"beat_pulse": 0.0,
+	"soft_glow": 0.0,
 }
 
 

@@ -4,6 +4,7 @@
 shader_type spatial;
 
 global uniform float beat_pulse;
+global uniform float soft_glow;
 
 uniform vec3 body_color : source_color = vec3(0.02, 0.035, 0.08);
 uniform vec3 edge_color : source_color = vec3(0.25, 0.95, 1.0);
@@ -34,10 +35,12 @@ void fragment() {
 	float farthest = max(to_face.x, max(to_face.y, to_face.z));
 	float edge_distance = to_face.x + to_face.y + to_face.z - nearest - farthest;
 	float edge = 1.0 - smoothstep(edge_width * 0.55, edge_width, edge_distance);
+	// Fake bloom: soft falloff away from the edge when the glow post-process is off.
+	float halo = exp(-edge_distance / (edge_width * 1.6)) * 0.3 * soft_glow;
 	float pulse = 1.0 + beat_pulse * pulse_gain + flash * 3.0;
 	vec3 tint = edge_color * COLOR.rgb;
 
-	vec3 emission = tint * edge * edge_energy * pulse + tint * face_energy * (1.0 - edge);
+	vec3 emission = tint * (edge + halo) * edge_energy * pulse + tint * face_energy * (1.0 - edge);
 	if (draw_face && local_position.z > 0.49) {
 		vec2 face_uv = local_position.xy;
 		float eyes = box_rect(face_uv, vec2(-0.06, 0.08), vec2(0.07, 0.1))

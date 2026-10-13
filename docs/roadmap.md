@@ -47,8 +47,18 @@ Thiết kế đã chốt: `docs/design/gameplay_v2.md`.
 - [x] **GD3-074** Ký hiệu cue mới (↔ lách, ↻ lộn), dải sáng ở làn trống.
 
 ## Phase 5 — Mobile
-- [ ] **GD3-050** Export Android, đo độ trễ và FPS trên máy thật.
-- [ ] **GD3-051** Pre-warm shader/particles ở màn loading, tối ưu draw call.
+- [x] **GD3-050** Export Android (`export_presets.cfg`, arm64, debug keystore), cài và đo trên Galaxy Note10 Lite
+      (Mali-G72, Vulkan Mobile). Đo bằng `PerfProbe` + `tools/device/perf_matrix.sh`. Kết quả, khi máy đang ấm
+      (thermal status 1): LOW khoảng 53 FPS, MEDIUM khoảng 38 FPS. Glow tốn cố định khoảng 14 FPS trên Mali.
+      Android báo output latency = 0, nên **bắt buộc calibrate**.
+- [x] **GD3-051** Tối ưu mobile:
+      - Bầu trời tính ở nửa độ phân giải, không đổi tham số sky mỗi frame.
+      - Tier LOW: không glow, quầng sáng giả trong shader (`soft_glow`), render 70%.
+      - Cảnh nền chia đoạn MultiMesh có visibility range, mật độ theo tier.
+      - Tự chọn tier ở menu (`QualityAutoTuner`, mục tiêu 55 FPS).
+      - Làm nóng VFX trong count-in.
+- [ ] **GD3-052** Đo lại khi máy nguội và trên 1–2 máy khác; nếu LOW < 58 FPS thì xem xét `scale` 0.6, bớt decor.
+- [ ] **GD3-053** Bản release: keystore release, icon, tên app, AAB cho Google Play (cần quyết định của người dùng).
 
 ## Phase 6 — Vertical slice
 - [ ] **GD3-060** Hoàn thiện màn `the_dawn_assembly` sau playtest (nếu giấy phép nhạc cho phép phát hành).

@@ -59,6 +59,15 @@ python tools/charting/sm_to_recording.py <song.sm> <out.recording.json>
 python tools/audio/build_sfx.py            # ffmpeg: D:/ffmpeg-8.1-essentials_build/bin/ffmpeg.exe
 python tools/audio/synth_placeholder_sfx.py  # âm tạm cho ID chưa có (không ghi đè ID đã 'generated')
 ```
+Android (máy cắm USB, đã bật USB debugging):
+```bash
+"$GODOT" --headless --path . --export-debug "Android" build/GeoDash3D.apk
+"$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe" install -r build/GeoDash3D.apk
+"$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe" logcat -s godot:V   # PERF / QUALITY / CALIBRATION lines
+bash tools/device/perf_matrix.sh baseline "tier=low" noglow            # A/B đo FPS trên máy (màn hình phải mở)
+```
+Trên Android, tham số debug truyền qua `user://debug_args.txt` (perf_matrix tự ghi bằng `run-as`).
+
 Main scene là menu; nếu có tham số level (sau `--`: `--start-beat=96 --autoplay --invincible --practice --rate=0.75 --clock=delta --chart=res://...`,
 `--capture…`) menu tự chuyển thẳng vào level. Scene: `Scenes.MAIN_MENU / LEVEL / CALIBRATION / METRONOME / RECORDER` (`src/ui/scenes.gd`).
 Menu truyền tùy chọn sang level qua `LaunchOptions.set_next_run()` (vd. practice).

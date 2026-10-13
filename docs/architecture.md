@@ -91,10 +91,11 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
 ## 6. Khác biệt PC / Mobile
 | Mảng | PC | Mobile |
 |---|---|---|
-| Renderer | Forward+ | Mobile (`rendering_method.mobile`) |
-| Hậu kỳ | Glow 4 level, fog | Glow, fog (tier Low: ít level glow hơn, ít hạt hơn) |
-| Độ trễ audio | ~10 ms đo được | cao và khác nhau theo máy → **cần màn hiệu chỉnh (GD3-014)** |
-| Shader | — | Biên dịch lần đầu gây giật → cần pre-warm (GD3-051) |
+| Renderer | Forward+ | Mobile (`rendering_method.mobile`), Vulkan |
+| Tier (`QualityTier`) | HIGH: glow, render 100%, MSAA 2x | MEDIUM: glow, render 60%, cảnh nền 80%. LOW: **không glow** (shader `soft_glow` vẽ quầng sáng), render 70%, cảnh nền 55% |
+| Chọn tier | AUTO (thường giữ HIGH) | AUTO: `QualityAutoTuner` đo FPS ở menu, hạ dần tới khi đạt 55 FPS |
+| Độ trễ audio | ~10 ms đo được | Android báo 0 → **bắt buộc CALIBRATE AUDIO** |
+| Shader | — | Sky nửa độ phân giải; VFX được làm nóng trong count-in |
 | Input | Space / W / ↑ / chuột trái | Chạm (giả lập chuột trái, không bị kích hoạt hai lần) |
 
 ## 7. Chưa làm / giới hạn đã biết

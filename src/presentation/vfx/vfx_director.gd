@@ -47,6 +47,17 @@ func reset_view() -> void:
 	_ghosts.clear()
 
 
+## Fires every pooled effect once far ahead of the camera (inside the fog) so their shader pipelines
+## compile during the count-in instead of hitching the first time they are needed (GD3-051).
+func prewarm(camera: Camera3D) -> void:
+	var far_point: Vector3 = camera.global_position - camera.global_basis.z * 160.0
+	_bursts_small.emit_at(far_point, Color.WHITE)
+	_bursts_sparkle.emit_at(far_point, Color.WHITE)
+	_bursts_death.emit_at(far_point, Color.WHITE)
+	_rings.spawn(Transform3D(Basis(), far_point), Color.WHITE)
+	_ghosts.spawn(Transform3D(Basis(), far_point), Color.WHITE)
+
+
 func on_jump_started(feet: Transform3D, color: Color) -> void:
 	_bursts_small.emit_at(feet.origin, color)
 

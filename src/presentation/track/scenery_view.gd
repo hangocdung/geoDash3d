@@ -1,5 +1,6 @@
 # Procedural background: floating neon monoliths and crystal spires scattered along the track,
-# kept clear of the track corridor and of the side camera's line of sight. Two draw calls total.
+# kept clear of the track corridor and of the side camera's line of sight. Grouped into MultiMesh
+# chunks along the track so far chunks are culled; density scales with the quality tier.
 # Related: src/presentation/track/track_view.gd, src/presentation/shaders/neon_box.gdshader
 class_name SceneryView
 extends Node3D
@@ -8,6 +9,9 @@ const BOX_SHADER: Shader = preload("res://src/presentation/shaders/neon_box.gdsh
 const WIRE_SHADER: Shader = preload("res://src/presentation/shaders/neon_wire.gdshader")
 const SPACING: float = 8.0
 const CLEAR_RADIUS: float = 16.0
+## Track length covered by one MultiMesh chunk, and how far chunks stay visible (fog hides the rest).
+const CHUNK_LENGTH: float = 120.0
+const VISIBILITY_RANGE: float = 320.0
 ## Cool colors only: hot pink/gold are reserved for hazards so they always stand out.
 const PALETTE: Array[Color] = [
 	Color(0.25, 0.75, 1.0), Color(0.45, 0.35, 1.0), Color(0.3, 0.5, 1.0), Color(0.6, 0.45, 0.95),
@@ -19,26 +23,39 @@ var _random := RandomNumberGenerator.new()
 func setup(context: LevelContext, seed_value: int) -> void:
 	_random.seed = seed_value
 	var corridor: PackedVector3Array = _sample_corridor(context.track)
-	var blocks: Array[Transform3D] = []
-	var block_colors: Array[Color] = []
-	var spires: Array[Transform3D] = []
-	var distance: float = context.track.start_distance
-	while distance < context.track.end_distance:
-		var frame: Transform3D = context.track.transform_at(distance)
-		for attempt: int in 2:
-			var placement: Transform3D = _random_block(frame)
-			if _is_clear(placement.origin, placement.basis.get_scale(), corridor):
-				blocks.append(placement)
-				block_colors.append(PALETTE[_random.randi() % PALETTE.size()] * _random.randf_range(0.5, 1.0))
-				if _random.randf() < 0.35:
-					spires.append(_spire_on_top(placement))
-		distance += SPACING
-	add_child(_multimesh_instance("Monoliths", BoxMesh.new(), blocks, block_colors, _box_material()))
-	var spire_colors: Array[Color] = []
-	for index: int in spires.size():
-		spire_colors.append(Color.WHITE)
-	add_child(_multimesh_instance("Spires", ProceduralMeshes.pyramid(1.0, 1.0), spires, spire_colors,
-			_wire_material()))
+	var density: float = QualityTier.scenery_density(context.quality)
+	var box_mesh := BoxMesh.new()
+	var spire_mesh: ArrayMesh = ProceduralMeshes.pyramid(1.0, 1.0)
+	var box_material: ShaderMaterial = _box_material()
+	var wire_material: ShaderMaterial = _wire_material()
+	var chunk_start: float = context.track.start_distance
+	while chunk_start < context.track.end_distance:
+		var blocks: Array[Transform3D] = []
+		var block_colors: Array[Color] = []
+		var spires: Array[Transform3D] = []
+		var distance: float = chunk_start
+		while distance < minf(chunk_start + CHUNK_LENGTH, context.track.end_distance):
+			var frame: Transform3D = context.track.transform_at(distance)
+			for attempt: int in 2:
+				# Draw every random number even when skipped, so the layout is identical on every tier.
+				var placement: Transform3D = _random_block(frame)
+				var color: Color = PALETTE[_random.randi() % PALETTE.size()] * _random.randf_range(0.5, 1.0)
+				var has_spire: bool = _random.randf() < 0.35
+				var kept: bool = _random.randf() < density
+				if kept and _is_clear(placement.origin, placement.basis.get_scale(), corridor):
+					blocks.append(placement)
+					block_colors.append(color)
+					if has_spire:
+						spires.append(_spire_on_top(placement))
+			distance += SPACING
+		var spire_colors: Array[Color] = []
+		spire_colors.resize(spires.size())
+		spire_colors.fill(Color.WHITE)
+		if not blocks.is_empty():
+			add_child(_multimesh_instance("Monoliths", box_mesh, blocks, block_colors, box_material))
+		if not spires.is_empty():
+			add_child(_multimesh_instance("Spires", spire_mesh, spires, spire_colors, wire_material))
+		chunk_start += CHUNK_LENGTH
 
 
 func _random_block(frame: Transform3D) -> Transform3D:
@@ -98,6 +115,7 @@ func _multimesh_instance(node_name: String, mesh: Mesh, transforms: Array[Transf
 	instance.multimesh = multimesh
 	instance.material_override = material
 	instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	instance.visibility_range_end = VISIBILITY_RANGE
 	return instance
 
 

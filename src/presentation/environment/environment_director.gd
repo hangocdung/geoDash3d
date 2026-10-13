@@ -7,6 +7,7 @@ extends Node3D
 
 const SKY_SHADER: Shader = preload("res://src/presentation/shaders/neon_sky.gdshader")
 const BEAT_PULSE_PARAMETER: StringName = &"beat_pulse"
+const SOFT_GLOW_PARAMETER: StringName = &"soft_glow"
 const PULSE_SHARPNESS: float = 7.0
 const ENERGY_EASE_PER_SEC: float = 1.5
 const CALM_FOG: Color = Color(0.08, 0.05, 0.2)
@@ -35,7 +36,7 @@ func setup(context: LevelContext) -> void:
 	environment.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
 	environment.tonemap_mode = Environment.TONE_MAPPER_ACES
 	environment.tonemap_white = 6.0
-	_configure_glow(context.quality)
+	apply_quality(context.quality)
 	environment.fog_enabled = true
 	environment.fog_mode = Environment.FOG_MODE_EXPONENTIAL
 	environment.fog_density = 0.008
@@ -80,8 +81,11 @@ func _beat_pulse(beat: float) -> float:
 	return exp(-phase * PULSE_SHARPNESS) * accent * lerpf(0.35, 1.0, _energy)
 
 
-func _configure_glow(quality: QualityTier.Tier) -> void:
-	environment.glow_enabled = true
+## Glow post-process on/off per tier; without it shaders draw soft halos (`soft_glow` global).
+func apply_quality(quality: QualityTier.Tier) -> void:
+	var glow: bool = QualityTier.uses_glow(quality)
+	environment.glow_enabled = glow
+	RenderingServer.global_shader_parameter_set(SOFT_GLOW_PARAMETER, 0.0 if glow else 1.0)
 	environment.glow_blend_mode = Environment.GLOW_BLEND_MODE_ADDITIVE
 	environment.glow_hdr_threshold = 0.9
 	environment.glow_bloom = 0.04

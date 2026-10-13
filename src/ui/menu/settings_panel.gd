@@ -7,6 +7,7 @@ signal closed
 
 const OFFSET_STEP_SEC: float = 0.005
 const QUALITY_NAMES: PackedStringArray = ["LOW", "MEDIUM", "HIGH"]
+const AUTO_ITEM_ID: int = 100
 
 var _offset_label: Label
 var _quality: OptionButton
@@ -20,12 +21,12 @@ func _ready() -> void:
 	column.add_child(UiTheme.make_label("SETTINGS", 48, UiTheme.ACCENT))
 
 	_quality = OptionButton.new()
+	_quality.add_item("AUTO (%s)" % QUALITY_NAMES[int(UserSettings.quality_tier)], AUTO_ITEM_ID)
 	for index: int in QUALITY_NAMES.size():
 		_quality.add_item(QUALITY_NAMES[index], index)
-	_quality.select(int(UserSettings.quality_tier))
-	_quality.item_selected.connect(func(index: int) -> void:
-		UserSettings.quality_tier = QualityTier.from_int(index))
-	column.add_child(_row("Graphics (next run)", _quality))
+	_quality.select(0 if UserSettings.quality_auto else int(UserSettings.quality_tier) + 1)
+	_quality.item_selected.connect(_on_quality_selected)
+	column.add_child(_row("Graphics", _quality))
 
 	_volume = HSlider.new()
 	_volume.min_value = -30.0
@@ -56,6 +57,17 @@ func _ready() -> void:
 	back.pressed.connect(_close)
 	column.add_child(back)
 	back.grab_focus()
+
+
+## AUTO re-runs the menu benchmark from the platform default next time; a fixed tier disables it.
+func _on_quality_selected(index: int) -> void:
+	var item_id: int = _quality.get_item_id(index)
+	if item_id == AUTO_ITEM_ID:
+		UserSettings.quality_auto = true
+		UserSettings.quality_tier = QualityTier.default_for_platform()
+	else:
+		UserSettings.quality_auto = false
+		UserSettings.quality_tier = QualityTier.from_int(item_id)
 
 
 func _close() -> void:

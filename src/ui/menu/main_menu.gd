@@ -22,6 +22,10 @@ func _ready() -> void:
 	var level: LevelRunner = LEVEL_SCENE.instantiate() as LevelRunner
 	level.preset_options = LaunchOptions.attract()
 	add_child(level)
+	var tuner := QualityAutoTuner.new()
+	tuner.name = "QualityAutoTuner"
+	add_child(tuner)
+	tuner.setup(level)
 	var layer := CanvasLayer.new()
 	layer.layer = 10
 	add_child(layer)

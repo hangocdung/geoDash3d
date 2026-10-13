@@ -94,6 +94,12 @@ func _ready() -> void:
 		hud.show_message("%s\nTAP TO START" % chart.title.to_upper())
 
 
+## Re-applies graphics quality live (used by the menu's automatic quality tuner).
+func apply_quality(tier: QualityTier.Tier) -> void:
+	QualityTier.apply_to_viewport(get_viewport(), tier)
+	environment_director.apply_quality(tier)
+
+
 ## Fresh simulation at `start_beat`; views are reset and posed but the clock is not started.
 func prepare_run() -> void:
 	simulation = RunSimulation.new(chart, _context.config, start_beat)
@@ -115,6 +121,8 @@ func prepare_run() -> void:
 func begin_run() -> void:
 	_attempt += 1
 	hud.show_message("")
+	if _attempt == 1 and not options.is_capture_run():
+		vfx_director.prewarm(camera_director.camera)
 	if not options.attract_mode:
 		hud.show_attempt(_attempt)
 		Sfx.play(&"run.attempt", -6.0)
@@ -242,9 +250,18 @@ func _apply_perf_flags(flags: PackedStringArray) -> void:
 	for flag: String in flags:
 		if flag.begins_with("scale="):
 			get_viewport().scaling_3d_scale = flag.trim_prefix("scale=").to_float()
+		if flag.begins_with("tier="):
+			var tier_name: String = flag.trim_prefix("tier=").to_upper()
+			apply_quality(QualityTier.from_int(QualityTier.Tier.keys().find(tier_name)))
 		match flag:
 			"noglow":
 				environment_director.environment.glow_enabled = false
+			"glow1", "glow2":
+				for level: int in 7:
+					environment_director.environment.set_glow_level(level, 0.0)
+				environment_director.environment.set_glow_level(1, 1.0)
+				if flag == "glow2":
+					environment_director.environment.set_glow_level(2, 0.8)
 			"nofog":
 				environment_director.environment.fog_enabled = false
 			"nosky":

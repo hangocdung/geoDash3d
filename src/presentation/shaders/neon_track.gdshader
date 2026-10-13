@@ -3,6 +3,8 @@
 shader_type spatial;
 
 global uniform float beat_pulse;
+// 1 when the glow post-process is off (low quality): shaders add cheap soft halos instead.
+global uniform float soft_glow;
 
 uniform vec3 base_color : source_color = vec3(0.03, 0.025, 0.07);
 uniform vec3 grid_color : source_color = vec3(0.25, 0.85, 1.0);
@@ -24,7 +26,10 @@ void fragment() {
 	vec3 emission;
 	if (COLOR.r > 0.5) {
 		float grid = max(grid_line(UV.x * lanes, 0.012), grid_line(UV.y / tile_length, 0.01));
-		float rail = 1.0 - smoothstep(0.0, 0.045, min(UV.x, 1.0 - UV.x));
+		float edge_distance = min(UV.x, 1.0 - UV.x);
+		float rail = 1.0 - smoothstep(0.0, 0.045, edge_distance);
+		rail += exp(-edge_distance * 22.0) * 0.35 * soft_glow;
+		grid += max(grid_line(UV.x * lanes, 0.06), grid_line(UV.y / tile_length, 0.05)) * 0.25 * soft_glow;
 		ALBEDO = base_color * (1.0 + grid);
 		ROUGHNESS = 0.18;
 		METALLIC = 0.5;

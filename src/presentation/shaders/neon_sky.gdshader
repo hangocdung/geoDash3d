@@ -1,6 +1,8 @@
 // Synthwave night sky: vertical gradient, stars, a ringed planet and a warm horizon glow.
 // `energy` (0..1) follows the song section; `tint` shifts the palette per section.
+// Everything is evaluated in the half-resolution pass (the sky is smooth; ~4x cheaper per pixel on phones).
 shader_type sky;
+render_mode use_half_res_pass;
 
 uniform vec3 zenith_color : source_color = vec3(0.02, 0.01, 0.07);
 uniform vec3 mid_color : source_color = vec3(0.12, 0.04, 0.28);
@@ -27,14 +29,13 @@ float stars(vec3 direction) {
 	return step(0.965, h) * (1.0 - smoothstep(0.0, 0.35, d)) * brightness;
 }
 
-void sky() {
-	vec3 dir = EYEDIR;
+vec3 sky_color(vec3 dir, bool with_stars) {
 	float height = dir.y;
 	vec3 color = mix(horizon_color, mid_color, smoothstep(-0.05, 0.25, height));
 	color = mix(color, zenith_color, smoothstep(0.2, 0.75, height));
 	color = mix(color, horizon_color * 0.25, smoothstep(0.0, -0.4, height));
 	color += horizon_color * exp(-abs(height) * 14.0) * (0.35 + energy * 0.5);
-	if (!AT_CUBEMAP_PASS) {
+	if (with_stars) {
 		color += vec3(0.9, 0.95, 1.0) * stars(dir) * smoothstep(0.0, 0.3, height);
 	}
 
@@ -58,5 +59,16 @@ void sky() {
 	ring *= 1.0 - planet * step(0.0, dot(dir - planet_axis, ring_normal));
 	color += planet_color * ring * 0.8;
 
-	COLOR = color * tint;
+	return color * tint;
+}
+
+
+void sky() {
+	if (AT_CUBEMAP_PASS) {
+		COLOR = sky_color(EYEDIR, false);
+	} else if (AT_HALF_RES_PASS) {
+		COLOR = sky_color(EYEDIR, true);
+	} else {
+		COLOR = HALF_RES_COLOR.rgb;
+	}
 }
