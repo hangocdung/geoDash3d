@@ -62,6 +62,8 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   - `energy_barrier`, `glyph` (ring / ^ / » / shock ring), `neon_sky`.
 - **Mesh** sinh bằng code (`meshes/procedural_meshes.gd`): đoạn đường (chia chunk 48 đơn vị để culling) và kim tự tháp.
   Thứ tự đỉnh được tự sửa sang chiều kim đồng hồ.
+- **Decor từ Blender** (`track/decor_view.gd`): cổng vòng tại đầu mỗi section, cầu gai treo đung đưa theo
+  ô nhịp (hàm thuần của beat). Model `.glb` sinh bằng script, material theo tên `Body/Glow/GlowAlt` → `NeonModel`.
 - **Cảnh nền** (`track/scenery_view.gd`): 2 MultiMesh (tháp, chóp) sinh theo seed. Tránh hành lang đường và
   tầm nhìn của camera side. Chỉ dùng tông lạnh.
 - **VFX** (`vfx/`): pool (`EffectPools`) để không tạo node hay biên dịch shader giữa màn. Gồm vệt pixel,

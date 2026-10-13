@@ -49,6 +49,8 @@ GODOT="D:/Godot_v4.6.1-stable_win64.exe/Godot_v4.6.1-stable_win64_console.exe"
 "$GODOT" --headless --path . -s res://tools/setup/configure_project.gd
 # Phân tích nhạc (BPM, offset, onset) bằng Python của Blender (có aud + numpy)
 "D:/Programs/Blender/blender.exe" -b --factory-startup -P tools/audio/analyze_song.py -- <song.mp3> <out.analysis.json>
+# Sinh lại model decor (.glb) từ script Blender; material Body/Glow/GlowAlt được NeonModel gán shader
+"D:/Programs/Blender/blender.exe" -b --factory-startup -P assets/blender/generate_models.py -- --out assets/models
 # Sinh chart từ phân tích + plan (Python hệ thống); plan có thể dùng recording / fixed
 python tools/audio/draft_chart.py <analysis.json> <plan.json> <out.chart.json>
 # .sm (ArrowVortex/StepMania) → recording
