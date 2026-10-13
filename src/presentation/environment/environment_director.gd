@@ -1,5 +1,6 @@
 # Owns WorldEnvironment, sky and key light. Each frame it publishes the global `beat_pulse`
-# shader parameter and eases glow/sky/fog toward the current section's energy.
+# shader parameter and eases glow/fog/background energy toward the current section's energy.
+# The sky material is never changed per frame: that would re-render its radiance map every frame.
 # Related: src/presentation/shaders/neon_sky.gdshader, tools/setup/configure_project.gd (shader globals)
 class_name EnvironmentDirector
 extends Node3D
@@ -8,8 +9,6 @@ const SKY_SHADER: Shader = preload("res://src/presentation/shaders/neon_sky.gdsh
 const BEAT_PULSE_PARAMETER: StringName = &"beat_pulse"
 const PULSE_SHARPNESS: float = 7.0
 const ENERGY_EASE_PER_SEC: float = 1.5
-const CALM_TINT: Color = Color(0.75, 0.85, 1.15)
-const HOT_TINT: Color = Color(1.25, 0.85, 1.1)
 const CALM_FOG: Color = Color(0.08, 0.05, 0.2)
 const HOT_FOG: Color = Color(0.17, 0.04, 0.2)
 
@@ -68,9 +67,7 @@ func update_environment(beat: float, delta: float) -> void:
 	_energy = move_toward(_energy, target_energy, delta * ENERGY_EASE_PER_SEC)
 	_flash = maxf(_flash - delta * 3.0, 0.0)
 	RenderingServer.global_shader_parameter_set(BEAT_PULSE_PARAMETER, _beat_pulse(beat) + _flash)
-	var tint: Color = CALM_TINT.lerp(HOT_TINT, _energy)
-	_sky_material.set_shader_parameter("energy", _energy)
-	_sky_material.set_shader_parameter("tint", tint * (1.0 + _flash * 0.6))
+	environment.background_energy_multiplier = lerpf(0.85, 1.15, _energy) * (1.0 + _flash * 0.6)
 	environment.glow_intensity = lerpf(0.75, 1.15, _energy) + _flash * 0.6
 	environment.fog_light_color = CALM_FOG.lerp(HOT_FOG, _energy)
 
@@ -90,7 +87,9 @@ func _configure_glow(quality: QualityTier.Tier) -> void:
 	environment.glow_bloom = 0.04
 	environment.glow_strength = 1.0
 	var levels: Array[float] = [0.0, 1.0, 0.8, 0.6, 0.35, 0.0, 0.0]
-	if quality == QualityTier.Tier.LOW:
+	if quality == QualityTier.Tier.MEDIUM:
+		levels = [0.0, 1.0, 0.8, 0.6, 0.0, 0.0, 0.0]
+	elif quality == QualityTier.Tier.LOW:
 		levels = [0.0, 0.0, 1.0, 0.6, 0.0, 0.0, 0.0]
 	for index: int in levels.size():
 		environment.set_glow_level(index, levels[index])

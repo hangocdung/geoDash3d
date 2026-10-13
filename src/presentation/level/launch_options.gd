@@ -8,7 +8,7 @@ class_name LaunchOptions
 extends RefCounted
 
 const LEVEL_ARGUMENT_KEYS: PackedStringArray = ["chart", "start-beat", "autoplay", "invincible", "clock", "capture",
-		"capture-out", "capture-manual", "skip-start", "debug-clock", "practice", "rate"]
+		"capture-out", "capture-manual", "skip-start", "debug-clock", "practice", "rate", "perf"]
 
 var chart_path: String = ""
 var start_beat: float = NAN
@@ -20,6 +20,8 @@ var capture_directory: String = "res://tools/capture/out"
 var skip_start_screen: bool = false
 var capture_without_autoplay: bool = false
 var debug_clock: bool = false
+## Debug performance experiments, e.g. --perf=noglow,nosky,scale=0.5 (see LevelRunner._apply_perf_flags).
+var perf_flags: PackedStringArray = []
 ## Menu background: autoplay, no HUD, no input, loops forever.
 var attract_mode: bool = false
 ## Practice: checkpoints, restart from the last one, optional slower playback.
@@ -58,6 +60,8 @@ static func from_command_line() -> LaunchOptions:
 				options.capture_without_autoplay = true
 			"debug-clock":
 				options.debug_clock = true
+			"perf":
+				options.perf_flags = value.replace("+", ",").split(",", false)
 			"practice":
 				options.practice = true
 			"rate":

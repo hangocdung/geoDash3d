@@ -11,7 +11,12 @@ const RECORDER: String = "res://src/authoring/recorder/recorder.tscn"
 const DEFAULT_CHART: String = "res://assets/music/the_dawn_assembly.chart.json"
 
 
+## Deferred so the current scene finishes handling the input event (touch release) before it is freed.
 static func go_to(tree: SceneTree, scene_path: String) -> void:
+	_change_scene.call_deferred(tree, scene_path)
+
+
+static func _change_scene(tree: SceneTree, scene_path: String) -> void:
 	var error: Error = tree.change_scene_to_file(scene_path)
 	if error != OK:
 		push_error("Scenes: cannot open '%s' (%s)" % [scene_path, error_string(error)])

@@ -93,6 +93,8 @@ func _finish() -> void:
 	var offset_ms: int = roundi(_estimate.offset_sec * 1000.0)
 	var spread_ms: int = roundi(_estimate.spread_sec * 1000.0)
 	_indicator.text = "%+d ms" % offset_ms
+	print("CALIBRATION offset_ms=%d spread_ms=%d taps=%d engine_latency_ms=%.1f" % [offset_ms, spread_ms,
+			_estimate.accepted_count, AudioServer.get_output_latency() * 1000.0])
 	var verdict: String = "Consistent" if _estimate.spread_sec <= MAX_GOOD_SPREAD_SEC else "Unsteady — consider retrying"
 	_status.text = "Audio offset %+d ms  (±%d ms, %s)\nCurrent: %+d ms" % [offset_ms, spread_ms, verdict,
 			roundi(UserSettings.audio_offset_sec * 1000.0)]

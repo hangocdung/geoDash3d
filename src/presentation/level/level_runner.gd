@@ -59,6 +59,7 @@ func _ready() -> void:
 		hud.show_message("Cannot load chart or song:\n%s" % path)
 		return
 	_context = LevelContext.new(chart, config, TrackPath.build(chart), UserSettings.quality_tier)
+	QualityTier.apply_to_viewport(get_viewport(), UserSettings.quality_tier)
 	for view: Node in [environment_director, track_view, decor_view, obstacle_view, player_view, camera_director,
 			vfx_director]:
 		view.call(&"setup", _context)
@@ -77,6 +78,8 @@ func _ready() -> void:
 	UserSettings.changed.connect(_apply_volume)
 	_apply_volume()
 	_connect_hud()
+	if OS.is_debug_build() and not options.perf_flags.is_empty():
+		_apply_perf_flags(options.perf_flags)
 	if not is_nan(options.start_beat):
 		start_beat = chart.safe_start_beat(options.start_beat)
 	_base_start_beat = start_beat
@@ -134,6 +137,7 @@ func current_beat() -> float:
 func _process(delta: float) -> void:
 	match state:
 		RunState.RUNNING, RunState.COMPLETE:
+			var sim_start: int = Time.get_ticks_usec()
 			var beat: float = current_beat()
 			for tap_time: float in _pending_tap_times:
 				simulation.tap(chart.beat_at_time(tap_time))
@@ -143,6 +147,7 @@ func _process(delta: float) -> void:
 			else:
 				simulation.advance_to(beat)
 			_router.fire_vfx_cues(beat)
+			PerfProbe.measure(&"sim", sim_start)
 			if _practice != null and not simulation.is_dead and _practice.update(simulation.current_beat):
 				hud.show_toast("CHECKPOINT %d" % _practice.reached_count())
 				Sfx.play(&"run.checkpoint")
@@ -210,13 +215,51 @@ func _apply_volume() -> void:
 
 
 func _update_presentation(beat: float, delta: float) -> void:
+	var start: int = Time.get_ticks_usec()
 	player_view.update_pose(beat, simulation, delta)
+	PerfProbe.measure(&"player", start)
+	start = Time.get_ticks_usec()
 	camera_director.update_camera(beat, simulation.player_height_at(beat), _underside_amount(beat), delta)
+	PerfProbe.measure(&"camera", start)
+	start = Time.get_ticks_usec()
 	obstacle_view.update_view(beat)
+	PerfProbe.measure(&"obstacles", start)
+	start = Time.get_ticks_usec()
 	environment_director.update_environment(beat, delta)
+	PerfProbe.measure(&"environment", start)
+	start = Time.get_ticks_usec()
 	decor_view.update_view(beat)
+	PerfProbe.measure(&"decor", start)
+	start = Time.get_ticks_usec()
 	vfx_director.follow_camera(camera_director.camera.global_position)
 	hud.set_progress(chart.progress_at(beat))
+	PerfProbe.measure(&"vfx_hud", start)
+
+
+## Debug-only A/B switches to find GPU bottlenecks on devices (logged by PerfProbe).
+func _apply_perf_flags(flags: PackedStringArray) -> void:
+	print("PERF flags %s" % ",".join(flags))
+	for flag: String in flags:
+		if flag.begins_with("scale="):
+			get_viewport().scaling_3d_scale = flag.trim_prefix("scale=").to_float()
+		match flag:
+			"noglow":
+				environment_director.environment.glow_enabled = false
+			"nofog":
+				environment_director.environment.fog_enabled = false
+			"nosky":
+				environment_director.environment.background_mode = Environment.BG_COLOR
+				environment_director.environment.background_color = Color(0.05, 0.02, 0.12)
+			"noparticles":
+				vfx_director.visible = false
+				player_view.trail.visible = false
+			"noscenery":
+				scenery_view.visible = false
+				decor_view.visible = false
+			"noobstacles":
+				obstacle_view.visible = false
+			"notrack":
+				track_view.visible = false
 
 
 ## 0..1 while the player hangs under the track (flip), eased so the camera swing is gentle.
