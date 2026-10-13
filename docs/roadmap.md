@@ -67,6 +67,11 @@ Thiết kế đã chốt: `docs/design/gameplay_v2.md`.
       - MEDIUM: khoảng 41 FPS. HIGH: khoảng 35 FPS.
       - Bản release (preset `Android Release Perf`) nhanh hơn debug khoảng 1 FPS, vì game nghẽn ở GPU.
       - **Còn lại:** đo trên 1–2 máy tầm trung đời mới.
+- [x] **GD3-054** Tự chỉnh độ trễ khi đang chơi (Settings → Auto sync, mặc định bật):
+      - `RunSimulation.tap_timed` báo độ lệch của mọi lần chạm trong ±400 ms quanh cue, kể cả lần trượt cửa sổ.
+      - `AutoOffsetLearner` dùng median + MAD; chỉ chỉnh **giữa các lượt**.
+      - Ba mức chỉnh: ≥100 ms (3 mẫu, 90%), ≥30 ms (8 mẫu, 70%), ≥12 ms (20 mẫu, 50%).
+      - Không học khi autoplay, attract, capture hoặc luyện tập chậm. HUD báo "ATTEMPT n · SYNC +x ms".
 - [ ] **GD3-053** Bản release: keystore release, icon, tên app, AAB cho Google Play (cần quyết định của người dùng).
 
 ## Phase 6 — Vertical slice

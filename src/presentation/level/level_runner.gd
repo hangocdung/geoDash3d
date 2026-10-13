@@ -31,6 +31,9 @@ var _attempt: int = 0
 var _death_beat: float = 0.0
 var _restart_timer: float = 0.0
 var _practice: PracticeTracker
+var _sync: SyncLearning
+## Shown with the next attempt when the audio offset was auto-corrected (GD3-054).
+var _pending_sync_note: String = ""
 ## Where a run starts when no practice checkpoint has been earned.
 var _base_start_beat: float = -COUNT_IN_BEATS
 
@@ -71,6 +74,8 @@ func _ready() -> void:
 			else SongClock.DriveMode.AUDIO_SYNC
 	song_clock.calibration_offset_sec = UserSettings.audio_offset_sec
 	song_clock.playback_rate = options.playback_rate
+	_sync = SyncLearning.new(not options.autoplay and not options.attract_mode and not options.is_capture_run()
+			and is_equal_approx(options.playback_rate, 1.0))
 	if options.practice:
 		_practice = PracticeTracker.new(chart)
 		hud.show_mode("PRACTICE  %d%%" % roundi(options.playback_rate * 100.0))
@@ -79,7 +84,7 @@ func _ready() -> void:
 	_apply_volume()
 	_connect_hud()
 	if (OS.is_debug_build() or OS.has_feature("perf_probe")) and not options.perf_flags.is_empty():
-		_apply_perf_flags(options.perf_flags)
+		PerfFlags.apply(self, options.perf_flags)
 	if not is_nan(options.start_beat):
 		start_beat = chart.safe_start_beat(options.start_beat)
 	_base_start_beat = start_beat
@@ -107,6 +112,7 @@ func prepare_run() -> void:
 	simulation.player_died.connect(_on_player_died)
 	simulation.run_completed.connect(_on_run_completed)
 	_router.bind(simulation, start_beat)
+	_sync.bind(simulation)
 	if _practice != null:
 		_practice.begin(start_beat)
 	_autoplay = Autoplay.new(chart, start_beat) if options.autoplay else null
@@ -123,8 +129,10 @@ func begin_run() -> void:
 	hud.show_message("")
 	if _attempt == 1 and not options.is_capture_run():
 		vfx_director.prewarm(camera_director.camera)
+	song_clock.calibration_offset_sec = UserSettings.audio_offset_sec
 	if not options.attract_mode:
-		hud.show_attempt(_attempt)
+		hud.show_toast("ATTEMPT %d" % _attempt + ("  ·  " + _pending_sync_note if not _pending_sync_note.is_empty() else ""))
+		_pending_sync_note = ""
 		Sfx.play(&"run.attempt", -6.0)
 	var start_time: float = chart.time_at(start_beat)
 	var audio_start: float = maxf(start_time, 0.0)
@@ -134,6 +142,7 @@ func begin_run() -> void:
 
 func restart() -> void:
 	song_clock.stop()
+	_learn_sync()
 	prepare_run()
 	begin_run()
 
@@ -145,7 +154,6 @@ func current_beat() -> float:
 func _process(delta: float) -> void:
 	match state:
 		RunState.RUNNING, RunState.COMPLETE:
-			var sim_start: int = Time.get_ticks_usec()
 			var beat: float = current_beat()
 			for tap_time: float in _pending_tap_times:
 				simulation.tap(chart.beat_at_time(tap_time))
@@ -155,7 +163,6 @@ func _process(delta: float) -> void:
 			else:
 				simulation.advance_to(beat)
 			_router.fire_vfx_cues(beat)
-			PerfProbe.measure(&"sim", sim_start)
 			if _practice != null and not simulation.is_dead and _practice.update(simulation.current_beat):
 				hud.show_toast("CHECKPOINT %d" % _practice.reached_count())
 				Sfx.play(&"run.checkpoint")
@@ -213,6 +220,7 @@ func _connect_hud() -> void:
 	hud.run_menu.restart_pressed.connect(restart)
 	hud.run_menu.menu_pressed.connect(func() -> void:
 		song_clock.stop()
+		_learn_sync()
 		Scenes.go_to(get_tree(), Scenes.MAIN_MENU))
 
 
@@ -223,60 +231,13 @@ func _apply_volume() -> void:
 
 
 func _update_presentation(beat: float, delta: float) -> void:
-	var start: int = Time.get_ticks_usec()
 	player_view.update_pose(beat, simulation, delta)
-	PerfProbe.measure(&"player", start)
-	start = Time.get_ticks_usec()
 	camera_director.update_camera(beat, simulation.player_height_at(beat), _underside_amount(beat), delta)
-	PerfProbe.measure(&"camera", start)
-	start = Time.get_ticks_usec()
 	obstacle_view.update_view(beat)
-	PerfProbe.measure(&"obstacles", start)
-	start = Time.get_ticks_usec()
 	environment_director.update_environment(beat, delta)
-	PerfProbe.measure(&"environment", start)
-	start = Time.get_ticks_usec()
 	decor_view.update_view(beat)
-	PerfProbe.measure(&"decor", start)
-	start = Time.get_ticks_usec()
 	vfx_director.follow_camera(camera_director.camera.global_position)
 	hud.set_progress(chart.progress_at(beat))
-	PerfProbe.measure(&"vfx_hud", start)
-
-
-## Debug-only A/B switches to find GPU bottlenecks on devices (logged by PerfProbe).
-func _apply_perf_flags(flags: PackedStringArray) -> void:
-	print("PERF flags %s" % ",".join(flags))
-	for flag: String in flags:
-		if flag.begins_with("scale="):
-			get_viewport().scaling_3d_scale = flag.trim_prefix("scale=").to_float()
-		if flag.begins_with("tier="):
-			var tier_name: String = flag.trim_prefix("tier=").to_upper()
-			apply_quality(QualityTier.from_int(QualityTier.Tier.keys().find(tier_name)))
-		match flag:
-			"noglow":
-				environment_director.environment.glow_enabled = false
-			"glow1", "glow2":
-				for level: int in 7:
-					environment_director.environment.set_glow_level(level, 0.0)
-				environment_director.environment.set_glow_level(1, 1.0)
-				if flag == "glow2":
-					environment_director.environment.set_glow_level(2, 0.8)
-			"nofog":
-				environment_director.environment.fog_enabled = false
-			"nosky":
-				environment_director.environment.background_mode = Environment.BG_COLOR
-				environment_director.environment.background_color = Color(0.05, 0.02, 0.12)
-			"noparticles":
-				vfx_director.visible = false
-				player_view.trail.visible = false
-			"noscenery":
-				scenery_view.visible = false
-				decor_view.visible = false
-			"noobstacles":
-				obstacle_view.visible = false
-			"notrack":
-				track_view.visible = false
 
 
 ## 0..1 while the player hangs under the track (flip), eased so the camera swing is gentle.
@@ -294,6 +255,7 @@ func _on_player_died(_hazard_index: int, beat: float) -> void:
 	_restart_timer = RESTART_DELAY_SEC
 	song_clock.stop()
 	_router.on_player_died(beat)
+	_learn_sync()
 	if _practice != null:
 		start_beat = _practice.restart_beat(_base_start_beat)
 		if options.debug_clock:
@@ -305,10 +267,18 @@ func _on_run_completed(_beat: float) -> void:
 	if options.attract_mode:
 		return
 	Sfx.play(&"run.complete")
+	_learn_sync()
 	var counts: PackedInt32Array = simulation.grade_counts
 	var title: String = "PRACTICE COMPLETE" if _practice != null else "LEVEL COMPLETE"
 	hud.run_menu.open("%s\nPERFECT %d   GREAT %d   GOOD %d   MISS %d" % [title, counts[0], counts[1],
 			counts[2], counts[3]], false)
+
+
+## Folds learned audio-offset corrections in between runs; the note appears with the next attempt.
+func _learn_sync() -> void:
+	var note: String = _sync.apply_between_runs()
+	if not note.is_empty():
+		_pending_sync_note = note
 
 
 func _on_song_finished() -> void:

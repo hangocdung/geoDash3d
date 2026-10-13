@@ -27,6 +27,12 @@ var quality_auto: bool = true:
 		quality_auto = value
 		changed.emit()
 
+## GD3-054: learn the audio offset from normal play (between runs).
+var auto_offset: bool = true:
+	set(value):
+		auto_offset = value
+		changed.emit()
+
 var music_volume_db: float = 0.0:
 	set(value):
 		music_volume_db = clampf(value, -60.0, 6.0)
@@ -57,6 +63,7 @@ func load_settings() -> void:
 	audio_offset_sec = float(config.get_value(SECTION, "audio_offset_sec", 0.0))
 	quality_tier = QualityTier.from_int(int(config.get_value(SECTION, "quality_tier", quality_tier)))
 	quality_auto = bool(config.get_value(SECTION, "quality_auto", true))
+	auto_offset = bool(config.get_value(SECTION, "auto_offset", true))
 	music_volume_db = float(config.get_value(SECTION, "music_volume_db", 0.0))
 	sfx_volume_db = float(config.get_value(SECTION, "sfx_volume_db", -2.0))
 
@@ -66,6 +73,7 @@ func save_settings() -> void:
 	config.set_value(SECTION, "audio_offset_sec", audio_offset_sec)
 	config.set_value(SECTION, "quality_tier", int(quality_tier))
 	config.set_value(SECTION, "quality_auto", quality_auto)
+	config.set_value(SECTION, "auto_offset", auto_offset)
 	config.set_value(SECTION, "music_volume_db", music_volume_db)
 	config.set_value(SECTION, "sfx_volume_db", sfx_volume_db)
 	var error: Error = config.save(SETTINGS_PATH)

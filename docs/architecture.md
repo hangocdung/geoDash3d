@@ -25,6 +25,8 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   - Đếm ngược trước nhạc: thời gian bắt đầu âm và chạy theo đồng hồ hệ thống cho tới 0.
   - Đã đo thực tế: lệch ±7 ms trên PC (`--debug-clock`).
 - **TempoMap**: beat ⇄ giây, hỗ trợ đổi BPM. Xây trên `PiecewiseLinearMap`, cấu trúc này cũng dùng cho beat → khoảng cách.
+- **AutoOffsetLearner / SyncLearning** (GD3-054): học độ trễ từ độ lệch các lần chạm (`tap_timed`), chỉ áp dụng
+  giữa các lượt chơi để mô phỏng trong một lượt luôn tất định; `begin_run` nạp lại offset vào SongClock.
 - **UserSettings** (autoload duy nhất): `audio_offset_sec`, `quality_tier`, `music_volume_db`, lưu ở `user://settings.cfg`.
 
 ## 3. Gameplay (`src/gameplay/`)

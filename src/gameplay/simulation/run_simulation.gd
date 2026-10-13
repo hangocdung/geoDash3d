@@ -10,6 +10,10 @@ signal cue_judged(cue_index: int, grade: Judgement.Grade, error_sec: float)
 signal hazard_hit(hazard_index: int, beat: float)
 signal player_died(hazard_index: int, beat: float)
 signal run_completed(beat: float)
+## Every tap near a cue (±TAP_TIMING_RANGE_SEC), hit or not: tap − cue in seconds (positive = late).
+signal tap_timed(error_sec: float)
+
+const TAP_TIMING_RANGE_SEC: float = 0.4
 
 var chart: LevelChart
 var config: GameplayConfig
@@ -49,6 +53,9 @@ func tap(beat: float) -> void:
 	if is_dead:
 		return
 	tap_log.append(tap_beat)
+	var timing_error: float = _resolver.nearest_cue_error_sec(tap_beat, TAP_TIMING_RANGE_SEC)
+	if not is_nan(timing_error):
+		tap_timed.emit(timing_error)
 	if _active_action != null:
 		var action_end: float = _active_start_beat + _active_action.duration_beats
 		if chart.tempo.seconds_between(tap_beat, action_end) <= config.input_buffer_sec:

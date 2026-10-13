@@ -76,10 +76,6 @@ func show_judgement(grade: Judgement.Grade) -> void:
 	_popup_age = 0.0
 
 
-func show_attempt(attempt: int) -> void:
-	show_toast("ATTEMPT %d" % attempt)
-
-
 ## Short centered notice that fades out (attempts, checkpoints).
 func show_toast(text: String) -> void:
 	_attempt_label.text = text

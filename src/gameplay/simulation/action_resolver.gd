@@ -46,6 +46,20 @@ func match_tap(tap_beat: float) -> int:
 	return best_index
 
 
+## Signed seconds from the closest cue to a tap (any cue, consumed or not), or NAN if none is within
+## `max_sec`. Used to learn the audio offset even from taps that missed the timing window.
+func nearest_cue_error_sec(tap_beat: float, max_sec: float) -> float:
+	var tap_time: float = _tempo.beat_to_time(tap_beat)
+	var best: float = NAN
+	for index: int in range(maxi(_open_index - 4, 0), _cues.size()):
+		var error: float = tap_time - _tempo.beat_to_time(_cues[index].beat)
+		if error < -max_sec:
+			break
+		if absf(error) <= max_sec and (is_nan(best) or absf(error) < absf(best)):
+			best = error
+	return best
+
+
 func consume(index: int) -> void:
 	_consumed[index] = 1
 

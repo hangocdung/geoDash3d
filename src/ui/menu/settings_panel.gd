@@ -53,6 +53,13 @@ func _ready() -> void:
 	column.add_child(_row("Audio offset", offset_box))
 	_refresh_offset()
 
+	var auto_sync := CheckButton.new()
+	auto_sync.text = "learn while playing"
+	auto_sync.button_pressed = UserSettings.auto_offset
+	auto_sync.add_theme_font_size_override("font_size", 26)
+	auto_sync.toggled.connect(func(enabled: bool) -> void: UserSettings.auto_offset = enabled)
+	column.add_child(_row("Auto sync", auto_sync))
+
 	var back: Button = UiTheme.make_button("BACK", 300.0, 72.0, &"ui.back")
 	back.pressed.connect(_close)
 	column.add_child(back)
