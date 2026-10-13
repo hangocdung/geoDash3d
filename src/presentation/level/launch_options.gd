@@ -6,6 +6,9 @@
 class_name LaunchOptions
 extends RefCounted
 
+const LEVEL_ARGUMENT_KEYS: PackedStringArray = ["chart", "start-beat", "autoplay", "invincible", "clock", "capture",
+		"capture-out", "capture-manual", "skip-start", "debug-clock"]
+
 var chart_path: String = ""
 var start_beat: float = NAN
 var autoplay: bool = false
@@ -16,6 +19,8 @@ var capture_directory: String = "res://tools/capture/out"
 var skip_start_screen: bool = false
 var capture_without_autoplay: bool = false
 var debug_clock: bool = false
+## Menu background: autoplay, no HUD, no input, loops forever.
+var attract_mode: bool = false
 
 
 static func from_command_line() -> LaunchOptions:
@@ -55,6 +60,23 @@ static func from_command_line() -> LaunchOptions:
 	if options.autoplay:
 		options.skip_start_screen = true
 	return options
+
+
+static func attract() -> LaunchOptions:
+	var options := LaunchOptions.new()
+	options.autoplay = true
+	options.skip_start_screen = true
+	options.attract_mode = true
+	return options
+
+
+## True when the command line asks for the level directly (tools, capture, debugging).
+static func has_level_arguments() -> bool:
+	for argument: String in OS.get_cmdline_user_args():
+		var key: String = argument.trim_prefix("--").get_slice("=", 0)
+		if LEVEL_ARGUMENT_KEYS.has(key):
+			return true
+	return false
 
 
 func is_capture_run() -> bool:

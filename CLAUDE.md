@@ -43,6 +43,8 @@ GODOT="D:/Godot_v4.6.1-stable_win64.exe/Godot_v4.6.1-stable_win64_console.exe"
 "$GODOT" --path . -- --capture=8.1,49,72.2
 # Như trên nhưng không autoplay (xem cảnh chết); đo độ lệch audio: --debug-clock
 "$GODOT" --path . -- --capture=5 --capture-manual
+# Chụp ảnh một scene bất kỳ (menu, calibration…) sau N frame
+"$GODOT" --path . -s res://tools/capture/scene_shot.gd -- --scene=res://src/ui/menu/main_menu.tscn --frames=240 --out=res://tools/capture/out/menu.png
 # Cấu hình project (input map, autoload, shader globals, main scene) — sửa trong script rồi chạy lại
 "$GODOT" --headless --path . -s res://tools/setup/configure_project.gd
 # Phân tích nhạc (BPM, offset, onset) bằng Python của Blender (có aud + numpy)
@@ -50,7 +52,8 @@ GODOT="D:/Godot_v4.6.1-stable_win64.exe/Godot_v4.6.1-stable_win64_console.exe"
 # Sinh chart từ phân tích + plan (Python hệ thống)
 python tools/audio/draft_chart.py <analysis.json> <plan.json> <out.chart.json>
 ```
-Tham số khác của level (sau `--`): `--start-beat=96 --autoplay --invincible --clock=delta --chart=res://...`
+Main scene là menu; nếu có tham số level (sau `--`: `--start-beat=96 --autoplay --invincible --clock=delta --chart=res://...`,
+`--capture…`) menu tự chuyển thẳng vào level. Scene: `Scenes.MAIN_MENU / LEVEL / CALIBRATION / METRONOME` (`src/ui/scenes.gd`).
 
 ## 3. Nền tảng: PC + Mobile
 - Renderer: Forward+ trên desktop, **Mobile** trên Android/iOS (override theo platform trong `project.godot`).

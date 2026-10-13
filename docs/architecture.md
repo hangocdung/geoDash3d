@@ -68,6 +68,15 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   bung hạt khi cất cánh, vòng sóng khi tiếp đất, bóng mờ khi dash, lấp lánh khi PERFECT, vỡ vụn khi chết, bụi lơ lửng.
 - **HUD** (`src/ui/hud`): thanh tiến độ, %, chữ chấm điểm, ATTEMPT, thông báo. Có xử lý safe area trên mobile.
 
+## 4b. UI và luồng màn hình
+- `MainMenu` (main scene): instance `level.tscn` với `LaunchOptions.attract()` (autoplay, ẩn HUD, lặp khi hết nhạc)
+  làm nền, các nút PLAY / CALIBRATE AUDIO / SYNC TEST / SETTINGS / QUIT (ẩn trên mobile). Theme chung: `UiTheme`.
+- `CalibrationScreen`: click 100 BPM (`ClickTrack` sinh WAV trong code), đo lệch so với beat gần nhất,
+  `CalibrationMath.estimate` (median + MAD loại outlier, cần ≥ 8 lần gõ hợp lệ) → lưu `audio_offset_sec`.
+- `Metronome` (SYNC TEST): `AudioStreamSynchronized` [nhạc, click] khóa mẫu, nháy theo beat, ←/→ chỉnh offset.
+- Trong level: nút "II" (cảm ứng), `RunMenu` (RESUME / RESTART / MENU) khi tạm dừng hoặc hoàn thành.
+  Nút HUD không nhận focus để Space luôn là "tap". `PresentationRouter` chuyển signal simulation → hiệu ứng.
+
 ## 5. Công cụ
 - `tools/setup/configure_project.gd` ghi input map (`tap`, `pause`, `restart`), autoload, shader global và
   main scene qua API `ProjectSettings`. Không sửa tay các object này trong `project.godot`.
@@ -86,7 +95,7 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
 | Input | Space / W / ↑ / chuột trái | Chạm (giả lập chuột trái, không bị kích hoạt hai lần) |
 
 ## 7. Chưa làm / giới hạn đã biết
-- Chưa có menu, chọn bài, màn hiệu chỉnh độ trễ, luyện tập (checkpoint), record mode, importer `.sm`.
+- Chưa có chọn bài, luyện tập (checkpoint), record mode, importer `.sm`.
 - Chưa có model Blender: mọi hình khối hiện là primitive hoặc mesh sinh bằng code.
 - Chạm khi đang nhảy mà không trong vùng buffer sẽ bị bỏ qua (giống Geometry Dash, không có double jump).
 - Hành động mới (trượt, đổi làn, đảo trọng lực) sẽ cần thêm trục lệch ngang/lộn ngược trong `HazardChecker`.

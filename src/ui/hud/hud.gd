@@ -1,8 +1,10 @@
-# In-run overlay: progress bar with percentage, judgement popups, attempt counter and the
-# centered message (start / complete). Built in code; respects the mobile safe area.
-# Related: src/presentation/level/level_runner.gd, src/gameplay/simulation/judgement.gd
+# In-run overlay: progress bar with percentage, judgement popups, attempt counter, centered message,
+# a touch-friendly pause button and the pause/complete RunMenu. Respects the mobile safe area.
+# Related: src/presentation/level/level_runner.gd, src/ui/hud/run_menu.gd
 class_name Hud
 extends CanvasLayer
+
+signal pause_pressed
 
 const BAR_WIDTH: float = 760.0
 const BAR_HEIGHT: float = 16.0
@@ -21,6 +23,8 @@ var _message_label: Label
 var _attempt_label: Label
 var _popup_age: float = INF
 var _attempt_fade: float = 0.0
+var run_menu: RunMenu
+var _pause_button: Button
 
 
 func _ready() -> void:
@@ -33,6 +37,19 @@ func _ready() -> void:
 	_judgement_label = _make_label(root, 56, Control.PRESET_CENTER_TOP, Vector2(0, 110))
 	_message_label = _make_label(root, 64, Control.PRESET_CENTER, Vector2(0, -40))
 	_attempt_label = _make_label(root, 40, Control.PRESET_CENTER_TOP, Vector2(0, 260))
+	_pause_button = UiTheme.make_button("II", 84.0)
+	_pause_button.theme = UiTheme.get_theme()
+	_pause_button.focus_mode = Control.FOCUS_NONE
+	_pause_button.position = Vector2(28, 22)
+	_pause_button.pressed.connect(func() -> void: pause_pressed.emit())
+	root.add_child(_pause_button)
+	run_menu = RunMenu.new()
+	add_child(run_menu)
+
+
+## Hides everything (menu attract mode).
+func set_overlay_enabled(enabled: bool) -> void:
+	visible = enabled
 
 
 func _process(delta: float) -> void:

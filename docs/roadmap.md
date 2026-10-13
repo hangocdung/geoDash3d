@@ -11,8 +11,8 @@ Trạng thái: `[ ]` chưa làm · `[~]` đang làm / làm một phần · `[x]`
 - [x] **GD3-010** `SongClock` (bù độ trễ, làm mượt, count-in, pause). Đo thực tế lệch ±7 ms.
 - [x] **GD3-011** `TempoMap` + test.
 - [x] **GD3-012** Đo BPM/offset `the_dawn_assembly`: 120 BPM, offset 0.058 s (`tools/audio/analyze_song.py`).
-- [ ] **GD3-013** Scene metronome debug (tiếng click + nháy sáng) để kiểm tra đồng bộ bằng tai.
-- [ ] **GD3-014** Màn hiệu chỉnh độ trễ (người chơi gõ theo nhịp → `UserSettings.audio_offset_sec`).
+- [x] **GD3-013** Scene metronome / SYNC TEST: click khóa mẫu với nhạc (`AudioStreamSynchronized`), nháy theo beat, chỉnh offset trực tiếp.
+- [x] **GD3-014** Màn hiệu chỉnh độ trễ: 4 nhịp đếm + 16 nhịp gõ, ước lượng bền (median/MAD) → `UserSettings.audio_offset_sec`.
 
 ## Phase 2 — Prototype gameplay
 - [x] **GD3-020** Chart JSON v1 + loader + validate + test.
@@ -35,7 +35,7 @@ Trạng thái: `[ ]` chưa làm · `[~]` đang làm / làm một phần · `[x]`
 - [x] **GD3-042** Vật liệu neon, fog, bầu trời, màu theo section.
 - [x] **GD3-043** `VfxDirector`: trail, nhảy, tiếp đất, dash, perfect, chết, cue flash/shockwave/burst.
 - [x] **GD3-044** Beat pulse (global shader uniform) + quality tiers.
-- [ ] **GD3-045** Menu chính, chọn bài, màn kết quả, cài đặt (âm lượng, chất lượng, độ trễ).
+- [~] **GD3-045** Đã có: menu chính (nền attract autoplay), cài đặt (chất lượng, âm lượng, offset), menu tạm dừng/kết thúc, nút pause cảm ứng. Chưa: chọn bài (mới có 1 bài).
 - [ ] **GD3-046** Âm thanh hiệu ứng (chết, perfect) không làm lệch nhạc.
 
 ## Phase 4.5 — Mở rộng gameplay (yêu cầu playtest 2026-10-13)

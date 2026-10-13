@@ -10,7 +10,7 @@ const AUTOLOADS: Dictionary[String, String] = {
 	"UserSettings": "*res://src/core/user_settings.gd",
 }
 
-const MAIN_SCENE: String = "res://src/presentation/level/level.tscn"
+const MAIN_SCENE: String = "res://src/ui/menu/main_menu.tscn"
 
 ## Global shader uniforms (`global uniform float beat_pulse;`), set at runtime by EnvironmentDirector.
 const SHADER_GLOBALS: Dictionary[String, float] = {
