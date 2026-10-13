@@ -36,7 +36,7 @@ Trạng thái: `[ ]` chưa làm · `[~]` đang làm / làm một phần · `[x]`
 - [x] **GD3-043** `VfxDirector`: trail, nhảy, tiếp đất, dash, perfect, chết, cue flash/shockwave/burst.
 - [x] **GD3-044** Beat pulse (global shader uniform) + quality tiers.
 - [~] **GD3-045** Đã có: menu chính (nền attract autoplay), cài đặt (chất lượng, âm lượng, offset), menu tạm dừng/kết thúc, nút pause cảm ứng. Chưa: chọn bài (mới có 1 bài).
-- [ ] **GD3-046** Âm thanh hiệu ứng (chết, perfect) không làm lệch nhạc.
+- [~] **GD3-046** SFX: autoload `Sfx` (catalog, bus Music/SFX/UI, random biến thể + pitch, giới hạn polyphony), gắn vào nhảy/tiếp đất/chết/perfect/checkpoint/hoàn thành/UI; âm **tạm** tổng hợp bằng code. Prompt video: `docs/design/sfx/sfx_video_prompts.md`; xử lý: `tools/audio/build_sfx.py`. **Chờ người dùng tạo video Flow.**
 
 ## Phase 4.5 — Mở rộng gameplay (yêu cầu playtest 2026-10-13)
 Thiết kế đã chốt: `docs/design/gameplay_v2.md`.

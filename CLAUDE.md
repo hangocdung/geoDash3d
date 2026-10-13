@@ -53,6 +53,9 @@ GODOT="D:/Godot_v4.6.1-stable_win64.exe/Godot_v4.6.1-stable_win64_console.exe"
 python tools/audio/draft_chart.py <analysis.json> <plan.json> <out.chart.json>
 # .sm (ArrowVortex/StepMania) → recording
 python tools/charting/sm_to_recording.py <song.sm> <out.recording.json>
+# SFX: video Flow đặt ở art_source/sfx/<ID>_take<N>.mp4 → tách/cắt/chuẩn hóa → assets/audio + catalog
+python tools/audio/build_sfx.py            # ffmpeg: D:/ffmpeg-8.1-essentials_build/bin/ffmpeg.exe
+python tools/audio/synth_placeholder_sfx.py  # âm tạm cho ID chưa có (không ghi đè ID đã 'generated')
 ```
 Main scene là menu; nếu có tham số level (sau `--`: `--start-beat=96 --autoplay --invincible --practice --rate=0.75 --clock=delta --chart=res://...`,
 `--capture…`) menu tự chuyển thẳng vào level. Scene: `Scenes.MAIN_MENU / LEVEL / CALIBRATION / METRONOME / RECORDER` (`src/ui/scenes.gd`).
@@ -109,6 +112,8 @@ Mỗi feature để `.gd` và `.tscn` cạnh nhau trong cùng thư mục.
 - Không sửa tay `assets/models/*.glb` — sửa script trong `assets/blender/` rồi sinh lại.
 - Không thêm addon/thư viện ngoài khi chưa hỏi.
 - Không dùng màu hồng/vàng cho cảnh nền: hồng = gai/nhảy, vàng = rào/dash. Cảnh nền chỉ dùng tông lạnh.
+- Âm thanh: nhạc luôn ở bus `Music` (âm lượng người dùng đặt trên bus); SFX qua `Sfx.play(id)` với ID có trong
+  `tools/audio/sfx_spec.py`. Không phát SFX trong attract mode. Không commit video nguồn (`art_source/` bị ignore).
 
 ## 8. Nhạc
 | File | Nguồn | Giấy phép | BPM | Offset |

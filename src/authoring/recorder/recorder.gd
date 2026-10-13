@@ -26,7 +26,7 @@ var _dirty: bool = false
 
 func _ready() -> void:
 	theme = UiTheme.get_theme()
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for argument: String in OS.get_cmdline_user_args():
 		if argument.begins_with("--record-chart="):
 			_chart_path = argument.trim_prefix("--record-chart=")
@@ -134,7 +134,7 @@ func _build_clock() -> void:
 	_clock.name = "SongClock"
 	var player := AudioStreamPlayer.new()
 	player.name = "Music"
-	player.volume_db = UserSettings.music_volume_db
+	player.bus = AudioBuses.MUSIC
 	_clock.add_child(player)
 	_clock.audio_player = player
 	_clock.calibration_offset_sec = UserSettings.audio_offset_sec

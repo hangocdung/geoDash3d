@@ -24,7 +24,7 @@ var _flash: float = 0.0
 
 func _ready() -> void:
 	theme = UiTheme.get_theme()
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_build_layout()
 	_chart = ChartLoader.load_file(Scenes.DEFAULT_CHART, GameplayConfig.create_default())
 	var song: AudioStream = load(_chart.song_path) as AudioStream if _chart != null else null
@@ -97,7 +97,7 @@ func _nudge_calibration(step_sec: float) -> void:
 
 
 func _apply_volumes() -> void:
-	_stream.set_sync_stream_volume(0, UserSettings.music_volume_db if _music_on else MUTED_DB)
+	_stream.set_sync_stream_volume(0, 0.0 if _music_on else MUTED_DB)
 	_stream.set_sync_stream_volume(1, CLICK_DB if _clicks_on else MUTED_DB)
 
 
@@ -106,6 +106,7 @@ func _build_clock() -> void:
 	_clock.name = "SongClock"
 	var player := AudioStreamPlayer.new()
 	player.name = "Music"
+	player.bus = AudioBuses.MUSIC
 	_clock.add_child(player)
 	_clock.audio_player = player
 	_clock.calibration_offset_sec = UserSettings.audio_offset_sec

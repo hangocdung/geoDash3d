@@ -1,5 +1,5 @@
 # Routes RunSimulation signals and chart VFX cues to presentation nodes (player, camera, vfx,
-# obstacles, environment, HUD). Owns no gameplay state; rebinds to each new simulation.
+# obstacles, environment, HUD) and sound effects. Owns no gameplay state; rebinds to each simulation.
 # Related: src/presentation/level/level_runner.gd, src/gameplay/simulation/run_simulation.gd
 class_name PresentationRouter
 extends RefCounted
@@ -10,6 +10,8 @@ var _runner: LevelRunner
 var _context: LevelContext
 var _next_vfx_cue: int = 0
 var _ghost_timer: float = 0.0
+## Off for the menu attract mode, so the backdrop stays quiet.
+var sfx_enabled: bool = true
 
 
 func _init(runner: LevelRunner, context: LevelContext) -> void:
@@ -32,6 +34,7 @@ func fire_vfx_cues(beat: float) -> void:
 	while _next_vfx_cue < cues.size() and cues[_next_vfx_cue].beat <= beat:
 		var cue: ChartItems.VfxCue = cues[_next_vfx_cue]
 		_next_vfx_cue += 1
+		_play(StringName("fx.%s" % cue.effect) if cue.effect != &"burst" else &"judge.perfect")
 		if cue.effect == &"flash":
 			_runner.environment_director.flash(0.8)
 		else:
@@ -50,6 +53,7 @@ func update_trails(action: ActionDefinition, delta: float) -> void:
 
 
 func on_player_died(beat: float) -> void:
+	_play(&"player.death")
 	_runner.vfx_director.on_died(_runner.player_view.center_position(), _context.frame_at_beat(beat))
 	_runner.player_view.on_died()
 	_runner.camera_director.add_shake(0.75)
@@ -58,8 +62,10 @@ func on_player_died(beat: float) -> void:
 
 func _on_action_started(action: ActionDefinition, action_beat: float, _cue_index: int) -> void:
 	if action.jump_height > 0.0:
+		_play(&"player.jump")
 		_runner.vfx_director.on_jump_started(_context.frame_at_beat(action_beat), action.color)
 	if action.lunge_distance > 0.0:
+		_play(&"player.dodge")
 		_runner.camera_director.add_fov_kick(9.0)
 		_ghost_timer = 0.0
 
@@ -67,6 +73,7 @@ func _on_action_started(action: ActionDefinition, action_beat: float, _cue_index
 func _on_action_finished(action: ActionDefinition, end_beat: float) -> void:
 	_runner.player_view.on_action_finished(action)
 	if action.jump_height > 0.0:
+		_play(&"player.land")
 		_runner.vfx_director.on_landed(_context.frame_at_beat(end_beat), PlayerView.PLAYER_COLOR)
 		_runner.camera_director.add_shake(0.12)
 
@@ -78,4 +85,12 @@ func _on_cue_judged(cue_index: int, grade: Judgement.Grade, _error_sec: float) -
 	_runner.obstacle_view.flash_cue(cue_index, 1.0 if grade == Judgement.Grade.PERFECT else 0.6)
 	_runner.player_view.on_cue_hit(grade)
 	if grade == Judgement.Grade.PERFECT:
+		_play(&"judge.perfect")
 		_runner.vfx_director.on_perfect(_runner.player_view.center_position())
+	elif grade == Judgement.Grade.GREAT:
+		_play(&"judge.great")
+
+
+func _play(sound_id: StringName) -> void:
+	if sfx_enabled:
+		Sfx.play(sound_id)

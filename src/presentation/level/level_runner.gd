@@ -62,6 +62,7 @@ func _ready() -> void:
 		view.call(&"setup", _context)
 	scenery_view.setup(_context, SCENERY_SEED)
 	_router = PresentationRouter.new(self, _context)
+	_router.sfx_enabled = not options.attract_mode
 	song_clock.drive_mode = SongClock.DriveMode.FRAME_DELTA if options.frame_delta_clock \
 			else SongClock.DriveMode.AUDIO_SYNC
 	song_clock.calibration_offset_sec = UserSettings.audio_offset_sec
@@ -109,6 +110,7 @@ func begin_run() -> void:
 	hud.show_message("")
 	if not options.attract_mode:
 		hud.show_attempt(_attempt)
+		Sfx.play(&"run.attempt", -6.0)
 	var start_time: float = chart.time_at(start_beat)
 	var audio_start: float = maxf(start_time, 0.0)
 	song_clock.start(_stream, audio_start, audio_start - start_time)
@@ -139,6 +141,7 @@ func _process(delta: float) -> void:
 			_router.fire_vfx_cues(beat)
 			if _practice != null and not simulation.is_dead and _practice.update(simulation.current_beat):
 				hud.show_toast("CHECKPOINT %d" % _practice.reached_count())
+				Sfx.play(&"run.checkpoint")
 			if options.debug_clock and Engine.get_process_frames() % 30 == 0:
 				print("CLOCK t=%.3f drift_ms=%.2f latency_ms=%.1f fps=%d" % [song_clock.frame_time(),
 						song_clock.audio_drift() * 1000.0, AudioServer.get_output_latency() * 1000.0,
@@ -176,6 +179,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _toggle_pause() -> void:
 	if state == RunState.RUNNING:
+		Sfx.play(&"ui.pause")
 		song_clock.pause()
 		state = RunState.PAUSED
 		hud.run_menu.open("PAUSED", true)
@@ -196,8 +200,9 @@ func _connect_hud() -> void:
 
 
 func _apply_volume() -> void:
-	var offset: float = ATTRACT_VOLUME_OFFSET_DB if options.attract_mode else 0.0
-	song_clock.audio_player.volume_db = UserSettings.music_volume_db + offset
+	# User volume lives on the Music bus; the player only carries the attract-mode offset.
+	song_clock.audio_player.bus = AudioBuses.MUSIC
+	song_clock.audio_player.volume_db = ATTRACT_VOLUME_OFFSET_DB if options.attract_mode else 0.0
 
 
 func _update_presentation(beat: float, delta: float) -> void:
@@ -224,6 +229,7 @@ func _on_run_completed(_beat: float) -> void:
 	state = RunState.COMPLETE
 	if options.attract_mode:
 		return
+	Sfx.play(&"run.complete")
 	var counts: PackedInt32Array = simulation.grade_counts
 	var title: String = "PRACTICE COMPLETE" if _practice != null else "LEVEL COMPLETE"
 	hud.run_menu.open("%s\nPERFECT %d   GREAT %d   GOOD %d   MISS %d" % [title, counts[0], counts[1],

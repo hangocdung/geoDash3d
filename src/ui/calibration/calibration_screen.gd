@@ -30,7 +30,7 @@ var _retry_button: Button
 
 func _ready() -> void:
 	theme = UiTheme.get_theme()
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_tempo = TempoMap.constant(BPM, FIRST_CLICK_SEC)
 	var duration: float = _tempo.beat_to_time(float(COUNT_IN_BEATS + MEASURED_BEATS + TAIL_BEATS))
 	_clicks = ClickTrack.generate(_tempo, duration)

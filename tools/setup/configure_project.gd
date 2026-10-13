@@ -8,6 +8,7 @@ const TAP_KEYS: Array[Key] = [KEY_SPACE, KEY_UP, KEY_W]
 
 const AUTOLOADS: Dictionary[String, String] = {
 	"UserSettings": "*res://src/core/user_settings.gd",
+	"Sfx": "*res://src/core/audio/sfx.gd",
 }
 
 const MAIN_SCENE: String = "res://src/ui/menu/main_menu.tscn"

@@ -46,10 +46,13 @@ static func get_theme() -> Theme:
 	return theme
 
 
-static func make_button(text: String, minimum_width: float = 420.0, height: float = 72.0) -> Button:
+static func make_button(text: String, minimum_width: float = 420.0, height: float = 72.0,
+		sound_id: StringName = &"ui.tap") -> Button:
 	var button := Button.new()
 	button.text = text
 	button.custom_minimum_size = Vector2(minimum_width, height)
+	if not sound_id.is_empty():
+		button.pressed.connect(func() -> void: Sfx.play(sound_id))
 	return button
 
 

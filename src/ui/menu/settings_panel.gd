@@ -36,6 +36,12 @@ func _ready() -> void:
 	_volume.value_changed.connect(func(value: float) -> void: UserSettings.music_volume_db = value)
 	column.add_child(_row("Music volume", _volume))
 
+	var effects: HSlider = _volume_slider(UserSettings.sfx_volume_db)
+	effects.value_changed.connect(func(value: float) -> void:
+		UserSettings.sfx_volume_db = value
+		Sfx.play(&"ui.tap"))
+	column.add_child(_row("Effects volume", effects))
+
 	var offset_box := HBoxContainer.new()
 	offset_box.add_theme_constant_override("separation", 12)
 	offset_box.add_child(_small_button("−", func() -> void: _change_offset(-OFFSET_STEP_SEC)))
@@ -46,7 +52,7 @@ func _ready() -> void:
 	column.add_child(_row("Audio offset", offset_box))
 	_refresh_offset()
 
-	var back: Button = UiTheme.make_button("BACK", 300.0)
+	var back: Button = UiTheme.make_button("BACK", 300.0, 72.0, &"ui.back")
 	back.pressed.connect(_close)
 	column.add_child(back)
 	back.grab_focus()
@@ -64,6 +70,16 @@ func _change_offset(step_sec: float) -> void:
 
 func _refresh_offset() -> void:
 	_offset_label.text = "%+d ms" % roundi(UserSettings.audio_offset_sec * 1000.0)
+
+
+func _volume_slider(value_db: float) -> HSlider:
+	var slider := HSlider.new()
+	slider.min_value = -30.0
+	slider.max_value = 0.0
+	slider.step = 1.0
+	slider.value = clampf(value_db, -30.0, 0.0)
+	slider.custom_minimum_size = Vector2(320, 40)
+	return slider
 
 
 func _row(caption: String, control: Control) -> HBoxContainer:

@@ -11,3 +11,6 @@ export_presets.cfg
 __pycache__/
 *.pyc
 *.blend1
+
+# Owner-generated source media (large); provenance lives in assets/audio/sfx_manifest.json
+/art_source/

@@ -1,6 +1,6 @@
 # Autoload "UserSettings": per-player preferences persisted to user://settings.cfg
-# (audio calibration offset, quality tier). Read by SongClock and presentation code.
-# Related: src/core/song_clock.gd, src/core/quality_tier.gd
+# (audio calibration offset, quality tier, bus volumes). Applies volumes to the Music/SFX/UI buses.
+# Related: src/core/song_clock.gd, src/core/quality_tier.gd, src/core/audio/audio_buses.gd
 extends Node
 
 signal changed
@@ -24,11 +24,20 @@ var quality_tier: QualityTier.Tier = QualityTier.default_for_platform():
 var music_volume_db: float = 0.0:
 	set(value):
 		music_volume_db = clampf(value, -60.0, 6.0)
+		_apply_bus_volumes()
+		changed.emit()
+
+var sfx_volume_db: float = -2.0:
+	set(value):
+		sfx_volume_db = clampf(value, -60.0, 6.0)
+		_apply_bus_volumes()
 		changed.emit()
 
 
 func _ready() -> void:
+	AudioBuses.ensure_layout()
 	load_settings()
+	_apply_bus_volumes()
 
 
 func load_settings() -> void:
@@ -42,6 +51,7 @@ func load_settings() -> void:
 	audio_offset_sec = float(config.get_value(SECTION, "audio_offset_sec", 0.0))
 	quality_tier = QualityTier.from_int(int(config.get_value(SECTION, "quality_tier", quality_tier)))
 	music_volume_db = float(config.get_value(SECTION, "music_volume_db", 0.0))
+	sfx_volume_db = float(config.get_value(SECTION, "sfx_volume_db", -2.0))
 
 
 func save_settings() -> void:
@@ -49,6 +59,15 @@ func save_settings() -> void:
 	config.set_value(SECTION, "audio_offset_sec", audio_offset_sec)
 	config.set_value(SECTION, "quality_tier", int(quality_tier))
 	config.set_value(SECTION, "music_volume_db", music_volume_db)
+	config.set_value(SECTION, "sfx_volume_db", sfx_volume_db)
 	var error: Error = config.save(SETTINGS_PATH)
 	if error != OK:
 		push_error("UserSettings: cannot write %s (%s)" % [SETTINGS_PATH, error_string(error)])
+
+
+func _apply_bus_volumes() -> void:
+	if not is_inside_tree():
+		return
+	AudioBuses.set_volume(AudioBuses.MUSIC, music_volume_db)
+	AudioBuses.set_volume(AudioBuses.SFX, sfx_volume_db)
+	AudioBuses.set_volume(AudioBuses.UI, sfx_volume_db)

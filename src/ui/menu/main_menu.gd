@@ -57,7 +57,7 @@ func _build_menu() -> void:
 	var spacer := Control.new()
 	spacer.custom_minimum_size = Vector2(0, 8)
 	_menu_column.add_child(spacer)
-	var play: Button = _add_button("PLAY", func() -> void: Scenes.go_to(get_tree(), Scenes.LEVEL))
+	var play: Button = _add_button("PLAY", func() -> void: Scenes.go_to(get_tree(), Scenes.LEVEL), &"ui.confirm")
 	_practice_button = _add_button("PRACTICE", _open_practice)
 	_add_button("CALIBRATE AUDIO", func() -> void: Scenes.go_to(get_tree(), Scenes.CALIBRATION))
 	_add_button("SYNC TEST", func() -> void: Scenes.go_to(get_tree(), Scenes.METRONOME))
@@ -69,8 +69,8 @@ func _build_menu() -> void:
 	play.grab_focus()
 
 
-func _add_button(text: String, action: Callable) -> Button:
-	var button: Button = UiTheme.make_button(text, 420.0, 62.0)
+func _add_button(text: String, action: Callable, sound_id: StringName = &"ui.tap") -> Button:
+	var button: Button = UiTheme.make_button(text, 420.0, 62.0, sound_id)
 	button.pressed.connect(action)
 	_menu_column.add_child(button)
 	return button
@@ -107,14 +107,14 @@ func _open_practice() -> void:
 Dying restarts from the last one.", 26))
 	var first: Button = null
 	for rate: float in PRACTICE_RATES:
-		var button: Button = UiTheme.make_button("SPEED %d%%" % roundi(rate * 100.0), 360.0)
+		var button: Button = UiTheme.make_button("SPEED %d%%" % roundi(rate * 100.0), 360.0, 72.0, &"ui.confirm")
 		button.pressed.connect(func() -> void:
 			LaunchOptions.set_next_run(LaunchOptions.practice_run(rate))
 			Scenes.go_to(get_tree(), Scenes.LEVEL))
 		column.add_child(button)
 		if first == null:
 			first = button
-	var back: Button = UiTheme.make_button("BACK", 360.0)
+	var back: Button = UiTheme.make_button("BACK", 360.0, 72.0, &"ui.back")
 	back.pressed.connect(_close_practice)
 	column.add_child(back)
 	_root.add_child(_practice_panel)

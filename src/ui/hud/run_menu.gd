@@ -14,7 +14,7 @@ var _resume_button: Button
 
 func _ready() -> void:
 	theme = UiTheme.get_theme()
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var shade := ColorRect.new()
 	shade.color = Color(0.02, 0.0, 0.06, 0.55)
 	shade.set_anchors_preset(Control.PRESET_FULL_RECT)
