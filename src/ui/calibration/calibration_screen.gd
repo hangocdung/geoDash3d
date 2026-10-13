@@ -130,6 +130,8 @@ func _build_layout() -> void:
 	var background := ColorRect.new()
 	background.color = Color(0.03, 0.01, 0.08)
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
+	# Let screen taps fall through to _unhandled_input (mouse/touch calibration).
+	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(background)
 	var column := VBoxContainer.new()
 	column.set_anchors_preset(Control.PRESET_CENTER)
@@ -137,6 +139,7 @@ func _build_layout() -> void:
 	column.grow_vertical = Control.GROW_DIRECTION_BOTH
 	column.alignment = BoxContainer.ALIGNMENT_CENTER
 	column.add_theme_constant_override("separation", 26)
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(column)
 	column.add_child(UiTheme.make_label("AUDIO CALIBRATION", 56, UiTheme.ACCENT))
 	_indicator = UiTheme.make_label("", 96, UiTheme.HOT)

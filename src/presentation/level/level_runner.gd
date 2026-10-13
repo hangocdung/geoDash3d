@@ -30,6 +30,7 @@ var _pending_tap_times: PackedFloat64Array = []
 var _attempt: int = 0
 var _death_beat: float = 0.0
 var _restart_timer: float = 0.0
+var _practice: PracticeTracker
 
 @onready var song_clock: SongClock = $SongClock
 @onready var environment_director: EnvironmentDirector = $EnvironmentDirector
@@ -44,7 +45,9 @@ var _restart_timer: float = 0.0
 
 
 func _ready() -> void:
-	options = preset_options if preset_options != null else LaunchOptions.from_command_line()
+	options = preset_options if preset_options != null else LaunchOptions.take_next_run()
+	if options == null:
+		options = LaunchOptions.from_command_line()
 	var config: GameplayConfig = gameplay_config if gameplay_config != null else GameplayConfig.create_default()
 	var path: String = options.chart_path if not options.chart_path.is_empty() else chart_path
 	chart = ChartLoader.load_file(path, config)
@@ -60,6 +63,10 @@ func _ready() -> void:
 	song_clock.drive_mode = SongClock.DriveMode.FRAME_DELTA if options.frame_delta_clock \
 			else SongClock.DriveMode.AUDIO_SYNC
 	song_clock.calibration_offset_sec = UserSettings.audio_offset_sec
+	song_clock.playback_rate = options.playback_rate
+	if options.practice:
+		_practice = PracticeTracker.new(chart)
+		hud.show_mode("PRACTICE  %d%%" % roundi(options.playback_rate * 100.0))
 	song_clock.song_finished.connect(_on_song_finished)
 	UserSettings.changed.connect(_apply_volume)
 	_apply_volume()
@@ -125,6 +132,8 @@ func _process(delta: float) -> void:
 			else:
 				simulation.advance_to(beat)
 			_router.fire_vfx_cues(beat)
+			if _practice != null and not simulation.is_dead and _practice.update(simulation.current_beat):
+				hud.show_toast("CHECKPOINT %d" % _practice.reached_count())
 			if options.debug_clock and Engine.get_process_frames() % 30 == 0:
 				print("CLOCK t=%.3f drift_ms=%.2f latency_ms=%.1f fps=%d" % [song_clock.frame_time(),
 						song_clock.audio_drift() * 1000.0, AudioServer.get_output_latency() * 1000.0,
@@ -200,6 +209,8 @@ func _on_player_died(_hazard_index: int, beat: float) -> void:
 	_restart_timer = RESTART_DELAY_SEC
 	song_clock.stop()
 	_router.on_player_died(beat)
+	if _practice != null:
+		start_beat = _practice.restart_beat(-COUNT_IN_BEATS)
 
 
 func _on_run_completed(_beat: float) -> void:
@@ -207,7 +218,8 @@ func _on_run_completed(_beat: float) -> void:
 	if options.attract_mode:
 		return
 	var counts: PackedInt32Array = simulation.grade_counts
-	hud.run_menu.open("LEVEL COMPLETE\nPERFECT %d   GREAT %d   GOOD %d   MISS %d" % [counts[0], counts[1],
+	var title: String = "PRACTICE COMPLETE" if _practice != null else "LEVEL COMPLETE"
+	hud.run_menu.open("%s\nPERFECT %d   GREAT %d   GOOD %d   MISS %d" % [title, counts[0], counts[1],
 			counts[2], counts[3]], false)
 
 

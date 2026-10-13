@@ -7,6 +7,7 @@ const MAIN_MENU: String = "res://src/ui/menu/main_menu.tscn"
 const LEVEL: String = "res://src/presentation/level/level.tscn"
 const CALIBRATION: String = "res://src/ui/calibration/calibration_screen.tscn"
 const METRONOME: String = "res://src/authoring/metronome/metronome.tscn"
+const RECORDER: String = "res://src/authoring/recorder/recorder.tscn"
 const DEFAULT_CHART: String = "res://assets/music/the_dawn_assembly.chart.json"
 
 

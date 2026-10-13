@@ -67,3 +67,20 @@ Với 120 BPM và jump 1 beat, vật lý cho phép sống sót khi lệch tới 
 4. Sinh chart: `python tools/audio/draft_chart.py <analysis> <plan> assets/music/<id>.chart.json`.
 5. Chạy test, rồi chụp ảnh hoặc chơi thử: `godot --path . -- --chart=res://assets/music/<id>.chart.json`.
 6. Muốn chỉnh thì sửa **plan** rồi sinh lại. Chỉ sửa tay file chart cho những chi tiết cuối cùng.
+
+## Đặt hành động bằng tay: record mode, `.sm`, `fixed`
+- **Record mode** (menu RECORD (DEV), chỉ có ở bản debug): bật nhạc rồi gõ theo.
+  - Phím: Space/J = làn 0, K = làn 1, L = làn 2.
+  - Backspace để undo, X để xóa từ vị trí hiện tại trở đi, G để đổi lưới, `-`/`=` để chỉnh tốc độ 50–100%, ←/→ để tua.
+  - Kết quả lưu raw (giây + làn) vào `assets/music/<id>.recording.json`.
+- **ArrowVortex/StepMania:**
+  `python tools/charting/sm_to_recording.py song.sm assets/music/<id>.recording.json`. Cột i thành làn i.
+- Dùng recording trong plan:
+  ```json
+  "recording": { "file": "<id>.recording.json", "lane_actions": ["jump", "dash", "jump"],
+                 "grid": 0.5, "mode": "replace" }
+  ```
+  - `replace`: chỉ dùng các lần gõ (đã lượng tử hóa theo `grid`).
+  - `merge`: giữ các lần gõ rồi tự lấp thêm từ onset.
+  - Lần gõ nào quá sát lần trước sẽ bị bỏ, kèm cảnh báo.
+- `"fixed": [{"beat": 104, "type": "jump"}]` trong plan: hành động đặt tay, luôn được giữ.

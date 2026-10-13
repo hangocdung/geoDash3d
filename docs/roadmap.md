@@ -24,10 +24,10 @@ Trạng thái: `[ ]` chưa làm · `[~]` đang làm / làm một phần · `[x]`
 - [x] **GD3-026** Màn đầu tiên đủ bài (84 hành động). **→ Cần người chơi thật đánh giá cảm giác.**
 
 ## Phase 3 — Công cụ xếp màn
-- [~] **GD3-030** Record mode + lượng tử hóa. Hiện có `draft_chart.py` sinh từ onset; chưa có ghi bằng phím.
-- [ ] **GD3-031** Importer `.sm` (ArrowVortex/StepMania).
+- [x] **GD3-030** Record mode (menu RECORD (DEV)): gõ theo nhạc 3 làn, timeline, undo/xóa đoạn, chậm 50–75%, lưu `<id>.recording.json`; `draft_chart.py` lượng tử hóa (`recording`, `fixed`).
+- [x] **GD3-031** `tools/charting/sm_to_recording.py`: `.sm` (ArrowVortex/StepMania) → recording → chart.
 - [x] **GD3-032** Script dò onset gợi ý sự kiện (`analyze_song.py` + `draft_chart.py`).
-- [~] **GD3-033** Luyện tập: đã có `--start-beat`, `--invincible`; chưa có UI checkpoint và phát chậm.
+- [x] **GD3-033** Luyện tập (menu PRACTICE): checkpoint mỗi 16 beat + đầu mỗi đoạn, chết → chạy lại trước checkpoint, tốc độ 100/75/50%.
 
 ## Phase 4 — Trình bày
 - [x] **GD3-040** `CameraDirector` (shot theo beat, blend, shake, FOV kick).

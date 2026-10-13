@@ -46,10 +46,10 @@ static func get_theme() -> Theme:
 	return theme
 
 
-static func make_button(text: String, minimum_width: float = 420.0) -> Button:
+static func make_button(text: String, minimum_width: float = 420.0, height: float = 72.0) -> Button:
 	var button := Button.new()
 	button.text = text
-	button.custom_minimum_size = Vector2(minimum_width, 72.0)
+	button.custom_minimum_size = Vector2(minimum_width, height)
 	return button
 
 

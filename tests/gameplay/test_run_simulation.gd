@@ -99,3 +99,18 @@ func test_autoplay_passes_dense_chart() -> void:
 	assert_false(simulation.is_dead, "died at beat %.3f" % simulation.current_beat)
 	assert_true(simulation.is_completed)
 	assert_eq(simulation.grade_counts[Judgement.Grade.PERFECT], 24)
+
+
+func test_practice_checkpoints_restart_before_last_passed() -> void:
+	var chart: LevelChart = ChartFixtures.make_chart([{"beat": 17, "type": "jump"}, {"beat": 33, "type": "jump"}],
+			120.0, 7.0, 48.0)
+	var tracker := PracticeTracker.new(chart)
+	assert_eq(tracker.checkpoints, PackedFloat64Array([16.0, 32.0]))
+	assert_almost_eq(tracker.restart_beat(-4.0), -4.0, 0.0001, "no checkpoint yet")
+	assert_false(tracker.update(16.2))
+	assert_true(tracker.update(16.6))
+	assert_almost_eq(tracker.restart_beat(-4.0), 14.0, 0.0001, "run-up before checkpoint 16")
+	assert_true(tracker.update(40.0))
+	# Run-up start 30 is safe (cue at 33 lies ahead with its spike).
+	assert_almost_eq(tracker.restart_beat(-4.0), 30.0, 0.0001)
+	assert_eq(tracker.reached_count(), 2)

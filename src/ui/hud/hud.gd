@@ -25,6 +25,7 @@ var _popup_age: float = INF
 var _attempt_fade: float = 0.0
 var run_menu: RunMenu
 var _pause_button: Button
+var _mode_label: Label
 
 
 func _ready() -> void:
@@ -43,6 +44,8 @@ func _ready() -> void:
 	_pause_button.position = Vector2(28, 22)
 	_pause_button.pressed.connect(func() -> void: pause_pressed.emit())
 	root.add_child(_pause_button)
+	_mode_label = _make_label(root, 28, Control.PRESET_TOP_LEFT, Vector2(130, 34))
+	_mode_label.add_theme_color_override("font_color", Color(0.55, 1.0, 0.45))
 	run_menu = RunMenu.new()
 	add_child(run_menu)
 
@@ -74,8 +77,18 @@ func show_judgement(grade: Judgement.Grade) -> void:
 
 
 func show_attempt(attempt: int) -> void:
-	_attempt_label.text = "ATTEMPT %d" % attempt
+	show_toast("ATTEMPT %d" % attempt)
+
+
+## Short centered notice that fades out (attempts, checkpoints).
+func show_toast(text: String) -> void:
+	_attempt_label.text = text
 	_attempt_fade = 1.6
+
+
+## Persistent mode tag next to the pause button (e.g. PRACTICE 75%).
+func show_mode(text: String) -> void:
+	_mode_label.text = text
 
 
 func show_message(text: String) -> void:

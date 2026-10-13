@@ -6,8 +6,14 @@ The plan holds the hand-authored parts (sections, density rules, track shape, ca
 This script only picks *where* actions go: strong onsets snapped to a half-beat grid, the strongest
 first, respecting per-section minimum gaps; kick-heavy hits become jumps, snare-heavy hits dashes.
 Re-run after editing the plan; hand edits to the output should go into the plan instead.
+
+Optional plan keys:
+  "fixed":     [{"beat": 104, "type": "jump"}, ...]   hand-placed actions, always kept
+  "recording": {"file": "<id>.recording.json", "lane_actions": ["jump", "dash"], "grid": 0.5,
+                "mode": "replace" | "merge"}           taps from record mode / .sm import
 """
 import json
+import os
 import sys
 
 GRID = 0.5
@@ -70,9 +76,46 @@ def gap_ok(beat, action, accepted):
     return True
 
 
-def pick_actions(candidates, plan):
-    sections = plan["sections"]
+def load_recorded_actions(plan, plan_dir, analysis):
+    settings = plan.get("recording")
+    if not settings:
+        return []
+    path = os.path.join(plan_dir, settings["file"])
+    if not os.path.exists(path):
+        print("WARN recording %s not found, ignoring" % path)
+        return []
+    offset = analysis["offset_sec"]
+    seconds_per_beat = 60.0 / analysis["bpm"]
+    grid = settings.get("grid", GRID)
+    lane_actions = settings["lane_actions"]
+    events = {}
+    for tap in load(path)["taps"]:
+        lane = tap.get("lane", 0)
+        if lane >= len(lane_actions):
+            continue
+        beat = round((tap["time_sec"] - offset) / seconds_per_beat / grid) * grid
+        events.setdefault(beat, {"beat": beat, "type": lane_actions[lane]})
+    return [events[b] for b in sorted(events)]
+
+
+def accept_fixed(fixed_events):
+    """Keeps fixed events in time order, dropping any that would be unreachable after the previous one."""
     accepted = []
+    for event in sorted(fixed_events, key=lambda e: e["beat"]):
+        if event["type"] not in ACTION_RECOVERY_BEATS:
+            print("WARN unknown action type %s at beat %s, dropped" % (event["type"], event["beat"]))
+        elif gap_ok(event["beat"], event["type"], accepted):
+            accepted.append(dict(event))
+        else:
+            print("WARN action at beat %s too close to the previous one, dropped" % event["beat"])
+    return accepted
+
+
+def pick_actions(candidates, plan, fixed_events, auto_fill):
+    sections = plan["sections"]
+    accepted = accept_fixed(fixed_events)
+    if not auto_fill:
+        return accepted
     for candidate in sorted(candidates, key=lambda c: -c["score"]):
         beat = candidate["beat"]
         if beat < plan["first_action_beat"] or beat > plan["last_action_beat"]:
@@ -95,7 +138,9 @@ def pick_actions(candidates, plan):
 def main():
     analysis_path, plan_path, out_path = sys.argv[1:4]
     analysis, plan = load(analysis_path), load(plan_path)
-    actions = pick_actions(collect_candidates(analysis, plan), plan)
+    recorded = load_recorded_actions(plan, os.path.dirname(os.path.abspath(plan_path)), analysis)
+    auto_fill = plan.get("recording", {}).get("mode", "merge") != "replace"
+    actions = pick_actions(collect_candidates(analysis, plan), plan, plan.get("fixed", []) + recorded, auto_fill)
     events = actions + plan.get("camera", []) + plan.get("vfx", [])
     events.sort(key=lambda e: (e["beat"], e["type"]))
     chart = {

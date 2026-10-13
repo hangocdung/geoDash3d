@@ -21,6 +21,12 @@ var capture_without_autoplay: bool = false
 var debug_clock: bool = false
 ## Menu background: autoplay, no HUD, no input, loops forever.
 var attract_mode: bool = false
+## Practice: checkpoints, restart from the last one, optional slower playback.
+var practice: bool = false
+var playback_rate: float = 1.0
+
+## Options handed from a menu to the next level scene (consumed once).
+static var _next_run: LaunchOptions
 
 
 static func from_command_line() -> LaunchOptions:
@@ -59,6 +65,23 @@ static func from_command_line() -> LaunchOptions:
 		options.skip_start_screen = true
 	if options.autoplay:
 		options.skip_start_screen = true
+	return options
+
+
+static func set_next_run(next_options: LaunchOptions) -> void:
+	_next_run = next_options
+
+
+static func take_next_run() -> LaunchOptions:
+	var next_options: LaunchOptions = _next_run
+	_next_run = null
+	return next_options
+
+
+static func practice_run(rate: float) -> LaunchOptions:
+	var options := LaunchOptions.new()
+	options.practice = true
+	options.playback_rate = rate
 	return options
 
 
