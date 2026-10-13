@@ -7,6 +7,7 @@ Camera và VFX do game điều khiển theo nhạc. Ưu tiên: **khớp nhạc t
 Tài liệu chi tiết (chỉ đọc khi task liên quan):
 - `docs/architecture.md` — các hệ thống, luồng dữ liệu, trạng thái hiện thực
 - `docs/chart_format.md` — định dạng `*.chart.json` và quy trình làm chart cho một bài nhạc
+- `docs/design/` — thiết kế đã chốt cho các phase sắp làm (vd. `gameplay_v2.md`)
 - `docs/roadmap.md` — danh sách task `GD3-xxx` và trạng thái
 
 ---

@@ -38,6 +38,14 @@ Trạng thái: `[ ]` chưa làm · `[~]` đang làm / làm một phần · `[x]`
 - [ ] **GD3-045** Menu chính, chọn bài, màn kết quả, cài đặt (âm lượng, chất lượng, độ trễ).
 - [ ] **GD3-046** Âm thanh hiệu ứng (chết, perfect) không làm lệch nhạc.
 
+## Phase 4.5 — Mở rộng gameplay (yêu cầu playtest 2026-10-13)
+Thiết kế đã chốt: `docs/design/gameplay_v2.md`.
+- [ ] **GD3-070** Bỏ dash (vì gây cảm giác đổi tốc độ). Thêm `dodge_left/right`: lách sang làn trống để né tường 2 làn. Va chạm có thêm trục ngang.
+- [ ] **GD3-071** Thêm `flip`: lộn qua mép xuống chạy ở mặt dưới đường để qua `gate`. Camera tự hạ xuống (flip assist), môi trường không lật.
+- [ ] **GD3-072** Vật cản vào sân đúng nhịp: gai trồi lên, tường rơi xuống, cổng bung ngang. Kèm VFX khi tiếp đất.
+- [ ] **GD3-073** Độ khó tăng dần về cuối: tốc độ chỉ tăng, mở khóa hành động dần, đoạn `finale` dày nhất. Có test kiểm tra.
+- [ ] **GD3-074** Ký hiệu cue mới (↔ lách, ↻ lộn), dải sáng ở làn trống.
+
 ## Phase 5 — Mobile
 - [ ] **GD3-050** Export Android, đo độ trễ và FPS trên máy thật.
 - [ ] **GD3-051** Pre-warm shader/particles ở màn loading, tối ưu draw call.
