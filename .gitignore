@@ -1,8 +1,22 @@
 # Godot
 .godot/
+.import/
 /android/
 *.translation
 /build/
+export.cfg
+export_credentials.cfg
+.nomedia
+*.tmp
+~*.dll
+
+# Mono
+.mono/
+data_*/
+mono_crash.*.json
+
+# Export outputs
+*.exe
 
 # Tool output
 /tools/capture/out/
