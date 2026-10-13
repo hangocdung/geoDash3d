@@ -67,6 +67,8 @@ Android (máy cắm USB, đã bật USB debugging):
 bash tools/device/perf_matrix.sh baseline "tier=low" noglow            # A/B đo FPS trên máy (màn hình phải mở)
 ```
 Trên Android, tham số debug truyền qua `user://debug_args.txt` (perf_matrix tự ghi bằng `run-as`).
+Đo bản release: preset `Android Release Perf` (feature `perf_probe`, tham số trong `command_line/extra_args`), ký tạm bằng
+debug keystore qua biến môi trường `GODOT_ANDROID_KEYSTORE_RELEASE_PATH/USER/PASSWORD` (chỉ để đo, không phát hành).
 
 Main scene là menu; nếu có tham số level (sau `--`: `--start-beat=96 --autoplay --invincible --practice --rate=0.75 --clock=delta --chart=res://...`,
 `--capture…`) menu tự chuyển thẳng vào level. Scene: `Scenes.MAIN_MENU / LEVEL / CALIBRATION / METRONOME / RECORDER` (`src/ui/scenes.gd`).

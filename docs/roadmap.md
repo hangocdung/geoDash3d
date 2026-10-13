@@ -57,7 +57,11 @@ Thiết kế đã chốt: `docs/design/gameplay_v2.md`.
       - Cảnh nền chia đoạn MultiMesh có visibility range, mật độ theo tier.
       - Tự chọn tier ở menu (`QualityAutoTuner`, mục tiêu 55 FPS).
       - Làm nóng VFX trong count-in.
-- [ ] **GD3-052** Đo lại khi máy nguội và trên 1–2 máy khác; nếu LOW < 58 FPS thì xem xét `scale` 0.6, bớt decor.
+- [~] **GD3-052** Đo lại khi máy nguội (Note10 Lite, thermal 0):
+      - LOW: 57–58 FPS ổn định, không frame khựng sau khi tải màn.
+      - MEDIUM: khoảng 41 FPS. HIGH: khoảng 35 FPS.
+      - Bản release (preset `Android Release Perf`) nhanh hơn debug khoảng 1 FPS, vì game nghẽn ở GPU.
+      - **Còn lại:** đo trên 1–2 máy tầm trung đời mới.
 - [ ] **GD3-053** Bản release: keystore release, icon, tên app, AAB cho Google Play (cần quyết định của người dùng).
 
 ## Phase 6 — Vertical slice

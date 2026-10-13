@@ -1,4 +1,4 @@
-# Autoload "PerfProbe" (debug builds only): logs device info once, then every few seconds the FPS,
+# Autoload "PerfProbe" (debug builds, or release builds exported with the `perf_probe` feature): logs device info once, then every few seconds the FPS,
 # worst frame time (hitches), draw calls and audio latency, prefixed "PERF" so `adb logcat` /
 # console output can be filtered. Related: docs/roadmap.md (GD3-050/051), src/core/song_clock.gd
 extends Node
@@ -15,7 +15,7 @@ var _sections: Dictionary[StringName, int] = {}
 
 
 func _ready() -> void:
-	if not OS.is_debug_build():
+	if not (OS.is_debug_build() or OS.has_feature("perf_probe")):
 		set_process(false)
 		return
 	print("PERF device model=%s os=%s %s renderer=%s adapter=%s screen=%s window=%s quality=%s latency_ms=%.1f" % [

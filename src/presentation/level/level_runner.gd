@@ -78,7 +78,7 @@ func _ready() -> void:
 	UserSettings.changed.connect(_apply_volume)
 	_apply_volume()
 	_connect_hud()
-	if OS.is_debug_build() and not options.perf_flags.is_empty():
+	if (OS.is_debug_build() or OS.has_feature("perf_probe")) and not options.perf_flags.is_empty():
 		_apply_perf_flags(options.perf_flags)
 	if not is_nan(options.start_beat):
 		start_beat = chart.safe_start_beat(options.start_beat)
