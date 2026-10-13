@@ -55,8 +55,20 @@ func on_landed(feet: Transform3D, color: Color) -> void:
 	_rings.spawn(feet * Transform3D(Basis().scaled(Vector3.ONE * 3.2), Vector3(0, 0.05, 0)), color)
 
 
-func on_dash_ghost(body_transform: Transform3D, color: Color) -> void:
+func on_afterimage(body_transform: Transform3D, color: Color) -> void:
 	_ghosts.spawn(body_transform, color)
+
+
+## Entrance landing of an obstacle: dust ring sized by the entrance style, plus a burst for drops.
+func on_hazard_landed(world_position: Vector3, hazard: HazardDefinition) -> void:
+	var size: float = 1.8
+	match hazard.entrance:
+		HazardDefinition.Entrance.DROP:
+			size = 4.5
+			_bursts_small.emit_at(world_position + Vector3.UP * 0.3, hazard.color)
+		HazardDefinition.Entrance.UNFOLD:
+			size = 5.5
+	_rings.spawn(Transform3D(Basis().scaled(Vector3.ONE * size), world_position + Vector3.UP * 0.06), hazard.color)
 
 
 func on_perfect(center: Vector3) -> void:

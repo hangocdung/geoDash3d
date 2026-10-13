@@ -26,12 +26,22 @@ func test_perfect_jump_clears_spike() -> void:
 
 
 func test_window_edges_still_survive() -> void:
-	var chart: LevelChart = ChartFixtures.make_chart([{"beat": 4, "type": "jump"}, {"beat": 8, "type": "dash"}])
+	var chart: LevelChart = ChartFixtures.make_chart([{"beat": 4, "type": "jump"}, {"beat": 8, "type": "dodge_left"},
+			{"beat": 12, "type": "dodge_right"}, {"beat": 16, "type": "flip"}], 120.0, 7.0, 24.0)
 	var edge_beats: float = WINDOW_EDGE_SEC / chart.tempo.seconds_per_beat_at(0.0)
 	for offset: float in [-edge_beats, edge_beats]:
-		var simulation: RunSimulation = _simulate_taps(chart, [4.0 + offset, 8.0 + offset], 12.0)
-		assert_false(simulation.is_dead, "tap offset %.3f beats" % offset)
-		assert_eq(simulation.grade_counts[Judgement.Grade.GOOD], 2)
+		var taps: Array[float] = [4.0 + offset, 8.0 + offset, 12.0 + offset, 16.0 + offset]
+		var simulation: RunSimulation = _simulate_taps(chart, taps, 22.0)
+		assert_false(simulation.is_dead, "tap offset %.3f beats, died at %.2f" % [offset, simulation.current_beat])
+		assert_eq(simulation.grade_counts[Judgement.Grade.GOOD], 4)
+
+
+func test_window_edges_survive_at_high_speed() -> void:
+	var chart: LevelChart = ChartFixtures.make_chart([{"beat": 4, "type": "jump"}, {"beat": 8, "type": "dodge_right"}],
+			120.0, 10.0, 12.0)
+	var edge_beats: float = WINDOW_EDGE_SEC / chart.tempo.seconds_per_beat_at(0.0)
+	for offset: float in [-edge_beats, edge_beats]:
+		assert_false(_simulate_taps(chart, [4.0 + offset, 8.0 + offset], 12.0).is_dead, "offset %.3f" % offset)
 
 
 func test_tap_far_too_early_uses_default_jump_and_dies() -> void:
@@ -40,14 +50,31 @@ func test_tap_far_too_early_uses_default_jump_and_dies() -> void:
 	assert_true(simulation.is_dead)
 
 
-func test_jump_into_barrier_dies_but_dash_passes() -> void:
-	var chart: LevelChart = ChartFixtures.make_chart([{"beat": 4, "type": "dash"}])
-	var jumped := RunSimulation.new(chart, GameplayConfig.create_default(), -1.0)
-	jumped.tap(3.5)  # outside the dash window: default jump
-	jumped.advance_to(8.0)
-	assert_true(jumped.is_dead)
-	var dashed: RunSimulation = _simulate_taps(chart, [4.0], 8.0)
-	assert_false(dashed.is_dead)
+func test_jump_into_wall_dies_but_dodge_passes() -> void:
+	var chart: LevelChart = ChartFixtures.make_chart([{"beat": 4, "type": "dodge_left"}])
+	assert_true(_simulate_taps(chart, [3.5], 8.0).is_dead, "default jump cannot clear a wall")
+	assert_true(_simulate_taps(chart, [], 8.0).is_dead, "standing still hits the wall")
+	assert_false(_simulate_taps(chart, [4.0], 8.0).is_dead, "dodge into the gap")
+
+
+func test_dodge_moves_toward_the_gap() -> void:
+	var chart: LevelChart = ChartFixtures.make_chart([{"beat": 4, "type": "dodge_left"}, {"beat": 8, "type": "dodge_right"}])
+	var simulation: RunSimulation = _simulate_taps(chart, [4.0], 4.6)
+	assert_almost_eq(simulation.player_offset_at(4.6).x, -1.0, 0.001, "left = negative lateral")
+	simulation.advance_to(5.5)
+	simulation.tap(8.0)
+	assert_almost_eq(simulation.player_offset_at(8.6).x, 1.0, 0.001)
+
+
+func test_flip_passes_under_gate_but_jump_does_not() -> void:
+	var chart: LevelChart = ChartFixtures.make_chart([{"beat": 4, "type": "flip"}])
+	var flipped: RunSimulation = _simulate_taps(chart, [4.0], 8.0)
+	assert_false(flipped.is_dead)
+	assert_true(_simulate_taps(chart, [3.5], 8.0).is_dead, "default jump hits the gate")
+	var config: GameplayConfig = GameplayConfig.create_default()
+	var hanging: Vector2 = flipped.config.find_action(&"flip").offset_at(0.5)
+	assert_almost_eq(hanging.y, -(config.track_thickness + GameplayConfig.CUBE_SIZE), 0.001, "under the track")
+	assert_almost_eq(hanging.x, 0.0, 0.001, "centered under the track")
 
 
 func test_buffered_tap_starts_next_action_on_landing() -> void:
@@ -59,15 +86,16 @@ func test_buffered_tap_starts_next_action_on_landing() -> void:
 
 
 func test_result_is_independent_of_frame_rate() -> void:
-	var chart: LevelChart = ChartFixtures.make_chart([{"beat": 4, "type": "jump"}, {"beat": 6, "type": "dash"}])
+	var chart: LevelChart = ChartFixtures.make_chart([{"beat": 4, "type": "jump"}, {"beat": 6, "type": "dodge_right"},
+			{"beat": 8, "type": "flip"}])
 	var coarse := RunSimulation.new(chart, GameplayConfig.create_default(), -1.0)
 	var fine := RunSimulation.new(chart, GameplayConfig.create_default(), -1.0)
-	var taps: Array[float] = [4.27, 6.1]
+	var taps: Array[float] = [4.27, 6.1, 8.2]
 	for simulation: RunSimulation in [coarse, fine]:
 		var frame_step: float = 0.37 if simulation == coarse else 0.011
 		var beat: float = -1.0
 		var tap_index: int = 0
-		while beat < 10.0:
+		while beat < 12.0:
 			beat += frame_step
 			while tap_index < taps.size() and taps[tap_index] <= beat:
 				simulation.tap(taps[tap_index])
@@ -78,7 +106,8 @@ func test_result_is_independent_of_frame_rate() -> void:
 
 
 func test_invincible_run_records_hits_and_completes() -> void:
-	var chart: LevelChart = ChartFixtures.make_chart([{"beat": 4, "type": "jump"}, {"beat": 8, "type": "dash"}], 120.0, 7.0, 12.0)
+	var chart: LevelChart = ChartFixtures.make_chart([{"beat": 4, "type": "jump"}, {"beat": 8, "type": "dodge_right"}],
+			120.0, 7.0, 12.0)
 	var simulation := RunSimulation.new(chart, GameplayConfig.create_default(), -1.0)
 	simulation.invincible = true
 	simulation.advance_to(13.0)
@@ -90,11 +119,13 @@ func test_invincible_run_records_hits_and_completes() -> void:
 func test_autoplay_passes_dense_chart() -> void:
 	var events: Array[Dictionary] = []
 	var beat: float = 4.0
-	var types: Array[String] = ["jump", "jump", "dash", "jump", "dash", "dash"]
+	var types: Array[String] = ["jump", "dodge_left", "jump", "flip", "dodge_right", "jump"]
+	var recovery: Dictionary[String, float] = {"jump": 1.5, "dodge_left": 1.75, "dodge_right": 1.75, "flip": 2.5}
 	for index: int in 24:
-		events.append({"beat": beat, "type": types[index % types.size()]})
-		beat += 1.5 if index % 3 != 2 else 1.0
-	var chart: LevelChart = ChartFixtures.make_chart(events, 120.0, 7.0, beat + 4.0)
+		var action_type: String = types[index % types.size()]
+		events.append({"beat": beat, "type": action_type})
+		beat += recovery[action_type]
+	var chart: LevelChart = ChartFixtures.make_chart(events, 120.0, 8.0, beat + 4.0)
 	var simulation: RunSimulation = Autoplay.run_full(chart, GameplayConfig.create_default(), false)
 	assert_false(simulation.is_dead, "died at beat %.3f" % simulation.current_beat)
 	assert_true(simulation.is_completed)

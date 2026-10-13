@@ -51,17 +51,16 @@ Script in ra những ID đã xử lý và ID còn thiếu, đồng thời tạo 
 | B1 | `ui.back` | P2 | `in_menu` | quay lại / đóng |
 | B2 | `fx.shockwave` | P2 | `in_chase` | sóng xung kích lúc nhạc drop |
 | B3 | `fx.flash` | P2 | `in_chase` | lóe sáng đổi đoạn |
-| B4 | `player.dodge` | P2 | `in_chase` | lách làn (GD3-070) |
-| B5 | `player.flip` | P2 | `in_chase` | lộn xuống mặt dưới đường (GD3-071) |
-| B6 | `hazard.rise` | P2 | `in_jump` | gai trồi lên (GD3-072) |
-| B7 | `hazard.drop` | P2 | `in_chase` | tường rơi xuống (GD3-072) |
-| B8 | `hazard.unfold` | P2 | `in_chase` | cổng năng lượng bật (GD3-072) |
+| B4 | `player.dodge` | P2 | `in_dodge` | lách làn |
+| B5 | `player.flip` | P2 | `in_flip` | lộn xuống mặt dưới đường |
+| B6 | `hazard.rise` | P2 | `in_jump` | gai trồi lên |
+| B7 | `hazard.drop` | P2 | `in_drop` | tường rơi xuống |
+| B8 | `hazard.unfold` | P2 | `in_gate` | cổng năng lượng bật |
 | C1 | `judge.great` | P3 | `in_jump` | chạm GREAT |
 | C2 | `run.attempt` | P3 | `in_chase` | bắt đầu lượt chơi |
 | C3 | `ui.pause` | P3 | `in_menu` | tạm dừng |
 
-> Với B4–B8 thì vật cản tương ứng chưa có trong game (Phase 4.5), nên ảnh đầu vào chỉ là cảnh chung.
-> Bạn có thể dùng text-to-video với cùng prompt. Khi Phase 4.5 xong, tôi sẽ chụp ảnh đúng cảnh để bạn tạo lại nếu cần.
+> Ảnh của B4–B8 đã được chụp lại sau Phase 4.5, đúng cảnh tường cam, cổng lime và lúc lộn xuống mặt dưới.
 
 ---
 
@@ -136,13 +135,13 @@ Three times, about 2.5 seconds apart, the whole scene flashes bright white-pink 
 ```
 
 ### B4 · `player.dodge` · P2
-<img src="inputs/in_chase.jpg" width="240"> `inputs/in_chase.jpg`
+<img src="inputs/in_dodge.jpg" width="240"> `inputs/in_dodge.jpg`
 ```
 The glowing cube quickly rolls sideways into the next lane of the neon track and back, four times, about 1.5 seconds apart, leaving a brief smear of light. Sound of each sidestep: a quick, tight sideways swoosh with a tiny electronic tick as the cube rolls, short and snappy. Static locked-off camera, no cuts, no text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
 ```
 
 ### B5 · `player.flip` · P2
-<img src="inputs/in_chase.jpg" width="240"> `inputs/in_chase.jpg`
+<img src="inputs/in_flip.jpg" width="240"> `inputs/in_flip.jpg`
 ```
 The glowing cube swings over the edge of the neon track and flips underneath it, then flips back on top, three times, about 2.5 seconds apart. Sound of each flip: a smooth circular whoosh that sweeps around, ending in a soft mechanical magnetic clunk as the cube locks onto the underside. Static locked-off camera, no cuts, no text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
 ```
@@ -154,13 +153,13 @@ Four times, about 1.5 seconds apart, a sharp pink crystal spike shoots up out of
 ```
 
 ### B7 · `hazard.drop` · P2
-<img src="inputs/in_chase.jpg" width="240"> `inputs/in_chase.jpg`
+<img src="inputs/in_drop.jpg" width="240"> `inputs/in_drop.jpg`
 ```
 Three times, about 2 seconds apart, a heavy dark block with glowing orange edges falls from the sky and slams onto the neon track, kicking up a ring of glowing dust. Sound of each slam: a deep heavy thud with a metallic clank and a short low rumble, powerful but brief. Static locked-off camera, no cuts, no text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
 ```
 
 ### B8 · `hazard.unfold` · P2
-<img src="inputs/in_chase.jpg" width="240"> `inputs/in_chase.jpg`
+<img src="inputs/in_gate.jpg" width="240"> `inputs/in_gate.jpg`
 ```
 Three times, about 2 seconds apart, a tall lime-green energy gate unfolds sideways across the neon track and its force field switches on with a flicker. Sound of each gate: a fast electric power-up hum that swells for half a second and ends with a crisp zap. Static locked-off camera, no cuts, no text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
 ```

@@ -1,5 +1,6 @@
-// Additive hologram glyph on a quad: 0 = ring, 1 = up chevrons (jump), 2 = forward arrows (dash),
-// 3 = shock ring driven by `progress`. Optional camera-facing billboard.
+// Additive hologram glyph on a quad: 0 = ring, 1 = up chevrons (jump), 2 = forward arrows,
+// 3 = shock ring driven by `progress`, 4 = sideways arrows (dodge), 5 = circular arrow (flip).
+// Optional camera-facing billboard.
 shader_type spatial;
 render_mode unshaded, blend_add, cull_disabled, depth_draw_never, shadows_disabled;
 
@@ -32,6 +33,21 @@ float arrow(vec2 p, float x) {
 	return (1.0 - smoothstep(0.05, 0.08, d)) * step(abs(p.y), 0.24);
 }
 
+float circle_arrow(vec2 p) {
+	// Ring with a gap on the lower right; an arrow head at the gap's lower end points clockwise.
+	const float RADIUS = 0.24;
+	const float HEAD_ANGLE = -1.1;
+	float angle = atan(p.y, p.x);
+	float on_ring = 1.0 - smoothstep(0.035, 0.06, abs(length(p) - RADIUS));
+	float in_gap = step(HEAD_ANGLE, angle) * step(angle, -0.2);
+	vec2 tangent = vec2(sin(HEAD_ANGLE), -cos(HEAD_ANGLE));
+	vec2 normal = vec2(-tangent.y, tangent.x);
+	vec2 q = p - vec2(cos(HEAD_ANGLE), sin(HEAD_ANGLE)) * RADIUS;
+	vec2 local = vec2(dot(q, tangent), dot(q, normal));
+	float head = (1.0 - smoothstep(0.04, 0.07, abs(local.x - (0.1 - abs(local.y) * 0.9)))) * step(abs(local.y), 0.13);
+	return max(on_ring * (1.0 - in_gap), head);
+}
+
 void fragment() {
 	vec2 p = UV - vec2(0.5);
 	p.y = -p.y;
@@ -44,6 +60,13 @@ void fragment() {
 		shape += (1.0 - smoothstep(0.02, 0.04, abs(radius - 0.46))) * 0.6;
 	} else if (glyph == 2) {
 		shape = arrow(p, -0.2) + arrow(p, 0.02) * 0.8;
+		shape += (1.0 - smoothstep(0.02, 0.04, abs(radius - 0.46))) * 0.6;
+	} else if (glyph == 4) {
+		float shaft = (1.0 - smoothstep(0.03, 0.05, abs(p.y))) * step(abs(p.x), 0.22);
+		shape = shaft + arrow(p, 0.1) + arrow(vec2(-p.x, p.y), 0.1);
+		shape += (1.0 - smoothstep(0.02, 0.04, abs(radius - 0.46))) * 0.6;
+	} else if (glyph == 5) {
+		shape = circle_arrow(p);
 		shape += (1.0 - smoothstep(0.02, 0.04, abs(radius - 0.46))) * 0.6;
 	} else {
 		float ring_radius = mix(0.05, 0.48, progress);

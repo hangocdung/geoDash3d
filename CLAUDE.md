@@ -113,7 +113,7 @@ Mỗi feature để `.gd` và `.tscn` cạnh nhau trong cùng thư mục.
   hoặc tham chiếu bằng đường dẫn `res://`).
 - Không sửa tay `assets/models/*.glb` — sửa script trong `assets/blender/` rồi sinh lại.
 - Không thêm addon/thư viện ngoài khi chưa hỏi.
-- Không dùng màu hồng/vàng cho cảnh nền: hồng = gai/nhảy, vàng = rào/dash. Cảnh nền chỉ dùng tông lạnh.
+- Màu dành riêng cho gameplay: hồng = gai/nhảy, cam = tường/lách làn, lime = cổng/lộn. Cảnh nền chỉ dùng tông lạnh.
 - Âm thanh: nhạc luôn ở bus `Music` (âm lượng người dùng đặt trên bus); SFX qua `Sfx.play(id)` với ID có trong
   `tools/audio/sfx_spec.py`. Không phát SFX trong attract mode. Không commit video nguồn (`art_source/` bị ignore).
 

@@ -18,7 +18,21 @@ import sys
 
 GRID = 0.5
 SNAP_TOLERANCE_BEATS = 0.14
-ACTION_RECOVERY_BEATS = {"jump": 1.5, "dash": 1.25}
+# Beats after an action before the next cue (action duration + ~0.5 beat of breathing room).
+ACTION_RECOVERY_BEATS = {"jump": 1.5, "dodge_left": 1.75, "dodge_right": 1.75, "flip": 2.5}
+
+
+# Relative difficulty of one action (used for the per-section report and the ramp test).
+DIFFICULTY_WEIGHTS = {"jump": 1.0, "dodge_left": 1.25, "dodge_right": 1.25, "flip": 1.75}
+BASE_SPEED = 7.0
+
+
+def speed_at(plan, beat):
+    speed = plan["speed"][0]["units_per_beat"]
+    for point in plan["speed"]:
+        if point["beat"] <= beat:
+            speed = point["units_per_beat"]
+    return speed
 
 
 def load(path):
@@ -58,13 +72,24 @@ def collect_candidates(analysis, plan):
     return candidates
 
 
+def dodge_side(beat, previous_types):
+    """Deterministic left/right pattern with occasional repeats; never three dodges to the same side."""
+    side = "dodge_left" if (int(beat * 2) // 3) % 2 == 0 else "dodge_right"
+    recent = [t for t in previous_types if t.startswith("dodge")][-2:]
+    if len(recent) == 2 and recent[0] == recent[1] == side:
+        side = "dodge_right" if side == "dodge_left" else "dodge_left"
+    return side
+
+
 def choose_type(candidate, rules, previous_types):
+    """Kick-heavy hits jump; snare/mid-heavy hits dodge (when the section allows dodges)."""
     bands = candidate["bands"]
     allowed = rules.get("actions", ["jump"])
-    wants_dash = "dash" in allowed and bands["mid"] > bands["low"] * rules.get("dash_bias", 1.0)
-    action = "dash" if wants_dash else "jump"
-    if len(previous_types) >= 3 and all(t == action for t in previous_types[-3:]) and len(allowed) > 1:
-        action = "jump" if action == "dash" else "dash"
+    wants_dodge = "dodge" in allowed and bands["mid"] > bands["low"] * rules.get("dodge_bias", 1.0)
+    action = dodge_side(candidate["beat"], previous_types) if wants_dodge else "jump"
+    family = [t.split("_")[0] for t in previous_types[-3:]]
+    if len(family) == 3 and all(f == action.split("_")[0] for f in family) and "dodge" in allowed:
+        action = "jump" if action != "jump" else dodge_side(candidate["beat"], previous_types)
     return action
 
 
@@ -163,6 +188,14 @@ def main():
     for action in actions:
         by_type[action["type"]] = by_type.get(action["type"], 0) + 1
     print("DRAFT %d actions %s -> %s" % (len(actions), by_type, out_path))
+    sections = plan["sections"]
+    for index, section in enumerate(sections):
+        end = sections[index + 1]["beat"] if index + 1 < len(sections) else plan["end_beat"]
+        inside = [a for a in actions if section["beat"] <= a["beat"] < end]
+        span = max(end - max(section["beat"], 0), 1)
+        difficulty = sum(DIFFICULTY_WEIGHTS[a["type"]] * speed_at(plan, a["beat"]) / BASE_SPEED for a in inside)
+        print("  %-10s beats %4g-%-4g %3d actions  %.2f per 16 beats  difficulty %.2f" % (
+            section["name"], section["beat"], end, len(inside), len(inside) * 16.0 / span, difficulty * 16.0 / span))
 
 
 main()

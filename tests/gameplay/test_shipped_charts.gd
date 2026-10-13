@@ -35,3 +35,30 @@ func test_no_action_is_unreachable_after_a_previous_one() -> void:
 			assert_true(gap >= previous.action.duration_beats,
 					"%s: cue at beat %.2f follows %s at %.2f too closely" % [file_name, chart.cues[index].beat,
 					previous.action.id, previous.beat])
+
+
+func test_difficulty_ramps_up_toward_the_end() -> void:
+	# Same weights as tools/audio/draft_chart.py (DIFFICULTY_WEIGHTS), scaled by run speed.
+	var weights: Dictionary[int, float] = {
+		ActionDefinition.Kind.JUMP: 1.0, ActionDefinition.Kind.DODGE: 1.25, ActionDefinition.Kind.FLIP: 1.75,
+	}
+	var config: GameplayConfig = GameplayConfig.create_default()
+	for file_name: String in DirAccess.get_files_at(MUSIC_DIRECTORY):
+		if not file_name.ends_with(".chart.json"):
+			continue
+		var chart: LevelChart = ChartLoader.load_file(MUSIC_DIRECTORY.path_join(file_name), config)
+		var quarter: float = chart.end_beat / 4.0
+		var first: float = 0.0
+		var last: float = 0.0
+		var previous_speed: float = 0.0
+		for cue: ChartItems.ActionCue in chart.cues:
+			var speed: float = chart.distance_map.rate_at(cue.beat)
+			assert_true(speed >= previous_speed, "%s: speed drops at beat %.1f" % [file_name, cue.beat])
+			previous_speed = speed
+			var score: float = weights[cue.action.kind] * speed
+			if cue.beat < quarter:
+				first += score
+			elif cue.beat >= chart.end_beat - quarter:
+				last += score
+		assert_true(last > first * 1.5, "%s: last quarter %.1f should be much harder than first %.1f" % [file_name,
+				last, first])

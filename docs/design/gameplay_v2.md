@@ -1,7 +1,8 @@
 # Gameplay v2: lách làn, lộn mặt dưới, vật cản vào theo nhịp, độ khó tăng dần
 
-> Nguồn: yêu cầu playtest của người dùng ngày 2026-10-13. Thực hiện ở **Phase 4.5** (GD3-070 … GD3-074).
-> Thiết kế dưới đây đã chốt. Khi làm thì theo đúng, chỗ nào đổi thì cập nhật lại file này.
+> Nguồn: yêu cầu playtest của người dùng ngày 2026-10-13. **Đã thực hiện** ở Phase 4.5 (GD3-070 … GD3-074).
+> Khác biệt so với bản nháp: cột đỡ đường hạ thấp 2.8 đơn vị để chừa chỗ chạy mặt dưới; flip đặt cố định qua
+> `plan.fixed` (104, 120, 140, 160, 180, 196, 210); camera dùng shot `underside` khi lộn.
 
 ## 1. Lý do
 - **Dash bị cảm nhận như "đổi tốc độ"**, do khối vuông lao về phía trước (lunge) và hiệu ứng FOV kick.

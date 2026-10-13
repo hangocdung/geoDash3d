@@ -28,9 +28,10 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
 - **UserSettings** (autoload duy nhất): `audio_offset_sec`, `quality_tier`, `music_volume_db`, lưu ở `user://settings.cfg`.
 
 ## 3. Gameplay (`src/gameplay/`)
-- **Cấu hình** (`defs/`): `GameplayConfig` gồm cửa sổ timing, hitbox, bước mô phỏng, cùng thư viện
-  `ActionDefinition` (jump: 1 beat, cao 2.0; dash: 0.75 beat, miễn nhiễm `barrier`) và
-  `HazardDefinition` (spike, barrier). Hitbox nhỏ hơn hình hiển thị.
+- **Cấu hình** (`defs/`): `GameplayConfig` gồm cửa sổ timing, kích thước đường/người chơi, bước mô phỏng và thư viện
+  `ActionDefinition` (`kind` JUMP / DODGE / FLIP, `offset_at(progress) → (lateral, height)`) và `HazardDefinition`
+  (hộp va chạm 3 trục + kiểu hiển thị SPIKE/WALL/GATE + kiểu vào sân RISE/DROP/UNFOLD, `appear_beat`).
+  Chi tiết thông số: `docs/design/gameplay_v2.md`.
 - **Chart** (`chart/`): `ChartLoader` gom *mọi* lỗi validate rồi báo một lượt. `LevelChart` lưu cue (theo beat),
   vật cản (theo khoảng cách), camera, vfx, section, track. Hàm `safe_start_beat()` lùi điểm bắt đầu để không
   kẹt trước vật cản có cue đã bị bỏ qua. Định dạng chi tiết: `docs/chart_format.md`.
@@ -39,7 +40,7 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   - Xử lý một lần chạm: `ActionResolver` tìm cue gần nhất trong ±150 ms rồi chấm điểm. Không có cue nào thì
     thực hiện hành động mặc định (jump).
   - Chạm khi hành động trước sắp kết thúc (≤ 100 ms) thì được *buffer*, kích hoạt ngay khi tiếp đất.
-  - `HazardChecker` xét chồng lấn hộp (khoảng cách × độ cao), có cursor vì người chơi chỉ đi tới.
+  - `HazardChecker` xét chồng lấn hộp (khoảng cách × ngang × độ cao), có cursor vì người chơi chỉ đi tới.
   - `invincible` ghi lại các lần trúng thay vì chết, dùng cho luyện tập và soạn màn.
 - **Autoplay**: chạm đúng mọi cue. Dùng cho test, chụp ảnh và chế độ demo.
 - **TrackPath** (`track/`): bảng frame mỗi 0.5 đơn vị, tích phân từ các đoạn straight/turn/slope (dùng midpoint).

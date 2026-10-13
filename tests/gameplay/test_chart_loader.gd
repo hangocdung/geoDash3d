@@ -13,14 +13,14 @@ func test_action_event_creates_cue_and_paired_hazard() -> void:
 
 
 func test_hazard_none_creates_only_cue() -> void:
-	var chart: LevelChart = ChartFixtures.make_chart([{"beat": 4, "type": "dash", "hazard": "none"}])
+	var chart: LevelChart = ChartFixtures.make_chart([{"beat": 4, "type": "dodge_left", "hazard": "none"}])
 	assert_eq(chart.cues.size(), 1)
 	assert_eq(chart.hazards.size(), 0)
 
 
 func test_events_are_sorted() -> void:
 	var chart: LevelChart = ChartFixtures.make_chart([
-		{"beat": 8, "type": "jump"}, {"beat": 2, "type": "dash"}, {"beat": 5, "type": "camera", "shot": "chase"},
+		{"beat": 8, "type": "jump"}, {"beat": 2, "type": "flip"}, {"beat": 5, "type": "camera", "shot": "chase"},
 	])
 	assert_almost_eq(chart.cues[0].beat, 2.0)
 	assert_almost_eq(chart.cues[1].beat, 8.0)
@@ -47,8 +47,8 @@ func test_speed_changes_affect_distance() -> void:
 
 
 func test_safe_start_moves_before_pending_hazard() -> void:
-	var chart: LevelChart = ChartFixtures.make_chart([{"beat": 8, "type": "jump"}, {"beat": 10, "type": "dash"}])
+	var chart: LevelChart = ChartFixtures.make_chart([{"beat": 8, "type": "jump"}, {"beat": 10, "type": "dodge_right"}])
 	assert_almost_eq(chart.safe_start_beat(4.0), 4.0, 0.0001, "nothing pending")
 	assert_almost_eq(chart.safe_start_beat(8.2), 7.0, 0.0001, "spike at 8.5 still ahead")
-	assert_almost_eq(chart.safe_start_beat(10.1), 7.0, 0.0001, "chains back through both cues")
+	assert_almost_eq(chart.safe_start_beat(10.1), 7.0, 0.0001, "chains back through both cues (wall at 10.625)")
 	assert_almost_eq(chart.safe_start_beat(12.0), 12.0, 0.0001, "both hazards passed")

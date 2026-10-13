@@ -17,16 +17,24 @@
 			"units_per_beat": 7
 		},
 		{
+			"beat": 64,
+			"units_per_beat": 7.5
+		},
+		{
 			"beat": 96,
 			"units_per_beat": 8
+		},
+		{
+			"beat": 128,
+			"units_per_beat": 8.5
 		},
 		{
 			"beat": 176,
 			"units_per_beat": 9
 		},
 		{
-			"beat": 192,
-			"units_per_beat": 7
+			"beat": 200,
+			"units_per_beat": 9.5
 		}
 	],
 	"sections": [
@@ -67,13 +75,13 @@
 		},
 		{
 			"beat": 192,
-			"name": "breakdown",
-			"energy": 0.55
+			"name": "finale",
+			"energy": 0.85
 		},
 		{
-			"beat": 216,
+			"beat": 218,
 			"name": "outro",
-			"energy": 0.25
+			"energy": 0.3
 		}
 	],
 	"track": [
@@ -185,12 +193,12 @@
 		{
 			"beat": 32,
 			"type": "camera",
-			"shot": "side_low",
+			"shot": "side_high",
 			"blend_beats": 2
 		},
 		{
 			"beat": 32.0,
-			"type": "dash"
+			"type": "dodge_right"
 		},
 		{
 			"beat": 32,
@@ -199,7 +207,7 @@
 		},
 		{
 			"beat": 36.0,
-			"type": "dash"
+			"type": "dodge_left"
 		},
 		{
 			"beat": 40.0,
@@ -219,11 +227,11 @@
 		},
 		{
 			"beat": 57.0,
-			"type": "dash"
+			"type": "dodge_left"
 		},
 		{
 			"beat": 60.0,
-			"type": "dash"
+			"type": "dodge_left"
 		},
 		{
 			"beat": 64,
@@ -241,35 +249,23 @@
 			"name": "shockwave"
 		},
 		{
-			"beat": 66.0,
-			"type": "jump"
-		},
-		{
 			"beat": 68.0,
 			"type": "jump"
 		},
 		{
-			"beat": 70.0,
-			"type": "dash"
-		},
-		{
 			"beat": 72.0,
-			"type": "dash"
+			"type": "jump"
 		},
 		{
-			"beat": 74.0,
-			"type": "dash"
-		},
-		{
-			"beat": 77.0,
-			"type": "dash"
+			"beat": 76.0,
+			"type": "dodge_right"
 		},
 		{
 			"beat": 79.0,
-			"type": "dash"
+			"type": "dodge_right"
 		},
 		{
-			"beat": 82.0,
+			"beat": 81.5,
 			"type": "jump"
 		},
 		{
@@ -277,16 +273,8 @@
 			"type": "jump"
 		},
 		{
-			"beat": 86.0,
-			"type": "dash"
-		},
-		{
 			"beat": 88.0,
 			"type": "jump"
-		},
-		{
-			"beat": 90.0,
-			"type": "dash"
 		},
 		{
 			"beat": 92,
@@ -299,7 +287,7 @@
 			"type": "jump"
 		},
 		{
-			"beat": 93.5,
+			"beat": 95.0,
 			"type": "jump"
 		},
 		{
@@ -307,10 +295,6 @@
 			"type": "camera",
 			"shot": "chase",
 			"blend_beats": 1
-		},
-		{
-			"beat": 96.0,
-			"type": "jump"
 		},
 		{
 			"beat": 96,
@@ -327,66 +311,46 @@
 			"type": "jump"
 		},
 		{
-			"beat": 99.5,
-			"type": "dash"
+			"beat": 101.0,
+			"type": "dodge_right"
 		},
 		{
-			"beat": 102.0,
-			"type": "dash"
+			"beat": 104,
+			"type": "flip"
 		},
 		{
-			"beat": 104.0,
-			"type": "jump"
-		},
-		{
-			"beat": 106.0,
-			"type": "dash"
-		},
-		{
-			"beat": 108.0,
-			"type": "jump"
+			"beat": 107.5,
+			"type": "dodge_left"
 		},
 		{
 			"beat": 110.0,
-			"type": "dash"
-		},
-		{
-			"beat": 111.5,
-			"type": "dash"
+			"type": "dodge_right"
 		},
 		{
 			"beat": 112,
 			"type": "camera",
-			"shot": "side",
+			"shot": "diagonal",
 			"blend_beats": 2
 		},
 		{
 			"beat": 114.0,
-			"type": "jump"
+			"type": "dodge_left"
 		},
 		{
-			"beat": 115.5,
-			"type": "jump"
+			"beat": 117.0,
+			"type": "dodge_left"
 		},
 		{
-			"beat": 118.0,
-			"type": "dash"
+			"beat": 120,
+			"type": "flip"
 		},
 		{
-			"beat": 119.5,
-			"type": "jump"
-		},
-		{
-			"beat": 122.0,
-			"type": "jump"
-		},
-		{
-			"beat": 124.0,
-			"type": "jump"
+			"beat": 123.5,
+			"type": "dodge_right"
 		},
 		{
 			"beat": 126.0,
-			"type": "dash"
+			"type": "dodge_left"
 		},
 		{
 			"beat": 128,
@@ -408,7 +372,7 @@
 			"type": "jump"
 		},
 		{
-			"beat": 131.5,
+			"beat": 132.0,
 			"type": "jump"
 		},
 		{
@@ -421,20 +385,16 @@
 		},
 		{
 			"beat": 138.0,
-			"type": "dash"
+			"type": "dodge_right"
 		},
 		{
-			"beat": 140.0,
-			"type": "jump"
-		},
-		{
-			"beat": 142.0,
-			"type": "jump"
+			"beat": 140,
+			"type": "flip"
 		},
 		{
 			"beat": 144,
 			"type": "camera",
-			"shot": "side_far",
+			"shot": "high",
 			"blend_beats": 3
 		},
 		{
@@ -446,12 +406,12 @@
 			"type": "jump"
 		},
 		{
-			"beat": 147.5,
+			"beat": 148.0,
 			"type": "jump"
 		},
 		{
 			"beat": 150.0,
-			"type": "dash"
+			"type": "dodge_left"
 		},
 		{
 			"beat": 152.0,
@@ -459,11 +419,7 @@
 		},
 		{
 			"beat": 154.0,
-			"type": "dash"
-		},
-		{
-			"beat": 155.5,
-			"type": "dash"
+			"type": "jump"
 		},
 		{
 			"beat": 158.0,
@@ -476,17 +432,13 @@
 			"blend_beats": 2
 		},
 		{
-			"beat": 160.0,
-			"type": "jump"
+			"beat": 160,
+			"type": "flip"
 		},
 		{
 			"beat": 160,
 			"type": "vfx",
 			"name": "burst"
-		},
-		{
-			"beat": 162.0,
-			"type": "dash"
 		},
 		{
 			"beat": 164.0,
@@ -501,16 +453,12 @@
 			"type": "jump"
 		},
 		{
-			"beat": 170.0,
-			"type": "dash"
-		},
-		{
-			"beat": 172.0,
-			"type": "dash"
+			"beat": 171.5,
+			"type": "dodge_left"
 		},
 		{
 			"beat": 173.5,
-			"type": "dash"
+			"type": "dodge_right"
 		},
 		{
 			"beat": 176,
@@ -520,7 +468,7 @@
 		},
 		{
 			"beat": 176.0,
-			"type": "dash"
+			"type": "dodge_right"
 		},
 		{
 			"beat": 176,
@@ -533,34 +481,26 @@
 			"name": "shockwave"
 		},
 		{
-			"beat": 177.5,
+			"beat": 178.0,
 			"type": "jump"
 		},
 		{
-			"beat": 179.5,
-			"type": "dash"
-		},
-		{
-			"beat": 181.0,
-			"type": "jump"
+			"beat": 180,
+			"type": "flip"
 		},
 		{
 			"beat": 183.5,
-			"type": "dash"
+			"type": "dodge_left"
 		},
 		{
 			"beat": 184,
 			"type": "camera",
-			"shot": "side_low",
+			"shot": "diagonal",
 			"blend_beats": 1
 		},
 		{
-			"beat": 185.0,
-			"type": "jump"
-		},
-		{
-			"beat": 186.5,
-			"type": "dash"
+			"beat": 185.5,
+			"type": "dodge_left"
 		},
 		{
 			"beat": 188.0,
@@ -568,13 +508,17 @@
 		},
 		{
 			"beat": 189.5,
-			"type": "dash"
+			"type": "dodge_left"
 		},
 		{
 			"beat": 192,
 			"type": "camera",
 			"shot": "side_high",
-			"blend_beats": 4
+			"blend_beats": 3
+		},
+		{
+			"beat": 192.0,
+			"type": "jump"
 		},
 		{
 			"beat": 192,
@@ -582,34 +526,61 @@
 			"name": "shockwave"
 		},
 		{
-			"beat": 193.0,
-			"type": "dash"
+			"beat": 194.0,
+			"type": "dodge_right"
 		},
 		{
-			"beat": 196.0,
-			"type": "jump"
+			"beat": 196,
+			"type": "flip"
+		},
+		{
+			"beat": 200,
+			"type": "camera",
+			"shot": "chase",
+			"blend_beats": 1
 		},
 		{
 			"beat": 200.0,
-			"type": "dash"
+			"type": "dodge_right"
+		},
+		{
+			"beat": 200,
+			"type": "vfx",
+			"name": "flash"
+		},
+		{
+			"beat": 202.0,
+			"type": "dodge_left"
 		},
 		{
 			"beat": 204.0,
 			"type": "jump"
 		},
 		{
+			"beat": 206.0,
+			"type": "dodge_right"
+		},
+		{
 			"beat": 208,
 			"type": "camera",
-			"shot": "side",
-			"blend_beats": 4
+			"shot": "diagonal",
+			"blend_beats": 2
 		},
 		{
 			"beat": 208.0,
-			"type": "dash"
+			"type": "dodge_left"
 		},
 		{
-			"beat": 212.0,
-			"type": "dash"
+			"beat": 210,
+			"type": "flip"
+		},
+		{
+			"beat": 213.0,
+			"type": "jump"
+		},
+		{
+			"beat": 216.0,
+			"type": "dodge_left"
 		},
 		{
 			"beat": 218,

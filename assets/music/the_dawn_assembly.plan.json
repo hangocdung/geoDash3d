@@ -4,82 +4,416 @@
 	"song": "res://assets/music/the_dawn_assembly.mp3",
 	"end_beat": 224,
 	"first_action_beat": 8,
-	"last_action_beat": 214,
-	"band_weights": { "low": 1.0, "mid": 0.85, "high": 0.25 },
+	"last_action_beat": 216,
+	"band_weights": {
+		"low": 1.0,
+		"mid": 0.85,
+		"high": 0.25
+	},
 	"on_beat_bonus": 0.15,
 	"downbeat_bonus": 0.2,
 	"sections": [
-		{ "beat": -16, "name": "intro", "energy": 0.2 },
-		{ "beat": 32, "name": "build", "energy": 0.42 },
-		{ "beat": 64, "name": "verse", "energy": 0.55 },
-		{ "beat": 92, "name": "lift", "energy": 0.7 },
-		{ "beat": 96, "name": "chorus", "energy": 0.82 },
-		{ "beat": 128, "name": "chorus2", "energy": 0.88 },
-		{ "beat": 176, "name": "climax", "energy": 1.0 },
-		{ "beat": 192, "name": "breakdown", "energy": 0.55 },
-		{ "beat": 216, "name": "outro", "energy": 0.25 }
+		{
+			"beat": -16,
+			"name": "intro",
+			"energy": 0.2
+		},
+		{
+			"beat": 32,
+			"name": "build",
+			"energy": 0.42
+		},
+		{
+			"beat": 64,
+			"name": "verse",
+			"energy": 0.55
+		},
+		{
+			"beat": 92,
+			"name": "lift",
+			"energy": 0.7
+		},
+		{
+			"beat": 96,
+			"name": "chorus",
+			"energy": 0.82
+		},
+		{
+			"beat": 128,
+			"name": "chorus2",
+			"energy": 0.88
+		},
+		{
+			"beat": 176,
+			"name": "climax",
+			"energy": 1.0
+		},
+		{
+			"beat": 192,
+			"name": "finale",
+			"energy": 0.85
+		},
+		{
+			"beat": 218,
+			"name": "outro",
+			"energy": 0.3
+		}
 	],
 	"rules": {
-		"intro": { "threshold": 0.55, "min_gap": 4.0, "actions": ["jump"] },
-		"build": { "threshold": 0.5, "min_gap": 2.5, "actions": ["jump", "dash"], "dash_bias": 1.25 },
-		"verse": { "threshold": 0.45, "min_gap": 2.0, "actions": ["jump", "dash"], "dash_bias": 1.1 },
-		"lift": { "threshold": 0.4, "min_gap": 1.5, "actions": ["jump"] },
-		"chorus": { "threshold": 0.4, "min_gap": 1.5, "actions": ["jump", "dash"], "dash_bias": 1.0 },
-		"chorus2": { "threshold": 0.38, "min_gap": 1.5, "actions": ["jump", "dash"], "dash_bias": 0.95 },
-		"climax": { "threshold": 0.35, "min_gap": 1.25, "actions": ["jump", "dash"], "dash_bias": 0.9 },
-		"breakdown": { "threshold": 0.5, "min_gap": 2.5, "actions": ["jump", "dash"], "dash_bias": 1.2 },
-		"outro": { "threshold": 0.6, "min_gap": 4.0, "actions": ["jump"] }
+		"intro": {
+			"threshold": 0.55,
+			"min_gap": 4.0,
+			"actions": [
+				"jump"
+			]
+		},
+		"build": {
+			"threshold": 0.5,
+			"min_gap": 3.0,
+			"actions": [
+				"jump",
+				"dodge"
+			],
+			"dodge_bias": 1.3
+		},
+		"verse": {
+			"threshold": 0.45,
+			"min_gap": 2.5,
+			"actions": [
+				"jump",
+				"dodge"
+			],
+			"dodge_bias": 1.15
+		},
+		"lift": {
+			"threshold": 0.42,
+			"min_gap": 1.75,
+			"actions": [
+				"jump"
+			]
+		},
+		"chorus": {
+			"threshold": 0.44,
+			"min_gap": 2.5,
+			"actions": [
+				"jump",
+				"dodge"
+			],
+			"dodge_bias": 1.05
+		},
+		"chorus2": {
+			"threshold": 0.4,
+			"min_gap": 2.0,
+			"actions": [
+				"jump",
+				"dodge"
+			],
+			"dodge_bias": 1.0
+		},
+		"climax": {
+			"threshold": 0.28,
+			"min_gap": 1.5,
+			"actions": [
+				"jump",
+				"dodge"
+			],
+			"dodge_bias": 0.95
+		},
+		"finale": {
+			"threshold": 0.2,
+			"min_gap": 1.5,
+			"actions": [
+				"jump",
+				"dodge"
+			],
+			"dodge_bias": 0.9
+		},
+		"outro": {
+			"threshold": 0.6,
+			"min_gap": 4.0,
+			"actions": [
+				"jump"
+			]
+		}
 	},
 	"speed": [
-		{ "beat": 0, "units_per_beat": 7 },
-		{ "beat": 96, "units_per_beat": 8 },
-		{ "beat": 176, "units_per_beat": 9 },
-		{ "beat": 192, "units_per_beat": 7 }
+		{
+			"beat": 0,
+			"units_per_beat": 7
+		},
+		{
+			"beat": 64,
+			"units_per_beat": 7.5
+		},
+		{
+			"beat": 96,
+			"units_per_beat": 8
+		},
+		{
+			"beat": 128,
+			"units_per_beat": 8.5
+		},
+		{
+			"beat": 176,
+			"units_per_beat": 9
+		},
+		{
+			"beat": 200,
+			"units_per_beat": 9.5
+		}
 	],
 	"track": [
-		{ "beat": 0, "shape": "straight" },
-		{ "beat": 40, "shape": "turn", "angle_deg": 30 },
-		{ "beat": 48, "shape": "straight" },
-		{ "beat": 64, "shape": "slope", "rise": 6 },
-		{ "beat": 72, "shape": "straight" },
-		{ "beat": 80, "shape": "turn", "angle_deg": -45 },
-		{ "beat": 88, "shape": "straight" },
-		{ "beat": 112, "shape": "turn", "angle_deg": 60 },
-		{ "beat": 124, "shape": "straight" },
-		{ "beat": 140, "shape": "slope", "rise": -8 },
-		{ "beat": 148, "shape": "straight" },
-		{ "beat": 160, "shape": "turn", "angle_deg": -60 },
-		{ "beat": 172, "shape": "straight" },
-		{ "beat": 196, "shape": "turn", "angle_deg": 90 },
-		{ "beat": 212, "shape": "straight" }
+		{
+			"beat": 0,
+			"shape": "straight"
+		},
+		{
+			"beat": 40,
+			"shape": "turn",
+			"angle_deg": 30
+		},
+		{
+			"beat": 48,
+			"shape": "straight"
+		},
+		{
+			"beat": 64,
+			"shape": "slope",
+			"rise": 6
+		},
+		{
+			"beat": 72,
+			"shape": "straight"
+		},
+		{
+			"beat": 80,
+			"shape": "turn",
+			"angle_deg": -45
+		},
+		{
+			"beat": 88,
+			"shape": "straight"
+		},
+		{
+			"beat": 112,
+			"shape": "turn",
+			"angle_deg": 60
+		},
+		{
+			"beat": 124,
+			"shape": "straight"
+		},
+		{
+			"beat": 140,
+			"shape": "slope",
+			"rise": -8
+		},
+		{
+			"beat": 148,
+			"shape": "straight"
+		},
+		{
+			"beat": 160,
+			"shape": "turn",
+			"angle_deg": -60
+		},
+		{
+			"beat": 172,
+			"shape": "straight"
+		},
+		{
+			"beat": 196,
+			"shape": "turn",
+			"angle_deg": 90
+		},
+		{
+			"beat": 212,
+			"shape": "straight"
+		}
 	],
 	"camera": [
-		{ "beat": -8, "type": "camera", "shot": "front", "blend_beats": 0 },
-		{ "beat": -2, "type": "camera", "shot": "side", "blend_beats": 4 },
-		{ "beat": 32, "type": "camera", "shot": "side_low", "blend_beats": 2 },
-		{ "beat": 64, "type": "camera", "shot": "diagonal", "blend_beats": 4 },
-		{ "beat": 92, "type": "camera", "shot": "side_high", "blend_beats": 2 },
-		{ "beat": 96, "type": "camera", "shot": "chase", "blend_beats": 1 },
-		{ "beat": 112, "type": "camera", "shot": "side", "blend_beats": 2 },
-		{ "beat": 128, "type": "camera", "shot": "chase_low", "blend_beats": 2 },
-		{ "beat": 144, "type": "camera", "shot": "side_far", "blend_beats": 3 },
-		{ "beat": 160, "type": "camera", "shot": "diagonal", "blend_beats": 2 },
-		{ "beat": 176, "type": "camera", "shot": "chase", "blend_beats": 1 },
-		{ "beat": 184, "type": "camera", "shot": "side_low", "blend_beats": 1 },
-		{ "beat": 192, "type": "camera", "shot": "side_high", "blend_beats": 4 },
-		{ "beat": 208, "type": "camera", "shot": "side", "blend_beats": 4 },
-		{ "beat": 218, "type": "camera", "shot": "high", "blend_beats": 6 }
+		{
+			"beat": -8,
+			"type": "camera",
+			"shot": "front",
+			"blend_beats": 0
+		},
+		{
+			"beat": -2,
+			"type": "camera",
+			"shot": "side",
+			"blend_beats": 4
+		},
+		{
+			"beat": 32,
+			"type": "camera",
+			"shot": "side_high",
+			"blend_beats": 2
+		},
+		{
+			"beat": 64,
+			"type": "camera",
+			"shot": "diagonal",
+			"blend_beats": 4
+		},
+		{
+			"beat": 92,
+			"type": "camera",
+			"shot": "side_high",
+			"blend_beats": 2
+		},
+		{
+			"beat": 96,
+			"type": "camera",
+			"shot": "chase",
+			"blend_beats": 1
+		},
+		{
+			"beat": 112,
+			"type": "camera",
+			"shot": "diagonal",
+			"blend_beats": 2
+		},
+		{
+			"beat": 128,
+			"type": "camera",
+			"shot": "chase_low",
+			"blend_beats": 2
+		},
+		{
+			"beat": 144,
+			"type": "camera",
+			"shot": "high",
+			"blend_beats": 3
+		},
+		{
+			"beat": 160,
+			"type": "camera",
+			"shot": "diagonal",
+			"blend_beats": 2
+		},
+		{
+			"beat": 176,
+			"type": "camera",
+			"shot": "chase",
+			"blend_beats": 1
+		},
+		{
+			"beat": 184,
+			"type": "camera",
+			"shot": "diagonal",
+			"blend_beats": 1
+		},
+		{
+			"beat": 192,
+			"type": "camera",
+			"shot": "side_high",
+			"blend_beats": 3
+		},
+		{
+			"beat": 200,
+			"type": "camera",
+			"shot": "chase",
+			"blend_beats": 1
+		},
+		{
+			"beat": 208,
+			"type": "camera",
+			"shot": "diagonal",
+			"blend_beats": 2
+		},
+		{
+			"beat": 218,
+			"type": "camera",
+			"shot": "high",
+			"blend_beats": 6
+		}
 	],
 	"vfx": [
-		{ "beat": 32, "type": "vfx", "name": "flash" },
-		{ "beat": 64, "type": "vfx", "name": "shockwave" },
-		{ "beat": 96, "type": "vfx", "name": "flash" },
-		{ "beat": 96, "type": "vfx", "name": "shockwave" },
-		{ "beat": 128, "type": "vfx", "name": "flash" },
-		{ "beat": 160, "type": "vfx", "name": "burst" },
-		{ "beat": 176, "type": "vfx", "name": "flash" },
-		{ "beat": 176, "type": "vfx", "name": "shockwave" },
-		{ "beat": 192, "type": "vfx", "name": "shockwave" },
-		{ "beat": 224, "type": "vfx", "name": "flash" }
+		{
+			"beat": 32,
+			"type": "vfx",
+			"name": "flash"
+		},
+		{
+			"beat": 64,
+			"type": "vfx",
+			"name": "shockwave"
+		},
+		{
+			"beat": 96,
+			"type": "vfx",
+			"name": "flash"
+		},
+		{
+			"beat": 96,
+			"type": "vfx",
+			"name": "shockwave"
+		},
+		{
+			"beat": 128,
+			"type": "vfx",
+			"name": "flash"
+		},
+		{
+			"beat": 160,
+			"type": "vfx",
+			"name": "burst"
+		},
+		{
+			"beat": 176,
+			"type": "vfx",
+			"name": "flash"
+		},
+		{
+			"beat": 176,
+			"type": "vfx",
+			"name": "shockwave"
+		},
+		{
+			"beat": 192,
+			"type": "vfx",
+			"name": "shockwave"
+		},
+		{
+			"beat": 200,
+			"type": "vfx",
+			"name": "flash"
+		},
+		{
+			"beat": 224,
+			"type": "vfx",
+			"name": "flash"
+		}
+	],
+	"fixed": [
+		{
+			"beat": 104,
+			"type": "flip"
+		},
+		{
+			"beat": 120,
+			"type": "flip"
+		},
+		{
+			"beat": 140,
+			"type": "flip"
+		},
+		{
+			"beat": 160,
+			"type": "flip"
+		},
+		{
+			"beat": 180,
+			"type": "flip"
+		},
+		{
+			"beat": 196,
+			"type": "flip"
+		},
+		{
+			"beat": 210,
+			"type": "flip"
+		}
 	]
 }

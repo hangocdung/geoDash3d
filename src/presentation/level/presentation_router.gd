@@ -42,14 +42,14 @@ func fire_vfx_cues(beat: float) -> void:
 					_context.frame_at_beat(beat), PlayerView.PLAYER_COLOR)
 
 
-## Afterimages while a lunging action is active.
+## Afterimages while a dodge or flip is active.
 func update_trails(action: ActionDefinition, delta: float) -> void:
-	if action == null or action.lunge_distance <= 0.0:
+	if action == null or action.kind == ActionDefinition.Kind.JUMP:
 		return
 	_ghost_timer -= delta
 	if _ghost_timer <= 0.0:
 		_ghost_timer = GHOST_INTERVAL_SEC
-		_runner.vfx_director.on_dash_ghost(_runner.player_view.body.global_transform, action.color)
+		_runner.vfx_director.on_afterimage(_runner.player_view.body.global_transform, action.color)
 
 
 func on_player_died(beat: float) -> void:
@@ -61,18 +61,20 @@ func on_player_died(beat: float) -> void:
 
 
 func _on_action_started(action: ActionDefinition, action_beat: float, _cue_index: int) -> void:
-	if action.jump_height > 0.0:
-		_play(&"player.jump")
-		_runner.vfx_director.on_jump_started(_context.frame_at_beat(action_beat), action.color)
-	if action.lunge_distance > 0.0:
-		_play(&"player.dodge")
-		_runner.camera_director.add_fov_kick(9.0)
-		_ghost_timer = 0.0
+	_play(action.start_sound)
+	match action.kind:
+		ActionDefinition.Kind.JUMP:
+			_runner.vfx_director.on_jump_started(_context.frame_at_beat(action_beat), action.color)
+		ActionDefinition.Kind.FLIP:
+			_runner.camera_director.add_fov_kick(6.0)
+			_ghost_timer = 0.0
+		_:
+			_ghost_timer = 0.0
 
 
 func _on_action_finished(action: ActionDefinition, end_beat: float) -> void:
 	_runner.player_view.on_action_finished(action)
-	if action.jump_height > 0.0:
+	if action.kind == ActionDefinition.Kind.JUMP:
 		_play(&"player.land")
 		_runner.vfx_director.on_landed(_context.frame_at_beat(end_beat), PlayerView.PLAYER_COLOR)
 		_runner.camera_director.add_shake(0.12)
@@ -91,6 +93,13 @@ func _on_cue_judged(cue_index: int, grade: Judgement.Grade, _error_sec: float) -
 		_play(&"judge.great")
 
 
-func _play(sound_id: StringName) -> void:
-	if sfx_enabled:
-		Sfx.play(sound_id)
+func on_hazard_landed(world_position: Vector3, hazard: HazardDefinition) -> void:
+	_play(hazard.landing_sound, -5.0)
+	_runner.vfx_director.on_hazard_landed(world_position, hazard)
+	if hazard.entrance == HazardDefinition.Entrance.DROP:
+		_runner.camera_director.add_shake(0.06)
+
+
+func _play(sound_id: StringName, volume_offset_db: float = 0.0) -> void:
+	if sfx_enabled and not sound_id.is_empty():
+		Sfx.play(sound_id, volume_offset_db)

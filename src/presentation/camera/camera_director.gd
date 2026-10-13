@@ -48,8 +48,11 @@ func add_fov_kick(degrees: float) -> void:
 	_fov_kick = maxf(_fov_kick, degrees)
 
 
-func update_camera(beat: float, player_height: float, delta: float) -> void:
+## `underside_amount` (0..1) blends toward a low side shot so flips under the track stay visible.
+func update_camera(beat: float, player_height: float, underside_amount: float, delta: float) -> void:
 	var shot: CameraShots.Shot = shot_at(beat)
+	if underside_amount > 0.0:
+		shot = shot.blended(CameraShots.get_shot(CameraShots.UNDERSIDE_SHOT), underside_amount)
 	var target_frame: Transform3D = _context.frame_at_beat(beat)
 	if not _has_frame:
 		_smoothed_frame = target_frame

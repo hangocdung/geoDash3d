@@ -5,6 +5,8 @@ class_name CameraShots
 extends RefCounted
 
 const DEFAULT_SHOT: StringName = &"side"
+## Used automatically while the player runs under the track (flip).
+const UNDERSIDE_SHOT: StringName = &"underside"
 
 
 class Shot:
@@ -45,10 +47,12 @@ static func get_shot(shot_name: StringName) -> Shot:
 			return Shot.new(Vector3(-5.0, 5.5, 10.0), Vector3(8.0, 0.8, 0.0), 60.0, 4.0)
 		&"front":
 			return Shot.new(Vector3(13.0, 2.6, 6.0), Vector3(0.0, 1.0, 0.0), 58.0)
+		&"underside":
+			return Shot.new(Vector3(1.5, -0.6, 12.5), Vector3(5.5, -1.4, 0.0), 60.0)
 	push_warning("CameraShots: unknown shot '%s', using '%s'" % [shot_name, DEFAULT_SHOT])
 	return get_shot(DEFAULT_SHOT)
 
 
 static func names() -> PackedStringArray:
 	return PackedStringArray(["side", "side_low", "side_high", "side_far", "chase", "chase_low", "high",
-			"diagonal", "front"])
+			"diagonal", "front", "underside"])

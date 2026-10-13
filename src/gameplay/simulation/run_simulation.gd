@@ -70,10 +70,15 @@ func advance_to(target_beat: float) -> void:
 		current_beat = target_beat
 
 
-func player_height_at(beat: float) -> float:
+## Offset from the resting spot: x = lateral (+ = right), y = height of the player's lower edge.
+func player_offset_at(beat: float) -> Vector2:
 	if _active_action == null:
-		return 0.0
-	return _active_action.height_at(action_progress_at(beat))
+		return Vector2.ZERO
+	return _active_action.offset_at(action_progress_at(beat))
+
+
+func player_height_at(beat: float) -> float:
+	return player_offset_at(beat).y
 
 
 ## 0..1 progress of the active action at `beat`, or -1 when idle.
@@ -116,9 +121,10 @@ func _simulate_step(beat: float) -> void:
 	for missed_index: int in _resolver.collect_missed(beat):
 		grade_counts[Judgement.Grade.MISS] += 1
 		cue_judged.emit(missed_index, Judgement.Grade.MISS, NAN)
-	var height: float = player_height_at(beat)
+	var offset: Vector2 = player_offset_at(beat)
 	var hazard_index: int = _checker.find_collision(chart.distance_at(beat), config.player_half_length,
-			height + config.player_bottom, height + config.player_top, _active_action, hit_hazards)
+			Vector2(offset.x - config.player_half_width, offset.x + config.player_half_width),
+			Vector2(offset.y + config.player_bottom, offset.y + config.player_top), _active_action, hit_hazards)
 	if hazard_index != HazardChecker.NO_HAZARD:
 		if invincible:
 			hit_hazards.append(hazard_index)

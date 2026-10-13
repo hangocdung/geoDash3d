@@ -18,7 +18,8 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
                { "beat": 40, "shape": "turn", "angle_deg": 30 },
                { "beat": 64, "shape": "slope", "rise": 6 }],
   "events":   [{ "beat": 8, "type": "jump" },
-               { "beat": 10, "type": "dash" },
+               { "beat": 10, "type": "dodge_left" },
+               { "beat": 13, "type": "flip" },
                { "beat": 12, "type": "jump", "hazard": "none" },
                { "beat": 14, "type": "hazard", "hazard": "spike" },
                { "beat": 32, "type": "camera", "shot": "side_low", "blend_beats": 2 },
@@ -35,8 +36,15 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
 | `end_beat` | Beat hoàn thành màn. Nhạc vẫn chạy tiếp phần outro. |
 
 ## Các loại event
-- **Hành động** (`"type": "jump"` / `"dash"`): đây là *thời điểm chạm*. Game tự đặt vật cản đi kèm
-  (`jump` → gai tại beat + 0.5, `dash` → rào năng lượng tại beat + 0.375). `"hazard": "none"` để chỉ có cue,
+- **Hành động** (`"type"`): đây là *thời điểm chạm*. Game tự đặt vật cản đi kèm:
+
+  | type | Chuyển động | Vật cản (beat + offset) | Vào sân |
+  |---|---|---|---|
+  | `jump` | nhảy 1 beat | `spike` (+0.5) | trồi lên |
+  | `dodge_left` / `dodge_right` | lăn sang làn trái / phải 1.25 beat rồi về | `wall_gap_left` / `wall_gap_right` (+0.625), tường chắn làn giữa và làn còn lại | rơi xuống |
+  | `flip` | lộn qua mép xuống mặt dưới 2 beat rồi lên | `gate` (+1.0), cổng chắn cả bề ngang | bung ngang |
+
+  Vật cản luôn vào sân đúng **nguyên beat** `floor(beat_vật_cản − lead)` (lead: spike 2, tường/cổng 3). `"hazard": "none"` để chỉ có cue,
   không có vật cản. Có thể thêm `"hazard_offset": <beats>` để dịch vật cản.
 - **`hazard`**: vật cản đứng riêng, không có cue (người chơi tự nhảy bằng thao tác mặc định).
 - **`camera`**: chuyển sang shot `shot`, blend trong `blend_beats`. Danh sách shot nằm ở
@@ -45,8 +53,9 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
 - **`vfx`**: `flash` (lóe sáng toàn cảnh), `shockwave` (vòng sóng), `burst` (bung hạt).
 
 ## Ràng buộc (được test kiểm tra)
-- Cue kế tiếp phải cách cue trước ít nhất bằng thời lượng hành động trước (jump 1 beat, dash 0.75 beat).
-  Nên chừa thêm khoảng 0.5 beat: `draft_chart.py` dùng 1.5 beat cho jump và 1.25 beat cho dash.
+- Cue kế tiếp phải cách cue trước ít nhất bằng thời lượng hành động trước (jump 1, dodge 1.25, flip 2 beat).
+  `draft_chart.py` chừa thêm ~0.5 beat: jump 1.5, dodge 1.75, flip 2.5.
+- Tốc độ không được giảm; độ khó có trọng số (jump 1, dodge 1.25, flip 1.75, × tốc độ) của 1/4 cuối phải > 1.5 lần 1/4 đầu.
 - Autoplay (chạm đúng mọi cue) phải qua màn: `tests/gameplay/test_shipped_charts.gd`.
 
 ## Cửa sổ timing (`GameplayConfig`)
@@ -56,7 +65,7 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
 | GREAT | ≤ 90 ms |
 | GOOD | ≤ 150 ms (lệch hơn thì lần chạm thành cú nhảy mặc định) |
 
-Với 120 BPM và jump 1 beat, vật lý cho phép sống sót khi lệch tới khoảng ±143 ms. Dash cho phép khoảng ±150 ms.
+Ở 120 BPM, vật lý cho phép lệch khoảng ±143 ms (jump), ±157 ms (dodge), rộng hơn nhiều với flip; test kiểm tra biên ±140 ms ở tốc độ 7 và 10.
 
 ## Quy trình làm chart cho một bài mới
 1. Đặt nhạc vào `assets/music/<id>.mp3`.
