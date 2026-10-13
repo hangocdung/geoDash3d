@@ -102,6 +102,13 @@ func now() -> float:
 	return _time_sec + elapsed * playback_rate
 
 
+## Seconds between the audio-derived heard time and the clock (debug only; 0 when not playing).
+func audio_drift() -> float:
+	if state != State.PLAYING or audio_player == null or not audio_player.playing:
+		return 0.0
+	return _heard_time() - _time_sec
+
+
 ## Song time as of the current frame (use for simulation and visuals).
 func frame_time() -> float:
 	return _time_sec
@@ -129,13 +136,17 @@ func _advance_audio_synced() -> void:
 	if state != State.PLAYING or not audio_player.playing:
 		_time_sec = wall_time
 		return
-	var heard_time: float = audio_player.get_playback_position() \
-			+ AudioServer.get_time_since_last_mix() * playback_rate \
-			- _cached_output_latency - calibration_offset_sec
+	var heard_time: float = _heard_time()
 	var drift: float = heard_time - wall_time
 	var corrected: float = heard_time if absf(drift) > SNAP_THRESHOLD_SEC else wall_time + drift * DRIFT_CORRECTION
 	# Never run backwards: gameplay simulation only advances forward.
 	_time_sec = maxf(corrected, _time_sec)
+
+
+## Song time the player is hearing right now according to the audio hardware clock.
+func _heard_time() -> float:
+	return audio_player.get_playback_position() + AudioServer.get_time_since_last_mix() * playback_rate \
+			- _cached_output_latency - calibration_offset_sec
 
 
 func _try_begin_audio() -> void:

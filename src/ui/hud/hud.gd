@@ -1,0 +1,115 @@
+# In-run overlay: progress bar with percentage, judgement popups, attempt counter and the
+# centered message (start / complete). Built in code; respects the mobile safe area.
+# Related: src/presentation/level/level_runner.gd, src/gameplay/simulation/judgement.gd
+class_name Hud
+extends CanvasLayer
+
+const BAR_WIDTH: float = 760.0
+const BAR_HEIGHT: float = 16.0
+const POPUP_LIFETIME: float = 0.55
+const GRADE_COLORS: Dictionary[int, Color] = {
+	Judgement.Grade.PERFECT: Color(1.0, 0.95, 0.5),
+	Judgement.Grade.GREAT: Color(0.45, 1.0, 0.9),
+	Judgement.Grade.GOOD: Color(0.6, 0.7, 1.0),
+	Judgement.Grade.MISS: Color(1.0, 0.3, 0.45),
+}
+
+var _bar_fill: ColorRect
+var _percent_label: Label
+var _judgement_label: Label
+var _message_label: Label
+var _attempt_label: Label
+var _popup_age: float = INF
+var _attempt_fade: float = 0.0
+
+
+func _ready() -> void:
+	var root := Control.new()
+	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(root)
+	_apply_safe_area(root)
+	_build_progress(root)
+	_judgement_label = _make_label(root, 56, Control.PRESET_CENTER_TOP, Vector2(0, 110))
+	_message_label = _make_label(root, 64, Control.PRESET_CENTER, Vector2(0, -40))
+	_attempt_label = _make_label(root, 40, Control.PRESET_CENTER_TOP, Vector2(0, 260))
+
+
+func _process(delta: float) -> void:
+	_popup_age += delta
+	var popup_t: float = clampf(_popup_age / POPUP_LIFETIME, 0.0, 1.0)
+	_judgement_label.modulate.a = 1.0 - popup_t * popup_t
+	_judgement_label.scale = Vector2.ONE * lerpf(1.25, 1.0, minf(popup_t * 4.0, 1.0))
+	_attempt_fade = maxf(_attempt_fade - delta * 0.6, 0.0)
+	_attempt_label.modulate.a = clampf(_attempt_fade, 0.0, 1.0)
+
+
+func set_progress(progress: float) -> void:
+	_bar_fill.size.x = BAR_WIDTH * clampf(progress, 0.0, 1.0)
+	_percent_label.text = "%d%%" % int(floorf(progress * 100.0))
+
+
+func show_judgement(grade: Judgement.Grade) -> void:
+	_judgement_label.text = Judgement.label(grade)
+	_judgement_label.add_theme_color_override("font_color", GRADE_COLORS[grade])
+	_judgement_label.pivot_offset = _judgement_label.size * 0.5
+	_popup_age = 0.0
+
+
+func show_attempt(attempt: int) -> void:
+	_attempt_label.text = "ATTEMPT %d" % attempt
+	_attempt_fade = 1.6
+
+
+func show_message(text: String) -> void:
+	_message_label.text = text
+	_message_label.visible = not text.is_empty()
+
+
+func _build_progress(root: Control) -> void:
+	var frame := Panel.new()
+	frame.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	frame.position = Vector2(-BAR_WIDTH * 0.5, 36.0)
+	frame.size = Vector2(BAR_WIDTH, BAR_HEIGHT)
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.05, 0.03, 0.12, 0.7)
+	style.border_color = Color(0.85, 0.9, 1.0, 0.9)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(8)
+	frame.add_theme_stylebox_override("panel", style)
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(frame)
+	_bar_fill = ColorRect.new()
+	_bar_fill.color = Color(0.3, 0.9, 1.0)
+	_bar_fill.position = Vector2(3, 3)
+	_bar_fill.size = Vector2(0, BAR_HEIGHT - 6.0)
+	_bar_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.add_child(_bar_fill)
+	_percent_label = _make_label(root, 34, Control.PRESET_CENTER_TOP, Vector2(BAR_WIDTH * 0.5 + 70.0, 20.0))
+
+
+func _make_label(root: Control, font_size: int, preset: Control.LayoutPreset, offset: Vector2) -> Label:
+	var label := Label.new()
+	label.set_anchors_preset(preset)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	label.position += offset
+	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_constant_override("outline_size", 10)
+	label.add_theme_color_override("font_outline_color", Color(0.05, 0.0, 0.12, 0.9))
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(label)
+	return label
+
+
+func _apply_safe_area(root: Control) -> void:
+	if not OS.has_feature("mobile"):
+		return
+	var safe: Rect2i = DisplayServer.get_display_safe_area()
+	var screen: Vector2i = DisplayServer.screen_get_size()
+	if safe.size.x <= 0 or screen.x <= 0:
+		return
+	var scale_factor: float = get_viewport().get_visible_rect().size.x / float(screen.x)
+	root.offset_left = float(safe.position.x) * scale_factor
+	root.offset_right = -float(screen.x - safe.end.x) * scale_factor
+	root.offset_top = float(safe.position.y) * scale_factor

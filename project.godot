@@ -12,6 +12,7 @@ config_version=5
 
 config/name="GeoDash3D"
 config/description="One-tap 3D rhythm runner."
+run/main_scene="res://src/presentation/level/level.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
@@ -62,3 +63,10 @@ restart={
 
 textures/vram_compression/import_etc2_astc=true
 anti_aliasing/quality/msaa_3d=2
+
+[shader_globals]
+
+beat_pulse={
+"type": "float",
+"value": 0.0
+}

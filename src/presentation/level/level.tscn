@@ -1,0 +1,50 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://src/presentation/level/level_runner.gd" id="1_runner"]
+[ext_resource type="Script" path="res://src/core/song_clock.gd" id="2_clock"]
+[ext_resource type="Script" path="res://src/presentation/environment/environment_director.gd" id="3_env"]
+[ext_resource type="Script" path="res://src/presentation/track/track_view.gd" id="4_track"]
+[ext_resource type="Script" path="res://src/presentation/track/scenery_view.gd" id="5_scenery"]
+[ext_resource type="Script" path="res://src/presentation/obstacles/obstacle_view.gd" id="6_obstacles"]
+[ext_resource type="Script" path="res://src/presentation/player/player_view.gd" id="7_player"]
+[ext_resource type="Script" path="res://src/presentation/camera/camera_director.gd" id="8_camera"]
+[ext_resource type="Script" path="res://src/presentation/vfx/vfx_director.gd" id="9_vfx"]
+[ext_resource type="Script" path="res://src/ui/hud/hud.gd" id="10_hud"]
+[ext_resource type="Script" path="res://src/presentation/level/capture_controller.gd" id="11_capture"]
+
+[node name="Level" type="Node3D"]
+script = ExtResource("1_runner")
+
+[node name="SongClock" type="Node" parent="." node_paths=PackedStringArray("audio_player")]
+process_priority = -10
+script = ExtResource("2_clock")
+audio_player = NodePath("Music")
+
+[node name="Music" type="AudioStreamPlayer" parent="SongClock"]
+
+[node name="EnvironmentDirector" type="Node3D" parent="."]
+script = ExtResource("3_env")
+
+[node name="TrackView" type="Node3D" parent="."]
+script = ExtResource("4_track")
+
+[node name="SceneryView" type="Node3D" parent="."]
+script = ExtResource("5_scenery")
+
+[node name="ObstacleView" type="Node3D" parent="."]
+script = ExtResource("6_obstacles")
+
+[node name="PlayerView" type="Node3D" parent="."]
+script = ExtResource("7_player")
+
+[node name="CameraDirector" type="Node3D" parent="."]
+script = ExtResource("8_camera")
+
+[node name="VfxDirector" type="Node3D" parent="."]
+script = ExtResource("9_vfx")
+
+[node name="Hud" type="CanvasLayer" parent="."]
+script = ExtResource("10_hud")
+
+[node name="CaptureController" type="Node" parent="."]
+script = ExtResource("11_capture")

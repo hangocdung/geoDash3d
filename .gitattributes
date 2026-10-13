@@ -7,3 +7,4 @@
 *.png binary
 *.glb binary
 *.blend binary
+*.bat text eol=crlf

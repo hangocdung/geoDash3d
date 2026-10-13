@@ -52,6 +52,22 @@ func section_at(beat: float) -> ChartItems.Section:
 	return current
 
 
+## Latest beat <= `beat` where a run can start without stranding the player in front of a hazard
+## whose cue was skipped (practice / capture starts mid-chart). `lead_beats` = run-up before a cue.
+func safe_start_beat(beat: float, lead_beats: float = 1.0) -> float:
+	const HAZARD_MARGIN_BEATS: float = 0.5
+	var result: float = beat
+	for index: int in range(cues.size() - 1, -1, -1):
+		var cue: ChartItems.ActionCue = cues[index]
+		if cue.beat >= result:
+			continue
+		var hazard_end: float = cue.beat + cue.action.hazard_beat_offset + HAZARD_MARGIN_BEATS
+		if hazard_end < result:
+			break
+		result = cue.beat - lead_beats
+	return result
+
+
 ## Sorts events and fills derived fields. Called once by the loader.
 func finalize() -> void:
 	sections.sort_custom(func(a: ChartItems.Section, b: ChartItems.Section) -> bool: return a.beat < b.beat)

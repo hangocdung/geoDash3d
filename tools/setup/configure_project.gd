@@ -10,10 +10,19 @@ const AUTOLOADS: Dictionary[String, String] = {
 	"UserSettings": "*res://src/core/user_settings.gd",
 }
 
+const MAIN_SCENE: String = "res://src/presentation/level/level.tscn"
+
+## Global shader uniforms (`global uniform float beat_pulse;`), set at runtime by EnvironmentDirector.
+const SHADER_GLOBALS: Dictionary[String, float] = {
+	"beat_pulse": 0.0,
+}
+
 
 func _init() -> void:
 	_configure_input()
 	_configure_autoloads()
+	_configure_shader_globals()
+	ProjectSettings.set_setting("application/run/main_scene", MAIN_SCENE)
 	var error: Error = ProjectSettings.save()
 	if error != OK:
 		push_error("configure_project: ProjectSettings.save() failed with %s" % error_string(error))
@@ -52,3 +61,9 @@ func _configure_input() -> void:
 func _configure_autoloads() -> void:
 	for autoload_name: String in AUTOLOADS:
 		ProjectSettings.set_setting("autoload/%s" % autoload_name, AUTOLOADS[autoload_name])
+
+
+func _configure_shader_globals() -> void:
+	for parameter_name: String in SHADER_GLOBALS:
+		ProjectSettings.set_setting("shader_globals/%s" % parameter_name,
+				{"type": "float", "value": SHADER_GLOBALS[parameter_name]})

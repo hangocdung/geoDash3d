@@ -44,3 +44,11 @@ func test_speed_changes_affect_distance() -> void:
 	assert_almost_eq(chart.distance_at(10.0), 52.0)
 	assert_almost_eq(chart.beat_at_distance(52.0), 10.0)
 	assert_almost_eq(chart.distance_at(-2.0), -8.0)
+
+
+func test_safe_start_moves_before_pending_hazard() -> void:
+	var chart: LevelChart = ChartFixtures.make_chart([{"beat": 8, "type": "jump"}, {"beat": 10, "type": "dash"}])
+	assert_almost_eq(chart.safe_start_beat(4.0), 4.0, 0.0001, "nothing pending")
+	assert_almost_eq(chart.safe_start_beat(8.2), 7.0, 0.0001, "spike at 8.5 still ahead")
+	assert_almost_eq(chart.safe_start_beat(10.1), 7.0, 0.0001, "chains back through both cues")
+	assert_almost_eq(chart.safe_start_beat(12.0), 12.0, 0.0001, "both hazards passed")

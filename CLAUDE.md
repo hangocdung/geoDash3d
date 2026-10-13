@@ -5,7 +5,8 @@ Người chơi chỉ có **một thao tác: chạm/nhấn**, hành động thự
 Camera và VFX do game điều khiển theo nhạc. Ưu tiên: **khớp nhạc tuyệt đối > dễ đọc màn chơi > đẹp**.
 
 Tài liệu chi tiết (chỉ đọc khi task liên quan):
-- `docs/architecture.md` — các hệ thống, luồng dữ liệu, định dạng chart
+- `docs/architecture.md` — các hệ thống, luồng dữ liệu, trạng thái hiện thực
+- `docs/chart_format.md` — định dạng `*.chart.json` và quy trình làm chart cho một bài nhạc
 - `docs/roadmap.md` — danh sách task `GD3-xxx` và trạng thái
 
 ---
@@ -30,22 +31,31 @@ Muốn thay đổi bất kỳ điều nào ở trên, hay định dạng chart �
 - Python 3.12 (`python`) cho tool phân tích audio ngoài Godot.
 
 ```bash
-# Import tài nguyên + bắt lỗi parse script
+GODOT="D:/Godot_v4.6.1-stable_win64.exe/Godot_v4.6.1-stable_win64_console.exe"
+# Import + cập nhật class cache — BẮT BUỘC sau khi thêm/đổi tên class_name, trước khi chạy test
 "$GODOT" --headless --path . --import
-# Chạy toàn bộ test (GUT)
-"$GODOT" --headless --path . -s addons/gut/gut_cmdln.gd -gdir=res://tests -gexit
-# Chụp màn hình gameplay tại thời điểm T (cần render, không headless)
-"$GODOT" --path . res://tools/capture/capture.tscn -- --chart=<id> --time=<giây> --out=<file.png>
-# Sinh model từ script Blender
-"D:/Programs/Blender/blender.exe" -b -P assets/blender/<script>.py -- --out assets/models/<name>.glb
+# Test (runner tự viết, không addon). Lọc: thêm `-- --filter=test_tempo`
+"$GODOT" --headless --path . -s res://tests/framework/test_runner.gd
+# Bắt lỗi runtime: chạy level headless vài trăm frame với autoplay
+"$GODOT" --headless --path . --quit-after 300 -- --autoplay
+# Chụp ảnh tại các thời điểm bài nhạc (giây) → tools/capture/out/*.png (mở cửa sổ, tự thoát)
+"$GODOT" --path . -- --capture=8.1,49,72.2
+# Như trên nhưng không autoplay (xem cảnh chết); đo độ lệch audio: --debug-clock
+"$GODOT" --path . -- --capture=5 --capture-manual
+# Cấu hình project (input map, autoload, shader globals, main scene) — sửa trong script rồi chạy lại
+"$GODOT" --headless --path . -s res://tools/setup/configure_project.gd
+# Phân tích nhạc (BPM, offset, onset) bằng Python của Blender (có aud + numpy)
+"D:/Programs/Blender/blender.exe" -b --factory-startup -P tools/audio/analyze_song.py -- <song.mp3> <out.analysis.json>
+# Sinh chart từ phân tích + plan (Python hệ thống)
+python tools/audio/draft_chart.py <analysis.json> <plan.json> <out.chart.json>
 ```
-(`$GODOT` = đường dẫn console ở trên. Lệnh test/capture có hiệu lực sau task GD3-002/GD3-003.)
+Tham số khác của level (sau `--`): `--start-beat=96 --autoplay --invincible --clock=delta --chart=res://...`
 
 ## 3. Nền tảng: PC + Mobile
 - Renderer: Forward+ trên desktop, **Mobile** trên Android/iOS (override theo platform trong `project.godot`).
 - **Hình ảnh nền tảng phải đẹp với bộ tính năng của Mobile renderer**: emission + glow, depth fog, unshaded/baked lighting.
   SSR, SDFGI, volumetric fog, SSAO chỉ là "extra" của tier High trên PC, không được là thứ bắt buộc để màn chơi dễ đọc.
-- Mọi VFX/hậu kỳ đi qua `QualitySettings` (Low/Medium/High). Mục tiêu: 60 FPS ổn định trên mobile tầm trung.
+- Mọi VFX/hậu kỳ đọc `UserSettings.quality_tier` (`QualityTier`: Low/Medium/High). Mục tiêu: 60 FPS ổn định trên mobile tầm trung.
 - Input: một action duy nhất `tap` (touch, chuột trái, Space). Không thêm action gameplay khác nếu chưa hỏi.
 - Hướng màn hình: ngang (landscape). Tôn trọng safe area (tai thỏ) cho UI.
 
@@ -54,13 +64,13 @@ Muốn thay đổi bất kỳ điều nào ở trên, hay định dạng chart �
 assets/music/       nhạc + file chart (*.chart.json) cùng tên
 assets/models/      .glb đã xuất (KHÔNG sửa tay)
 assets/blender/     script bpy sinh model (nguồn thật của model)
-src/core/           SongClock, TempoMap, QualitySettings (autoload)
-src/gameplay/       chart, track path, player motion, action resolver, hazard — logic thuần
-src/presentation/   camera director, vfx, beat pulse, visual của player/obstacle
+src/core/           SongClock (node), TempoMap, UserSettings (autoload duy nhất), QualityTier
+src/gameplay/       chart/, defs/ (Resource cấu hình), simulation/, track/ — logic thuần, không Node
+src/presentation/   level/ (LevelRunner + level.tscn), camera, vfx, environment, track view, shaders/
 src/ui/             HUD, menu, màn hiệu chỉnh độ trễ
-src/authoring/      record mode, importer .sm, công cụ luyện tập
-tests/              test GUT (test_*.gd)
-tools/              capture, script Python phân tích audio
+src/authoring/      record mode, importer .sm, công cụ luyện tập (chưa làm)
+tests/              test_*.gd kế thừa TestCase; tests/framework/ là runner
+tools/              setup/ (cấu hình project), audio/ (phân tích + sinh chart), capture/out (ảnh, gitignored)
 docs/               kiến trúc, roadmap, quyết định thiết kế
 ```
 Mỗi feature để `.gd` và `.tscn` cạnh nhau trong cùng thư mục.
@@ -79,19 +89,21 @@ Mỗi feature để `.gd` và `.tscn` cạnh nhau trong cùng thư mục.
 
 ## 6. Quy trình làm việc
 - Làm theo task trong `docs/roadmap.md`. Khi bắt đầu/kết thúc task, cập nhật trạng thái ở đó.
-- Logic gameplay mới (đặc biệt phép tính thời gian) **phải có test GUT**. Chạy test trước khi báo xong.
+- Logic gameplay mới (đặc biệt phép tính thời gian) **phải có test**. Chạy test trước khi báo xong.
+  `tests/gameplay/test_shipped_charts.gd` bắt buộc mọi chart trong `assets/music/` qua được bằng autoplay.
 - Thay đổi hình ảnh: chụp ảnh bằng tool capture và tự xem trước khi báo xong.
 - Thay đổi kiến trúc/định dạng dữ liệu: cập nhật `docs/architecture.md` trong cùng thay đổi.
 - Commit: Conventional Commits (`feat(gameplay): ...`, `fix(core): ...`, `docs: ...`), kèm mã task nếu có.
-  Chỉ commit khi người dùng yêu cầu.
+  Được phép commit khi xong một task/milestone (người dùng đã giao toàn quyền, 2026-10-13).
 
 ## 7. Không được làm
 - Không sửa `.godot/`, file `*.import`, `*.uid`; không tự bịa `uid://` trong `.tscn`/`.tres` (để Godot sinh,
   hoặc tham chiếu bằng đường dẫn `res://`).
 - Không sửa tay `assets/models/*.glb` — sửa script trong `assets/blender/` rồi sinh lại.
 - Không thêm addon/thư viện ngoài khi chưa hỏi.
+- Không dùng màu hồng/vàng cho cảnh nền: hồng = gai/nhảy, vàng = rào/dash. Cảnh nền chỉ dùng tông lạnh.
 
 ## 8. Nhạc
 | File | Nguồn | Giấy phép | BPM | Offset |
 |---|---|---|---|---|
-| `The_Dawn_Assembly.mp3` | Google Flow Music (AI) | **Chưa xác nhận dùng thương mại** | chưa đo | chưa đo |
+| `assets/music/the_dawn_assembly.mp3` | Google Flow Music (AI) | **Chưa xác nhận dùng thương mại** | 120 | 0.058 s |
