@@ -1,0 +1,9 @@
+# Normalize text files to LF in the repository.
+* text=auto eol=lf
+
+*.mp3 binary
+*.ogg binary
+*.wav binary
+*.png binary
+*.glb binary
+*.blend binary

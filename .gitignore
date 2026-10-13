@@ -1,0 +1,13 @@
+# Godot
+.godot/
+/android/
+*.translation
+export_presets.cfg
+/build/
+
+# Tool output
+/tools/capture/out/
+/tools/audio/out/
+__pycache__/
+*.pyc
+*.blend1

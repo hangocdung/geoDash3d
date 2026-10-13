@@ -1,0 +1,54 @@
+# Autoload "UserSettings": per-player preferences persisted to user://settings.cfg
+# (audio calibration offset, quality tier). Read by SongClock and presentation code.
+# Related: src/core/song_clock.gd, src/core/quality_tier.gd
+extends Node
+
+signal changed
+
+const SETTINGS_PATH: String = "user://settings.cfg"
+const SECTION: String = "player"
+const MAX_CALIBRATION_SEC: float = 0.5
+
+## Extra delay (seconds) between the engine's audio clock and what the player hears.
+## Positive values mean the player hears the music later than the engine thinks.
+var audio_offset_sec: float = 0.0:
+	set(value):
+		audio_offset_sec = clampf(value, -MAX_CALIBRATION_SEC, MAX_CALIBRATION_SEC)
+		changed.emit()
+
+var quality_tier: QualityTier.Tier = QualityTier.default_for_platform():
+	set(value):
+		quality_tier = value
+		changed.emit()
+
+var music_volume_db: float = 0.0:
+	set(value):
+		music_volume_db = clampf(value, -60.0, 6.0)
+		changed.emit()
+
+
+func _ready() -> void:
+	load_settings()
+
+
+func load_settings() -> void:
+	var config := ConfigFile.new()
+	var error: Error = config.load(SETTINGS_PATH)
+	if error == ERR_FILE_NOT_FOUND:
+		return
+	if error != OK:
+		push_error("UserSettings: cannot read %s (%s)" % [SETTINGS_PATH, error_string(error)])
+		return
+	audio_offset_sec = float(config.get_value(SECTION, "audio_offset_sec", 0.0))
+	quality_tier = QualityTier.from_int(int(config.get_value(SECTION, "quality_tier", quality_tier)))
+	music_volume_db = float(config.get_value(SECTION, "music_volume_db", 0.0))
+
+
+func save_settings() -> void:
+	var config := ConfigFile.new()
+	config.set_value(SECTION, "audio_offset_sec", audio_offset_sec)
+	config.set_value(SECTION, "quality_tier", int(quality_tier))
+	config.set_value(SECTION, "music_volume_db", music_volume_db)
+	var error: Error = config.save(SETTINGS_PATH)
+	if error != OK:
+		push_error("UserSettings: cannot write %s (%s)" % [SETTINGS_PATH, error_string(error)])
