@@ -12,7 +12,10 @@ Trạng thái: `[ ]` chưa làm · `[~]` đang làm / làm một phần · `[x]`
 - [x] **GD3-011** `TempoMap` + test.
 - [x] **GD3-012** Đo BPM/offset `the_dawn_assembly`: 120 BPM, offset 0.058 s (`tools/audio/analyze_song.py`).
 - [x] **GD3-013** Scene metronome / SYNC TEST: click khóa mẫu với nhạc (`AudioStreamSynchronized`), nháy theo beat, chỉnh offset trực tiếp.
-- [x] **GD3-014** Màn hiệu chỉnh độ trễ: 4 nhịp đếm + 16 nhịp gõ, ước lượng bền (median/MAD) → `UserSettings.audio_offset_sec`.
+- [x] **GD3-014** Màn hiệu chỉnh độ trễ (AUDIO SYNC), làm lại sau phản hồi 2026-10-13:
+      - Chỉ một loại click; chạm ngay từ tiếng đầu (4 lần đầu tự bỏ qua).
+      - Vòng tròn nháy theo 6 click đầu rồi chỉ nghe; tự kết thúc sau 16 lần đo.
+      - Ước lượng bền (median/MAD) → `UserSettings.audio_offset_sec`.
 
 ## Phase 2 — Prototype gameplay
 - [x] **GD3-020** Chart JSON v1 + loader + validate + test.

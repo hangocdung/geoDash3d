@@ -13,8 +13,10 @@ const ACCENT_GAIN: float = 0.9
 const NORMAL_GAIN: float = 0.55
 
 
-## Click on every whole beat from time 0 to `duration_sec`; the first beat of each bar is accented.
-static func generate(tempo: TempoMap, duration_sec: float, beats_per_bar: int = 4) -> AudioStreamWAV:
+## Click on every whole beat from time 0 to `duration_sec`. With `accent_downbeats` the first beat of each
+## bar uses a higher click (metronome); without it every click is identical (calibration).
+static func generate(tempo: TempoMap, duration_sec: float, beats_per_bar: int = 4,
+		accent_downbeats: bool = true) -> AudioStreamWAV:
 	if duration_sec <= 0.0:
 		push_error("ClickTrack: duration must be > 0 (got %f)" % duration_sec)
 		return null
@@ -26,7 +28,7 @@ static func generate(tempo: TempoMap, duration_sec: float, beats_per_bar: int = 
 		var click_time: float = tempo.beat_to_time(float(beat))
 		if click_time >= duration_sec:
 			break
-		var accent: bool = posmod(beat, beats_per_bar) == 0
+		var accent: bool = accent_downbeats and posmod(beat, beats_per_bar) == 0
 		_write_click(data, roundi(click_time * MIX_RATE), ACCENT_FREQUENCY if accent else NORMAL_FREQUENCY,
 				ACCENT_GAIN if accent else NORMAL_GAIN)
 		beat += 1
