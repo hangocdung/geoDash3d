@@ -7,9 +7,18 @@ const TESTS_ROOT: String = "res://tests"
 const FRAMEWORK_DIRECTORY: String = "framework"
 
 var _error_logger: TestErrorLogger = TestErrorLogger.new()
+var _started: bool = false
 
 
-func _initialize() -> void:
+## Tests run on the first frame (not in _initialize) so scenes added to root get _ready like in the game.
+func _process(_delta: float) -> bool:
+	if not _started:
+		_started = true
+		_run_all()
+	return false
+
+
+func _run_all() -> void:
 	OS.add_logger(_error_logger)
 	var filter_text: String = _read_filter()
 	var script_paths: PackedStringArray = _find_test_scripts(TESTS_ROOT)

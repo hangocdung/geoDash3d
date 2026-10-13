@@ -16,6 +16,8 @@ Trạng thái: `[ ]` chưa làm · `[~]` đang làm / làm một phần · `[x]`
       - Chỉ một loại click; chạm ngay từ tiếng đầu (4 lần đầu tự bỏ qua).
       - Vòng tròn nháy theo 6 click đầu rồi chỉ nghe; tự kết thúc sau 16 lần đo.
       - Ước lượng bền (median/MAD) → `UserSettings.audio_offset_sec`.
+      - Sửa lỗi Android: Control gốc phủ toàn màn hình nuốt mọi cú chạm.
+      - Đo thật trên Note10 Lite (loa ngoài): −6 ms, ±31 ms → mặc định 0 ms là hợp lý.
 
 ## Phase 2 — Prototype gameplay
 - [x] **GD3-020** Chart JSON v1 + loader + validate + test.

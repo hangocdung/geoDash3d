@@ -17,6 +17,8 @@ const GUIDE_CLICKS: int = 6
 const MAX_CLICKS: int = 48
 const MAX_ACCEPTED_ERROR_SEC: float = 0.25
 const MAX_GOOD_SPREAD_SEC: float = 0.04
+## If nothing was tapped by this click, the instructions are highlighted.
+const NO_TAP_HINT_CLICKS: int = 8
 
 var _phase: Phase = Phase.INTRO
 var _tempo: TempoMap
@@ -39,6 +41,8 @@ var _retry_button: Button
 func _ready() -> void:
 	theme = UiTheme.get_theme()
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	# The full-screen root must not swallow touches: taps anywhere have to reach _unhandled_input.
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_tempo = TempoMap.constant(BPM, FIRST_CLICK_SEC)
 	_clicks = ClickTrack.generate(_tempo, _tempo.beat_to_time(float(MAX_CLICKS)) + 0.5, 4, false)
 	_build_clock()
@@ -57,6 +61,9 @@ func _process(_delta: float) -> void:
 			_ring.pulse = 1.0
 		elif click == GUIDE_CLICKS:
 			_headline.text = "Keep tapping — just listen"
+		if click == NO_TAP_HINT_CLICKS and _accepted_taps == 0:
+			_status.text = "Tap anywhere on the screen each time you hear the click!"
+			_status.add_theme_color_override("font_color", UiTheme.HOT)
 	if _errors.size() >= MEASURED_TAPS or beat > MAX_CLICKS + 0.5:
 		_finish()
 
@@ -71,6 +78,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if beat < 0 or beat >= MAX_CLICKS or _tapped_beats.has(beat):
 		return
 	var error: float = CalibrationMath.tap_error(tap_time, _tempo)
+	if OS.is_debug_build():
+		print("CALIB tap time=%.3f beat=%d error_ms=%.1f clock_state=%d" % [tap_time, beat, error * 1000.0, _clock.state])
 	if absf(error) > MAX_ACCEPTED_ERROR_SEC:
 		return
 	_tapped_beats[beat] = true
@@ -90,6 +99,7 @@ func _start() -> void:
 	_headline.text = "Tap on every click"
 	_counter.text = "0 / %d" % (WARMUP_TAPS + MEASURED_TAPS)
 	_status.text = "Tap anywhere on the screen, in time with the sound."
+	_status.remove_theme_color_override("font_color")
 	_clock.start(_clicks, 0.0, 0.3)
 
 
