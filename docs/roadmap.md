@@ -72,6 +72,9 @@ Thiết kế: `docs/design/gameplay_v3.md`. **Đã duyệt 2026-10-14: map đị
       khi tới gần (`proximity_gain`, sáng lên chứ không nhấp nháy). Chỉ là shader, theo `run_beat`/`player_distance`.
 - [x] **GD3-092** Speed lines ở MEDIUM (18) / HIGH (32), không có ở LOW; phát ở phía nền sau đường để không che
       đường chạy; mật độ theo energy đoạn nhạc; tắt khi chết.
+- Đo A/B trên Note10 Lite (`tools/device/perf_ab.sh`, bản `main` trước GD3-090 so với sau GD3-092, đo A-B-B-A):
+  LOW 56.3/56.0 → 56.1/57.9 FPS, MEDIUM 40.5/40.8 → 40.7/40.7 FPS, draw call +6. Không đo được chi phí.
+  Số frame khựng ở MEDIUM nhỉnh hơn (5/5 so với 1/4 trong 15 s) — trong ngưỡng nhiễu, cần theo dõi.
 - [ ] **GD3-093** Biome theo đoạn nhạc (bảng màu tông lạnh + bộ hình khối cảnh nền) — cần chọn chủ đề.
 
 ## Phase 5 — Mobile
