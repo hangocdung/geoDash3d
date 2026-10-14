@@ -68,7 +68,8 @@ Thiết kế: `docs/design/gameplay_v3.md`. **Đã duyệt 2026-10-14: map đị
 - [x] **GD3-090** Combo + lá chắn nạp theo combo (16 lần trúng → 1 lá chắn): vật cản vỡ, rơi/đâm bệ thì về quỹ đạo
       chuẩn để không lệch nhịp; HUD combo + thanh nạp, MAX COMBO; SFX tạm `player.shield(_break)`; test.
       Công cụ: `--autoplay-miss`, `--capture-continuous`.
-- [ ] **GD3-091** Vệt năng lượng chạy dọc ray theo beat + vật cản sáng lên khi tới gần (shader).
+- [x] **GD3-091** Sóng năng lượng chạy dọc đường theo beat (mặt sóng + đuôi trên đường kẻ làn) + vật cản sáng dần
+      khi tới gần (`proximity_gain`, sáng lên chứ không nhấp nháy). Chỉ là shader, theo `run_beat`/`player_distance`.
 - [ ] **GD3-092** Speed lines nhẹ ở MEDIUM/HIGH.
 - [ ] **GD3-093** Biome theo đoạn nhạc (bảng màu tông lạnh + bộ hình khối cảnh nền) — cần chọn chủ đề.
 

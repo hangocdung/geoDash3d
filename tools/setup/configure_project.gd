@@ -15,9 +15,13 @@ const AUTOLOADS: Dictionary[String, String] = {
 const MAIN_SCENE: String = "res://src/ui/menu/main_menu.tscn"
 
 ## Global shader uniforms (`global uniform float beat_pulse;`), set at runtime by EnvironmentDirector.
-const SHADER_GLOBALS: Dictionary[String, float] = {
+## A Vector3 value declares a vec3 global, anything else a float.
+const SHADER_GLOBALS: Dictionary[String, Variant] = {
 	"beat_pulse": 0.0,
 	"soft_glow": 0.0,
+	"run_beat": 0.0,
+	"player_distance": 0.0,
+	"player_position": Vector3.ZERO,
 }
 
 
@@ -68,5 +72,6 @@ func _configure_autoloads() -> void:
 
 func _configure_shader_globals() -> void:
 	for parameter_name: String in SHADER_GLOBALS:
+		var value: Variant = SHADER_GLOBALS[parameter_name]
 		ProjectSettings.set_setting("shader_globals/%s" % parameter_name,
-				{"type": "float", "value": SHADER_GLOBALS[parameter_name]})
+				{"type": "vec3" if value is Vector3 else "float", "value": value})

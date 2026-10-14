@@ -78,10 +78,14 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
 - **EnvironmentDirector**:
   - Trời là shader (gradient, sao, hành tinh có vành), dùng `AT_CUBEMAP_PASS` để radiance không cập nhật mỗi frame.
   - Glow additive, ACES, fog exponential cộng height fog.
-  - Đẩy global shader uniform `beat_pulse`: nhịp đầu ô nhịp mạnh hơn, tỉ lệ theo energy của section.
+  - Đẩy global shader uniform `beat_pulse`: nhịp đầu ô nhịp mạnh hơn, tỉ lệ theo energy của section; cùng
+    `run_beat`, `player_distance`, `player_position` (vị trí người chơi trên đường, theo beat). Danh sách global
+    khai báo trong `tools/setup/configure_project.gd`.
 - **Shader** (`shaders/`):
-  - `neon_track`: lưới gạch và viền ray.
+  - `neon_track`: lưới gạch và viền ray; mỗi beat một sóng năng lượng chạy từ người chơi ra phía trước (mặt sóng
+    ngang đường + đuôi trên đường kẻ làn), là hàm thuần của `run_beat` và `player_distance`.
   - `neon_box`: viền sáng có độ rộng cố định theo world, dùng được cho MultiMesh đã scale; vẽ mặt cho player.
+    `neon_box`/`neon_wire` có `proximity_gain`: vật cản (và bệ bật) sáng dần khi người chơi tới gần.
   - `neon_wire`: viền tam giác theo barycentric trong `COLOR`.
   - `energy_barrier`, `glyph` (ring / ^ / » / shock ring), `neon_sky`.
 - **Mesh** sinh bằng code (`meshes/procedural_meshes.gd`): đoạn đường (chia chunk 48 đơn vị để culling, có thể nâng

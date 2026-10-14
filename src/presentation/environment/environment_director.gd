@@ -1,5 +1,6 @@
-# Owns WorldEnvironment, sky and key light. Each frame it publishes the global `beat_pulse`
-# shader parameter and eases glow/fog/background energy toward the current section's energy.
+# Owns WorldEnvironment, sky and key light. Each frame it publishes the global shader parameters
+# (`beat_pulse`, `run_beat`, `player_distance`, `player_position`: all functions of the beat) and eases
+# glow/fog/background energy toward the current section's energy.
 # The sky material is never changed per frame: that would re-render its radiance map every frame.
 # Related: src/presentation/shaders/neon_sky.gdshader, tools/setup/configure_project.gd (shader globals)
 class_name EnvironmentDirector
@@ -8,6 +9,9 @@ extends Node3D
 const SKY_SHADER: Shader = preload("res://src/presentation/shaders/neon_sky.gdshader")
 const BEAT_PULSE_PARAMETER: StringName = &"beat_pulse"
 const SOFT_GLOW_PARAMETER: StringName = &"soft_glow"
+const RUN_BEAT_PARAMETER: StringName = &"run_beat"
+const PLAYER_DISTANCE_PARAMETER: StringName = &"player_distance"
+const PLAYER_POSITION_PARAMETER: StringName = &"player_position"
 const PULSE_SHARPNESS: float = 7.0
 const ENERGY_EASE_PER_SEC: float = 1.5
 const CALM_FOG: Color = Color(0.08, 0.05, 0.2)
@@ -68,6 +72,10 @@ func update_environment(beat: float, delta: float) -> void:
 	_energy = move_toward(_energy, target_energy, delta * ENERGY_EASE_PER_SEC)
 	_flash = maxf(_flash - delta * 3.0, 0.0)
 	RenderingServer.global_shader_parameter_set(BEAT_PULSE_PARAMETER, _beat_pulse(beat) + _flash)
+	# Track position of the player (road level): rail streaks and the hazards' approach glow use it.
+	RenderingServer.global_shader_parameter_set(RUN_BEAT_PARAMETER, beat)
+	RenderingServer.global_shader_parameter_set(PLAYER_DISTANCE_PARAMETER, _context.chart.distance_at(beat))
+	RenderingServer.global_shader_parameter_set(PLAYER_POSITION_PARAMETER, _context.frame_at_beat(beat).origin)
 	environment.background_energy_multiplier = lerpf(0.85, 1.15, _energy) * (1.0 + _flash * 0.6)
 	environment.glow_intensity = lerpf(0.75, 1.15, _energy) + _flash * 0.6
 	environment.fog_light_color = CALM_FOG.lerp(HOT_FOG, _energy)

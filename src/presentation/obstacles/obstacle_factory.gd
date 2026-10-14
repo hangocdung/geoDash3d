@@ -21,6 +21,8 @@ const POST_SIZE: float = 0.35
 const ORB_SIZE: float = 1.7
 const PAD_WIDTH: float = 1.3
 const PAD_THICKNESS: float = 0.14
+## Hazards (and pads) brighten up to (1 + gain)x as the player approaches (shader proximity glow).
+const APPROACH_GAIN: float = 1.0
 
 var _cache := MaterialCache.new()
 var _spike_meshes: Dictionary[StringName, Mesh] = {}
@@ -32,13 +34,14 @@ func build_hazard(hazard: HazardDefinition) -> Node3D:
 	match hazard.visual:
 		HazardDefinition.Visual.SPIKE:
 			var spike: MeshInstance3D = _mesh_instance(_spike_mesh(hazard), _cache.get_material(
-					StringName("wire_%s" % hazard.id), WIRE_SHADER, {"edge_color": hazard.color}))
+					StringName("wire_%s" % hazard.id), WIRE_SHADER, {"edge_color": hazard.color,
+					"proximity_gain": APPROACH_GAIN}))
 			spike.position.z = hazard.lateral_center
 			root.add_child(spike)
 		HazardDefinition.Visual.WALL:
 			var wall: MeshInstance3D = _mesh_instance(BoxMesh.new(), _cache.get_material(StringName("wall_%s" % hazard.id),
 					BOX_SHADER, {"edge_color": hazard.color, "edge_energy": 5.0, "edge_width": 0.08, "face_energy": 0.22,
-					"pulse_gain": 0.6}))
+					"pulse_gain": 0.6, "proximity_gain": APPROACH_GAIN}))
 			wall.transform = Transform3D(Basis().scaled(Vector3(hazard.visual_length, hazard.visual_height,
 					hazard.visual_width)), Vector3(0, hazard.visual_height * 0.5, hazard.lateral_center))
 			root.add_child(wall)
@@ -94,7 +97,8 @@ func _icon(cue: ChartItems.ActionCue, cue_height: float, context: LevelContext, 
 func build_pad(color: Color, half_length: float) -> Node3D:
 	var root := Node3D.new()
 	var slab: MeshInstance3D = _mesh_instance(BoxMesh.new(), _cache.get_material(&"pad_slab", BOX_SHADER,
-			{"edge_color": color, "edge_energy": 5.0, "edge_width": 0.06, "face_energy": 0.45, "pulse_gain": 1.0}))
+			{"edge_color": color, "edge_energy": 5.0, "edge_width": 0.06, "face_energy": 0.45, "pulse_gain": 1.0,
+			"proximity_gain": APPROACH_GAIN}))
 	slab.transform = Transform3D(Basis().scaled(Vector3(half_length * 2.0, PAD_THICKNESS, PAD_WIDTH)),
 			Vector3(0, PAD_THICKNESS * 0.5, 0))
 	root.add_child(slab)
@@ -117,7 +121,7 @@ func _orb_markers(cue: ChartItems.ActionCue, cue_height: float, context: LevelCo
 
 func _build_gate(root: Node3D, hazard: HazardDefinition) -> void:
 	var post_material: ShaderMaterial = _cache.get_material(StringName("post_%s" % hazard.id), BOX_SHADER,
-			{"edge_color": hazard.color, "edge_energy": 4.5, "edge_width": 0.05})
+			{"edge_color": hazard.color, "edge_energy": 4.5, "edge_width": 0.05, "proximity_gain": APPROACH_GAIN})
 	var half_width: float = hazard.visual_width * 0.5
 	for side: float in [-1.0, 1.0]:
 		var post: MeshInstance3D = _mesh_instance(BoxMesh.new(), post_material)

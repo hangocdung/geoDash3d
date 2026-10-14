@@ -1,11 +1,16 @@
 // Track surface: dark tiles with a glowing grid on top and bright neon rails along both edges.
 // COLOR.r = 1 on the top face, 0 on side faces; COLOR.g = 1 on end caps (step risers, gap edges).
 // UV.x across (top) / down (sides, caps); UV.y = distance (top, sides) / 0..1 across (caps).
+// On every beat an energy wave leaves the player and races ahead: a thin front across the track with a
+// tail along the lane lines (pure function of the song beat and the player's track distance, so it never
+// drifts from the music).
 shader_type spatial;
 
 global uniform float beat_pulse;
 // 1 when the glow post-process is off (low quality): shaders add cheap soft halos instead.
 global uniform float soft_glow;
+global uniform float run_beat;
+global uniform float player_distance;
 
 uniform vec3 base_color : source_color = vec3(0.03, 0.025, 0.07);
 uniform vec3 grid_color : source_color = vec3(0.25, 0.85, 1.0);
@@ -15,11 +20,27 @@ uniform float tile_length = 3.5;
 uniform float grid_energy = 0.55;
 uniform float rail_energy = 5.0;
 uniform float pulse_gain = 1.4;
+uniform vec3 streak_color : source_color = vec3(0.75, 0.97, 1.0);
+uniform float streak_energy = 5.0;
+// Units a streak's head runs ahead of the player during one beat, and its tail length.
+uniform float streak_reach = 36.0;
+uniform float streak_length = 5.0;
 
 float grid_line(float coordinate, float half_width) {
 	float distance_to_line = abs(fract(coordinate + 0.5) - 0.5);
 	float aa = fwidth(coordinate) * 1.5;
 	return 1.0 - smoothstep(half_width, half_width + aa, distance_to_line);
+}
+
+// x = thin wave front across the track at the streak head, y = fading tail behind it.
+vec2 beat_streak(float distance_along) {
+	float phase = fract(run_beat);
+	float ahead = distance_along - player_distance;
+	float behind_head = phase * streak_reach - ahead;
+	float alive = step(0.0, ahead) * (1.0 - phase) * step(0.0, run_beat);
+	float front = exp(-abs(behind_head) / 0.5);
+	float tail = step(0.0, behind_head) * exp(-behind_head / streak_length);
+	return vec2(front, tail) * alive;
 }
 
 void fragment() {
@@ -35,6 +56,10 @@ void fragment() {
 		ROUGHNESS = 0.18;
 		METALLIC = 0.5;
 		emission = grid_color * grid * grid_energy * pulse + rail_color * rail * rail_energy * pulse;
+		float lane_lines = grid_line(UV.x * lanes, 0.025);
+		vec2 streak = beat_streak(UV.y);
+		emission += streak_color * streak_energy * (0.6 + beat_pulse)
+				* (streak.x * 0.45 + streak.y * (lane_lines + 0.08));
 	} else {
 		float band = 1.0 - smoothstep(0.0, 0.07, UV.x);
 		ALBEDO = base_color * 0.6;
