@@ -8,6 +8,8 @@ extends Node3D
 
 const TRACK_SHADER: Shader = preload("res://src/presentation/shaders/neon_track.gdshader")
 const BOX_SHADER: Shader = preload("res://src/presentation/shaders/neon_box.gdshader")
+const TRACK_DETAIL: Texture2D = preload("res://assets/textures/track_detail.png")
+const SCENERY_DETAIL: Texture2D = preload("res://assets/textures/scenery_detail.png")
 const CHUNK_LENGTH: float = 48.0
 const PILLAR_SPACING: float = 42.0
 const PILLAR_DEPTH: float = 60.0
@@ -28,9 +30,11 @@ func setup(context: LevelContext) -> void:
 	track_material = ShaderMaterial.new()
 	track_material.shader = TRACK_SHADER
 	track_material.set_shader_parameter("palette_role", 1)
+	track_material.set_shader_parameter("detail_map", TRACK_DETAIL)
 	block_material = ShaderMaterial.new()
 	block_material.shader = TRACK_SHADER
 	block_material.set_shader_parameter("palette_role", 2)
+	block_material.set_shader_parameter("detail_map", TRACK_DETAIL)
 	block_material.set_shader_parameter("grid_energy", 0.8)
 	var terrain: Terrain = context.chart.terrain
 	for stretch: Vector2 in _road_stretches(terrain, context.track.start_distance, context.track.end_distance):
@@ -98,6 +102,8 @@ func _build_pillars(context: LevelContext, terrain: Terrain, width: float, thick
 	var material := ShaderMaterial.new()
 	material.shader = BOX_SHADER
 	material.set_shader_parameter("palette_role", 2)
+	material.set_shader_parameter("detail_map", SCENERY_DETAIL)
+	material.set_shader_parameter("detail_tile", 5.0)
 	material.set_shader_parameter("edge_energy", 2.5)
 	material.set_shader_parameter("edge_width", 0.1)
 	var transforms: Array[Transform3D] = []

@@ -14,6 +14,14 @@ const AUTOLOADS: Dictionary[String, String] = {
 
 const MAIN_SCENE: String = "res://src/ui/menu/main_menu.tscn"
 
+## Import defaults for new images: the 3D detail textures (assets/textures) need mipmaps and VRAM compression
+## (ETC2/ASTC on phones). Change a single 2D/UI image in the editor's Import dock if it should stay lossless.
+const TEXTURE_IMPORT_DEFAULTS: Dictionary[String, Variant] = {
+	"compress/mode": 2,
+	"mipmaps/generate": true,
+	"detect_3d/compress_to": 0,
+}
+
 ## Global shader uniforms (`global uniform float beat_pulse;`), set at runtime by EnvironmentDirector.
 ## A Vector3 value declares a vec3 global, a Vector4 a vec4, anything else a float. A Color declares a vec4
 ## holding the linear color: the shaders get the same values as `source_color` uniforms (EnvironmentDirector
@@ -40,6 +48,8 @@ const SHADER_GLOBALS: Dictionary[String, Variant] = {
 	"pal_pillar": Color(0.55, 0.35, 1.0),
 	"pal_decor_glow": Color(0.45, 0.4, 1.0),
 	"pal_decor_accent": Color(0.3, 0.9, 1.0),
+	# 1 = shaders sample the packed detail textures (MEDIUM/HIGH), 0 = flat neon look (LOW).
+	"detail_textures": 1.0,
 }
 
 
@@ -48,6 +58,7 @@ func _init() -> void:
 	_configure_autoloads()
 	_configure_shader_globals()
 	ProjectSettings.set_setting("application/run/main_scene", MAIN_SCENE)
+	ProjectSettings.set_setting("importer_defaults/texture", TEXTURE_IMPORT_DEFAULTS)
 	var error: Error = ProjectSettings.save()
 	if error != OK:
 		push_error("configure_project: ProjectSettings.save() failed with %s" % error_string(error))

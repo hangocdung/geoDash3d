@@ -73,6 +73,12 @@ static func uses_sky_pulse(tier: Tier) -> bool:
 	return tier != Tier.LOW
 
 
+## Detail textures on the road, blocks, pillars and scenery (one extra texture sample per pixel there). Off on
+## LOW until measured on a phone: LOW keeps its fill-rate budget.
+static func uses_detail_textures(tier: Tier) -> bool:
+	return tier != Tier.LOW
+
+
 ## Phase palette changes blend over a beat; on LOW they switch on one frame (a sky that changes every frame
 ## costs ~3 FPS there, see uses_sky_pulse), hidden under the phase flash.
 static func blends_phase_changes(tier: Tier) -> bool:

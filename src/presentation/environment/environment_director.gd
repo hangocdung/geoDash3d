@@ -13,6 +13,7 @@ extends Node3D
 const SKY_SHADER: Shader = preload("res://src/presentation/shaders/neon_sky.gdshader")
 const BEAT_PULSE_PARAMETER: StringName = &"beat_pulse"
 const SOFT_GLOW_PARAMETER: StringName = &"soft_glow"
+const DETAIL_TEXTURES_PARAMETER: StringName = &"detail_textures"
 const RUN_BEAT_PARAMETER: StringName = &"run_beat"
 const PLAYER_DISTANCE_PARAMETER: StringName = &"player_distance"
 const PLAYER_POSITION_PARAMETER: StringName = &"player_position"
@@ -167,6 +168,8 @@ func apply_quality(quality: QualityTier.Tier) -> void:
 	var glow: bool = QualityTier.uses_glow(quality)
 	environment.glow_enabled = glow
 	RenderingServer.global_shader_parameter_set(SOFT_GLOW_PARAMETER, 0.0 if glow else 1.0)
+	RenderingServer.global_shader_parameter_set(DETAIL_TEXTURES_PARAMETER,
+			1.0 if QualityTier.uses_detail_textures(quality) else 0.0)
 	environment.glow_blend_mode = Environment.GLOW_BLEND_MODE_ADDITIVE
 	environment.glow_hdr_threshold = 0.9
 	environment.glow_bloom = 0.04

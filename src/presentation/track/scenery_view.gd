@@ -8,6 +8,7 @@ extends Node3D
 
 const BOX_SHADER: Shader = preload("res://src/presentation/shaders/neon_box.gdshader")
 const WIRE_SHADER: Shader = preload("res://src/presentation/shaders/neon_wire.gdshader")
+const SCENERY_DETAIL: Texture2D = preload("res://assets/textures/scenery_detail.png")
 const SPACING: float = 8.0
 const CLEAR_RADIUS: float = 16.0
 ## Track length covered by one MultiMesh chunk, and how far chunks stay visible (fog hides the rest).
@@ -124,6 +125,7 @@ func _box_material() -> ShaderMaterial:
 	var material := ShaderMaterial.new()
 	material.shader = BOX_SHADER
 	material.set_shader_parameter("palette_role", 1)
+	material.set_shader_parameter("detail_map", SCENERY_DETAIL)
 	material.set_shader_parameter("edge_width", 0.18)
 	material.set_shader_parameter("edge_energy", 1.6)
 	material.set_shader_parameter("face_energy", 0.03)

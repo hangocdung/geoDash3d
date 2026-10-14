@@ -110,6 +110,13 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
     `neon_box`/`neon_wire` có `proximity_gain`: vật cản (và bệ bật) sáng dần khi người chơi tới gần.
   - `neon_wire`: viền tam giác theo barycentric trong `COLOR`.
   - `energy_barrier`, `glyph` (ring / ^ / » / shock ring), `neon_sky`.
+- **Texture chi tiết** (GD3-103): ảnh nguồn tạo bằng Codex (`tools/textures/generate_sources.sh`, lưu ở
+  `art_source/textures/`, không commit), `tools/textures/build_textures.py` cắt theo chu kỳ lặp + hòa mép cho liền
+  rồi gộp kênh: `assets/textures/track_detail.png` (R tấm đường, G mạch, B tấm hông, A tấm lục giác cho bệ) và
+  `scenery_detail.png` (R cửa sổ sáng, G gờ cột, B mặt tiền). Xám, 512 px, import nén VRAM + mipmap
+  (`importer_defaults/texture` trong `configure_project.gd`). Mỗi pixel đường/bệ/cột/cảnh nền lấy mẫu **một lần**;
+  global `detail_textures` (theo `QualityTier.uses_detail_textures`) tắt hẳn ở LOW. Màu vẫn từ palette (texture chỉ
+  là độ sáng/mặt nạ), mạch trên đường đập theo `beat_pulse`.
 - **Mesh** sinh bằng code (`meshes/procedural_meshes.gd`): đoạn đường (chia chunk 48 đơn vị để culling, có thể nâng
   lên và đóng nắp hai đầu) và kim tự tháp. Thứ tự đỉnh được tự sửa sang chiều kim đồng hồ.
 - **TrackView**: đường bị cắt ở hố (mép hố đóng nắp), bệ là đoạn đường nâng lên (vật liệu riêng); nắp mặt đứng

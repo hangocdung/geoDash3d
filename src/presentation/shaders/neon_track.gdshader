@@ -5,6 +5,9 @@
 // tail along the lane lines (pure function of the song beat and the player's track distance, so it never
 // drifts from the music).
 // `palette_role` 1 (road) / 2 (raised blocks) takes the colors from the phase palette globals instead.
+// With `detail_textures` on (MEDIUM/HIGH) one sample of the packed detail texture (assets/textures, built by
+// tools/textures/build_textures.py) adds metal plates with lit grooves and beat-pulsing circuit traces to the
+// road, hex plates to raised blocks and vented panels to the sides.
 shader_type spatial;
 
 global uniform float beat_pulse;
@@ -18,6 +21,7 @@ global uniform vec4 pal_track_rail;
 global uniform vec4 pal_track_streak;
 global uniform vec4 pal_block_base;
 global uniform vec4 pal_block_rail;
+global uniform float detail_textures;
 
 uniform vec3 base_color : source_color = vec3(0.03, 0.025, 0.07);
 uniform vec3 grid_color : source_color = vec3(0.25, 0.85, 1.0);
@@ -34,6 +38,11 @@ uniform float streak_energy = 5.0;
 // Units a streak's head runs ahead of the player during one beat, and its tail length.
 uniform float streak_reach = 36.0;
 uniform float streak_length = 5.0;
+// R = road plates, G = circuit traces, B = side panels, A = hex plates. One tile spans the track width (a plate
+// per lane) and `tile_length` along the road; side panels repeat every `detail_side_length` units.
+uniform sampler2D detail_map : hint_default_black, filter_linear_mipmap, repeat_enable;
+uniform float detail_side_length = 2.4;
+uniform float detail_gain = 1.0;
 
 float grid_line(float coordinate, float half_width) {
 	float distance_to_line = abs(fract(coordinate + 0.5) - 0.5);
@@ -64,8 +73,15 @@ void fragment() {
 		rail_tint = palette_role == 1 ? pal_track_rail.rgb : pal_block_rail.rgb;
 		streak_tint = pal_track_streak.rgb;
 	}
+	bool top = COLOR.r > 0.5;
+	bool detailed = detail_textures > 0.5;
+	vec4 detail = vec4(0.5);
+	if (detailed) {
+		// Sampled once, outside the face branches (mip selection needs uniform control flow).
+		detail = texture(detail_map, top ? vec2(UV.x, UV.y / tile_length) : vec2(UV.y / detail_side_length, UV.x * 0.5));
+	}
 	vec3 emission;
-	if (COLOR.r > 0.5) {
+	if (top) {
 		float grid = max(grid_line(UV.x * lanes, 0.012), grid_line(UV.y / tile_length, 0.01));
 		float edge_distance = min(UV.x, 1.0 - UV.x);
 		float rail = 1.0 - smoothstep(0.0, 0.045, edge_distance);
@@ -79,6 +95,16 @@ void fragment() {
 		vec2 streak = beat_streak(UV.y);
 		emission += streak_tint * streak_energy * (0.6 + beat_pulse)
 				* (streak.x * 0.45 + streak.y * (lane_lines + 0.08));
+		if (detailed) {
+			float plates = palette_role == 2 ? detail.a : detail.r;
+			float groove = 1.0 - smoothstep(0.1, 0.32, plates);
+			ALBEDO *= 0.55 + 0.9 * plates;
+			ROUGHNESS = mix(0.16, 0.6, groove);
+			emission += grid_tint * (plates * 0.05 + groove * 0.1) * grid_energy * detail_gain;
+			// Road: circuit traces light up with the beat. Blocks: their hex seams glow in the rail color.
+			emission += palette_role == 2 ? rail_tint * groove * 0.05 * pulse * detail_gain
+					: grid_tint * detail.g * 0.5 * grid_energy * pulse * detail_gain;
+		}
 	} else {
 		float band = 1.0 - smoothstep(0.0, 0.07, UV.x);
 		ALBEDO = base_tint * 0.6;
@@ -90,6 +116,10 @@ void fragment() {
 		} else {
 			float panel = grid_line(UV.y / (tile_length * 2.0), 0.006) * 0.35;
 			emission = rail_tint * band * rail_energy * 0.45 * pulse + grid_tint * panel * grid_energy;
+			if (detailed) {
+				ALBEDO *= 0.5 + detail.b;
+				emission += rail_tint * (detail.b * 0.03 + smoothstep(0.75, 0.95, detail.b) * 0.12) * detail_gain;
+			}
 		}
 	}
 	EMISSION = emission;

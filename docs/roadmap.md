@@ -124,7 +124,9 @@ Người dùng cho phép **trời tông ấm** ở vài phase; camera trong vòn
       vòng cuộn, sóng và cua nghiêng (vòng lộn thường ở đầu phase/đoạn drop). Chỉ là hình ảnh, không đổi gameplay.
       Cột đỡ/cầu gai tránh chỗ không thẳng đứng hoặc có đường bên dưới; cảnh nền theo frame thẳng đứng.
       Test `test_track_shapes.gd` (hình học + mọi chart không tự cắt). **→ Cần người chơi thử cảm giác vòng lộn/cuộn.**
-- [ ] **GD3-103** Texture Codex cho đường, bệ, cột, cảnh nền (MEDIUM/HIGH; LOW giữ nguyên).
+- [x] **GD3-103** Texture Codex (6 ảnh: tấm sàn, tấm lục giác, tấm hông, mặt tiền tháp, mạch, gờ cột) → 2 texture gộp kênh
+      512 px. Đường: rãnh tấm sáng nhẹ + mạch đập theo beat; bệ: tấm lục giác; hông: tấm thông gió; tháp nền: cửa sổ
+      sáng theo palette; cột: gờ dọc. MEDIUM/HIGH, mỗi pixel 1 lần lấy mẫu; **LOW giữ y như cũ** (ảnh so sánh lệch 1/255).
 - [ ] **GD3-104** Chướng ngại mới (model Blender) + mẫu màn, sinh lại chart.
 - [ ] **GD3-105** Đo hiệu năng (PC Mobile renderer) + APK A/B cho `perf_ab.sh`.
 

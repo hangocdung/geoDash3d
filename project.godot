@@ -40,6 +40,14 @@ window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/handheld/orientation=4
 
+[importer_defaults]
+
+texture=Dictionary[String, Variant]({
+"compress/mode": 2,
+"detect_3d/compress_to": 0,
+"mipmaps/generate": true
+})
+
 [input]
 
 tap={
@@ -150,4 +158,8 @@ pal_decor_glow={
 pal_decor_accent={
 "type": "vec4",
 "value": Vector4(0.073238954, 0.7874122, 1, 1)
+}
+detail_textures={
+"type": "float",
+"value": 1.0
 }
