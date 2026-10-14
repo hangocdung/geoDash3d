@@ -2,13 +2,13 @@
 
   blender -b --factory-startup -P assets/blender/generate_models.py -- --out assets/models [--preview DIR]
 
-Material naming contract (read by src/presentation/meshes/neon_model.gd):
-  "Body"     dark solid surface          → dark metallic material in Godot
-  "Glow"     primary neon light strips   → emissive neon shader (color set per use)
-  "GlowAlt"  secondary accent lights     → emissive neon shader (accent color)
+Faces are modelled with three roles (material slots while building): "Body" dark solid surface, "Glow" primary
+neon light strips, "GlowAlt" secondary accent lights. On export the roles are baked into the vertex color
+(Body = black, Glow = red, GlowAlt = green) and every face gets the single material "Neon", so each model is
+one draw call; src/presentation/meshes/neon_model.gd (neon_model.gdshader) turns the colors into the neon look.
 Axes: Blender Z-up is exported as Godot Y-up. Models are built so that in Godot the track direction is +X
 (Blender +Y ends up on Godot -Z, the background side). Obstacle models (GD3-104) use only Body + Glow so each
-instance costs at most two draw calls; their sizes mirror GameplayConfig.create_default() hitboxes.
+instance is a single draw call; their sizes mirror GameplayConfig.create_default() hitboxes.
 """
 import math
 import os
@@ -51,14 +51,24 @@ def glow_alt():
     return material("GlowAlt", (1.0, 0.3, 0.85), 4.0)
 
 
+ROLE_COLORS = {"Body": (0.0, 0.0, 0.0, 1.0), "Glow": (1.0, 0.0, 0.0, 1.0), "GlowAlt": (0.0, 1.0, 0.0, 1.0)}
+
+
 def new_object(name, bm, materials):
+    """`materials` lists the role of each material index used while building (Body / Glow / GlowAlt)."""
     mesh = bpy.data.meshes.new(name)
     bm.to_mesh(mesh)
     bm.free()
+    colors = mesh.color_attributes.new("Color", "BYTE_COLOR", "CORNER")
+    for polygon in mesh.polygons:
+        role = materials[polygon.material_index].name
+        for loop_index in polygon.loop_indices:
+            colors.data[loop_index].color = ROLE_COLORS[role]
+        polygon.material_index = 0
+    mesh.color_attributes.active_color = colors
     obj = bpy.data.objects.new(name, mesh)
     bpy.context.scene.collection.objects.link(obj)
-    for mat in materials:
-        obj.data.materials.append(mat)
+    obj.data.materials.append(material("Neon", (0.5, 0.5, 0.5)))
     return obj
 
 
@@ -195,16 +205,40 @@ def spiky_ball(bm, core_radius, spike_length, spike_radius, material_index, spik
     guide.free()
 
 
-def laser_post():
-    """Laser emitter post: hexagonal pillar, glowing lenses at the two beam heights. Origin at its foot."""
+def add_laser_post(bm, y, height, lens_heights):
+    """Hexagonal emitter post at lateral `y` with glowing lens rings (and cap) at the beam heights."""
+    add_prism(bm, 0.13, 0.0, height, 6, 0, center=(0.0, y))
+    add_prism(bm, 0.2, 0.0, 0.08, 6, 0, center=(0.0, y))
+    add_prism(bm, 0.15, height, height + 0.07, 6, 1, center=(0.0, y))
+    for lens in lens_heights:
+        add_torus(bm, 0.135, 0.03, 12, 4, 1, Matrix.Translation((0, y, lens)))
+
+
+def laser_fence():
+    """Low laser fence across the whole road (3.6 wide): two emitter posts and two beams at 0.25 / 0.55, one
+    mesh with Body + Glow (two draw calls). Origin on the road at the fence's center."""
     bm = bmesh.new()
-    add_prism(bm, 0.13, 0.0, 0.85, 6, 0)
-    add_prism(bm, 0.2, 0.0, 0.08, 6, 0)
-    add_prism(bm, 0.15, 0.85, 0.92, 6, 1)
-    for height in (0.25, 0.55):
-        add_torus(bm, 0.135, 0.03, 12, 4, 1, Matrix.Translation((0, 0, height)))
+    half, beams = 1.8, (0.25, 0.55)
+    for y in (-half, half):
+        add_laser_post(bm, y, 0.85, beams)
+    for z in beams:
+        add_cuboid(bm, (0, 0, z), (0.07, half * 2.0, 0.07), 1)
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
-    return new_object("LaserPost", bm, [body(), glow()])
+    return new_object("LaserFence", bm, [body(), glow()])
+
+
+def laser_wall():
+    """Laser grid over two lanes (2 wide, 3.2 tall): end posts and five beams, one mesh with Body + Glow.
+    Origin on the road at the grid's center."""
+    bm = bmesh.new()
+    half, height = 1.0, 3.2
+    beams = [0.35 + i * (height - 0.55) / 4 for i in range(5)]
+    for y in (-half, half):
+        add_laser_post(bm, y, height, beams)
+    for z in beams:
+        add_cuboid(bm, (0, 0, z), (0.07, half * 2.0, 0.07), 1)
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    return new_object("LaserWall", bm, [body(), glow()])
 
 
 PENDULUM_PIVOT = 4.2
@@ -226,26 +260,27 @@ def pendulum_frame():
 
 
 def pendulum_blade():
-    """Arm and crescent axe swinging along the track (Blender XZ plane). Origin at the pivot; the cutting edge
-    reaches 0.15 above the road when it hangs straight down."""
+    """Arm and crescent axe swinging along the track (Blender XZ plane), all Glow (one draw call). Origin at the
+    pivot; the cutting edge reaches 0.15 above the road when it hangs straight down."""
     bm = bmesh.new()
     reach = PENDULUM_PIVOT - 0.15
     radius = 0.7
     center_z = -(reach - radius)
     add_cuboid(bm, (0, 0, center_z / 2), (0.12, 0.1, -center_z), 0)
     segments = 10
+    # Single material: the whole axe glows in the hazard color.
     half_depth = 0.07
     for i in range(segments):
         a0 = math.pi + math.pi * i / segments
         a1 = math.pi + math.pi * (i + 1) / segments
-        for r_in, r_out, material_index in ((0.25, radius - 0.08, 0), (radius - 0.08, radius, 1)):
+        for r_in, r_out, material_index in ((0.25, radius - 0.08, 0), (radius - 0.08, radius, 0)):
             pts = []
             for y in (half_depth, -half_depth):
                 pts += [Vector((r * math.cos(a), y, center_z + r * math.sin(a))) for r, a in
                         ((r_in, a0), (r_out, a0), (r_out, a1), (r_in, a1))]
             add_box(bm, pts, material_index)
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
-    return new_object("PendulumBlade", bm, [body(), glow()])
+    return new_object("PendulumBlade", bm, [glow()])
 
 
 def spike_mine():
@@ -308,7 +343,7 @@ def export(obj, path):
     bpy.context.view_layer.objects.active = obj
     bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
     bpy.ops.export_scene.gltf(filepath=path, export_format="GLB", use_selection=True, export_apply=True,
-                              export_yup=True)
+                              export_yup=True, export_vertex_color="ACTIVE")
     print("EXPORTED", path, len(obj.data.vertices), "verts")
 
 
@@ -316,7 +351,8 @@ def main():
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     out_dir = argv[argv.index("--out") + 1] if "--out" in argv else "assets/models"
     os.makedirs(out_dir, exist_ok=True)
-    builders = (("portal_ring", portal_ring), ("spiked_mace", spiked_mace), ("laser_post", laser_post),
+    builders = (("portal_ring", portal_ring), ("spiked_mace", spiked_mace), ("laser_fence", laser_fence),
+                ("laser_wall", laser_wall),
                 ("pendulum_frame", pendulum_frame), ("pendulum_blade", pendulum_blade), ("spike_mine", spike_mine),
                 ("crusher", crusher), ("ring_gate", ring_gate))
     for name, builder in builders:

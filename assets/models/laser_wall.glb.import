@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://copwu02lqwgmo"
-path="res://.godot/imported/laser_post.glb-9f1d88ad3daf2c7bb6e0eade6616b3e8.scn"
+uid="uid://heu1l6prbp2f"
+path="res://.godot/imported/laser_wall.glb-aa430784760b75638b2d26d51de0efd1.scn"
 
 [deps]
 
-source_file="res://assets/models/laser_post.glb"
-dest_files=["res://.godot/imported/laser_post.glb-9f1d88ad3daf2c7bb6e0eade6616b3e8.scn"]
+source_file="res://assets/models/laser_wall.glb"
+dest_files=["res://.godot/imported/laser_wall.glb-aa430784760b75638b2d26d51de0efd1.scn"]
 
 [params]
 

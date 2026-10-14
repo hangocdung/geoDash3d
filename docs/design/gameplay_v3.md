@@ -159,5 +159,6 @@ hàm thuần của beat (`ObstacleModels.pose_moving_part`), hộp va chạm đ�
 
 Màu giữ quy tắc: họ nhảy hồng, lách làn cam, lộn lime. Tool đặt màn: gai thường xoay vòng thêm `laser`, `pendulum`,
 `mine` theo energy (`handmade.SPIKE_VARIETY`, `recording_level` AUTO_*); cứ 2 lần lao xuống / tường / cổng thì 1 lần
-dùng biến thể (`terrain_patterns.Level._variant`). Model: `assets/blender/generate_models.py` (chỉ Body + Glow, ≤ 2 draw
-call mỗi model, 132–832 đỉnh), vật liệu dùng chung theo màu (`ObstacleModels`).
+dùng biến thể (`terrain_patterns.Level._variant`). Model: `assets/blender/generate_models.py` (chỉ Body + Glow, 144–832
+đỉnh), vật liệu dùng chung theo màu (`ObstacleModels`). Mỗi vật cản tối đa 3 draw call: hàng rào laser và lưới laser là
+một mesh gộp (cột + tia), rìu chỉ một vật liệu — đo trên PC, bản tách rời (6–8 draw call) làm tụt FPS rõ hơn.

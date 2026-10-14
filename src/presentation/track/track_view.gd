@@ -37,8 +37,11 @@ func setup(context: LevelContext) -> void:
 	block_material.set_shader_parameter("detail_map", TRACK_DETAIL)
 	block_material.set_shader_parameter("grid_energy", 0.8)
 	var terrain: Terrain = context.chart.terrain
+	var road_groups: Dictionary[int, SurfaceTool] = {}
 	for stretch: Vector2 in _road_stretches(terrain, context.track.start_distance, context.track.end_distance):
-		_build_road(context, stretch, width, thickness)
+		_build_road(context, stretch, width, thickness, road_groups)
+	for group: int in road_groups:
+		_add_mesh("TrackChunk", road_groups[group].commit(), track_material)
 	_build_blocks(context, terrain, width)
 	_build_pillars(context, terrain, width, thickness)
 
@@ -60,20 +63,28 @@ func _road_stretches(terrain: Terrain, start_distance: float, end_distance: floa
 	return stretches
 
 
-func _build_road(context: LevelContext, stretch: Vector2, width: float, thickness: float) -> void:
+## Road pieces are merged per CHUNK_LENGTH of track (`groups`), so short stretches between holes do not each
+## cost a draw call.
+func _build_road(context: LevelContext, stretch: Vector2, width: float, thickness: float,
+		groups: Dictionary[int, SurfaceTool]) -> void:
 	var distance: float = stretch.x
 	while distance < stretch.y:
-		var chunk_end: float = minf(distance + CHUNK_LENGTH, stretch.y)
+		var group: int = int(floor((distance - context.track.start_distance) / CHUNK_LENGTH))
+		var chunk_end: float = minf(context.track.start_distance + float(group + 1) * CHUNK_LENGTH, stretch.y)
 		# Cap the faces that border a gap (not the far ends of the whole track).
 		var cap_start: bool = is_equal_approx(distance, stretch.x) and stretch.x > context.track.start_distance
 		var cap_end: bool = is_equal_approx(chunk_end, stretch.y) and stretch.y < context.track.end_distance
-		_add_mesh("TrackChunk", ProceduralMeshes.track_chunk(context.track, distance, chunk_end, width, thickness,
-				0.0, cap_start, cap_end), track_material)
+		if not groups.has(group):
+			groups[group] = SurfaceTool.new()
+		groups[group].append_from(ProceduralMeshes.track_chunk(context.track, distance, chunk_end, width, thickness,
+				0.0, cap_start, cap_end), 0, Transform3D.IDENTITY)
 		distance = chunk_end
 
 
-## One mesh per raised piece, standing on the road; faces toward lower neighbours are closed.
+## Raised pieces standing on the road (faces toward lower neighbours are closed), merged into one mesh per
+## CHUNK_LENGTH of track (one draw call for all the steps of a stretch instead of one per piece).
 func _build_blocks(context: LevelContext, terrain: Terrain, width: float) -> void:
+	var groups: Dictionary[int, SurfaceTool] = {}
 	for index: int in terrain.piece_count():
 		var height: float = terrain.piece_height(index)
 		if Terrain.is_gap(height) or height <= 0.0:
@@ -84,8 +95,14 @@ func _build_blocks(context: LevelContext, terrain: Terrain, width: float) -> voi
 			continue
 		var cap_start: bool = index == 0 or terrain.piece_height(index - 1) < height
 		var cap_end: bool = index + 1 >= terrain.piece_count() or terrain.piece_height(index + 1) < height
-		_add_mesh("Block", ProceduralMeshes.track_chunk(context.track, from_distance, to_distance, width, height,
-				height, cap_start, cap_end), block_material)
+		var piece: ArrayMesh = ProceduralMeshes.track_chunk(context.track, from_distance, to_distance, width, height,
+				height, cap_start, cap_end)
+		var group: int = int(floor((from_distance - context.track.start_distance) / CHUNK_LENGTH))
+		if not groups.has(group):
+			groups[group] = SurfaceTool.new()
+		groups[group].append_from(piece, 0, Transform3D.IDENTITY)
+	for group: int in groups:
+		_add_mesh("Blocks", groups[group].commit(), block_material)
 
 
 func _add_mesh(node_name: String, mesh: ArrayMesh, material: Material) -> void:

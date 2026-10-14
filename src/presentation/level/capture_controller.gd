@@ -47,5 +47,6 @@ func _run_captures(runner: LevelRunner, times: PackedFloat64Array, directory: St
 		if error != OK:
 			push_error("CaptureController: cannot save '%s' (%s)" % [file_path, error_string(error)])
 		else:
-			print("CAPTURE %s beat=%.2f dead=%s" % [file_path, runner.current_beat(), runner.simulation.is_dead])
+			print("CAPTURE %s beat=%.2f dead=%s draw_calls=%d" % [file_path, runner.current_beat(),
+					runner.simulation.is_dead, Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)])
 	runner.get_tree().quit(0)

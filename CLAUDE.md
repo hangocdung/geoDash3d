@@ -51,7 +51,7 @@ GODOT="D:/Godot_v4.6.1-stable_win64.exe/Godot_v4.6.1-stable_win64_console.exe"
 "$GODOT" --headless --path . -s res://tools/setup/configure_project.gd
 # Phân tích nhạc (BPM, offset, onset) bằng Python của Blender (có aud + numpy)
 "D:/Programs/Blender/blender.exe" -b --factory-startup -P tools/audio/analyze_song.py -- <song.mp3> <out.analysis.json>
-# Sinh lại model decor (.glb) từ script Blender; material Body/Glow/GlowAlt được NeonModel gán shader
+# Sinh lại model decor/vật cản (.glb) từ script Blender; vai trò Body/Glow/GlowAlt nằm trong vertex color, NeonModel gán 1 shader
 "D:/Programs/Blender/blender.exe" -b --factory-startup -P assets/blender/generate_models.py -- --out assets/models
 # Sinh chart từ phân tích + plan (Python hệ thống); plan có thể dùng recording / fixed
 python tools/audio/draft_chart.py <analysis.json> <plan.json> <out.chart.json>
@@ -66,6 +66,9 @@ python tools/charting/the_dawn_assembly_level.py
 python tools/charting/recording_level.py cyber_rush    # không tham số: liệt kê bài + số note đã ghi
 # .sm (ArrowVortex/StepMania) → recording
 python tools/charting/sm_to_recording.py <song.sm> <out.recording.json>
+# Texture chi tiết: Codex tạo ảnh nguồn (art_source/textures, không commit) → gộp kênh vào assets/textures
+bash tools/textures/generate_sources.sh    # bỏ qua ảnh đã có; xóa file để tạo lại
+python tools/textures/build_textures.py
 # SFX: video Flow đặt ở art_source/sfx/<ID>_take<N>.mp4 → tách/cắt/chuẩn hóa → assets/audio + catalog
 python tools/audio/build_sfx.py            # ffmpeg: D:/ffmpeg-8.1-essentials_build/bin/ffmpeg.exe
 python tools/audio/synth_placeholder_sfx.py  # âm tạm cho ID chưa có (không ghi đè ID đã 'generated')
@@ -98,6 +101,7 @@ Menu truyền tùy chọn sang level qua `LaunchOptions.set_next_run()` (vd. pra
 ```
 assets/music/       nhạc + file chart (*.chart.json) cùng tên
 assets/models/      .glb đã xuất (KHÔNG sửa tay)
+assets/textures/    texture chi tiết gộp kênh (sinh bằng tools/textures/build_textures.py, KHÔNG sửa tay)
 assets/blender/     script bpy sinh model (nguồn thật của model)
 src/core/           SongClock (node), TempoMap, UserSettings (autoload duy nhất), QualityTier
 src/gameplay/       chart/, defs/ (Resource cấu hình), simulation/, track/ — logic thuần, không Node

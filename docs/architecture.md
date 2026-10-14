@@ -94,7 +94,7 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   - **Phase và palette** (GD3-100): `PhasePalettes` (hàm thuần của beat) cho palette đang dùng (`ScenePalette`, thư
     viện `PaletteLibrary`); khi đổi phase thì blend trong 1 beat (LOW: đổi ngay trong một frame). Palette được đẩy ra
     global `pal_*` (vec4, màu linear) **chỉ khi thay đổi**. Các shader nền chọn màu theo `palette_role`: đường/bệ
-    (`neon_track` 1/2), cảnh nền/cột (`neon_box` 1/2, `neon_wire` 1), decor (`neon_glow` 1/2). Vật cản và người chơi
+    (`neon_track` 1/2), cảnh nền/cột (`neon_box` 1/2, `neon_wire` 1), decor (`neon_model` 1). Vật cản và người chơi
     giữ màu dành riêng. Trời: pass nền đọc global (blend mượt), pass cubemap đọc uniform của material, chỉ đổi một lần
     khi phase đã ổn định (radiance render lại đúng một lần). Fog, ambient, đèn chính và bụi (`VfxDirector.set_palette`)
     cũng theo palette. Trời có thêm mặt trời sọc ở chân trời cho palette ấm (`sky_style.y`).
@@ -130,7 +130,8 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   model Blender) hàng rào laser, rìu con lắc, mìn gai, máy dập, tường laser, cổng vòng. Phần chuyển động là node con
   `MovingPart`, đặt theo beat (cưa xoay, rìu lắc buông thẳng đúng lúc người chơi tới, mìn nhấp nhô, máy dập đập mỗi beat). Vòng lao xuống là JUMP có `ActionDefinition.dive_speed` > 0 (vận tốc ban đầu hướng xuống).
 - **Decor từ Blender** (`track/decor_view.gd`): cổng vòng tại đầu mỗi section, cầu gai treo đung đưa theo
-  ô nhịp (hàm thuần của beat). Model `.glb` sinh bằng script, material theo tên `Body/Glow/GlowAlt` → `NeonModel`.
+  ô nhịp (hàm thuần của beat). Model `.glb` sinh bằng script; vai trò mặt (thân tối / sáng chính / sáng phụ) nằm trong
+  vertex color, một vật liệu `neon_model` duy nhất (`NeonModel`) → **mỗi model 1 draw call** (GD3-105, trước đây 2–3).
 - **Cảnh nền** (`track/scenery_view.gd`): 2 MultiMesh (tháp, chóp) sinh theo seed. Tránh hành lang đường và
   tầm nhìn của camera side. Chỉ dùng tông lạnh.
 - **VFX** (`vfx/`): pool (`EffectPools`) để không tạo node hay biên dịch shader giữa màn. Gồm vệt pixel,
