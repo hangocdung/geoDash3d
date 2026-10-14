@@ -8,7 +8,8 @@ extends Control
 const GRIDS: Array[float] = [1.0, 0.5, 0.25]
 const RATES: Array[float] = [0.25, 0.5, 0.75, 1.0]
 const PREROLL_BEATS: float = 4.0
-const HELP_TEXT: String = "Playing: J/K/L or the pads add notes   Paused: pads add a note at the playhead   " \
+const HELP_TEXT: String = "Mark where the player taps; the level builder picks the obstacles.   Playing: Space/J or TAP adds a mark   " \
+		+ "Paused: TAP adds one at the playhead   " \
 		+ "Timeline: click = play from there, drag a note = move, double-click = add, right-click = delete   " \
 		+ "Keys: P play  ←/→ beat  PgUp/PgDn segment  Ctrl+Z/Y undo/redo  Del delete  -/= speed  G grid  S save"
 
@@ -87,8 +88,7 @@ func _process(_delta: float) -> void:
 	_toolbar.set_playing(_playback.is_playing())
 	_toolbar.set_enabled(&"undo", _editor.can_undo())
 	_toolbar.set_enabled(&"redo", _editor.can_redo())
-	for name: StringName in [&"delete", &"lane_0", &"lane_1", &"lane_2"]:
-		_toolbar.set_enabled(name, _editor.selected >= 0)
+	_toolbar.set_enabled(&"delete", _editor.selected >= 0)
 	_update_status(time_sec)
 
 
@@ -97,8 +97,7 @@ func _update_status(time_sec: float) -> void:
 	var segment: RecorderSegments.Segment = _segments[_segment_index]
 	var selection: String = ""
 	if _editor.selected >= 0:
-		selection = "   selected: bar %s %s" % [_bar_beat(_chart.beat_at_time(_editor.selected_time())),
-				RecorderTimeline.LANE_NAMES[clampi(_recording.tap_lanes[_editor.selected], 0, 2)]]
+		selection = "   selected: bar %s" % _bar_beat(_chart.beat_at_time(_editor.selected_time()))
 	_status.text = "%s   ·   segment %d/%d %s   ·   bar %s   %.2f s   ·   %d notes here, %d total%s   ·   %s" % [
 		_chart.title, _segment_index + 1, _segments.size(), segment.label, _bar_beat(beat), time_sec,
 		_notes_in(segment), _recording.count(), selection, "unsaved" if _dirty else "saved"]
@@ -140,8 +139,8 @@ func _on_action(name: StringName) -> void:
 			_changed(_editor.redo())
 		&"delete":
 			_changed(_editor.delete_selected())
-		&"pad_0", &"pad_1", &"pad_2":
-			_on_pad(String(name).right(1).to_int())
+		&"tap":
+			_on_pad()
 		&"nudge_left", &"nudge_right":
 			_changed(_editor.nudge_selected(-1 if name == &"nudge_left" else 1, GRIDS[_grid_index]))
 		&"select_next", &"select_previous":
@@ -150,8 +149,6 @@ func _on_action(name: StringName) -> void:
 			_on_grid((_grid_index + 1) % GRIDS.size())
 		&"slower", &"faster":
 			_on_rate(clampi(_rate_index + (1 if name == &"faster" else -1), 0, RATES.size() - 1))
-		&"lane_0", &"lane_1", &"lane_2":
-			_changed(_editor.set_selected_lane(String(name).right(1).to_int()))
 		&"align":
 			var shift: float = _editor.align_range(_chart.time_at(segment.start_beat), _chart.time_at(segment.end_beat),
 					GRIDS[_grid_index])
@@ -170,13 +167,13 @@ func _on_action(name: StringName) -> void:
 
 
 ## A tap from a key or pad: recorded live while playing, added at the playhead (snapped) while paused.
-func _on_pad(lane: int) -> void:
+func _on_pad() -> void:
 	if _playback.is_playing():
 		if _record:
-			_editor.record_tap(_playback.tap_time(), lane)
+			_editor.record_tap(_playback.tap_time())
 			_changed(true)
 	elif _playback.is_paused():
-		_editor.add_tap(_playback.time(), lane, GRIDS[_grid_index])
+		_editor.add_tap(_playback.time(), GRIDS[_grid_index])
 		_changed(true)
 
 
@@ -278,11 +275,11 @@ func _build_layout() -> void:
 	_timeline = RecorderTimeline.new()
 	_timeline.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_timeline.seek_requested.connect(func(time_sec: float) -> void: _playback.seek(time_sec))
-	_timeline.add_requested.connect(func(time_sec: float, lane: int) -> void:
-		_editor.add_tap(time_sec, lane, GRIDS[_grid_index])
+	_timeline.add_requested.connect(func(time_sec: float) -> void:
+		_editor.add_tap(time_sec, GRIDS[_grid_index])
 		_changed(true))
-	_timeline.move_requested.connect(func(time_sec: float, lane: int) -> void:
-		_changed(_editor.move_selected(time_sec, lane, GRIDS[_grid_index])))
+	_timeline.move_requested.connect(func(time_sec: float) -> void:
+		_changed(_editor.move_selected(time_sec, GRIDS[_grid_index])))
 	_timeline.delete_requested.connect(func() -> void: _changed(_editor.delete_selected()))
 	column.add_child(_timeline)
 	_message = UiTheme.make_label("", 18, UiTheme.HOT)

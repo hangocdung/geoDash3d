@@ -1,4 +1,4 @@
-# Note editing for the recorder: one selected tap (add, move, change lane, delete), clearing a range, and
+# Note editing for the recorder: one selected tap (add, move, delete), clearing a range, aligning timing, and
 # undo/redo of every change (snapshots of the tap arrays). Pure data on top of Recording.
 # Related: src/authoring/recorder/recording.gd, src/authoring/recorder/recorder.gd
 class_name RecordingEditor
@@ -47,17 +47,17 @@ func selected_time() -> float:
 
 
 ## Live tap while the song plays (one undo step per tap).
-func record_tap(time_sec: float, lane: int) -> void:
+func record_tap(time_sec: float) -> void:
 	_checkpoint()
 	selected = -1
-	recording.add_tap(time_sec, lane)
+	recording.add_tap(time_sec, 0)
 
 
 ## Adds a tap snapped to the grid and selects it.
-func add_tap(time_sec: float, lane: int, grid_beats: float) -> void:
+func add_tap(time_sec: float, grid_beats: float) -> void:
 	_checkpoint()
 	var time_snapped: float = snap_time(time_sec, grid_beats)
-	recording.add_tap(time_snapped, lane)
+	recording.add_tap(time_snapped, 0)
 	selected = recording.tap_times.bsearch(time_snapped)
 
 
@@ -70,12 +70,11 @@ func delete_selected() -> bool:
 	return true
 
 
-## Moves the selected tap to `time_sec` (snapped to the grid) and `lane`.
-func move_selected(time_sec: float, lane: int, grid_beats: float) -> bool:
+## Moves the selected tap to `time_sec` (snapped to the grid).
+func move_selected(time_sec: float, grid_beats: float) -> bool:
 	if selected < 0:
 		return false
 	_checkpoint()
-	recording.set_lane(selected, lane)
 	selected = recording.move_tap(selected, snap_time(time_sec, grid_beats))
 	return true
 
@@ -84,18 +83,9 @@ func move_selected(time_sec: float, lane: int, grid_beats: float) -> bool:
 func nudge_selected(direction: int, grid_beats: float) -> bool:
 	if selected < 0:
 		return false
-	var lane: int = recording.tap_lanes[selected]
 	var time_sec: float = tempo.beat_to_time(tempo.time_to_beat(snap_time(selected_time(), grid_beats))
 			+ direction * grid_beats)
-	return move_selected(time_sec, lane, grid_beats)
-
-
-func set_selected_lane(lane: int) -> bool:
-	if selected < 0 or recording.tap_lanes[selected] == lane:
-		return false
-	_checkpoint()
-	recording.set_lane(selected, lane)
-	return true
+	return move_selected(time_sec, grid_beats)
 
 
 ## Removes every tap in [from_sec, to_sec) (re-record a segment).

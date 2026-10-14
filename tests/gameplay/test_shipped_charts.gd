@@ -46,7 +46,8 @@ func test_difficulty_ramps_up_toward_the_end() -> void:
 	}
 	var config: GameplayConfig = GameplayConfig.create_default()
 	for file_name: String in DirAccess.get_files_at(MUSIC_DIRECTORY):
-		if not file_name.ends_with(".chart.json"):
+		# Levels built from a recording follow the author's taps (possibly a partial recording), not a ramp.
+		if not file_name.ends_with(".chart.json") or file_name.ends_with(".rec.chart.json"):
 			continue
 		var chart: LevelChart = ChartLoader.load_file(MUSIC_DIRECTORY.path_join(file_name), config)
 		var quarter: float = chart.end_beat / 4.0

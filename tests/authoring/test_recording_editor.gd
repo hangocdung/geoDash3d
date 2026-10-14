@@ -1,4 +1,4 @@
-# Recorder note editing: picking, nudging/adding/moving on the grid, lanes, clearing a segment, undo/redo,
+# Recorder note editing: picking, nudging/adding/moving on the grid, deleting, clearing a segment, undo/redo,
 # and the shared recording path of levels built from a recording.
 # Related: src/authoring/recorder/recording_editor.gd, recording.gd
 extends TestCase
@@ -45,12 +45,10 @@ func test_nudge_snaps_then_moves_and_keeps_order() -> void:
 	assert_almost_eq(editor.recording.tap_times[0], 2.0)
 
 
-func test_lane_and_delete() -> void:
+func test_delete_keeps_a_valid_selection() -> void:
 	var editor: RecordingEditor = _make_editor([1.0, 2.0])
-	assert_false(editor.set_selected_lane(2), "nothing selected")
+	assert_false(editor.delete_selected(), "nothing selected")
 	editor.selected = 1
-	assert_true(editor.set_selected_lane(2))
-	assert_eq(editor.recording.tap_lanes[1], 2)
 	assert_true(editor.delete_selected())
 	assert_eq(editor.recording.count(), 1)
 	assert_eq(editor.selected, 0)
@@ -66,18 +64,16 @@ func test_clear_range_only_touches_its_taps() -> void:
 
 func test_add_and_move_snap_to_the_grid() -> void:
 	var editor: RecordingEditor = _make_editor([1.0])
-	editor.add_tap(1.6, 2, 0.5)
+	editor.add_tap(1.6, 0.5)
 	assert_almost_eq(editor.selected_time(), 1.5, 0.000001, "beat 3.2 snaps to 3")
-	assert_eq(editor.recording.tap_lanes[editor.selected], 2)
-	assert_true(editor.move_selected(0.3, 1, 0.5))
+	assert_true(editor.move_selected(0.3, 0.5))
 	assert_eq(editor.selected, 0, "moved before the tap at 1.0 s")
 	assert_almost_eq(editor.selected_time(), 0.25)
-	assert_eq(editor.recording.tap_lanes[0], 1)
 
 
 func test_undo_redo_restores_taps_and_selection() -> void:
 	var editor: RecordingEditor = _make_editor([1.0, 2.0])
-	editor.record_tap(1.5, 0)
+	editor.record_tap(1.5)
 	editor.selected = 2
 	editor.delete_selected()
 	assert_eq(editor.recording.count(), 2)
@@ -90,7 +86,7 @@ func test_undo_redo_restores_taps_and_selection() -> void:
 	assert_true(editor.redo())
 	assert_true(editor.redo())
 	assert_eq(editor.recording.tap_times, PackedFloat64Array([1.0, 1.5]))
-	editor.record_tap(3.0, 0)
+	editor.record_tap(3.0)
 	assert_false(editor.can_redo(), "a new edit drops the redo history")
 
 

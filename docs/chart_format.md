@@ -108,24 +108,27 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
     trên dải đoạn ở trên. Timeline hiển thị trọn đoạn đang soạn; LOOP lặp đoạn, PRE-ROLL phát trước 1 ô nhịp.
   - Tốc độ 25/50/75/100% (mặc định 50%). Khi chậm, nhạc vẫn giữ cao độ (`PitchKeeper`: hiệu ứng pitch shift trên
     bus `Music`, độ trễ của hiệu ứng được cộng vào calibration).
-  - Đang phát: J/Space = AUTO, K = WALL (tường 2 làn), L = GATE (cổng lộn), hoặc bấm 3 pad lớn. REC tắt thì chỉ nghe.
-    Đang dừng: pad/phím thêm note tại đầu phát (đã snap lưới).
-  - Timeline: click hoặc kéo chỗ trống để tua (phát tiếp từ đó nếu đang phát), kéo note để dời (theo lưới và làn),
+  - Chỉ có **một loại đánh dấu**: chỗ người chơi sẽ chạm (nghe tiếng nhạc nổi bật thì gõ). Đang phát: Space/J hoặc pad TAP;
+    REC tắt thì chỉ nghe. Vật cản gì (gai, hố, bệ, tường, cổng…) do tool dựng level tự chọn.
+    Đang dừng: pad/phím thêm một đánh dấu tại đầu phát (đã snap lưới).
+  - Timeline: click hoặc kéo chỗ trống để tua (phát tiếp từ đó nếu đang phát), kéo note để dời (theo lưới),
     double-click để thêm note, chuột phải để xóa.
-  - Sửa: UNDO/REDO (Ctrl+Z/Y), DELETE, SET LANE, CLEAR SEGMENT, **ALIGN TIMING** (dời các note trong đoạn sao cho
+  - Sửa: UNDO/REDO (Ctrl+Z/Y), DELETE, CLEAR SEGMENT, **ALIGN TIMING** (dời các note trong đoạn sao cho
     lệch trung bình so với lưới bằng 0; dùng khi gõ trễ/sớm đều, nên chọn lưới 1/1 hoặc 1/2).
   - Phím tắt: P/Enter phát/dừng, ←/→ 1 beat, Shift+←/→ dời note, PgUp/PgDn đổi đoạn, Home về đầu đoạn, Tab chọn note,
     G lưới, `-`/`=` tốc độ, S lưu, Esc lưu và thoát.
   - **BUILD & PLAY SEGMENT** (desktop, cần `python` trong PATH): lưu, chạy `recording_level.py`, rồi chơi thử
     `<id>.rec.chart.json` từ đầu đoạn. Nút MENU của level quay lại màn RECORD (`LaunchOptions.return_scene`).
-  - Kết quả lưu raw (giây + làn + lưới đang chọn) vào `assets/music/<id>.recording.json`.
+  - Kết quả lưu raw (giây + lưới đang chọn; trường `lane` luôn 0) vào `assets/music/<id>.recording.json`.
 - **Dựng level địa hình từ recording (cách nhanh nhất để có level theo ý mình):**
   `python tools/charting/recording_level.py cyber_rush` (id bài; chạy không tham số để xem danh sách) → `assets/music/<id>.rec.chart.json`
   (tên bài thêm "(Rec)", tự hiện trong menu chọn bài). Lần gõ quyết định *khi nào* nhảy, tool chọn *vật cản gì*:
   - Lượng tử hóa theo lưới đã lưu trong recording (`"grid"`; file cũ không có thì dùng 1/4), giống hình thoi trên timeline.
   - 3 lần gõ cách nhau 0.5 beat thành `trip`, cách nhau 0.75 beat thành `stairs` (`fstairs` ở đoạn mạnh); 2 lần
-    cách nhau 0.5 beat thành `orb`. Các lần còn lại: làn AUTO xoay vòng spike/gap/step theo `energy` của đoạn,
-    WALL thành `dl`/`dr` xen kẽ, GATE thành `flip`.
+    cách nhau 0.5 beat thành `orb`. Mỗi lần gõ còn lại là một vật cản, xoay vòng theo `energy` của đoạn: đoạn êm
+    `spike spike step spike gap wall`, đoạn mạnh (≥ 0.8) thêm cổng `flip`; `wall` là `dl`/`dr` xen kẽ. Mẫu ưu tiên
+    không đặt được (cần mặt đường, cần khoảng trống phía sau) thì thử lần lượt spike, gap, step, step1, wall, flip.
+    Trường `lane` trong recording cũ bị bỏ qua.
   - Tool tự thêm `drop` để xuống bệ khi có chỗ trống và luôn xuống trước tường/cổng. Mọi lựa chọn đều qua
     `handmade.Checker`, nên tuân cùng ràng buộc như level viết tay.
   - Lần gõ không đặt được vật cản nào (quá sát, gõ đúp) sẽ bị bỏ, kèm `WARN` ghi rõ beat. Sửa trong màn RECORD rồi

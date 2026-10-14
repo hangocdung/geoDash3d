@@ -1,5 +1,5 @@
 # On-screen controls of the recorder: transport, segment navigation, speed/grid, editing, save/build, and
-# three big tap pads (AUTO / WALL / GATE) that fire on press. Buttons never take keyboard focus (Space is a tap).
+# one big TAP pad that fires on press. Buttons never take keyboard focus (Space is a tap).
 # Emits intents only; Recorder owns the state. Related: src/authoring/recorder/recorder.gd
 class_name RecorderToolbar
 extends VBoxContainer
@@ -7,7 +7,7 @@ extends VBoxContainer
 signal action(name: StringName)
 signal rate_chosen(index: int)
 signal grid_chosen(index: int)
-signal pad_down(lane: int)
+signal pad_down
 
 const FONT_SIZE: int = 18
 const ROW_HEIGHT: float = 46.0
@@ -56,22 +56,17 @@ func setup(rates: Array[float], grids: Array[float]) -> void:
 	var files: HBoxContainer = _row()
 	_add(files, &"undo", "UNDO", 90)
 	_add(files, &"redo", "REDO", 90)
-	files.add_child(_caption("SET LANE"))
-	for lane: int in RecorderTimeline.LANE_COUNT:
-		var button: Button = _add(files, StringName("lane_%d" % lane), RecorderTimeline.LANE_NAMES[lane], 90)
-		button.add_theme_color_override("font_color", RecorderTimeline.LANE_COLORS[lane])
 	_add(files, &"save", "SAVE", 100)
 	if not OS.has_feature("mobile"):
 		_add(files, &"build", "BUILD & PLAY SEGMENT", 250)
 	_add(files, &"exit", "EXIT", 100)
 	var pads: HBoxContainer = _row()
-	for lane: int in RecorderTimeline.LANE_COUNT:
-		var pad: Button = _make("TAP %s  [%s]" % [RecorderTimeline.LANE_NAMES[lane], ["J", "K", "L"][lane]], 300)
-		pad.custom_minimum_size.y = PAD_HEIGHT
-		pad.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		pad.add_theme_color_override("font_color", RecorderTimeline.LANE_COLORS[lane])
-		pad.button_down.connect(func() -> void: pad_down.emit(lane))
-		pads.add_child(pad)
+	var pad: Button = _make("TAP  [Space / J]   -   the player acts here", 300)
+	pad.custom_minimum_size.y = PAD_HEIGHT
+	pad.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	pad.add_theme_color_override("font_color", RecorderTimeline.TAP_COLOR)
+	pad.button_down.connect(func() -> void: pad_down.emit())
+	pads.add_child(pad)
 
 
 func set_playing(playing: bool) -> void:

@@ -1,4 +1,5 @@
-# Raw tap recording for charting: taps stored as song time + lane, quantized only when building
+# Raw tap recording for charting: taps stored as song time (lane field kept for the file format, always 0 from
+# the recorder), quantized only when building
 # the level (tools/charting/recording_level.py), so a recording survives tempo/offset fixes.
 # File: assets/music/<id>.recording.json. Related: recorder.gd, tools/charting/sm_to_recording.py
 class_name Recording
@@ -103,13 +104,6 @@ func move_tap(index: int, time_sec: float) -> int:
 	remove_at(index)
 	add_tap(time_sec, lane)
 	return tap_times.bsearch(time_sec)
-
-
-func set_lane(index: int, lane: int) -> void:
-	if index < 0 or index >= tap_lanes.size():
-		push_error("Recording: tap index %d out of range (%d taps)" % [index, tap_lanes.size()])
-		return
-	tap_lanes[index] = lane
 
 
 ## Index of the tap closest to `time_sec` within `max_distance_sec`, or -1.

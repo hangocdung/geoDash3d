@@ -1,20 +1,17 @@
 # Recorder timeline: shows one whole segment (fixed view, the playhead moves across it) with the beat grid,
-# taps per lane (raw dot + snapped diamond) and the selection. Mouse: click/drag on empty space = seek,
-# click a note = select, drag it = move (time + lane), double-click = add a note, right-click = delete.
+# the taps (raw dot + snapped diamond) and the selection. Mouse: click/drag on empty space = seek,
+# click a note = select, drag it = move, double-click = add a note, right-click = delete.
 # Related: src/authoring/recorder/recorder.gd, src/authoring/recorder/recording_editor.gd
 class_name RecorderTimeline
 extends Control
 
 signal seek_requested(time_sec: float)
-signal add_requested(time_sec: float, lane: int)
-signal move_requested(time_sec: float, lane: int)
+signal add_requested(time_sec: float)
+signal move_requested(time_sec: float)
 signal delete_requested
 signal selection_changed
 
-const LANE_COUNT: int = 3
-## Lane meaning for tools/charting/recording_level.py; colors match the gameplay hazards.
-const LANE_NAMES: Array[String] = ["AUTO", "WALL", "GATE"]
-const LANE_COLORS: Array[Color] = [Color(1.0, 0.3, 0.85), Color(1.0, 0.6, 0.2), Color(0.55, 1.0, 0.35)]
+const TAP_COLOR: Color = Color(1.0, 0.3, 0.85)
 const RULER_HEIGHT: float = 34.0
 const MARGIN_BEATS: float = 1.0
 const PICK_RADIUS_PX: float = 20.0
@@ -58,7 +55,7 @@ func _on_button(event: InputEventMouseButton) -> void:
 		return
 	if not event.pressed:
 		if _dragging:
-			move_requested.emit(time_sec, lane_at_y(event.position.y))
+			move_requested.emit(time_sec)
 		_drag_from = Vector2.INF
 		_dragging = false
 		_seeking = false
@@ -69,7 +66,7 @@ func _on_button(event: InputEventMouseButton) -> void:
 		_drag_from = event.position
 		selection_changed.emit()
 	elif event.double_click and event.position.y > RULER_HEIGHT:
-		add_requested.emit(time_sec, lane_at_y(event.position.y))
+		add_requested.emit(time_sec)
 	else:
 		editor.deselect()
 		selection_changed.emit()
@@ -86,11 +83,7 @@ func _draw() -> void:
 	var right: float = _x_for(tempo.beat_to_time(segment_end_beat))
 	draw_rect(Rect2(left, 0, right - left, size.y), Color(0.07, 0.04, 0.16))
 	draw_rect(Rect2(0, 0, size.x, RULER_HEIGHT), Color(0.1, 0.07, 0.22))
-	for lane: int in LANE_COUNT:
-		var y: float = _y_for_lane(lane)
-		draw_line(Vector2(0, y), Vector2(size.x, y), LANE_COLORS[lane] * Color(1, 1, 1, 0.15), 1.0)
-		draw_string(font, Vector2(8, y - 14), LANE_NAMES[lane], HORIZONTAL_ALIGNMENT_LEFT, -1, 16,
-				LANE_COLORS[lane] * Color(1, 1, 1, 0.7))
+	draw_line(Vector2(0, _tap_y()), Vector2(size.x, _tap_y()), TAP_COLOR * Color(1, 1, 1, 0.15), 1.0)
 	var first_step: int = ceili((segment_start_beat - MARGIN_BEATS) / grid_beats)
 	var last_step: int = floori((segment_end_beat + MARGIN_BEATS) / grid_beats)
 	for step: int in range(first_step, last_step + 1):
@@ -119,19 +112,18 @@ func _draw_taps(font: Font) -> void:
 		var tap_time: float = recording.tap_times[index]
 		if tap_time > end_time:
 			break
-		var lane: int = clampi(recording.tap_lanes[index], 0, LANE_COUNT - 1)
-		var center := Vector2(_x_for(editor.snap_time(tap_time, grid_beats)), _y_for_lane(lane))
+		var center := Vector2(_x_for(editor.snap_time(tap_time, grid_beats)), _tap_y())
 		draw_circle(Vector2(_x_for(tap_time), center.y), 3.0, Color(1, 1, 1, 0.5))
 		if index == editor.selected:
 			draw_circle(center, 18.0, Color(1, 1, 1, 0.9), false, 3.0)
 			if _dragging:
 				var mouse: Vector2 = get_local_mouse_position()
 				var ghost := Vector2(_x_for(editor.snap_time(time_at_x(mouse.x), grid_beats)),
-						_y_for_lane(lane_at_y(mouse.y)))
+						_tap_y())
 				_draw_diamond(ghost, 13.0, Color(1, 1, 1, 0.6))
-		_draw_diamond(center, 11.0, LANE_COLORS[lane])
+		_draw_diamond(center, 13.0, TAP_COLOR)
 	if recording.count() == 0:
-		draw_string(font, Vector2(0, size.y * 0.5), "Press Play and tap along (J / K / L or the pads below)",
+		draw_string(font, Vector2(0, size.y * 0.5), "Press Play and tap where the player should act (Space / J or the TAP pad)",
 				HORIZONTAL_ALIGNMENT_CENTER, size.x, 22, Color(0.7, 0.75, 0.9, 0.6))
 
 
@@ -141,11 +133,6 @@ func time_at_x(x: float) -> float:
 	return start + clampf(x / size.x, 0.0, 1.0) * (end - start)
 
 
-func lane_at_y(y: float) -> int:
-	var lane_height: float = (size.y - RULER_HEIGHT) / float(LANE_COUNT)
-	return clampi(floori((y - RULER_HEIGHT) / lane_height), 0, LANE_COUNT - 1)
-
-
 ## Index of the tap whose diamond is under `point`, or -1.
 func _pick(point: Vector2) -> int:
 	var radius: float = (time_at_x(PICK_RADIUS_PX) - time_at_x(0.0))
@@ -153,7 +140,7 @@ func _pick(point: Vector2) -> int:
 	if index < 0:
 		return -1
 	var center := Vector2(_x_for(editor.snap_time(editor.recording.tap_times[index], grid_beats)),
-			_y_for_lane(editor.recording.tap_lanes[index]))
+			_tap_y())
 	return index if center.distance_to(point) <= PICK_RADIUS_PX else -1
 
 
@@ -163,9 +150,8 @@ func _x_for(time_sec: float) -> float:
 	return (time_sec - start) / (end - start) * size.x
 
 
-func _y_for_lane(lane: int) -> float:
-	var lane_height: float = (size.y - RULER_HEIGHT) / float(LANE_COUNT)
-	return RULER_HEIGHT + lane_height * (float(lane) + 0.5)
+func _tap_y() -> float:
+	return RULER_HEIGHT + (size.y - RULER_HEIGHT) * 0.5
 
 
 func _draw_diamond(center: Vector2, radius: float, color: Color) -> void:

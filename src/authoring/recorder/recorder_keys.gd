@@ -4,7 +4,7 @@ class_name RecorderKeys
 extends RefCounted
 
 const PLAIN: Dictionary[Key, StringName] = {
-	KEY_SPACE: &"pad_0", KEY_J: &"pad_0", KEY_K: &"pad_1", KEY_L: &"pad_2",
+	KEY_SPACE: &"tap", KEY_J: &"tap", KEY_K: &"tap", KEY_L: &"tap",
 	KEY_P: &"play", KEY_ENTER: &"play", KEY_LEFT: &"back_beat", KEY_RIGHT: &"forward_beat",
 	KEY_PAGEUP: &"previous_segment", KEY_PAGEDOWN: &"next_segment", KEY_HOME: &"start",
 	KEY_DELETE: &"delete", KEY_BACKSPACE: &"delete", KEY_TAB: &"select_next", KEY_G: &"next_grid",
