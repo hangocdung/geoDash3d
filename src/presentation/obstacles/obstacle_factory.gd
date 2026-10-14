@@ -1,6 +1,6 @@
-# Builds obstacle visuals (crystal spike, two-lane wall, energy gate), jump pads and cue markers (timing
-# ring, floating action icon, lit lane strip for dodges, floating ring for jump orbs). Visual only; sizes
-# come from HazardDefinition / GameplayConfig.
+# Builds obstacle visuals (crystal spikes, saw blade, spiked ceiling, two-lane wall, energy gate), jump pads
+# and cue markers (timing ring, floating action icon, lit lane strip for dodges, floating rings for jump /
+# big / dive orbs). Visual only; sizes come from HazardDefinition / GameplayConfig.
 # Related: obstacle_view.gd, material_cache.gd, src/presentation/shaders/glyph.gdshader
 class_name ObstacleFactory
 extends RefCounted
@@ -14,6 +14,13 @@ const GLYPH_CHEVRONS: int = 1
 const GLYPH_SIDESTEP: int = 4
 const GLYPH_FLIP: int = 5
 const GLYPH_ORB: int = 6
+const GLYPH_DIVE_ORB: int = 7
+const GLYPH_BIG_ORB: int = 8
+## Name of the child ObstacleView turns with the beat (saw blades).
+const SPINNER_NAME: StringName = &"Spinner"
+const BIG_ORB_SCALE: float = 1.3
+const CEILING_SLAB: float = 0.4
+const CEILING_SPIKE_SPACING: float = 0.8
 const PAD_SIZE: float = 2.0
 const ICON_SIZE: float = 1.3
 const ICON_CLEARANCE: float = 1.3
@@ -47,6 +54,10 @@ func build_hazard(hazard: HazardDefinition) -> Node3D:
 			root.add_child(wall)
 		HazardDefinition.Visual.GATE:
 			_build_gate(root, hazard)
+		HazardDefinition.Visual.SAW:
+			_build_saw(root, hazard)
+		HazardDefinition.Visual.CEILING:
+			_build_ceiling(root, hazard)
 	return root
 
 
@@ -112,9 +123,16 @@ func build_pad(color: Color, half_length: float) -> Node3D:
 
 ## Camera-facing orb (bright core inside rings), centred on the player's body at the tap moment.
 func _orb_markers(cue: ChartItems.ActionCue, cue_height: float, context: LevelContext) -> Array[GeometryInstance3D]:
+	var glyph: int = GLYPH_ORB
+	var size: float = ORB_SIZE
+	if cue.action.dive_speed > 0.0:
+		glyph = GLYPH_DIVE_ORB
+	elif cue.action.jump_height > context.config.find_action(context.config.default_action).jump_height:
+		glyph = GLYPH_BIG_ORB
+		size *= BIG_ORB_SCALE
 	var quad := QuadMesh.new()
-	quad.size = Vector2(ORB_SIZE, ORB_SIZE)
-	var orb: MeshInstance3D = _mesh_instance(quad, _glyph(cue.action, GLYPH_ORB, true))
+	quad.size = Vector2(size, size)
+	var orb: MeshInstance3D = _mesh_instance(quad, _glyph(cue.action, glyph, true))
 	orb.transform = context.frame_at_height(cue.beat, cue_height + GameplayConfig.CUBE_SIZE * 0.5)
 	return [orb]
 
@@ -141,9 +159,44 @@ func _build_gate(root: Node3D, hazard: HazardDefinition) -> void:
 	root.add_child(plane)
 
 
+## Blade on a hub, half sunk into the road; the blade is the spinner child.
+func _build_saw(root: Node3D, hazard: HazardDefinition) -> void:
+	var radius: float = hazard.visual_length * 0.5
+	var blade: MeshInstance3D = _mesh_instance(ProceduralMeshes.saw_blade(radius, radius * 0.7, 8,
+			hazard.visual_width), _cache.get_material(StringName("saw_%s" % hazard.id), WIRE_SHADER,
+			{"edge_color": hazard.color, "face_energy": 0.15, "proximity_gain": APPROACH_GAIN}))
+	blade.name = SPINNER_NAME
+	blade.position = Vector3(0, hazard.visual_height - radius, hazard.lateral_center)
+	root.add_child(blade)
+
+
+## Spiked slab over the whole road: a glowing slab with rows of down-pointing spikes under it.
+func _build_ceiling(root: Node3D, hazard: HazardDefinition) -> void:
+	var slab_bottom: float = hazard.visual_height - CEILING_SLAB
+	var slab: MeshInstance3D = _mesh_instance(BoxMesh.new(), _cache.get_material(StringName("slab_%s" % hazard.id),
+			BOX_SHADER, {"edge_color": hazard.color, "edge_energy": 5.0, "edge_width": 0.06, "face_energy": 0.3,
+			"pulse_gain": 0.6, "proximity_gain": APPROACH_GAIN}))
+	slab.transform = Transform3D(Basis().scaled(Vector3(hazard.visual_length, CEILING_SLAB, hazard.visual_width)),
+			Vector3(0, slab_bottom + CEILING_SLAB * 0.5, 0))
+	root.add_child(slab)
+	var count: int = maxi(1, int(round(hazard.visual_length / CEILING_SPIKE_SPACING)))
+	var spike_height: float = slab_bottom - hazard.bottom + 0.1
+	var mesh: Mesh = ProceduralMeshes.pyramid_row(hazard.visual_length, spike_height, count)
+	var material: ShaderMaterial = _cache.get_material(StringName("wire_%s" % hazard.id), WIRE_SHADER,
+			{"edge_color": hazard.color, "proximity_gain": APPROACH_GAIN})
+	var rows: int = 3
+	for row: int in rows:
+		var spikes: MeshInstance3D = _mesh_instance(mesh, material)
+		var lateral: float = (float(row) - float(rows - 1) * 0.5) * hazard.visual_width / float(rows)
+		# Upside down: the row hangs from the slab with its tips pointing at the road.
+		spikes.transform = Transform3D(Basis(Vector3.RIGHT, PI), Vector3(0, slab_bottom, lateral))
+		root.add_child(spikes)
+
+
 func _spike_mesh(hazard: HazardDefinition) -> Mesh:
 	if not _spike_meshes.has(hazard.id):
-		_spike_meshes[hazard.id] = ProceduralMeshes.pyramid(hazard.visual_length, hazard.visual_height)
+		_spike_meshes[hazard.id] = ProceduralMeshes.pyramid_row(hazard.visual_length, hazard.visual_height,
+				maxi(hazard.repeat, 1))
 	return _spike_meshes[hazard.id]
 
 

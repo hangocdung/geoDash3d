@@ -4,7 +4,15 @@
 class_name HazardDefinition
 extends Resource
 
-enum Visual { SPIKE, WALL, GATE }
+enum Visual {
+	SPIKE,
+	WALL,
+	GATE,
+	## Spinning saw blade, half sunk into the ground (turns with the beat).
+	SAW,
+	## Slab hanging over the road with spikes pointing down: pass under it on the ground.
+	CEILING,
+}
 enum Entrance {
 	## Grows out of the track surface.
 	RISE,
@@ -27,6 +35,8 @@ enum Entrance {
 @export var visual_length: float = 1.0
 @export var visual_width: float = 1.0
 @export var visual_height: float = 1.1
+## SPIKE: number of spikes in a row along the track (each `visual_length` / `repeat` long).
+@export var repeat: int = 1
 @export var color: Color = Color(1.0, 0.25, 0.85)
 ## Sound played when the entrance lands (see tools/audio/sfx_spec.py).
 @export var landing_sound: StringName = &""

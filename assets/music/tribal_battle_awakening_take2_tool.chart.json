@@ -411,7 +411,8 @@
 		},
 		{
 			"beat": 30.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 41.5,
@@ -439,7 +440,8 @@
 		},
 		{
 			"beat": 67.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 71.5,
@@ -457,7 +459,8 @@
 		},
 		{
 			"beat": 87.5,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 96.0,
@@ -505,7 +508,8 @@
 		},
 		{
 			"beat": 128.5,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 176.5,
@@ -533,7 +537,8 @@
 		},
 		{
 			"beat": 199.5,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 202.0,
@@ -551,7 +556,8 @@
 		},
 		{
 			"beat": 215.5,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 218.0,
@@ -583,7 +589,8 @@
 		},
 		{
 			"beat": 243.5,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 247.5,
@@ -612,7 +619,8 @@
 		},
 		{
 			"beat": 256.5,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 258.0,
@@ -630,7 +638,8 @@
 		},
 		{
 			"beat": 272.5,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 273.5,
@@ -645,7 +654,8 @@
 		},
 		{
 			"beat": 286.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 288.5,
@@ -654,7 +664,8 @@
 		},
 		{
 			"beat": 290.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 293.0,
@@ -678,7 +689,8 @@
 		},
 		{
 			"beat": 312.5,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 320.5,
@@ -696,7 +708,8 @@
 		},
 		{
 			"beat": 344.5,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 352,
@@ -730,15 +743,18 @@
 		},
 		{
 			"beat": 357.5,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 361.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 364.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 366.0,
@@ -764,7 +780,8 @@
 		},
 		{
 			"beat": 377.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 380,
@@ -784,11 +801,13 @@
 		},
 		{
 			"beat": 383.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 385.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 387.0,
@@ -796,7 +815,8 @@
 		},
 		{
 			"beat": 388.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 390.5,
@@ -810,11 +830,13 @@
 		},
 		{
 			"beat": 397.5,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 399.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 401.0,
@@ -852,7 +874,8 @@
 		},
 		{
 			"beat": 423.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 433.0,

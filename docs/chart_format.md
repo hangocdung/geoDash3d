@@ -49,7 +49,13 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
   | `dodge_left` / `dodge_right` | lăn sang làn trái / phải 1.25 beat rồi về | `wall_gap_left` / `wall_gap_right` (+0.625), tường chắn làn giữa và làn còn lại | rơi xuống |
   | `flip` | lộn qua mép xuống mặt dưới 2 beat rồi lên | `gate` (+1.0), cổng chắn cả bề ngang | bung ngang |
   | `orb` | vòng nhảy giữa không trung: chạm được cả khi đang bay, bật parabol mới (như jump) | không có | — |
+  | `orb_big` | vòng nhảy lớn: như `orb` nhưng bật parabol của bệ bật (đỉnh +4.5, 1.5 beat) | không có | — |
+  | `orb_drop` | vòng lao xuống: chạm khi đang bay thì lao thẳng xuống (12 đơn vị/beat, từ đỉnh +2 chạm đất sau ~0.15 beat) | không có | — |
 
+  `"hazard"` có thể đổi vật cản đi kèm sang biến thể (GD3-095): `spike_double` (2 gai, thấp hơn),
+  `spike_triple` (3 gai, thấp hơn nữa), `saw` (lưỡi cưa xoay theo nhịp). Mọi biến thể vượt qua bằng một cú nhảy,
+  dung sai ≥ ±90 ms ở 150 BPM. `ceiling` (trần gai phủ cả đường, đáy cao 1.3) chỉ đặt bằng `"type": "hazard"`:
+  chạy bên dưới thì an toàn, đang bay thì chết — dùng với `orb_drop`.
   Cú nhảy kết thúc khi tiếp đất (sớm hơn nếu đáp lên bệ cao hơn). Vật cản đứng trên mặt đất tại chỗ nó đứng (`terrain`). Vật cản luôn vào sân đúng **nguyên beat** `floor(beat_vật_cản − lead)` (lead: spike 2, tường/cổng 3). `"hazard": "none"` để chỉ có cue,
   không có vật cản. Có thể thêm `"hazard_offset": <beats>` để dịch vật cản.
 - **`hazard`**: vật cản đứng riêng, không có cue (người chơi tự nhảy bằng thao tác mặc định).
@@ -88,7 +94,9 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
 4. **Đặt tay** (cách chính, người dùng yêu cầu 2026-10-14 vì bản tự sinh không khớp nhạc): in lưới onset theo dải
    tần (kick / snare / hi-hat) từng ô nhịp, tìm motif của mỗi đoạn, viết `tools/charting/levels/<id>.py` là danh sách
    `beat:mẫu` (xem `tools/charting/handmade.py`: bộ kiểm tra báo lỗi nếu người chơi chưa tiếp đất, quá cao, hay lách
-   làn/lộn khi không ở đường phẳng). Bài nhịp trôi thì đặt chạm theo thời điểm onset thật (vd. neon_arcade_dash_take2).
+   làn/lộn khi không ở đường phẳng). `build()` mặc định thêm biến thể (giữ nguyên nhịp chạm và độ cao đất):
+   `spike` xoay vòng gai / cưa / hàng gai theo energy, cứ 2 `orb` đủ chỗ thì 1 thành `borb`, cứ 2 lần `orb` + `drop`
+   từ mặt đường thì 1 thành `dive`. Tắt bằng `build(SONG, STEPS, variety=False)`. Bài nhịp trôi thì đặt chạm theo thời điểm onset thật (vd. neon_arcade_dash_take2).
    Cuối cùng đo độ lệch cố định giữa lần chạm và onset để chỉnh `offset`.
    Bản nháp tự sinh (tham khảo):
    `python tools/charting/terrain_level.py assets/music/<id>.analysis.json --title "<Tên>" --seed 1`.
@@ -131,9 +139,11 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
   (tên bài thêm "(Rec)", tự hiện trong menu chọn bài). Lần gõ quyết định *khi nào* nhảy, tool chọn *vật cản gì*:
   - Lượng tử hóa theo lưới đã lưu trong recording (`"grid"`; file cũ không có thì dùng 1/4), giống hình thoi trên timeline.
   - 3 lần gõ cách nhau 0.5 beat thành `trip`, cách nhau 0.75 beat thành `stairs` (`fstairs` ở đoạn mạnh); 2 lần
-    cách nhau 0.5 beat thành `orb`. Mỗi lần gõ còn lại là một vật cản, xoay vòng theo `energy` của đoạn: đoạn êm
-    `spike spike step spike gap wall`, đoạn mạnh (≥ 0.8) thêm cổng `flip`; `wall` là `dl`/`dr` xen kẽ. Mẫu ưu tiên
-    không đặt được (cần mặt đường, cần khoảng trống phía sau) thì thử lần lượt spike, gap, step, step1, wall, flip.
+    cách nhau 0.5 beat xoay vòng `orb dive orb borb` (lao xuống dưới trần gai, vòng nhảy lớn; cần nhiều chỗ trống
+    phía sau hơn, không đủ thì lùi về mẫu khác). Mỗi lần gõ còn lại là một vật cản, xoay vòng theo `energy` của đoạn:
+    đoạn êm `spike saw step spike2 gap wall spike step1`, đoạn mạnh (≥ 0.8)
+    `spike2 gap wall step saw flip spike3 gap wall spike`; `wall` là `dl`/`dr` xen kẽ. Mẫu ưu tiên không đặt được
+    (cần mặt đường, cần khoảng trống phía sau) thì thử lần lượt spike, gap, step, step1, saw, wall, flip.
     Trường `lane` trong recording cũ bị bỏ qua.
   - Tool tự thêm `drop` để xuống bệ khi có chỗ trống và luôn xuống trước tường/cổng. Mọi lựa chọn đều qua
     `handmade.Checker`, nên tuân cùng ràng buộc như level viết tay.

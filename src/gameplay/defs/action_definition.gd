@@ -21,6 +21,8 @@ enum Kind {
 @export var jump_height: float = 0.0
 ## JUMP: may be performed in mid-air (jump orbs). Other jumps need the player on the ground.
 @export var air_allowed: bool = false
+## JUMP: > 0 launches straight down at this speed (units/beat) instead of up (dive orb); same gravity.
+@export var dive_speed: float = 0.0
 ## DODGE: signed lateral target. FLIP: how far sideways the player swings around the track edge.
 @export var lateral_distance: float = 0.0
 ## DODGE / FLIP: fraction of the action spent moving out (and the same fraction moving back).
@@ -39,6 +41,8 @@ enum Kind {
 
 ## JUMP: initial upward speed in units per beat (lands after duration_beats on flat ground).
 func launch_velocity() -> float:
+	if dive_speed > 0.0:
+		return -dive_speed
 	return 4.0 * jump_height / duration_beats
 
 

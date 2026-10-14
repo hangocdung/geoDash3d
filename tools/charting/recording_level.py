@@ -1,9 +1,9 @@
 """Build a terrain level from a record-mode tap recording: the taps choose *when*, this tool chooses *what*.
 
 Each tap marks a moment the player acts. Taps are quantized to the grid, then grouped: three taps 0.5 beat apart
--> orb triplet, 0.75 apart -> stairs, two taps 0.5 apart -> orb; any other tap is one obstacle picked from a
-rotation that depends on the section energy (spike, hole, ledge, two-lane wall, gate), falling back to whatever
-fits. Ledges are left with a drop where there is room (always before walls and gates). Lanes in old recordings
+-> orb triplet, 0.75 apart -> stairs, two taps 0.5 apart -> a rotation of orb / dive under a spiked ceiling / big
+orb; any other tap is one obstacle picked from a rotation that depends on the section energy (spike, saw, spike
+rows, hole, ledge, two-lane wall, gate), falling back to whatever fits. Ledges are left with a drop where there is room (always before walls and gates). Lanes in old recordings
 are ignored.
 Every choice goes through handmade.Checker (the rules of hand-written levels); a tap that fits nothing is
 skipped with a warning. Tempo, speed, sections, track, cameras and vfx are copied from the source chart.
@@ -17,11 +17,11 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from handmade import Checker, EPSILON, MAX_HEIGHT  # noqa: E402
+from handmade import Checker, EPSILON, MAX_HEIGHT, try_apply  # noqa: E402
 from terrain_patterns import Level, SpeedMap  # noqa: E402
 
 MUSIC_DIR = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "assets", "music"))
-GAMEPLAY_EVENTS = {"jump", "orb", "pad", "dodge_left", "dodge_right", "flip"}
+GAMEPLAY_EVENTS = {"jump", "orb", "orb_big", "orb_drop", "pad", "dodge_left", "dodge_right", "flip"}
 ROAD_PATTERNS = ("dl", "dr", "flip")
 # No obstacle before this beat (the run-up) or in the last beat of the song.
 FIRST_BEAT = 2.0
@@ -31,9 +31,11 @@ DROP_REST_BEATS = 2.0
 LEDGE_RUN_BEATS = 0.5
 HIGH_ENERGY = 0.8
 # Rotation of obstacles for single taps ("wall" alternates dodge left/right); calm sections stay simpler.
-AUTO_CALM = ["spike", "spike", "step", "spike", "gap", "wall"]
-AUTO_HIGH = ["spike", "gap", "wall", "step", "spike", "flip", "gap", "wall"]
-SINGLE_FALLBACKS = ["spike", "gap", "step", "step1", "wall", "flip"]
+AUTO_CALM = ["spike", "saw", "step", "spike2", "gap", "wall", "spike", "step1"]
+AUTO_HIGH = ["spike2", "gap", "wall", "step", "saw", "flip", "spike3", "gap", "wall", "spike"]
+SINGLE_FALLBACKS = ["spike", "gap", "step", "step1", "saw", "wall", "flip"]
+# Two taps half a beat apart: plain orb, dive under a spiked ceiling, big orb (each needs more room after it).
+PAIRS = ["orb", "dive", "orb", "borb"]
 
 
 class Tempo:
@@ -74,6 +76,7 @@ class Builder:
         self.warnings = warnings
         self.steps = []
         self.auto_count = 0
+        self.pair_count = 0
         self.wall_left = True
 
     def energy_at(self, beat):
@@ -85,17 +88,10 @@ class Builder:
 
     def try_apply(self, beat, name, deadline):
         """Applies a pattern if the checker accepts it and the player is free again by `deadline`."""
-        checker, level = self.checker, self.checker.level
-        saved = (len(level.events), len(level.terrain), level.ground, checker.free, len(checker.errors))
-        checker.apply(beat, name)
-        if len(checker.errors) == saved[4] and checker.free <= deadline + EPSILON:
-            self.steps.append((beat, name))
-            return True
-        del level.events[saved[0]:]
-        del level.terrain[saved[1]:]
-        level.ground, checker.free = saved[2], saved[3]
-        del checker.errors[saved[4]:]
-        return False
+        if not try_apply(self.checker, beat, name, deadline):
+            return False
+        self.steps.append((beat, name))
+        return True
 
     def candidates(self, index):
         beat = self.taps[index]
@@ -107,7 +103,8 @@ class Builder:
         if gaps[0] == 0.75 and gaps[1] == 0.75:
             result.append(("fstairs" if self.energy_at(beat) >= HIGH_ENERGY else "stairs", 3))
         if gaps[0] == 0.5:
-            result.append(("orb", 2))
+            preferred_pair = PAIRS[self.pair_count % len(PAIRS)]
+            result += [(name, 2) for name in [preferred_pair] + [n for n in ("orb", "dive", "borb") if n != preferred_pair]]
         rotation = AUTO_HIGH if self.energy_at(beat) >= HIGH_ENERGY else AUTO_CALM
         preferred = rotation[self.auto_count % len(rotation)]
         wall = "dl" if self.wall_left else "dr"
@@ -173,6 +170,8 @@ class Builder:
                 self.wall_left = not self.wall_left
             if count == 1:
                 self.auto_count += 1
+            elif count == 2:
+                self.pair_count += 1
             index += count
         self.drop_before(self.end_beat, False, force=True)
 

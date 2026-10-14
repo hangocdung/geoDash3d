@@ -317,6 +317,10 @@
 			"height": 0.0
 		},
 		{
+			"beat": 177.3,
+			"gap": true
+		},
+		{
 			"beat": 178.0,
 			"height": 2.0
 		},
@@ -517,7 +521,8 @@
 		},
 		{
 			"beat": 14.36,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 15.97,
@@ -551,7 +556,8 @@
 		},
 		{
 			"beat": 29.13,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 30.9,
@@ -564,7 +570,8 @@
 		},
 		{
 			"beat": 33.94,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 35.73,
@@ -578,7 +585,8 @@
 		},
 		{
 			"beat": 40.5,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 42.02,
@@ -587,7 +595,8 @@
 		},
 		{
 			"beat": 44.03,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 45.56,
@@ -614,7 +623,8 @@
 		},
 		{
 			"beat": 54.15,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 55.65,
@@ -623,7 +633,8 @@
 		},
 		{
 			"beat": 57.19,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 59.21,
@@ -632,7 +643,8 @@
 		},
 		{
 			"beat": 61.22,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 66.28,
@@ -645,7 +657,8 @@
 		},
 		{
 			"beat": 70.33,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 71.83,
@@ -654,7 +667,8 @@
 		},
 		{
 			"beat": 74.38,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 77.18,
@@ -663,7 +677,8 @@
 		},
 		{
 			"beat": 79.93,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 80.94,
@@ -676,15 +691,18 @@
 		},
 		{
 			"beat": 84.99,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 86.51,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 91.57,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 92.58,
@@ -708,7 +726,8 @@
 		},
 		{
 			"beat": 97.39,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 100.68,
@@ -721,7 +740,8 @@
 		},
 		{
 			"beat": 103.95,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 105.47,
@@ -734,7 +754,8 @@
 		},
 		{
 			"beat": 108.81,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 112.05,
@@ -752,7 +773,8 @@
 		},
 		{
 			"beat": 117.6,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 120.13,
@@ -760,7 +782,8 @@
 		},
 		{
 			"beat": 123.17,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 124.45,
@@ -778,7 +801,8 @@
 		},
 		{
 			"beat": 131.84,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 134.3,
@@ -791,7 +815,8 @@
 		},
 		{
 			"beat": 137.83,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 139.38,
@@ -804,7 +829,8 @@
 		},
 		{
 			"beat": 144.41,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 145.91,
@@ -822,7 +848,8 @@
 		},
 		{
 			"beat": 152.99,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 155.54,
@@ -830,7 +857,8 @@
 		},
 		{
 			"beat": 158.07,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 160,
@@ -861,7 +889,7 @@
 		},
 		{
 			"beat": 177.5,
-			"type": "orb"
+			"type": "orb_big"
 		},
 		{
 			"beat": 179.04,
@@ -874,11 +902,13 @@
 		},
 		{
 			"beat": 184.12,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 186.62,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 188.12,
@@ -887,7 +917,8 @@
 		},
 		{
 			"beat": 189.15,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 190.94,
@@ -916,7 +947,8 @@
 		},
 		{
 			"beat": 200.25,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 202.09,
@@ -924,7 +956,8 @@
 		},
 		{
 			"beat": 204.33,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 206.36,
@@ -932,7 +965,8 @@
 		},
 		{
 			"beat": 208.38,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 210.19,
@@ -950,11 +984,13 @@
 		},
 		{
 			"beat": 217.96,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 218.99,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 220.51,
@@ -963,7 +999,8 @@
 		},
 		{
 			"beat": 221.79,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 223.55,
@@ -976,7 +1013,8 @@
 		},
 		{
 			"beat": 231.52,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 233.67,
@@ -985,7 +1023,8 @@
 		},
 		{
 			"beat": 235.68,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 237.72,
@@ -1010,7 +1049,8 @@
 		},
 		{
 			"beat": 242.64,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 243.85,
@@ -1028,7 +1068,8 @@
 		},
 		{
 			"beat": 250.08,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 252,
@@ -1038,7 +1079,8 @@
 		},
 		{
 			"beat": 253.12,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 254.93,
@@ -1046,7 +1088,8 @@
 		},
 		{
 			"beat": 258.18,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 259.68,
@@ -1064,11 +1107,13 @@
 		},
 		{
 			"beat": 266.26,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 269.32,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 271.09,
@@ -1089,7 +1134,8 @@
 		},
 		{
 			"beat": 277.38,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 279.91,
@@ -1116,7 +1162,8 @@
 		},
 		{
 			"beat": 285.77,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 287.99,
@@ -1125,7 +1172,8 @@
 		},
 		{
 			"beat": 290.52,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 292.58,
@@ -1169,7 +1217,8 @@
 		},
 		{
 			"beat": 303.68,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 304,

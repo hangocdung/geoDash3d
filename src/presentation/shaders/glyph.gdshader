@@ -1,6 +1,7 @@
 // Additive hologram glyph on a quad: 0 = ring, 1 = up chevrons (jump), 2 = forward arrows,
 // 3 = shock ring driven by `progress`, 4 = sideways arrows (dodge), 5 = circular arrow (flip),
-// 6 = jump orb (bright core inside two rings).
+// 6 = jump orb (bright core inside two rings), 7 = dive orb (down chevrons inside a ring),
+// 8 = big orb (up chevrons inside a double ring).
 // Optional camera-facing billboard.
 shader_type spatial;
 render_mode unshaded, blend_add, cull_disabled, depth_draw_never, shadows_disabled;
@@ -74,6 +75,14 @@ void fragment() {
 		float ring = 1.0 - smoothstep(0.025, 0.055, abs(radius - 0.33));
 		float outer = (1.0 - smoothstep(0.015, 0.03, abs(radius - 0.46))) * 0.5;
 		shape = core * 1.5 + ring + outer;
+	} else if (glyph == 7 || glyph == 8) {
+		float ring = 1.0 - smoothstep(0.025, 0.055, abs(radius - 0.36));
+		float outer = (1.0 - smoothstep(0.015, 0.03, abs(radius - 0.46))) * (glyph == 8 ? 1.0 : 0.5);
+		float inner = glyph == 8 ? (1.0 - smoothstep(0.015, 0.03, abs(radius - 0.41))) * 0.7 : 0.0;
+		// Chevrons scaled to fit inside the ring; flipped vertically for the dive orb.
+		vec2 q = (glyph == 7 ? vec2(p.x, -p.y) : p) * 1.5;
+		float arrows = chevron(q, -0.2) + chevron(q, 0.02);
+		shape = ring + outer + inner + arrows * 1.3;
 	} else {
 		float ring_radius = mix(0.05, 0.48, progress);
 		float width = mix(0.06, 0.01, progress);

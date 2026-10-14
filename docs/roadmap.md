@@ -93,6 +93,10 @@ Thiết kế: `docs/design/gameplay_v3.md`. **Đã duyệt 2026-10-14: map đị
       Đo Note10 Lite: MEDIUM không đổi (40.3 → 40.2), nhưng LOW tụt ~3 FPS (56.4 → 53.2, điệp khúc xuống 43–48).
       Cùng bản build, biên độ 0 thì về 56.0 → chi phí do trời đổi mỗi frame (nhiều khả năng mất transaction
       elimination của Mali), không phải do radiance. Quyết định: tắt nhịp trời ở LOW.
+- [x] **GD3-095** Đa dạng chướng ngại (người dùng thấy map đơn điệu): hàng 2/3 gai, lưỡi cưa xoay theo nhịp, trần gai,
+      vòng nhảy lớn, vòng lao xuống; mẫu `spike2 spike3 saw borb dive`; `handmade.build` tự xen biến thể (giữ nhịp),
+      `recording_level.py` xoay vòng các loại mới. Sinh lại mọi chart đặt tay/tool, dung sai tệ nhất vẫn ±90 ms.
+      Thiết kế: `docs/design/gameplay_v3.md` mục 9. Chưa có SFX riêng cho vòng lớn/lao xuống.
 - [ ] **GD3-093** Biome theo đoạn nhạc (bảng màu tông lạnh + bộ hình khối cảnh nền) — cần chọn chủ đề.
 
 ## Phase 5 — Mobile

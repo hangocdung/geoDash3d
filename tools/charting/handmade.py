@@ -2,8 +2,11 @@
 
 This module parses the step list, checks it (the player has landed before each tap, ground height limits,
 flat road for dodges and flips), places the patterns (terrain_patterns.py) and writes the chart.
-Patterns: spike gap step step1 chain2 chain3 orb trip stairs fstairs pad dl dr flip drop drop2 drop4
-(drop/drop2/drop4: run off the ledge down to 0 / 2 / 4).
+Patterns: spike spike2 spike3 saw gap step step1 chain2 chain3 orb borb dive trip stairs fstairs pad dl dr flip
+drop drop2 drop4 (drop/drop2/drop4: run off the ledge down to 0 / 2 / 4; spike2/spike3: spike rows; borb: big
+orb onto +2, lands 2 beats after the jump; dive: jump + dive orb under a spiked ceiling).
+build() adds variety by default: plain `spike` steps rotate through spike / saw / spike rows by section energy, and
+every other `orb` with room after it becomes `borb` (same taps, same ground).
 Usage: a song script calls build(SONG, STEPS) (see tools/charting/levels/*.py).
 Related: tools/charting/terrain_patterns.py, docs/chart_format.md
 """
@@ -15,6 +18,10 @@ from terrain_patterns import Level, SpeedMap, fall_beats, PLAYER_HALF_LENGTH
 
 MAX_HEIGHT = 6.0
 EPSILON = 0.0001
+SPIKE_HAZARDS = {"spike": "spike", "spike2": "spike_double", "spike3": "spike_triple", "saw": "saw"}
+# Variety rotations for plain spikes, by section energy (below 0.5 / below 0.8 / above).
+SPIKE_VARIETY = (["spike", "saw"], ["spike", "saw", "spike", "spike2"], ["spike", "spike2", "saw", "spike3"])
+BIG_ORB_LANDING = 2.0
 
 
 def landing_after_step(rise):
@@ -55,12 +62,12 @@ class Checker:
             return
         start = level.pad_trigger(beat) - 0.05 if name == "pad" else beat
         self.need(start >= self.free - EPSILON, beat, "%s before the player is free (%.2f)" % (name, self.free))
-        rise = {"step": 1.5, "step1": 1.0, "orb": 2.0, "trip": 4.0, "stairs": 4.5, "fstairs": 4.5, "pad": 4.0}.get(name, 0.0)
+        rise = {"step": 1.5, "step1": 1.0, "orb": 2.0, "borb": 2.0, "trip": 4.0, "stairs": 4.5, "fstairs": 4.5, "pad": 4.0}.get(name, 0.0)
         self.need(ground + rise <= MAX_HEIGHT, beat, "%s from height %.1f goes above %.1f" % (name, ground, MAX_HEIGHT))
         if name in ("dl", "dr", "flip"):
             self.need(ground == 0.0, beat, "%s needs the road (height 0), ground is %.1f" % (name, ground))
-        if name == "spike":
-            level.spike(beat)
+        if name in SPIKE_HAZARDS:
+            level.spike(beat, SPIKE_HAZARDS[name])
             self.free = beat + 1.0
         elif name == "gap":
             level.gap(beat)
@@ -75,6 +82,11 @@ class Checker:
         elif name == "orb":
             level.orb_up(beat)
             self.free = beat + 1.5
+        elif name == "borb":
+            level.big_orb(beat)
+            self.free = beat + BIG_ORB_LANDING
+        elif name == "dive":
+            self.free = level.dive(beat) + 0.05
         elif name == "trip":
             level.orb_triplet(beat)
             self.free = beat + 2.0
@@ -97,16 +109,70 @@ class Checker:
             self.errors.append("beat %.2f: unknown pattern '%s'" % (beat, name))
 
 
-def build(song, steps):
+def try_apply(checker, beat, name, deadline):
+    """Applies a pattern if the checker accepts it and the player is free again by `deadline`; else undoes it."""
+    level = checker.level
+    saved = (len(level.events), len(level.terrain), level.ground, checker.free, len(checker.errors))
+    checker.apply(beat, name)
+    if len(checker.errors) == saved[4] and checker.free <= deadline + EPSILON:
+        return True
+    del level.events[saved[0]:]
+    del level.terrain[saved[1]:]
+    level.ground, checker.free = saved[2], saved[3]
+    del checker.errors[saved[4]:]
+    return False
+
+
+def add_variety(plan, sections):
+    """Plain spikes rotate through saw / spike rows by section energy; every other orb with 2 beats of room
+    after its jump becomes a big orb. Same tap beats, same ground heights."""
+    result = []
+    spikes = 0
+    orbs = 0
+    for index, (beat, name) in enumerate(plan):
+        energy = 0.5
+        for start, _, value in sections:
+            if beat >= start:
+                energy = value
+        if name == "spike":
+            rotation = SPIKE_VARIETY[0 if energy < 0.5 else 1 if energy < 0.8 else 2]
+            name = rotation[spikes % len(rotation)]
+            spikes += 1
+        elif name == "orb":
+            next_beat = plan[index + 1][0] if index + 1 < len(plan) else float("inf")
+            if next_beat >= beat + BIG_ORB_LANDING:
+                if orbs % 2 == 1:
+                    name = "borb"
+                orbs += 1
+        result.append((beat, name))
+    return result
+
+
+def build(song, steps, variety=True):
     """`song`: id, title, artist, bpm, offset, end_beat, speed, sections, cameras, track, vfx; optional audio
-    (mp3 base name when several charts share one song, default id)."""
+    (mp3 base name when several charts share one song, default id). `variety`: see add_variety()."""
     level = Level(SpeedMap(song["speed"]))
     checker = Checker(level)
     previous = -100.0
-    for beat, name in parse(steps):
+    plan = parse(steps)
+    if variety:
+        plan = add_variety(plan, song["sections"])
+    index = 0
+    dive_chances = 0
+    while index < len(plan):
+        beat, name = plan[index]
         checker.need(beat > previous, beat, "steps out of order")
         previous = beat
+        if variety and name == "orb" and index + 1 < len(plan) and plan[index + 1][1] == "drop" and level.ground == 0.0:
+            # An orb up from the road that drops right back: every other one dives under a ceiling instead.
+            dive_chances += 1
+            following = plan[index + 2][0] if index + 2 < len(plan) else song["end_beat"]
+            if dive_chances % 2 == 1 and try_apply(checker, beat, "dive", following):
+                previous = plan[index + 1][0]
+                index += 2
+                continue
         checker.apply(beat, name)
+        index += 1
     if checker.errors:
         print("\n".join(checker.errors))
         sys.exit(1)
@@ -132,5 +198,5 @@ def build(song, steps):
     with open(path, "w", encoding="utf-8", newline="\n") as handle:
         json.dump(chart, handle, indent="\t")
         handle.write("\n")
-    taps = sum(1 for e in events if e["type"] in ("jump", "orb", "dodge_left", "dodge_right", "flip"))
+    taps = sum(1 for e in events if e["type"] in ("jump", "orb", "orb_big", "orb_drop", "dodge_left", "dodge_right", "flip"))
     print("wrote %s: %d taps, end beat %d" % (path, taps, song["end_beat"]))

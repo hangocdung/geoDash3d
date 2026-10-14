@@ -100,7 +100,9 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
 - **TrackView**: đường bị cắt ở hố (mép hố đóng nắp), bệ là đoạn đường nâng lên (vật liệu riêng); nắp mặt đứng
   có viền sáng (`COLOR.g` = 1 trong `neon_track`). Cột đỡ tránh mép hố.
 - **ObstacleView**: vật cản và bệ bật đặt trên mặt đất; vòng cue ở độ cao `cue_heights`; icon lơ lửng chỉ khi cue có
-  vật cản (`ActionCue.has_hazard`); vòng nhảy là billboard glyph 6.
+  vật cản (`ActionCue.has_hazard`); vòng nhảy là billboard glyph 6 (vòng lớn glyph 8, vòng lao xuống glyph 7).
+  Vật cản: gai / hàng gai (`HazardDefinition.repeat`), lưỡi cưa (node con `Spinner` xoay theo beat), trần gai,
+  tường, cổng. Vòng lao xuống là JUMP có `ActionDefinition.dive_speed` > 0 (vận tốc ban đầu hướng xuống).
 - **Decor từ Blender** (`track/decor_view.gd`): cổng vòng tại đầu mỗi section, cầu gai treo đung đưa theo
   ô nhịp (hàm thuần của beat). Model `.glb` sinh bằng script, material theo tên `Body/Glow/GlowAlt` → `NeonModel`.
 - **Cảnh nền** (`track/scenery_view.gd`): 2 MultiMesh (tháp, chóp) sinh theo seed. Tránh hành lang đường và

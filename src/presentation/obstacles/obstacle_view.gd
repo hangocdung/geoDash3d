@@ -8,6 +8,8 @@ signal hazard_landed(world_position: Vector3, hazard: HazardDefinition)
 
 const VISIBILITY_RANGE: float = 240.0
 const FLASH_DECAY_PER_SEC: float = 4.0
+## Saw blades turn this many times per beat (rolling toward the player).
+const SPIN_TURNS_PER_BEAT: float = 0.5
 
 
 class Obstacle:
@@ -17,6 +19,8 @@ class Obstacle:
 	var appear_beat: float
 	var landed: bool = false
 	var settled: bool = false
+	## Saw blade turned with the beat (null for other hazards).
+	var spinner: Node3D = null
 	## Shattered by a shield: stays hidden until the next run.
 	var broken: bool = false
 
@@ -37,6 +41,7 @@ func setup(context: LevelContext) -> void:
 		obstacle.appear_beat = placement.hazard.appear_beat(placement.beat)
 		obstacle.root = factory.build_hazard(placement.hazard)
 		obstacle.root.visible = false
+		obstacle.spinner = obstacle.root.find_child(ObstacleFactory.SPINNER_NAME, true, false) as Node3D
 		_set_visibility_range(obstacle.root)
 		add_child(obstacle.root)
 		_obstacles.append(obstacle)
@@ -76,6 +81,8 @@ func update_view(beat: float) -> void:
 			obstacle.settled = false
 			continue
 		obstacle.root.visible = true
+		if obstacle.spinner != null:
+			obstacle.spinner.rotation.z = beat * SPIN_TURNS_PER_BEAT * TAU
 		if not obstacle.landed and since_landing >= 0.0:
 			obstacle.landed = true
 			hazard_landed.emit(obstacle.rest.origin, obstacle.hazard)

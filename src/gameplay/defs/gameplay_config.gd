@@ -48,6 +48,8 @@ static func create_default() -> GameplayConfig:
 		_dodge(config, &"dodge_right", 1.0, &"wall_gap_right"),
 		_flip(config),
 		_orb(),
+		_big_orb(),
+		_dive_orb(),
 	]
 	config.pad_launch = _action(&"pad", ActionDefinition.Kind.JUMP, 1.5, &"", 0.0, JUMP_COLOR, &"player.jump")
 	config.pad_launch.jump_height = 4.5
@@ -67,7 +69,9 @@ static func create_default() -> GameplayConfig:
 	gate.visual_length = 0.4
 	gate.visual_width = config.track_width + 0.8
 	gate.visual_height = 3.6
-	config.hazards = [spike, _wall(config, &"wall_gap_left", 1.0), _wall(config, &"wall_gap_right", -1.0), gate]
+	config.hazards = [spike, _wall(config, &"wall_gap_left", 1.0), _wall(config, &"wall_gap_right", -1.0), gate,
+			_spike_row(&"spike_double", 2, 0.75, 0.75, 1.8, 1.05), _spike_row(&"spike_triple", 3, 1.05, 0.65, 2.4, 0.9),
+			_saw(), _ceiling(config)]
 	return config
 
 
@@ -131,6 +135,66 @@ static func _orb() -> ActionDefinition:
 	var orb: ActionDefinition = _action(&"orb", ActionDefinition.Kind.JUMP, 1.0, &"", 0.5, JUMP_COLOR, &"player.jump")
 	orb.air_allowed = true
 	return orb
+
+
+## Big jump ring: tapped in mid-air, it launches the pad arc (1.5 beats, +4.5) from the current height.
+static func _big_orb() -> ActionDefinition:
+	var orb: ActionDefinition = _action(&"orb_big", ActionDefinition.Kind.JUMP, 1.5, &"", 0.5, JUMP_COLOR,
+			&"player.jump")
+	orb.jump_height = 4.5
+	orb.air_allowed = true
+	return orb
+
+
+## Dive ring: tapped in mid-air, it throws the player straight down (lands ~0.15 beat later from 2 up).
+static func _dive_orb() -> ActionDefinition:
+	var orb: ActionDefinition = _action(&"orb_drop", ActionDefinition.Kind.JUMP, 1.0, &"", 0.5, JUMP_COLOR,
+			&"player.dodge")
+	orb.dive_speed = 12.0
+	orb.air_allowed = true
+	return orb
+
+
+## `count` spikes in a row (one jump clears them, with a tighter window); lower than a single spike.
+static func _spike_row(hazard_id: StringName, count: int, half_length: float, top: float, length: float,
+		height: float) -> HazardDefinition:
+	var row: HazardDefinition = _hazard(hazard_id, HazardDefinition.Visual.SPIKE, HazardDefinition.Entrance.RISE,
+			2.0, JUMP_COLOR, &"hazard.rise")
+	row.repeat = count
+	row.half_length = half_length
+	row.lateral_half_width = 0.4
+	row.top = top
+	row.visual_length = length
+	row.visual_width = 0.9
+	row.visual_height = height
+	return row
+
+
+## Saw blade standing across the middle lane: jumped like a spike.
+static func _saw() -> HazardDefinition:
+	var saw: HazardDefinition = _hazard(&"saw", HazardDefinition.Visual.SAW, HazardDefinition.Entrance.RISE, 2.0,
+			JUMP_COLOR, &"hazard.rise")
+	saw.half_length = 0.42
+	saw.lateral_half_width = 0.3
+	saw.top = 0.85
+	saw.visual_length = 1.7
+	saw.visual_width = 0.3
+	saw.visual_height = 1.1
+	return saw
+
+
+## Spiked slab over the whole road: deadly in the air, harmless on the ground (dive orb patterns).
+static func _ceiling(config: GameplayConfig) -> HazardDefinition:
+	var ceiling: HazardDefinition = _hazard(&"ceiling", HazardDefinition.Visual.CEILING,
+			HazardDefinition.Entrance.DROP, 3.0, JUMP_COLOR, &"hazard.drop")
+	ceiling.half_length = 2.4
+	ceiling.lateral_half_width = config.track_width * 0.5 + 0.4
+	ceiling.bottom = 1.3
+	ceiling.top = 4.0
+	ceiling.visual_length = 4.8
+	ceiling.visual_width = config.track_width + 0.4
+	ceiling.visual_height = 2.2
+	return ceiling
 
 
 ## Wall covering the middle lane and the lane on `covered_side` (+1 right / -1 left); the gap is opposite.

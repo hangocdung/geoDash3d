@@ -15,18 +15,57 @@ const CAP_FACE: Color = Color(0, 1, 0)
 
 ## Square pyramid (spike). Origin at the base center, apex at +Y.
 static func pyramid(base_size: float, height: float) -> ArrayMesh:
+	return pyramid_row(base_size, height, 1)
+
+
+## `count` square pyramids side by side along X, `base_size` long in total. Origin at the row's base center.
+static func pyramid_row(base_size: float, height: float, count: int) -> ArrayMesh:
 	var tool := SurfaceTool.new()
 	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var half: float = base_size * 0.5
-	var apex := Vector3(0.0, height, 0.0)
-	var corners: Array[Vector3] = [
-		Vector3(-half, 0, -half), Vector3(half, 0, -half), Vector3(half, 0, half), Vector3(-half, 0, half),
-	]
-	for index: int in 4:
-		var a: Vector3 = corners[index]
-		var b: Vector3 = corners[(index + 1) % 4]
+	var half_x: float = base_size * 0.5 / float(count)
+	var half_z: float = half_x if count == 1 else half_x * 1.1
+	for spike: int in count:
+		var center_x: float = -base_size * 0.5 + half_x * (2.0 * float(spike) + 1.0)
+		var apex := Vector3(center_x, height, 0.0)
+		var corners: Array[Vector3] = [
+			Vector3(center_x - half_x, 0, -half_z), Vector3(center_x + half_x, 0, -half_z),
+			Vector3(center_x + half_x, 0, half_z), Vector3(center_x - half_x, 0, half_z),
+		]
+		for index: int in 4:
+			var a: Vector3 = corners[index]
+			var b: Vector3 = corners[(index + 1) % 4]
+			var outward: Vector3 = ((a + b) * 0.5 - Vector3(center_x, 0, 0)).normalized()
+			_add_triangle(tool, [apex, a, b], [BARY_A, BARY_B, BARY_C], outward)
+	tool.generate_normals()
+	return tool.commit()
+
+
+## Saw blade in the XY plane (axis along Z), `thickness` thick: a star of `teeth` points. Vertex colors light
+## only the toothed rim in the wire shader (no spokes or quad diagonals); faces brighten toward the hub.
+## Origin at the hub.
+static func saw_blade(radius: float, inner_radius: float, teeth: int, thickness: float) -> ArrayMesh:
+	const HUB := Color(1, 1, 1)
+	const RIM := Color(1, 1, 0)
+	const FAR := Color(0, 0, 1)
+	const NEAR_FRONT := Color(0, 1, 1)
+	const NEAR_BACK := Color(1, 0, 1)
+	var tool := SurfaceTool.new()
+	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var rim: Array[Vector3] = []
+	for index: int in teeth * 2:
+		var angle: float = TAU * float(index) / float(teeth * 2)
+		var r: float = radius if index % 2 == 0 else inner_radius
+		rim.append(Vector3(cos(angle) * r, sin(angle) * r, 0.0))
+	var half_depth := Vector3(0, 0, thickness * 0.5)
+	for index: int in rim.size():
+		var a: Vector3 = rim[index]
+		var b: Vector3 = rim[(index + 1) % rim.size()]
+		_add_triangle(tool, [half_depth, a + half_depth, b + half_depth], [HUB, RIM, RIM], Vector3.BACK)
+		_add_triangle(tool, [-half_depth, a - half_depth, b - half_depth], [HUB, RIM, RIM], Vector3.FORWARD)
 		var outward: Vector3 = ((a + b) * 0.5).normalized()
-		_add_triangle(tool, [apex, a, b], [BARY_A, BARY_B, BARY_C], outward)
+		# Rim quad split on the a+ / b- diagonal; z stays 1 along it so only the outline glows.
+		_add_triangle(tool, [a + half_depth, b + half_depth, b - half_depth], [NEAR_FRONT, FAR, NEAR_BACK], outward)
+		_add_triangle(tool, [a + half_depth, b - half_depth, a - half_depth], [NEAR_FRONT, NEAR_BACK, FAR], outward)
 	tool.generate_normals()
 	return tool.commit()
 

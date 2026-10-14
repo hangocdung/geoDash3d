@@ -116,3 +116,29 @@ bệ bật và vật cản không được đặt trên hố.
   khi vỡ: lóe sáng, vòng sóng, vật cản vỡ thành mảnh, âm `player.shield_break` (nạp đầy: `player.shield`).
 - Công cụ kiểm tra: `--autoplay-miss=44,74` (autoplay cố tình bỏ cue) và `--capture-continuous` (một lượt chơi
   liên tục cho mọi thời điểm chụp).
+
+## 9. Chướng ngại vật mới (GD3-095, 2026-10-14)
+Người dùng thấy map đơn điệu → thêm loại vật cản/vòng nhảy, vẫn **một thao tác chạm**, định dạng chart chỉ mở rộng
+(giá trị mới cho `type` / `hazard`, chart cũ chạy y hệt).
+
+| Loại | Chart | Cách vượt | Ghi chú |
+|---|---|---|---|
+| Hàng 2 gai | `"hazard": "spike_double"` | 1 cú nhảy | hộp dài 1.5, cao 0.75 |
+| Hàng 3 gai | `"hazard": "spike_triple"` | 1 cú nhảy | hộp dài 2.1, cao 0.65 (thấp hơn để giữ dung sai) |
+| Lưỡi cưa | `"hazard": "saw"` | 1 cú nhảy | xoay nửa vòng mỗi beat (hàm của beat) |
+| Trần gai | `"type": "hazard", "hazard": "ceiling"` | ở trên mặt đất | phủ cả đường, dài 4.8, đáy 1.3: đang bay là chết |
+| Vòng nhảy lớn | `"type": "orb_big"` | chạm khi bay | parabol bệ bật (đỉnh +4.5, 1.5 beat) |
+| Vòng lao xuống | `"type": "orb_drop"` | chạm khi bay | vận tốc −12 đơn vị/beat, g = 16 |
+
+Màu: tất cả thuộc họ nhảy nên là hồng. Vòng lớn: to hơn 1.3×, hai vòng + mũi tên lên (glyph 8); vòng lao xuống:
+mũi tên xuống (glyph 7).
+
+Mẫu màn mới (`terrain_patterns.py` / `handmade.py`):
+- `spike2`, `spike3`, `saw`: như `spike`.
+- `borb`: nhảy, vòng lớn ở đỉnh (+0.5), hố từ +0.3, bệ +2 từ +1.0; tiếp đất ở +2.0 beat (thay được `orb`, chỉ cần
+  thêm 0.5 beat trống).
+- `dive`: nhảy qua hố nhỏ (+0.15 → +0.4), vòng lao xuống ở đỉnh (+0.5), trần gai bắt đầu ở +0.9. Không chạm vòng
+  thì cung nhảy còn cao ~1 đơn vị khi tới trần → chết; chạm đúng thì chạm đất ở ~+0.65.
+
+Dung sai đo bằng `tolerance_report.gd` (test `test_obstacles.gd` kiểm tra ±0.15 beat ở 120 BPM): mọi chart vẫn có
+dung sai tệ nhất ±90 ms; `dive` ở 150 BPM: nhảy −150/+90 ms, lao xuống ±110 ms.

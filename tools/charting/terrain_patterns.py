@@ -13,6 +13,10 @@ PAD_HALF_LENGTH = 0.6
 PAD_RISE = 4.0
 ORB_RISE = 2.0
 GRAVITY = 16.0
+# Spiked ceiling hazard (GameplayConfig._ceiling): half its length, and the beat after the dive tap where its
+# near edge sits (a plain jump arc is still 1+ unit up there, a dive has landed ~0.15 beat after the tap).
+CEILING_HALF_LENGTH = 2.4
+CEILING_EDGE_AFTER_DIVE = 0.4
 
 
 class SpeedMap:
@@ -70,13 +74,13 @@ class Level:
 
     def _jump(self, beat, hazard="none"):
         event = {"beat": beat, "type": "jump"}
-        if hazard == "none":
-            event["hazard"] = "none"
+        if hazard != "spike":
+            event["hazard"] = hazard
         self.events.append(event)
 
-    def spike(self, beat):
-        """Single jump over a spike standing on the current ground."""
-        self._jump(beat, "spike")
+    def spike(self, beat, hazard="spike"):
+        """Single jump over a spike (or `hazard`: spike_double, spike_triple, saw) standing on the current ground."""
+        self._jump(beat, hazard)
 
     def chain(self, beat, count):
         """Spikes one beat apart: jump again the moment you land."""
@@ -118,6 +122,29 @@ class Level:
         self.events.append({"beat": beat + 1.0, "type": "orb"})
         self.terrain.append({"beat": round(beat + 0.3, 4), "gap": True})
         self._set_ground(beat + 1.5, level + 2.0 * ORB_RISE)
+
+    def big_orb(self, beat):
+        """Jump, tap the big orb at the apex: a 1.5-beat high arc over a pit onto a platform 2 higher (lands +2.0)."""
+        self._jump(beat)
+        level = self.ground
+        self.events.append({"beat": beat + 0.5, "type": "orb_big"})
+        self.terrain.append({"beat": round(beat + 0.3, 4), "gap": True})
+        self._set_ground(beat + 1.0, level + ORB_RISE)
+
+    def dive(self, beat):
+        """Jump a small hole, tap the dive orb at the apex and slam down under a spiked ceiling.
+        Returns the beat at which the ceiling's far edge has passed the player."""
+        self._jump(beat)
+        level = self.ground
+        self.terrain.append({"beat": round(beat + 0.15, 4), "gap": True})
+        self._set_ground(beat + 0.4, level)
+        dive_beat = beat + 0.5
+        self.events.append({"beat": dive_beat, "type": "orb_drop"})
+        speed = self.speed.speed_at(dive_beat)
+        edge = dive_beat + CEILING_EDGE_AFTER_DIVE
+        self.events.append({"beat": round(edge + CEILING_HALF_LENGTH / speed, 4), "type": "hazard",
+                            "hazard": "ceiling"})
+        return edge + 2.0 * CEILING_HALF_LENGTH / speed + PLAYER_HALF_LENGTH / speed
 
     def floating_stairs(self, beat, count, spacing=0.75, rise=1.5):
         """Fast stairs on floating blocks: the same rhythm, but a missed step falls through the gaps."""
