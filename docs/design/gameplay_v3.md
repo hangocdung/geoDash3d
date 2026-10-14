@@ -73,6 +73,18 @@ Demo 116 beat: 58 lần chạm, dung sai tệ nhất ±90 ms.
 - Camera bám độ cao mặt đất (trung bình chính xác trên ±9 đơn vị, nhìn trước 4 đơn vị), cộng 35% độ cao cú nhảy.
 - Khối xoay 90° mỗi beat khi bay, tiếp đất thì khớp về mặt gần nhất (ease ~0.1 s).
 
+### Hiệu năng (Note10 Lite, Mali-G72, máy nguội, 2026-10-14)
+Đo bằng `perf_matrix.sh` + `EXTRA_ARGS` (autoplay, cùng đoạn nhạc từ beat 64, mỗi cấu hình 3 mẫu × 5 s, đo lặp lại
+theo thứ tự ngược):
+
+| Tier | Chart gốc | Demo địa hình |
+|---|---|---|
+| LOW | 55.7 / 55.4 FPS, 90 draw call | 57.2 / 57.1 FPS, 49 draw call |
+| MEDIUM | 40.3 FPS | 40.3 FPS |
+
+Đoạn từ beat 20 và 84 (2 mẫu): chênh lệch trong khoảng ±1.3 FPS, tùy mật độ vật cản chứ không do địa hình.
+Frame tệ nhất 42–47 ms, 1–2 lần khựng mỗi 15 s ở **cả hai** chart (có từ trước). Game vẫn nghẽn ở GPU (glow).
+
 ## 6. Định dạng chart (mở rộng, tương thích ngược — **cần duyệt**)
 ```json
 "terrain": [{ "beat": 12.55, "height": 1.5 }, { "beat": 17.75, "gap": true }, { "beat": 18.25, "height": 0 }],
