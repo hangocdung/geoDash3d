@@ -20,5 +20,6 @@ RULES = [
 ]
 
 if __name__ == "__main__":
-    # Grid refit on whole-mix loudness at every half beat (135 / 1.767 drifts ~0.6 beat by the end).
-    build_phrase_level(dict(SONG, bpm=134.72, offset=1.704, path="assets/music/cyber_rush.mp3"), RULES)
+    # 135 / 1.767 holds the whole song; an earlier refit to 134.72 / 1.704 came from the 5 ms frame-time bug
+    # in loudness_onsets.py and drifted ~0.3 s by the end.
+    build_phrase_level(dict(SONG, path="assets/music/cyber_rush.mp3"), RULES)

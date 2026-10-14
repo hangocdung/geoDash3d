@@ -103,7 +103,10 @@ Thiết kế: `docs/design/gameplay_v3.md`. **Đã duyệt 2026-10-14: map đị
       chạm, ×5.5; điệp khúc 172–268 là khối âm dày, chỉ tiếng vỗ phách 4 nổi → ×2.4) và `pulse_drive` (122 BPM, 148
       lần chạm, ×4.4), đặt tay chỉ trên cú nổi bật (`tools/charting/levels/`), dung sai tệ nhất ±90 ms.
       Phát hiện kèm: `loudness_onsets.py`/`phrase_level.py` lấy khung 110 mẫu nhưng tính thời gian 5 ms (lệch 0.23%)
-      → `cyber_rush.chart.json` bị khớp sai 134.72 BPM (đúng ~135), `.rec` chép header sai. **Chưa sửa.**
+      → `cyber_rush.chart.json` bị khớp sai 134.72 BPM (đúng ~135), `.rec` chép header sai. **Đã sửa:** thời gian khung
+      = 110 mẫu / 22050 Hz; `cyber_rush` (phrase) về 135 / 1.767 (×1.07 → ×1.41), sinh lại `cyber_rush.rec` và 2 chart
+      `tribal_*_tool` (×1.17 → ×2.44, ×1.10 → ×1.58). Recording `cyber_rush` gõ trễ đều ~70 ms so với nhạc (lưới đúng
+      với onset thật) → bản `.rec` còn lệch (×0.72) tới khi dùng ALIGN TIMING (lưới 1/2) trong màn RECORD.
 - [ ] **GD3-093** Biome theo đoạn nhạc (bảng màu tông lạnh + bộ hình khối cảnh nền) — cần chọn chủ đề.
 
 ## Phase 5 — Mobile

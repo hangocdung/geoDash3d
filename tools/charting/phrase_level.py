@@ -14,7 +14,7 @@ import numpy as np
 
 from handmade import build
 from terrain_patterns import fall_beats
-from loudness_onsets import AFTER_FRAMES, BEFORE, FRAME_SEC, decode
+from loudness_onsets import AFTER_FRAMES, BEFORE, FRAME_SEC, HOP, decode
 
 PHRASE_BEATS = 16
 SLOT = 0.5
@@ -24,9 +24,8 @@ WINDOW_SEC = 0.03
 class LoudnessEnvelope:
     def __init__(self, song_path):
         samples = decode(song_path)
-        hop = int(FRAME_SEC * 22050)
-        frames = len(samples) // hop
-        self.level = 10.0 * np.log10((samples[:frames * hop].reshape(-1, hop) ** 2).mean(1) + 1e-10)
+        frames = len(samples) // HOP
+        self.level = 10.0 * np.log10((samples[:frames * HOP].reshape(-1, HOP) ** 2).mean(1) + 1e-10)
 
     def jump(self, time_sec):
         """Largest loudness jump (dB) starting within WINDOW_SEC of `time_sec`."""

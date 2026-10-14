@@ -16,7 +16,9 @@ from scipy.io import wavfile
 
 FFMPEG = os.environ.get("FFMPEG", "D:/ffmpeg-8.1-essentials_build/bin/ffmpeg.exe")
 SAMPLE_RATE = 22050
-FRAME_SEC = 0.005
+HOP = 110
+# Frame times must use the real hop (110 samples, ~4.99 ms): a rounded 5 ms drifts 0.23% (~0.3 s by 150 s).
+FRAME_SEC = HOP / SAMPLE_RATE
 AFTER_FRAMES = 30
 BEFORE = (4, 36)
 MIN_JUMP_DB = 6.0
@@ -33,9 +35,8 @@ def decode(path):
 
 def loudness_hits(samples):
     """(time_sec, jump_db) of every loudness jump."""
-    hop = int(FRAME_SEC * SAMPLE_RATE)
-    frames = len(samples) // hop
-    level = 10.0 * np.log10((samples[:frames * hop].reshape(-1, hop) ** 2).mean(1) + 1e-10)
+    frames = len(samples) // HOP
+    level = 10.0 * np.log10((samples[:frames * HOP].reshape(-1, HOP) ** 2).mean(1) + 1e-10)
     jump = np.full(frames, -99.0)
     for i in range(BEFORE[1], frames - AFTER_FRAMES):
         jump[i] = level[i:i + AFTER_FRAMES].max() - level[i - BEFORE[1]:i - BEFORE[0]].mean()
