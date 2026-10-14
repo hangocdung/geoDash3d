@@ -7,6 +7,7 @@ class_name SceneryView
 extends Node3D
 
 const BOX_SHADER: Shader = preload("res://src/presentation/shaders/neon_box.gdshader")
+const BOX_DETAIL_SHADER: Shader = preload("res://src/presentation/shaders/neon_box_detail.gdshader")
 const WIRE_SHADER: Shader = preload("res://src/presentation/shaders/neon_wire.gdshader")
 const SCENERY_DETAIL: Texture2D = preload("res://assets/textures/scenery_detail.png")
 const SPACING: float = 8.0
@@ -26,7 +27,7 @@ func setup(context: LevelContext, seed_value: int) -> void:
 	var density: float = QualityTier.scenery_density(context.quality)
 	var box_mesh := BoxMesh.new()
 	var spire_mesh: ArrayMesh = ProceduralMeshes.pyramid(1.0, 1.0)
-	var box_material: ShaderMaterial = _box_material()
+	var box_material: ShaderMaterial = _box_material(context.quality)
 	var wire_material: ShaderMaterial = _wire_material()
 	var chunk_start: float = context.track.start_distance
 	while chunk_start < context.track.end_distance:
@@ -121,11 +122,15 @@ func _multimesh_instance(node_name: String, mesh: Mesh, transforms: Array[Transf
 	return instance
 
 
-func _box_material() -> ShaderMaterial:
+## Lit windows (detail shader variant) only on tiers that afford detail textures.
+func _box_material(quality: QualityTier.Tier) -> ShaderMaterial:
 	var material := ShaderMaterial.new()
-	material.shader = BOX_SHADER
 	material.set_shader_parameter("palette_role", 1)
-	material.set_shader_parameter("detail_map", SCENERY_DETAIL)
+	if QualityTier.uses_detail_textures(quality):
+		material.shader = BOX_DETAIL_SHADER
+		material.set_shader_parameter("detail_map", SCENERY_DETAIL)
+	else:
+		material.shader = BOX_SHADER
 	material.set_shader_parameter("edge_width", 0.18)
 	material.set_shader_parameter("edge_energy", 1.6)
 	material.set_shader_parameter("face_energy", 0.03)

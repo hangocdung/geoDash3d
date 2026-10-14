@@ -7,7 +7,9 @@ class_name TrackView
 extends Node3D
 
 const TRACK_SHADER: Shader = preload("res://src/presentation/shaders/neon_track.gdshader")
+const TRACK_DETAIL_SHADER: Shader = preload("res://src/presentation/shaders/neon_track_detail.gdshader")
 const BOX_SHADER: Shader = preload("res://src/presentation/shaders/neon_box.gdshader")
+const BOX_DETAIL_SHADER: Shader = preload("res://src/presentation/shaders/neon_box_detail.gdshader")
 const TRACK_DETAIL: Texture2D = preload("res://assets/textures/track_detail.png")
 const SCENERY_DETAIL: Texture2D = preload("res://assets/textures/scenery_detail.png")
 const CHUNK_LENGTH: float = 48.0
@@ -27,14 +29,17 @@ func setup(context: LevelContext) -> void:
 	var thickness: float = context.config.track_thickness
 	# Colors follow the phase palette; raised ground has a slightly brighter body and a cooler rail than the
 	# road, so steps read against it.
+	# Detail textures only where the tier affords them: the other tiers get the shader variant without that code.
+	var detailed: bool = QualityTier.uses_detail_textures(context.quality)
 	track_material = ShaderMaterial.new()
-	track_material.shader = TRACK_SHADER
+	track_material.shader = TRACK_DETAIL_SHADER if detailed else TRACK_SHADER
 	track_material.set_shader_parameter("palette_role", 1)
-	track_material.set_shader_parameter("detail_map", TRACK_DETAIL)
 	block_material = ShaderMaterial.new()
-	block_material.shader = TRACK_SHADER
+	block_material.shader = TRACK_DETAIL_SHADER if detailed else TRACK_SHADER
 	block_material.set_shader_parameter("palette_role", 2)
-	block_material.set_shader_parameter("detail_map", TRACK_DETAIL)
+	if detailed:
+		track_material.set_shader_parameter("detail_map", TRACK_DETAIL)
+		block_material.set_shader_parameter("detail_map", TRACK_DETAIL)
 	block_material.set_shader_parameter("grid_energy", 0.8)
 	var terrain: Terrain = context.chart.terrain
 	var road_groups: Dictionary[int, SurfaceTool] = {}
@@ -117,10 +122,13 @@ func _add_mesh(node_name: String, mesh: ArrayMesh, material: Material) -> void:
 func _build_pillars(context: LevelContext, terrain: Terrain, width: float, thickness: float) -> void:
 	var clearance := TrackClearance.new(context.track)
 	var material := ShaderMaterial.new()
-	material.shader = BOX_SHADER
 	material.set_shader_parameter("palette_role", 2)
-	material.set_shader_parameter("detail_map", SCENERY_DETAIL)
-	material.set_shader_parameter("detail_tile", 5.0)
+	if QualityTier.uses_detail_textures(context.quality):
+		material.shader = BOX_DETAIL_SHADER
+		material.set_shader_parameter("detail_map", SCENERY_DETAIL)
+		material.set_shader_parameter("detail_tile", 5.0)
+	else:
+		material.shader = BOX_SHADER
 	material.set_shader_parameter("edge_energy", 2.5)
 	material.set_shader_parameter("edge_width", 0.1)
 	var transforms: Array[Transform3D] = []

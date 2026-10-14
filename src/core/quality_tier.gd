@@ -73,10 +73,10 @@ static func uses_sky_pulse(tier: Tier) -> bool:
 	return tier != Tier.LOW
 
 
-## Detail textures on the road, blocks, pillars and scenery (one extra texture sample per pixel there). Off on
-## LOW until measured on a phone: LOW keeps its fill-rate budget.
+## Detail textures on the road, blocks, pillars and scenery (the *_detail shader variants: one extra texture
+## sample per pixel there). HIGH only: measured on a Mali-G72 phone they cost ~1.6 FPS at MEDIUM (~3.5 %).
 static func uses_detail_textures(tier: Tier) -> bool:
-	return tier != Tier.LOW
+	return tier == Tier.HIGH
 
 
 ## Helices, loops, rolls and banked turns. Off on LOW (TrackPath.build flattens them): measured on a Mali-G72

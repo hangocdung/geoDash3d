@@ -117,7 +117,10 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   rồi gộp kênh: `assets/textures/track_detail.png` (R tấm đường, G mạch, B tấm hông, A tấm lục giác cho bệ) và
   `scenery_detail.png` (R cửa sổ sáng, G gờ cột, B mặt tiền). Xám, 512 px, import nén VRAM + mipmap
   (`importer_defaults/texture` trong `configure_project.gd`). Mỗi pixel đường/bệ/cột/cảnh nền lấy mẫu **một lần**;
-  global `detail_textures` (theo `QualityTier.uses_detail_textures`) tắt hẳn ở LOW. Màu vẫn từ palette (texture chỉ
+  shader có hai biến thể biên dịch riêng: `neon_track` / `neon_box` không có
+  code texture, `neon_track_detail` / `neon_box_detail` (`#define DETAIL_TEXTURES`, thân chung trong `.gdshaderinc`) —
+  chỉ dùng ở HIGH (`QualityTier.uses_detail_textures`: đo trên Mali-G72, texture tốn ~1.6 FPS ở MEDIUM). Global
+  `detail_textures` còn là công tắc runtime trong biến thể detail (cờ `--perf=nodetail`). Màu vẫn từ palette (texture chỉ
   là độ sáng/mặt nạ), mạch trên đường đập theo `beat_pulse`.
 - **Mesh** sinh bằng code (`meshes/procedural_meshes.gd`): đoạn đường (chia chunk 48 đơn vị để culling, có thể nâng
   lên và đóng nắp hai đầu) và kim tự tháp. Thứ tự đỉnh được tự sửa sang chiều kim đồng hồ.

@@ -141,6 +141,9 @@ Người dùng cho phép **trời tông ấm** ở vài phase; camera trong vòn
         → Ở LOW `TrackPath.build(..., flatten)` duỗi xoắn ốc (giữ độ cao), vòng lộn, cuộn, bỏ nghiêng cua
         (`QualityTier.uses_spectacle_track`). Kết quả: **LOW 57.05 → 56.8 FPS, MEDIUM 40.4 → 40.05 FPS** (trong nhiễu),
         frame tệ nhất tốt hơn (33–38 ms so với 33–50 ms). Cờ `--perf=nodetail` để đo riêng texture chi tiết.
+      - Đoạn Pulse Drive từ beat 72 (2026-10-15): MEDIUM 47.0 → 43.4 FPS; `nodetail` +1.6 FPS → texture chi tiết chỉ còn
+        ở HIGH, shader tách biến thể không có code texture (`neon_track` / `neon_box` vs `*_detail`). Còn phải đo lại
+        MEDIUM sau thay đổi này (`build/ab_new4.apk`).
 
 ## Phase 4.9 — Vật cản lộn tròn, nhạc mới (yêu cầu 2026-10-15)
 - [x] **GD3-106** Hành động `roll` (lộn trọn vòng quanh đường) + vật cản `mace_sweep` (quả cầu gai lia dọc đường dưới khung
