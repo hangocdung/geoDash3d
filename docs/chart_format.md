@@ -85,7 +85,12 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
    Bước này cho ra BPM, offset (nhịp mạnh đầu tiên), onset theo dải tần và năng lượng từng ô nhịp (để chia đoạn).
 3. Viết `assets/music/<id>.plan.json`: các đoạn, luật mật độ cho từng đoạn, tốc độ, hình dạng đường, camera, VFX.
    Xem bài mẫu `the_dawn_assembly.plan.json`.
-4. Sinh level địa hình (gameplay v3):
+4. **Đặt tay** (cách chính, người dùng yêu cầu 2026-10-14 vì bản tự sinh không khớp nhạc): in lưới onset theo dải
+   tần (kick / snare / hi-hat) từng ô nhịp, tìm motif của mỗi đoạn, viết `tools/charting/levels/<id>.py` là danh sách
+   `beat:mẫu` (xem `tools/charting/handmade.py`: bộ kiểm tra báo lỗi nếu người chơi chưa tiếp đất, quá cao, hay lách
+   làn/lộn khi không ở đường phẳng). Bài nhịp trôi thì đặt chạm theo thời điểm onset thật (vd. neon_arcade_dash_take2).
+   Cuối cùng đo độ lệch cố định giữa lần chạm và onset để chỉnh `offset`.
+   Bản nháp tự sinh (tham khảo):
    `python tools/charting/terrain_level.py assets/music/<id>.analysis.json --title "<Tên>" --seed 1`.
    Bộ sinh chia đoạn theo năng lượng ô nhịp, đặt mẫu (gai, bậc, hố, chuỗi, vòng nhảy, bệ bật, bậc thang, lách làn,
    lộn) sao cho mọi lần chạm rơi đúng **thời điểm onset thật** (không làm tròn vào lưới nhịp: nhạc AI có thể trôi

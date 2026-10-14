@@ -55,7 +55,9 @@ GODOT="D:/Godot_v4.6.1-stable_win64.exe/Godot_v4.6.1-stable_win64_console.exe"
 "D:/Programs/Blender/blender.exe" -b --factory-startup -P assets/blender/generate_models.py -- --out assets/models
 # Sinh chart từ phân tích + plan (Python hệ thống); plan có thể dùng recording / fixed
 python tools/audio/draft_chart.py <analysis.json> <plan.json> <out.chart.json>
-# Level địa hình tự sinh cho một bài đã phân tích (ghi assets/music/<id>.chart.json); the_dawn_assembly viết tay
+# Level đặt tay theo câu nhạc (cách chính): mỗi bài một danh sách beat:mẫu, có bộ kiểm tra ràng buộc
+python tools/charting/levels/cyber_rush.py
+# Bản nháp tự sinh (chỉ để tham khảo; khớp nhạc kém hơn bản đặt tay)
 python tools/charting/terrain_level.py assets/music/<id>.analysis.json --title "Tên bài" --seed 1
 python tools/charting/the_dawn_assembly_level.py
 # Dung sai từng lần chạm của một chart
@@ -140,9 +142,9 @@ Mỗi feature để `.gd` và `.tscn` cạnh nhau trong cùng thư mục.
 | File | Nguồn | Giấy phép | BPM | Offset |
 |---|---|---|---|---|
 | `assets/music/the_dawn_assembly.mp3` | Google Flow Music (AI) | **Chưa xác nhận dùng thương mại** | 120 | 0.058 s |
-| `assets/music/cyber_rush.mp3` | Người dùng cung cấp 2026-10-14 | **Chưa xác nhận** | 135 | 1.760 s |
-| `assets/music/cyber_rush_take2.mp3` | Người dùng cung cấp 2026-10-14 | **Chưa xác nhận** | 140 | 1.307 s |
-| `assets/music/neon_arcade_dash.mp3` | Người dùng cung cấp 2026-10-14 | **Chưa xác nhận** | 124 | 1.256 s |
+| `assets/music/cyber_rush.mp3` | Người dùng cung cấp 2026-10-14 | **Chưa xác nhận** | 135 | 1.767 s |
+| `assets/music/cyber_rush_take2.mp3` | Người dùng cung cấp 2026-10-14 | **Chưa xác nhận** | 139.98 | 1.324 s |
+| `assets/music/neon_arcade_dash.mp3` | Người dùng cung cấp 2026-10-14 | **Chưa xác nhận** | 124 | 1.258 s |
 | `assets/music/neon_arcade_dash_take2.mp3` | Người dùng cung cấp 2026-10-14 | **Chưa xác nhận** | 125.89 (khớp lại; phân tích báo 124.5) | 1.307 s |
 
 Bản trùng audio (chỉ khác metadata) nằm ở `art_source/music_duplicates/` (không commit).

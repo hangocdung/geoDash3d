@@ -90,7 +90,8 @@ func step(beat: float, support: float, snap: float, death_height: float) -> Cont
 			return Contact.NONE
 		return Contact.LEFT_GROUND
 	var height: float = height_at(beat)
-	if height > support + CONTACT_EPSILON:
+	# A launch on this very grid beat (a buffered tap performed as a dodge/flip ends) has not left yet.
+	if height > support + CONTACT_EPSILON or beat <= launch_beat + CONTACT_EPSILON:
 		_last_height = height
 		_last_beat = beat
 		return Contact.FELL if height < death_height else Contact.NONE

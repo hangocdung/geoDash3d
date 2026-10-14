@@ -194,3 +194,10 @@ func test_safe_start_is_never_in_mid_air() -> void:
 	var ledge: LevelChart = ChartFixtures.make_chart([], 120.0, 7.0, 12.0,
 			[{"beat": -8.0, "height": 1.5}, {"beat": 6.0, "height": 0}])
 	assert_true(ledge.safe_start_beat(6.3) < 6.0, "not while falling off the ledge")
+
+
+func test_jump_buffered_during_a_flip_still_clears_the_next_spike() -> void:
+	# Regression: the buffered jump started on the grid beat the flip ended and was "landed" at once.
+	var chart: LevelChart = ChartFixtures.make_chart([{"beat": 4, "type": "flip"}, {"beat": 6, "type": "jump"}])
+	for offset: float in [0.0, -0.02, -0.15]:
+		assert_false(_run(chart, [4.0, 6.0 + offset], 9.0).is_dead, "jump offset %.2f beat" % offset)
