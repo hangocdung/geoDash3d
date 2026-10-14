@@ -150,5 +150,7 @@ Mỗi feature để `.gd` và `.tscn` cạnh nhau trong cùng thư mục.
 | `assets/music/neon_arcade_dash_take2.mp3` | Người dùng cung cấp 2026-10-14 | **Chưa xác nhận** | 125.89 (khớp lại; phân tích báo 124.5) | 1.307 s |
 | `assets/music/tribal_battle_awakening.mp3` | Người dùng cung cấp 2026-10-14 | **Chưa xác nhận** | 150 (phân tích báo nhầm 100) | 0.786 s |
 | `assets/music/tribal_battle_awakening_take2.mp3` | Người dùng cung cấp 2026-10-14 | **Chưa xác nhận** | 150.02 (phân tích báo nhầm 100) | 0.082 s |
+| `assets/music/fault_line.mp3` | Người dùng cung cấp 2026-10-14 (AI, hdgstudio86) | **Chưa xác nhận** | 128 | 0.448 s |
+| `assets/music/pulse_drive.mp3` | Người dùng cung cấp 2026-10-14 (AI, hdgstudio86) | **Chưa xác nhận** | 122 | 0.5025 s |
 
 Bản trùng audio (chỉ khác metadata) nằm ở `art_source/music_duplicates/` (không commit).
