@@ -131,7 +131,13 @@ Người dùng cho phép **trời tông ấm** ở vài phase; camera trong vòn
       cổng vòng — biến thể của gai / trần gai / tường / cổng (cùng cách vượt), chuyển động theo beat. Tool đặt màn tự xen
       kẽ; sinh lại mọi chart: nhịp chạm và dung sai không đổi. Test trong `test_obstacles.gd`. Thiết kế:
       `docs/design/gameplay_v3.md` mục 10. Dùng lại SFX vào sân có sẵn (`hazard.rise/drop/unfold`).
-- [ ] **GD3-105** Đo hiệu năng (PC Mobile renderer) + APK A/B cho `perf_ab.sh`.
+- [~] **GD3-105** Hiệu năng. Không có điện thoại cắm lúc làm → đo trên PC (Mobile renderer, không vsync, A-B-B-A, Pulse
+      Drive): LOW trong mức nhiễu (−1.6 % / +16 % theo đoạn), HIGH chậm ~0.06 ms/frame (texture chi tiết). Draw call đo
+      tất định tại 34 thời điểm: trước phiên 51.6, bản đầu tiên của phiên cao hơn 12–35 ở đoạn xoắn ốc → tối ưu: model 1
+      draw call (vai trò mặt trong vertex color, shader `neon_model`), lưới/hàng rào laser là một mesh, mặt đường giữa các
+      hố và bệ gộp theo đoạn 48 đơn vị → **54.1** (+5 %). **Còn lại:** đo trên Note10 Lite:
+      `bash tools/device/perf_ab.sh build/ab_base.apk build/ab_new.apk "--start-beat=128 --chart=res://assets/music/pulse_drive.chart.json"`
+      (`ab_base` = commit 18c21a9 trước phiên). Nếu MEDIUM tụt, tắt texture chi tiết ở MEDIUM (`QualityTier.uses_detail_textures`).
 
 ## Phase 5 — Mobile
 - [x] **GD3-050** Export Android (`export_presets.cfg`, arm64, debug keystore), cài và đo trên Galaxy Note10 Lite
