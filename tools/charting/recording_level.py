@@ -5,7 +5,7 @@ two taps 0.5 apart -> orb; any other tap is one obstacle: lane 0 (Space/J) = aut
 two-lane wall, lane 2 (L) = gate. Ledges are left with a drop where there is room (always before walls/gates).
 Every choice goes through handmade.Checker (the rules of hand-written levels); a tap that fits nothing is
 skipped with a warning. Tempo, speed, sections, track, cameras and vfx are copied from the source chart.
-Usage: python tools/charting/recording_level.py assets/music/<id>.chart.json [--grid=0.25] [--out=<path>]
+Usage: python tools/charting/recording_level.py [<id> or chart path] [--grid=0.25] [--out=<path>] (no id: list songs)
 Writes assets/music/<id>.rec.chart.json (listed in the song menu). Related: handmade.py, src/authoring/recorder/
 """
 import argparse
@@ -18,7 +18,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from handmade import Checker, EPSILON, MAX_HEIGHT  # noqa: E402
 from terrain_patterns import Level, SpeedMap  # noqa: E402
 
-GAMEPLAY_EVENTS = {"jump", "orb", "pad", "dodge_left", "dodge_right", "flip"}
+MUSIC_DIR = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "assets", "music"))
+GAMEPLAY_EVENTS ={"jump", "orb", "pad", "dodge_left", "dodge_right", "flip"}
 LANE_AUTO, LANE_WALL, LANE_GATE = 0, 1, 2
 ROAD_PATTERNS = ("dl", "dr", "flip")
 # No obstacle before this beat (the run-up) or in the last beat of the song.
@@ -183,21 +184,47 @@ class Builder:
         self.drop_before(self.end_beat, False, force=True)
 
 
+def list_songs():
+    print("songs (id -> recording):")
+    for name in sorted(os.listdir(MUSIC_DIR)):
+        if not name.endswith(".chart.json") or name.endswith((".rec.chart.json", ".classic.chart.json")):
+            continue
+        song_id = name[:-len(".chart.json")]
+        recording = os.path.join(MUSIC_DIR, song_id + ".recording.json")
+        if os.path.exists(recording):
+            with open(recording, encoding="utf-8") as handle:
+                status = "%d taps" % len(json.load(handle).get("taps", []))
+        else:
+            status = "no recording yet"
+        print("  %-40s %s" % (song_id, status))
+    print("usage: python tools/charting/recording_level.py <id>")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("chart", help="source chart (tempo, speed, sections, cameras); its recording sits next to it")
+    parser.add_argument("chart", nargs="?",
+                        help="song id (e.g. cyber_rush) or chart path; no argument lists the songs and their recordings")
     parser.add_argument("--recording", help="default: <id>.recording.json next to the chart")
     parser.add_argument("--grid", type=float, default=0.25, help="quantization step in beats")
     parser.add_argument("--out", help="default: <id>.rec.chart.json next to the chart")
     args = parser.parse_args()
-    base = args.chart[:-len(".chart.json")] if args.chart.endswith(".chart.json") else args.chart
+    if args.chart is None:
+        list_songs()
+        return
+    chart_path = args.chart if args.chart.endswith(".chart.json") else os.path.join(MUSIC_DIR, args.chart + ".chart.json")
+    if not os.path.isfile(chart_path):
+        print("chart not found: %s" % chart_path)
+        list_songs()
+        sys.exit(1)
+    base = chart_path[:-len(".chart.json")]
     base = base[:-len(".rec")] if base.endswith(".rec") else base
     recording_path = args.recording or base + ".recording.json"
     out_path = args.out or base + ".rec.chart.json"
-    with open(args.chart, encoding="utf-8") as handle:
+    with open(chart_path, encoding="utf-8") as handle:
         chart = json.load(handle)
     if not os.path.exists(recording_path):
-        sys.exit("no recording at %s (record it in RECORD (DEV) first)" % recording_path)
+        sys.exit("no recording at %s: open RECORD (DEV), pick this song, tap along and press S (or Esc) to save"
+                 % recording_path)
     warnings = []
     taps = load_taps(recording_path, Tempo(chart), args.grid, float(chart["end_beat"]), warnings)
     recorded = len(taps)

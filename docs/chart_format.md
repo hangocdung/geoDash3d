@@ -113,7 +113,7 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
     Tab/Shift+Tab để chọn note kế tiếp/trước, Shift+←/→ để dời note theo lưới, J/K/L để đổi làn, Del để xóa.
   - Kết quả lưu raw (giây + làn) vào `assets/music/<id>.recording.json`.
 - **Dựng level địa hình từ recording (cách nhanh nhất để có level theo ý mình):**
-  `python tools/charting/recording_level.py assets/music/<id>.chart.json` → `assets/music/<id>.rec.chart.json`
+  `python tools/charting/recording_level.py cyber_rush` (id bài; chạy không tham số để xem danh sách) → `assets/music/<id>.rec.chart.json`
   (tên bài thêm "(Rec)", tự hiện trong menu chọn bài). Lần gõ quyết định *khi nào* nhảy, tool chọn *vật cản gì*:
   - 3 lần gõ cách nhau 0.5 beat thành `trip`, cách nhau 0.75 beat thành `stairs` (`fstairs` ở đoạn mạnh); 2 lần
     cách nhau 0.5 beat thành `orb`. Các lần còn lại: làn AUTO xoay vòng spike/gap/step theo `energy` của đoạn,
