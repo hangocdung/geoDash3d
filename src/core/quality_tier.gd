@@ -67,6 +67,12 @@ static func speed_line_count(tier: Tier) -> int:
 	return 32
 
 
+## Sky brightening on the beat. Off on LOW: measured on a Mali-G72 phone, a sky that changes every frame
+## costs ~3 FPS there (up to ~10 in the chorus; likely lost tile transaction elimination), free on MEDIUM.
+static func uses_sky_pulse(tier: Tier) -> bool:
+	return tier != Tier.LOW
+
+
 ## Fraction of background scenery kept (fill-rate on phones).
 static func scenery_density(tier: Tier) -> float:
 	match tier:

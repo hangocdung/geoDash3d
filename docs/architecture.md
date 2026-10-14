@@ -79,8 +79,9 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
 - **EnvironmentDirector**:
   - Trời là shader (gradient, sao, hành tinh có vành), dùng `AT_CUBEMAP_PASS` để radiance không cập nhật mỗi frame.
     Phần nền nhìn thấy (pass nửa độ phân giải) sáng lên theo `beat_pulse`, mạnh nhất ở chân trời (~6–8% ở đầu phách);
-    radiance không đọc giá trị này. "Reduce flashing" (`UserSettings.reduce_flashing`) tắt nhịp trời và giảm nhịp
-    đập/lóe sáng của vật thể neon còn 35%.
+    radiance không đọc giá trị này. Tắt ở LOW (đo trên Mali-G72: trời đổi mỗi frame tốn ~3 FPS ở LOW, miễn phí ở
+    MEDIUM). "Reduce flashing" (`UserSettings.reduce_flashing`) tắt nhịp trời và giảm nhịp đập/lóe sáng của vật thể
+    neon còn 35%.
   - Glow additive, ACES, fog exponential cộng height fog.
   - Đẩy global shader uniform `beat_pulse`: nhịp đầu ô nhịp mạnh hơn, tỉ lệ theo energy của section; cùng
     `run_beat`, `player_distance`, `player_position` (vị trí người chơi trên đường, theo beat). Danh sách global

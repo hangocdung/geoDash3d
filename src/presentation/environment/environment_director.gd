@@ -1,7 +1,7 @@
 # Owns WorldEnvironment, sky and key light. Each frame it publishes the global shader parameters
 # (`beat_pulse`, `run_beat`, `player_distance`, `player_position`: all functions of the beat) and eases
-# glow/fog/background energy toward the current section's energy. "Reduce flashing" turns off the sky's
-# beat pulse and scales the neon beat pulses and flashes down.
+# glow/fog/background energy toward the current section's energy. The sky's beat pulse is off on LOW and
+# with "reduce flashing", which also scales the neon beat pulses and flashes down.
 # The sky material is never changed per frame: that would re-render its radiance map every frame.
 # Related: src/presentation/shaders/neon_sky.gdshader, tools/setup/configure_project.gd (shader globals)
 class_name EnvironmentDirector
@@ -26,6 +26,7 @@ var _sky_material: ShaderMaterial
 ## Last value given to the sky's `beat_brightness` (-1 = not set yet).
 var _sky_beat_brightness: float = -1.0
 var _context: LevelContext
+var _quality: QualityTier.Tier = QualityTier.Tier.HIGH
 var _energy: float = 0.3
 var _flash: float = 0.0
 
@@ -37,7 +38,7 @@ func setup(context: LevelContext) -> void:
 	var sky := Sky.new()
 	sky.sky_material = _sky_material
 	sky.radiance_size = Sky.RADIANCE_SIZE_64
-	_apply_flash_setting()
+	# apply_quality() below sets the sky pulse for the tier; later setting changes re-apply it.
 	UserSettings.changed.connect(_apply_flash_setting)
 	environment = Environment.new()
 	environment.background_mode = Environment.BG_SKY
@@ -92,7 +93,8 @@ func update_environment(beat: float, delta: float) -> void:
 
 ## Changes the sky material only when the setting changes (each change re-renders the radiance map once).
 func _apply_flash_setting() -> void:
-	var brightness: float = 0.0 if UserSettings.reduce_flashing else SKY_BEAT_BRIGHTNESS
+	var calm: bool = UserSettings.reduce_flashing or not QualityTier.uses_sky_pulse(_quality)
+	var brightness: float = 0.0 if calm else SKY_BEAT_BRIGHTNESS
 	if brightness != _sky_beat_brightness:
 		_sky_beat_brightness = brightness
 		_sky_material.set_shader_parameter("beat_brightness", brightness)
@@ -108,6 +110,8 @@ func _beat_pulse(beat: float) -> float:
 
 ## Glow post-process on/off per tier; without it shaders draw soft halos (`soft_glow` global).
 func apply_quality(quality: QualityTier.Tier) -> void:
+	_quality = quality
+	_apply_flash_setting()
 	var glow: bool = QualityTier.uses_glow(quality)
 	environment.glow_enabled = glow
 	RenderingServer.global_shader_parameter_set(SOFT_GLOW_PARAMETER, 0.0 if glow else 1.0)

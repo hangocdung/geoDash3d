@@ -76,6 +76,9 @@ Thiết kế: `docs/design/gameplay_v3.md`. **Đã duyệt 2026-10-14: map đị
   LOW 56.3/56.0 → 56.1/57.9 FPS, MEDIUM 40.5/40.8 → 40.7/40.7 FPS, draw call +6. Không đo được chi phí.
   Số frame khựng ở MEDIUM nhỉnh hơn (5/5 so với 1/4 trong 15 s) — trong ngưỡng nhiễu, cần theo dõi.
 - [x] **GD3-094** Bầu trời sáng nhẹ theo nhịp (chỉ phần nền, mạnh ở chân trời) + tùy chọn Settings → Reduce flashing.
+      Đo Note10 Lite: MEDIUM không đổi (40.3 → 40.2), nhưng LOW tụt ~3 FPS (56.4 → 53.2, điệp khúc xuống 43–48).
+      Cùng bản build, biên độ 0 thì về 56.0 → chi phí do trời đổi mỗi frame (nhiều khả năng mất transaction
+      elimination của Mali), không phải do radiance. Quyết định: tắt nhịp trời ở LOW.
 - [ ] **GD3-093** Biome theo đoạn nhạc (bảng màu tông lạnh + bộ hình khối cảnh nền) — cần chọn chủ đề.
 
 ## Phase 5 — Mobile
