@@ -27,7 +27,8 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
 - **TempoMap**: beat ⇄ giây, hỗ trợ đổi BPM. Xây trên `PiecewiseLinearMap`, cấu trúc này cũng dùng cho beat → khoảng cách.
 - **AutoOffsetLearner / SyncLearning** (GD3-054): học độ trễ từ độ lệch các lần chạm (`tap_timed`), chỉ áp dụng
   giữa các lượt chơi để mô phỏng trong một lượt luôn tất định; `begin_run` nạp lại offset vào SongClock.
-- **UserSettings** (autoload duy nhất): `audio_offset_sec`, `quality_tier`, `music_volume_db`, lưu ở `user://settings.cfg`.
+- **UserSettings** (autoload duy nhất): `audio_offset_sec`, `quality_tier`, `music_volume_db`, `reduce_flashing`…, lưu ở
+  `user://settings.cfg`.
 
 ## 3. Gameplay (`src/gameplay/`)
 - **Cấu hình** (`defs/`): `GameplayConfig` gồm cửa sổ timing, kích thước đường/người chơi, bước mô phỏng và thư viện
@@ -77,6 +78,9 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   Có thêm rung (trauma) và FOV kick.
 - **EnvironmentDirector**:
   - Trời là shader (gradient, sao, hành tinh có vành), dùng `AT_CUBEMAP_PASS` để radiance không cập nhật mỗi frame.
+    Phần nền nhìn thấy (pass nửa độ phân giải) sáng lên theo `beat_pulse`, mạnh nhất ở chân trời (~6–8% ở đầu phách);
+    radiance không đọc giá trị này. "Reduce flashing" (`UserSettings.reduce_flashing`) tắt nhịp trời và giảm nhịp
+    đập/lóe sáng của vật thể neon còn 35%.
   - Glow additive, ACES, fog exponential cộng height fog.
   - Đẩy global shader uniform `beat_pulse`: nhịp đầu ô nhịp mạnh hơn, tỉ lệ theo energy của section; cùng
     `run_beat`, `player_distance`, `player_position` (vị trí người chơi trên đường, theo beat). Danh sách global

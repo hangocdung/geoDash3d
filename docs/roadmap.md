@@ -75,6 +75,7 @@ Thiết kế: `docs/design/gameplay_v3.md`. **Đã duyệt 2026-10-14: map đị
 - Đo A/B trên Note10 Lite (`tools/device/perf_ab.sh`, bản `main` trước GD3-090 so với sau GD3-092, đo A-B-B-A):
   LOW 56.3/56.0 → 56.1/57.9 FPS, MEDIUM 40.5/40.8 → 40.7/40.7 FPS, draw call +6. Không đo được chi phí.
   Số frame khựng ở MEDIUM nhỉnh hơn (5/5 so với 1/4 trong 15 s) — trong ngưỡng nhiễu, cần theo dõi.
+- [x] **GD3-094** Bầu trời sáng nhẹ theo nhịp (chỉ phần nền, mạnh ở chân trời) + tùy chọn Settings → Reduce flashing.
 - [ ] **GD3-093** Biome theo đoạn nhạc (bảng màu tông lạnh + bộ hình khối cảnh nền) — cần chọn chủ đề.
 
 ## Phase 5 — Mobile

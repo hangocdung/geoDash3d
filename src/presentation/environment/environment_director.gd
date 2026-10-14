@@ -1,6 +1,7 @@
 # Owns WorldEnvironment, sky and key light. Each frame it publishes the global shader parameters
 # (`beat_pulse`, `run_beat`, `player_distance`, `player_position`: all functions of the beat) and eases
-# glow/fog/background energy toward the current section's energy.
+# glow/fog/background energy toward the current section's energy. "Reduce flashing" turns off the sky's
+# beat pulse and scales the neon beat pulses and flashes down.
 # The sky material is never changed per frame: that would re-render its radiance map every frame.
 # Related: src/presentation/shaders/neon_sky.gdshader, tools/setup/configure_project.gd (shader globals)
 class_name EnvironmentDirector
@@ -14,11 +15,16 @@ const PLAYER_DISTANCE_PARAMETER: StringName = &"player_distance"
 const PLAYER_POSITION_PARAMETER: StringName = &"player_position"
 const PULSE_SHARPNESS: float = 7.0
 const ENERGY_EASE_PER_SEC: float = 1.5
+## Sky horizon brightening per unit of beat pulse, and the pulse/flash scale under "reduce flashing".
+const SKY_BEAT_BRIGHTNESS: float = 0.2
+const REDUCED_FLASH_SCALE: float = 0.35
 const CALM_FOG: Color = Color(0.08, 0.05, 0.2)
 const HOT_FOG: Color = Color(0.17, 0.04, 0.2)
 
 var environment: Environment
 var _sky_material: ShaderMaterial
+## Last value given to the sky's `beat_brightness` (-1 = not set yet).
+var _sky_beat_brightness: float = -1.0
 var _context: LevelContext
 var _energy: float = 0.3
 var _flash: float = 0.0
@@ -31,6 +37,8 @@ func setup(context: LevelContext) -> void:
 	var sky := Sky.new()
 	sky.sky_material = _sky_material
 	sky.radiance_size = Sky.RADIANCE_SIZE_64
+	_apply_flash_setting()
+	UserSettings.changed.connect(_apply_flash_setting)
 	environment = Environment.new()
 	environment.background_mode = Environment.BG_SKY
 	environment.sky = sky
@@ -71,14 +79,23 @@ func update_environment(beat: float, delta: float) -> void:
 	var target_energy: float = section.energy if section != null else 0.3
 	_energy = move_toward(_energy, target_energy, delta * ENERGY_EASE_PER_SEC)
 	_flash = maxf(_flash - delta * 3.0, 0.0)
-	RenderingServer.global_shader_parameter_set(BEAT_PULSE_PARAMETER, _beat_pulse(beat) + _flash)
+	var flash_scale: float = REDUCED_FLASH_SCALE if UserSettings.reduce_flashing else 1.0
+	RenderingServer.global_shader_parameter_set(BEAT_PULSE_PARAMETER, (_beat_pulse(beat) + _flash) * flash_scale)
 	# Track position of the player (road level): rail streaks and the hazards' approach glow use it.
 	RenderingServer.global_shader_parameter_set(RUN_BEAT_PARAMETER, beat)
 	RenderingServer.global_shader_parameter_set(PLAYER_DISTANCE_PARAMETER, _context.chart.distance_at(beat))
 	RenderingServer.global_shader_parameter_set(PLAYER_POSITION_PARAMETER, _context.frame_at_beat(beat).origin)
-	environment.background_energy_multiplier = lerpf(0.85, 1.15, _energy) * (1.0 + _flash * 0.6)
-	environment.glow_intensity = lerpf(0.75, 1.15, _energy) + _flash * 0.6
+	environment.background_energy_multiplier = lerpf(0.85, 1.15, _energy) * (1.0 + _flash * 0.6 * flash_scale)
+	environment.glow_intensity = lerpf(0.75, 1.15, _energy) + _flash * 0.6 * flash_scale
 	environment.fog_light_color = CALM_FOG.lerp(HOT_FOG, _energy)
+
+
+## Changes the sky material only when the setting changes (each change re-renders the radiance map once).
+func _apply_flash_setting() -> void:
+	var brightness: float = 0.0 if UserSettings.reduce_flashing else SKY_BEAT_BRIGHTNESS
+	if brightness != _sky_beat_brightness:
+		_sky_beat_brightness = brightness
+		_sky_material.set_shader_parameter("beat_brightness", brightness)
 
 
 func _beat_pulse(beat: float) -> float:

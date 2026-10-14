@@ -1,6 +1,7 @@
 // Synthwave night sky: vertical gradient, stars, a ringed planet and a warm horizon glow.
 // `energy` (0..1) follows the song section; `tint` shifts the palette per section.
 // Everything is evaluated in the half-resolution pass (the sky is smooth; ~4x cheaper per pixel on phones).
+// The visible background (not the radiance cubemap) brightens on the beat, mostly near the horizon.
 shader_type sky;
 render_mode use_half_res_pass;
 
@@ -12,6 +13,10 @@ uniform vec3 planet_direction = vec3(-0.55, 0.32, -0.77);
 uniform float planet_size = 0.17;
 uniform float energy = 0.5;
 uniform vec3 tint : source_color = vec3(1.0);
+// Horizon brightening per unit of `beat_pulse` (0 = off, for "reduce flashing"). Only the background pass
+// reads the per-frame global, so the radiance map is never re-rendered for it.
+uniform float beat_brightness = 0.2;
+global uniform float beat_pulse;
 
 float hash(vec3 p) {
 	p = fract(p * vec3(443.897, 441.423, 437.195));
@@ -29,12 +34,14 @@ float stars(vec3 direction) {
 	return step(0.965, h) * (1.0 - smoothstep(0.0, 0.35, d)) * brightness;
 }
 
-vec3 sky_color(vec3 dir, bool with_stars) {
+vec3 sky_color(vec3 dir, bool with_stars, float pulse) {
 	float height = dir.y;
 	vec3 color = mix(horizon_color, mid_color, smoothstep(-0.05, 0.25, height));
 	color = mix(color, zenith_color, smoothstep(0.2, 0.75, height));
 	color = mix(color, horizon_color * 0.25, smoothstep(0.0, -0.4, height));
 	color += horizon_color * exp(-abs(height) * 14.0) * (0.35 + energy * 0.5);
+	// Beat pulse: strongest at the horizon, almost still overhead; stars and planet stay steady.
+	color *= 1.0 + pulse * (1.0 - smoothstep(0.0, 0.6, abs(height)));
 	if (with_stars) {
 		color += vec3(0.9, 0.95, 1.0) * stars(dir) * smoothstep(0.0, 0.3, height);
 	}
@@ -65,9 +72,9 @@ vec3 sky_color(vec3 dir, bool with_stars) {
 
 void sky() {
 	if (AT_CUBEMAP_PASS) {
-		COLOR = sky_color(EYEDIR, false);
+		COLOR = sky_color(EYEDIR, false, 0.0);
 	} else if (AT_HALF_RES_PASS) {
-		COLOR = sky_color(EYEDIR, true);
+		COLOR = sky_color(EYEDIR, true, beat_pulse * beat_brightness);
 	} else {
 		COLOR = HALF_RES_COLOR.rgb;
 	}

@@ -1,4 +1,5 @@
-# Settings panel: quality tier, music volume and manual audio offset (±5 ms), saved to UserSettings.
+# Settings panel: quality tier, volumes, manual audio offset (±5 ms), auto sync and reduce flashing,
+# saved to UserSettings.
 # Related: src/core/user_settings.gd, src/ui/menu/main_menu.gd
 class_name SettingsPanel
 extends PanelContainer
@@ -59,6 +60,13 @@ func _ready() -> void:
 	auto_sync.add_theme_font_size_override("font_size", 26)
 	auto_sync.toggled.connect(func(enabled: bool) -> void: UserSettings.auto_offset = enabled)
 	column.add_child(_row("Auto sync", auto_sync))
+
+	var calm := CheckButton.new()
+	calm.text = "calmer pulses, no sky pulse"
+	calm.button_pressed = UserSettings.reduce_flashing
+	calm.add_theme_font_size_override("font_size", 26)
+	calm.toggled.connect(func(enabled: bool) -> void: UserSettings.reduce_flashing = enabled)
+	column.add_child(_row("Reduce flashing", calm))
 
 	var back: Button = UiTheme.make_button("BACK", 300.0, 72.0, &"ui.back")
 	back.pressed.connect(_close)

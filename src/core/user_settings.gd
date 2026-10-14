@@ -1,5 +1,5 @@
 # Autoload "UserSettings": per-player preferences persisted to user://settings.cfg
-# (audio calibration offset, quality tier, bus volumes). Applies volumes to the Music/SFX/UI buses.
+# (audio calibration offset, quality tier, bus volumes, reduce flashing). Applies volumes to the buses.
 # Related: src/core/song_clock.gd, src/core/quality_tier.gd, src/core/audio/audio_buses.gd
 extends Node
 
@@ -33,6 +33,12 @@ var auto_offset: bool = true:
 		auto_offset = value
 		changed.emit()
 
+## Calmer visuals: no sky beat pulse, weaker neon beat pulses and flashes.
+var reduce_flashing: bool = false:
+	set(value):
+		reduce_flashing = value
+		changed.emit()
+
 var music_volume_db: float = 0.0:
 	set(value):
 		music_volume_db = clampf(value, -60.0, 6.0)
@@ -64,6 +70,7 @@ func load_settings() -> void:
 	quality_tier = QualityTier.from_int(int(config.get_value(SECTION, "quality_tier", quality_tier)))
 	quality_auto = bool(config.get_value(SECTION, "quality_auto", true))
 	auto_offset = bool(config.get_value(SECTION, "auto_offset", true))
+	reduce_flashing = bool(config.get_value(SECTION, "reduce_flashing", false))
 	music_volume_db = float(config.get_value(SECTION, "music_volume_db", 0.0))
 	sfx_volume_db = float(config.get_value(SECTION, "sfx_volume_db", -2.0))
 
@@ -74,6 +81,7 @@ func save_settings() -> void:
 	config.set_value(SECTION, "quality_tier", int(quality_tier))
 	config.set_value(SECTION, "quality_auto", quality_auto)
 	config.set_value(SECTION, "auto_offset", auto_offset)
+	config.set_value(SECTION, "reduce_flashing", reduce_flashing)
 	config.set_value(SECTION, "music_volume_db", music_volume_db)
 	config.set_value(SECTION, "sfx_volume_db", sfx_volume_db)
 	var error: Error = config.save(SETTINGS_PATH)
