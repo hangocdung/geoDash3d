@@ -4,7 +4,7 @@
 	"artist": "Unknown",
 	"song": "res://assets/music/cyber_rush.mp3",
 	"offset_sec": 1.767,
-	"end_beat": 352,
+	"end_beat": 356,
 	"tempo": [
 		{
 			"beat": 0,
@@ -17,15 +17,15 @@
 			"units_per_beat": 7.0
 		},
 		{
-			"beat": 124,
+			"beat": 96.0,
 			"units_per_beat": 7.5
 		},
 		{
-			"beat": 172,
+			"beat": 184.0,
 			"units_per_beat": 8.0
 		},
 		{
-			"beat": 284,
+			"beat": 268.0,
 			"units_per_beat": 8.5
 		}
 	],
@@ -33,37 +33,47 @@
 		{
 			"beat": -16,
 			"name": "intro",
-			"energy": 0.5
+			"energy": 0.74
 		},
 		{
-			"beat": 60,
+			"beat": 64,
 			"name": "drop",
-			"energy": 0.85
+			"energy": 0.94
 		},
 		{
-			"beat": 124,
+			"beat": 128,
+			"name": "verse",
+			"energy": 0.58
+		},
+		{
+			"beat": 144,
 			"name": "break",
-			"energy": 0.25
+			"energy": 0.29
 		},
 		{
-			"beat": 172,
-			"name": "drop2",
+			"beat": 176,
+			"name": "drop",
 			"energy": 0.9
 		},
 		{
 			"beat": 240,
-			"name": "break2",
+			"name": "break",
 			"energy": 0.3
 		},
 		{
-			"beat": 284,
-			"name": "final",
-			"energy": 1.0
+			"beat": 272,
+			"name": "verse",
+			"energy": 0.56
+		},
+		{
+			"beat": 288,
+			"name": "drop",
+			"energy": 0.9
 		},
 		{
 			"beat": 352,
-			"name": "outro",
-			"energy": 0.3
+			"name": "break",
+			"energy": 0.28
 		}
 	],
 	"track": [
@@ -72,469 +82,441 @@
 			"shape": "straight"
 		},
 		{
-			"beat": 124,
+			"beat": 128,
 			"shape": "turn",
-			"angle_deg": 30
+			"angle_deg": 35
 		},
 		{
-			"beat": 132,
+			"beat": 136,
 			"shape": "straight"
 		},
 		{
-			"beat": 240,
+			"beat": 176,
 			"shape": "turn",
 			"angle_deg": -35
 		},
 		{
-			"beat": 248,
+			"beat": 184,
 			"shape": "straight"
 		},
 		{
-			"beat": 296,
-			"shape": "slope",
-			"rise": 4
+			"beat": 272,
+			"shape": "turn",
+			"angle_deg": 35
 		},
 		{
-			"beat": 304,
+			"beat": 280,
 			"shape": "straight"
 		}
 	],
 	"terrain": [
 		{
-			"beat": 16.5543,
-			"height": 1.5
-		},
-		{
-			"beat": 19.0,
-			"height": 0.0
-		},
-		{
-			"beat": 20.25,
+			"beat": 11.518,
 			"gap": true
 		},
 		{
-			"beat": 20.75,
+			"beat": 12.018,
 			"height": 0.0
 		},
 		{
-			"beat": 28.5543,
+			"beat": 15.6698,
 			"height": 1.5
 		},
 		{
-			"beat": 30.25,
+			"beat": 18.8086,
+			"height": 3.0
+		},
+		{
+			"beat": 21.5418,
 			"gap": true
 		},
 		{
-			"beat": 30.75,
-			"height": 1.5
+			"beat": 22.0418,
+			"height": 3.0
 		},
 		{
-			"beat": 32.0,
+			"beat": 27.0408,
 			"height": 0.0
 		},
 		{
-			"beat": 40.5543,
-			"height": 1.5
-		},
-		{
-			"beat": 43.0,
-			"height": 0.0
-		},
-		{
-			"beat": 44.25,
+			"beat": 29.1918,
 			"gap": true
 		},
 		{
-			"beat": 44.75,
+			"beat": 29.6918,
 			"height": 0.0
 		},
 		{
-			"beat": 48.5543,
-			"height": 1.5
-		},
-		{
-			"beat": 50.25,
+			"beat": 36.4143,
 			"gap": true
 		},
 		{
-			"beat": 50.75,
-			"height": 1.5
-		},
-		{
-			"beat": 52.0,
+			"beat": 36.9143,
 			"height": 0.0
 		},
 		{
-			"beat": 56.61,
+			"beat": 42.8948,
+			"height": 1.5
+		},
+		{
+			"beat": 48.4405,
+			"gap": true
+		},
+		{
+			"beat": 48.9405,
+			"height": 1.5
+		},
+		{
+			"beat": 49.9595,
+			"height": 0.0
+		},
+		{
+			"beat": 54.4593,
+			"gap": true
+		},
+		{
+			"beat": 54.9593,
+			"height": 0.0
+		},
+		{
+			"beat": 58.5318,
 			"height": 4.0
 		},
 		{
-			"beat": 59.0,
+			"beat": 59.6349,
 			"height": 0.0
 		},
 		{
-			"beat": 63.5543,
+			"beat": 63.9773,
 			"height": 1.5
 		},
 		{
-			"beat": 66.25,
-			"gap": true
-		},
-		{
-			"beat": 66.75,
-			"height": 1.5
-		},
-		{
-			"beat": 67.0,
-			"height": 0.0
-		},
-		{
-			"beat": 71.5543,
-			"height": 1.5
-		},
-		{
-			"beat": 73.75,
-			"height": 3.5
-		},
-		{
-			"beat": 75.25,
-			"gap": true
-		},
-		{
-			"beat": 75.75,
-			"height": 3.5
-		},
-		{
-			"beat": 76.0,
-			"height": 0.0
-		},
-		{
-			"beat": 80.5543,
-			"height": 1.5
-		},
-		{
-			"beat": 81.3043,
+			"beat": 69.7148,
 			"height": 3.0
 		},
 		{
-			"beat": 83.0,
+			"beat": 70.809,
 			"height": 0.0
 		},
 		{
-			"beat": 88.5543,
+			"beat": 77.8148,
 			"height": 1.5
 		},
 		{
-			"beat": 89.3043,
+			"beat": 83.8336,
 			"height": 3.0
 		},
 		{
-			"beat": 91.75,
+			"beat": 87.8331,
+			"height": 0.0
+		},
+		{
+			"beat": 89.4693,
 			"gap": true
 		},
 		{
-			"beat": 92.25,
-			"height": 3.0
-		},
-		{
-			"beat": 93.0,
+			"beat": 89.9693,
 			"height": 0.0
 		},
 		{
-			"beat": 97.3043,
+			"beat": 92.5073,
 			"height": 1.5
 		},
 		{
-			"beat": 99.5,
-			"height": 0.0
-		},
-		{
-			"beat": 104.5543,
-			"height": 1.5
-		},
-		{
-			"beat": 105.3043,
-			"height": 3.0
-		},
-		{
-			"beat": 106.5,
-			"gap": true
-		},
-		{
-			"beat": 107.0,
-			"height": 3.0
-		},
-		{
-			"beat": 108.0,
-			"height": 0.0
-		},
-		{
-			"beat": 114.5543,
-			"height": 1.5
-		},
-		{
-			"beat": 118.25,
-			"gap": true
-		},
-		{
-			"beat": 118.75,
-			"height": 1.5
-		},
-		{
-			"beat": 119.0,
-			"height": 0.0
-		},
-		{
-			"beat": 133.3007,
-			"height": 1.5
-		},
-		{
-			"beat": 140.0,
-			"height": 0.0
-		},
-		{
-			"beat": 148.25,
-			"gap": true
-		},
-		{
-			"beat": 148.75,
-			"height": 0.0
-		},
-		{
-			"beat": 152.5507,
-			"height": 1.5
-		},
-		{
-			"beat": 156.6193,
+			"beat": 98.456,
 			"height": 5.5
 		},
 		{
-			"beat": 160.0,
+			"beat": 99.3204,
 			"height": 0.0
 		},
 		{
-			"beat": 179.75,
-			"height": 2.0
-		},
-		{
-			"beat": 182.25,
-			"gap": true
-		},
-		{
-			"beat": 182.75,
-			"height": 2.0
-		},
-		{
-			"beat": 183.0,
-			"height": 0.0
-		},
-		{
-			"beat": 187.75,
-			"height": 2.0
-		},
-		{
-			"beat": 191.5,
-			"height": 0.0
-		},
-		{
-			"beat": 198.25,
-			"height": 2.0
-		},
-		{
-			"beat": 202.7975,
-			"height": 3.5
-		},
-		{
-			"beat": 206.0,
-			"height": 0.0
-		},
-		{
-			"beat": 208.5475,
+			"beat": 105.0475,
 			"height": 1.5
 		},
 		{
-			"beat": 211.75,
-			"height": 3.5
-		},
-		{
-			"beat": 213.75,
+			"beat": 108.088,
 			"gap": true
 		},
 		{
-			"beat": 214.25,
-			"height": 3.5
-		},
-		{
-			"beat": 215.5,
-			"height": 0.0
-		},
-		{
-			"beat": 219.75,
-			"height": 2.0
-		},
-		{
-			"beat": 221.7975,
-			"height": 3.5
-		},
-		{
-			"beat": 223.25,
-			"gap": true
-		},
-		{
-			"beat": 223.75,
-			"height": 3.5
-		},
-		{
-			"beat": 224.0,
-			"height": 0.0
-		},
-		{
-			"beat": 235.75,
-			"height": 2.0
-		},
-		{
-			"beat": 237.75,
-			"gap": true
-		},
-		{
-			"beat": 238.25,
-			"height": 2.0
-		},
-		{
-			"beat": 239.0,
-			"height": 0.0
-		},
-		{
-			"beat": 248.25,
-			"gap": true
-		},
-		{
-			"beat": 248.75,
-			"height": 0.0
-		},
-		{
-			"beat": 256.5475,
+			"beat": 108.588,
 			"height": 1.5
 		},
 		{
-			"beat": 260.0,
-			"height": 0.0
-		},
-		{
-			"beat": 272.25,
-			"gap": true
-		},
-		{
-			"beat": 272.75,
-			"height": 0.0
-		},
-		{
-			"beat": 284.2947,
-			"height": 1.5
-		},
-		{
-			"beat": 286.7947,
+			"beat": 111.0437,
 			"height": 3.0
 		},
 		{
-			"beat": 287.5447,
-			"height": 4.5
-		},
-		{
-			"beat": 288.25,
+			"beat": 113.7355,
 			"gap": true
 		},
 		{
-			"beat": 288.75,
-			"height": 4.5
-		},
-		{
-			"beat": 291.0,
-			"height": 0.0
-		},
-		{
-			"beat": 294.5447,
-			"height": 1.5
-		},
-		{
-			"beat": 295.2947,
+			"beat": 114.2355,
 			"height": 3.0
 		},
 		{
-			"beat": 296.0447,
+			"beat": 117.9062,
 			"height": 4.5
 		},
 		{
-			"beat": 297.25,
-			"gap": true
-		},
-		{
-			"beat": 297.75,
-			"height": 4.5
-		},
-		{
-			"beat": 298.0,
+			"beat": 118.727,
 			"height": 0.0
 		},
 		{
-			"beat": 309.5,
+			"beat": 124.1192,
+			"gap": true
+		},
+		{
+			"beat": 124.6192,
+			"height": 0.0
+		},
+		{
+			"beat": 127.8992,
+			"gap": true
+		},
+		{
+			"beat": 128.3992,
+			"height": 0.0
+		},
+		{
+			"beat": 132.3849,
+			"height": 1.5
+		},
+		{
+			"beat": 133.1225,
+			"height": 0.0
+		},
+		{
+			"beat": 137.3698,
+			"height": 4.0
+		},
+		{
+			"beat": 138.0106,
+			"height": 0.0
+		},
+		{
+			"beat": 140.44,
+			"height": 1.5
+		},
+		{
+			"beat": 142.3893,
+			"gap": true
+		},
+		{
+			"beat": 142.8893,
+			"height": 1.5
+		},
+		{
+			"beat": 145.6161,
+			"height": 5.5
+		},
+		{
+			"beat": 146.2095,
+			"height": 0.0
+		},
+		{
+			"beat": 154.3562,
+			"height": 1.5
+		},
+		{
+			"beat": 156.553,
+			"gap": true
+		},
+		{
+			"beat": 157.053,
+			"height": 1.5
+		},
+		{
+			"beat": 173.2143,
+			"gap": true
+		},
+		{
+			"beat": 173.7143,
+			"height": 1.5
+		},
+		{
+			"beat": 177.3092,
+			"height": 0.0
+		},
+		{
+			"beat": 190.4605,
+			"gap": true
+		},
+		{
+			"beat": 190.9605,
+			"height": 0.0
+		},
+		{
+			"beat": 199.5218,
+			"height": 1.5
+		},
+		{
+			"beat": 204.0468,
+			"height": 3.5
+		},
+		{
+			"beat": 204.5468,
+			"height": 0.0
+		},
+		{
+			"beat": 212.0793,
 			"height": 2.0
 		},
 		{
-			"beat": 310.5,
-			"height": 0.0
-		},
-		{
-			"beat": 320.0447,
-			"height": 1.5
-		},
-		{
-			"beat": 322.5,
+			"beat": 215.4743,
 			"height": 3.5
 		},
 		{
-			"beat": 323.75,
-			"gap": true
-		},
-		{
-			"beat": 324.25,
-			"height": 3.5
-		},
-		{
-			"beat": 324.5,
+			"beat": 215.9268,
 			"height": 0.0
 		},
 		{
-			"beat": 327.7947,
-			"height": 1.5
-		},
-		{
-			"beat": 328.5447,
-			"height": 3.0
-		},
-		{
-			"beat": 330.25,
+			"beat": 224.7843,
 			"gap": true
 		},
 		{
-			"beat": 330.75,
-			"height": 3.0
-		},
-		{
-			"beat": 332.0,
+			"beat": 225.2843,
 			"height": 0.0
 		},
 		{
-			"beat": 344.2947,
+			"beat": 231.5055,
 			"height": 1.5
 		},
 		{
-			"beat": 346.25,
+			"beat": 233.3968,
+			"height": 5.5
+		},
+		{
+			"beat": 233.7693,
+			"height": 0.0
+		},
+		{
+			"beat": 243.3418,
+			"height": 4.0
+		},
+		{
+			"beat": 243.7143,
+			"height": 0.0
+		},
+		{
+			"beat": 253.8255,
+			"height": 1.5
+		},
+		{
+			"beat": 257.1505,
 			"gap": true
 		},
 		{
-			"beat": 346.75,
+			"beat": 257.6505,
 			"height": 1.5
+		},
+		{
+			"beat": 257.9005,
+			"height": 0.0
+		},
+		{
+			"beat": 268.1418,
+			"gap": true
+		},
+		{
+			"beat": 268.6418,
+			"height": 0.0
+		},
+		{
+			"beat": 272.8668,
+			"gap": true
+		},
+		{
+			"beat": 273.3668,
+			"height": 0.0
+		},
+		{
+			"beat": 275.0402,
+			"height": 1.5
+		},
+		{
+			"beat": 276.8718,
+			"gap": true
+		},
+		{
+			"beat": 277.3718,
+			"height": 1.5
+		},
+		{
+			"beat": 277.6218,
+			"height": 0.0
+		},
+		{
+			"beat": 280.933,
+			"gap": true
+		},
+		{
+			"beat": 281.433,
+			"height": 0.0
+		},
+		{
+			"beat": 284.383,
+			"height": 2.0
+		},
+		{
+			"beat": 284.883,
+			"height": 0.0
+		},
+		{
+			"beat": 286.8055,
+			"gap": true
+		},
+		{
+			"beat": 287.3055,
+			"height": 0.0
+		},
+		{
+			"beat": 311.0065,
+			"height": 1.5
+		},
+		{
+			"beat": 311.4618,
+			"height": 0.0
+		},
+		{
+			"beat": 324.4614,
+			"height": 1.5
+		},
+		{
+			"beat": 328.9255,
+			"gap": true
+		},
+		{
+			"beat": 329.4255,
+			"height": 1.5
+		},
+		{
+			"beat": 334.6405,
+			"gap": true
+		},
+		{
+			"beat": 335.1405,
+			"height": 1.5
+		},
+		{
+			"beat": 337.3652,
+			"height": 3.0
+		},
+		{
+			"beat": 345.0243,
+			"gap": true
+		},
+		{
+			"beat": 345.5243,
+			"height": 3.0
+		},
+		{
+			"beat": 348.919,
+			"height": 4.5
+		},
+		{
+			"beat": 349.3743,
+			"height": 0.0
 		}
 	],
 	"events": [
@@ -551,695 +533,527 @@
 			"blend_beats": 4
 		},
 		{
-			"beat": 8.0,
+			"beat": 8.2643,
 			"type": "jump"
 		},
 		{
-			"beat": 12.0,
+			"beat": 11.268,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 15.1155,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 18.2543,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 21.2918,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 25.1393,
 			"type": "jump"
 		},
 		{
-			"beat": 16.0,
+			"beat": 28.9418,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 20.0,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 24.0,
+			"beat": 32.3167,
 			"type": "jump"
 		},
 		{
-			"beat": 28.0,
+			"beat": 36.1643,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 30.0,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 36.0,
+			"beat": 39.168,
 			"type": "jump"
 		},
 		{
-			"beat": 38.0,
+			"beat": 42.3405,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 45.1868,
 			"type": "jump"
 		},
 		{
-			"beat": 40.0,
+			"beat": 48.1905,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 42.0,
+			"beat": 51.2393,
 			"type": "jump"
 		},
 		{
-			"beat": 44.0,
+			"beat": 54.2093,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 48.0,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 50.0,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 54.0,
-			"type": "jump"
-		},
-		{
-			"beat": 56.0,
+			"beat": 57.9218,
 			"type": "pad"
 		},
 		{
-			"beat": 60,
+			"beat": 63.423,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 64,
 			"type": "camera",
-			"shot": "side_far",
+			"shot": "side",
 			"blend_beats": 2
 		},
 		{
-			"beat": 60.0,
-			"type": "jump"
-		},
-		{
-			"beat": 60,
-			"type": "vfx",
-			"name": "flash"
-		},
-		{
-			"beat": 60,
-			"type": "vfx",
-			"name": "shockwave"
-		},
-		{
-			"beat": 62.0,
-			"type": "jump"
-		},
-		{
-			"beat": 63.0,
+			"beat": 69.1605,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 64.0,
+			"beat": 72.2542,
 			"type": "jump"
 		},
 		{
-			"beat": 66.0,
+			"beat": 77.2605,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 68.0,
+			"beat": 80.0393,
 			"type": "jump"
 		},
 		{
-			"beat": 70.0,
-			"type": "jump"
-		},
-		{
-			"beat": 71.0,
+			"beat": 83.2793,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 72.75,
+			"beat": 86.283,
+			"type": "jump"
+		},
+		{
+			"beat": 89.2193,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 73.25,
-			"type": "orb"
-		},
-		{
-			"beat": 75.0,
+			"beat": 91.953,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 78.0,
+			"beat": 94.4955,
 			"type": "jump"
 		},
 		{
-			"beat": 79.0,
-			"type": "jump"
-		},
-		{
-			"beat": 80.0,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 80.75,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 82.0,
-			"type": "jump"
-		},
-		{
-			"beat": 85.0,
-			"type": "jump"
-		},
-		{
-			"beat": 87.0,
-			"type": "jump"
-		},
-		{
-			"beat": 88.0,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 88.75,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 91.5,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 94.0,
-			"type": "jump"
-		},
-		{
-			"beat": 95.5,
-			"type": "jump"
-		},
-		{
-			"beat": 96.75,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 98.0,
-			"type": "jump"
-		},
-		{
-			"beat": 101.0,
-			"type": "jump"
-		},
-		{
-			"beat": 102.0,
-			"type": "jump"
-		},
-		{
-			"beat": 103.0,
-			"type": "jump"
-		},
-		{
-			"beat": 104.0,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 104.75,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 106.25,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 110.0,
-			"type": "jump"
-		},
-		{
-			"beat": 111.5,
-			"type": "jump"
-		},
-		{
-			"beat": 114.0,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 116.75,
-			"type": "jump"
-		},
-		{
-			"beat": 118.0,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 120.0,
-			"type": "jump"
-		},
-		{
-			"beat": 122.5,
-			"type": "jump"
-		},
-		{
-			"beat": 124,
-			"type": "camera",
-			"shot": "side",
-			"blend_beats": 4
-		},
-		{
-			"beat": 128.0,
-			"type": "jump"
-		},
-		{
-			"beat": 132.75,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 136.75,
-			"type": "jump"
-		},
-		{
-			"beat": 148.0,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 152.0,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 156.0,
+			"beat": 97.8367,
 			"type": "pad"
 		},
 		{
-			"beat": 166.0,
+			"beat": 101.313,
 			"type": "jump"
 		},
 		{
-			"beat": 172,
+			"beat": 104.4968,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 107.838,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 110.493,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 113.4855,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 117.3555,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 120.3818,
+			"type": "jump"
+		},
+		{
+			"beat": 121.3818,
+			"type": "jump"
+		},
+		{
+			"beat": 123.8692,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 127.6492,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 128,
 			"type": "camera",
 			"shot": "diagonal",
 			"blend_beats": 2
 		},
 		{
-			"beat": 172,
-			"type": "vfx",
-			"name": "flash"
-		},
-		{
-			"beat": 172,
-			"type": "vfx",
-			"name": "shockwave"
-		},
-		{
-			"beat": 172.75,
-			"type": "jump"
-		},
-		{
-			"beat": 174.75,
-			"type": "jump"
-		},
-		{
-			"beat": 176.0,
-			"type": "jump"
-		},
-		{
-			"beat": 178.75,
+			"beat": 131.8342,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 179.25,
-			"type": "orb"
+			"beat": 134.2417,
+			"type": "jump"
 		},
 		{
-			"beat": 182.0,
+			"beat": 136.7505,
+			"type": "pad"
+		},
+		{
+			"beat": 139.8893,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 184.0,
-			"type": "jump"
-		},
-		{
-			"beat": 186.75,
+			"beat": 142.1393,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 187.25,
-			"type": "orb"
-		},
-		{
-			"beat": 189.0,
-			"type": "jump"
-		},
-		{
-			"beat": 190.5,
-			"type": "jump"
-		},
-		{
-			"beat": 194.0,
-			"type": "flip"
-		},
-		{
-			"beat": 197.25,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 197.75,
-			"type": "orb"
-		},
-		{
-			"beat": 200.0,
-			"type": "jump"
-		},
-		{
-			"beat": 202.25,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 204,
+			"beat": 144,
 			"type": "camera",
 			"shot": "side_high",
 			"blend_beats": 2
 		},
 		{
-			"beat": 204.0,
+			"beat": 144.9968,
+			"type": "pad"
+		},
+		{
+			"beat": 153.8055,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 156.303,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 172.9643,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 175.2705,
 			"type": "jump"
 		},
 		{
-			"beat": 207.0,
+			"beat": 176,
+			"type": "camera",
+			"shot": "diagonal",
+			"blend_beats": 2
+		},
+		{
+			"beat": 176,
+			"type": "vfx",
+			"name": "flash"
+		},
+		{
+			"beat": 176,
+			"type": "vfx",
+			"name": "shockwave"
+		},
+		{
+			"beat": 176.2705,
 			"type": "jump"
 		},
 		{
-			"beat": 208.0,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 210.75,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 211.25,
-			"type": "orb"
-		},
-		{
-			"beat": 213.5,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 214.5,
+			"beat": 178.9155,
 			"type": "jump"
 		},
 		{
-			"beat": 218.75,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 219.25,
-			"type": "orb"
-		},
-		{
-			"beat": 221.25,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 223.0,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 226.0,
+			"beat": 182.9093,
 			"type": "dodge_left"
 		},
 		{
-			"beat": 230.0,
-			"type": "dodge_right"
+			"beat": 186.9368,
+			"type": "flip"
 		},
 		{
-			"beat": 232.0,
-			"type": "jump"
-		},
-		{
-			"beat": 234.75,
+			"beat": 190.2105,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 235.25,
+			"beat": 198.9743,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 203.0468,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 203.5468,
 			"type": "orb"
 		},
 		{
-			"beat": 237.5,
+			"beat": 206.208,
+			"type": "dodge_right"
+		},
+		{
+			"beat": 211.0793,
 			"type": "jump",
 			"hazard": "none"
+		},
+		{
+			"beat": 211.5793,
+			"type": "orb"
+		},
+		{
+			"beat": 214.9268,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 219.618,
+			"type": "flip"
+		},
+		{
+			"beat": 224.5343,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 230.958,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 232.7693,
+			"type": "pad"
+		},
+		{
+			"beat": 235.0755,
+			"type": "flip"
+		},
+		{
+			"beat": 238.2818,
+			"type": "jump"
 		},
 		{
 			"beat": 240,
 			"type": "camera",
-			"shot": "side",
-			"blend_beats": 4
+			"shot": "high",
+			"blend_beats": 2
 		},
 		{
-			"beat": 248.0,
+			"beat": 240.633,
+			"type": "dodge_left"
+		},
+		{
+			"beat": 242.7143,
+			"type": "pad"
+		},
+		{
+			"beat": 246.0555,
+			"type": "flip"
+		},
+		{
+			"beat": 249.003,
+			"type": "dodge_left"
+		},
+		{
+			"beat": 251.1855,
+			"type": "dodge_right"
+		},
+		{
+			"beat": 253.278,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 256.0,
+			"beat": 256.9005,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 264.0,
-			"type": "jump"
+			"beat": 262.7955,
+			"type": "flip"
 		},
 		{
-			"beat": 269.0,
-			"type": "jump"
-		},
-		{
-			"beat": 272.0,
+			"beat": 267.8918,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 278.0,
+			"beat": 269.8268,
 			"type": "jump"
 		},
 		{
-			"beat": 280.0,
-			"type": "jump"
-		},
-		{
-			"beat": 283.75,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 284,
+			"beat": 272,
 			"type": "camera",
 			"shot": "diagonal",
 			"blend_beats": 2
 		},
 		{
-			"beat": 284,
-			"type": "vfx",
-			"name": "flash"
-		},
-		{
-			"beat": 284,
-			"type": "vfx",
-			"name": "shockwave"
-		},
-		{
-			"beat": 284.75,
-			"type": "jump"
-		},
-		{
-			"beat": 286.25,
+			"beat": 272.6168,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 287.0,
+			"beat": 274.4955,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 288.0,
+			"beat": 276.6218,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 290.0,
-			"type": "jump"
+			"beat": 278.523,
+			"type": "dodge_left"
 		},
 		{
-			"beat": 292.75,
-			"type": "jump"
-		},
-		{
-			"beat": 294.0,
+			"beat": 280.683,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 294.75,
+			"beat": 283.383,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 295.5,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 297.0,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 302.0,
-			"type": "flip"
-		},
-		{
-			"beat": 304.0,
-			"type": "jump"
-		},
-		{
-			"beat": 306.0,
-			"type": "jump"
-		},
-		{
-			"beat": 308.5,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 309.0,
+			"beat": 283.883,
 			"type": "orb"
 		},
 		{
-			"beat": 312.0,
-			"type": "jump"
+			"beat": 286.5555,
+			"type": "jump",
+			"hazard": "none"
 		},
 		{
-			"beat": 314.75,
-			"type": "dodge_right"
-		},
-		{
-			"beat": 316,
+			"beat": 288,
 			"type": "camera",
 			"shot": "side_high",
 			"blend_beats": 2
 		},
 		{
-			"beat": 318.0,
+			"beat": 288,
+			"type": "vfx",
+			"name": "flash"
+		},
+		{
+			"beat": 288,
+			"type": "vfx",
+			"name": "shockwave"
+		},
+		{
+			"beat": 288.603,
 			"type": "jump"
 		},
 		{
-			"beat": 319.5,
-			"type": "jump",
-			"hazard": "none"
+			"beat": 295.083,
+			"type": "dodge_left"
 		},
 		{
-			"beat": 321.5,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 322.0,
-			"type": "orb"
-		},
-		{
-			"beat": 323.5,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 326.0,
-			"type": "jump"
-		},
-		{
-			"beat": 327.25,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 328.0,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 330.0,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 332.75,
-			"type": "jump"
-		},
-		{
-			"beat": 334.0,
-			"type": "jump"
-		},
-		{
-			"beat": 335.5,
-			"type": "jump"
-		},
-		{
-			"beat": 338.0,
+			"beat": 296.7593,
 			"type": "flip"
 		},
 		{
-			"beat": 340,
-			"type": "camera",
-			"shot": "high",
-			"blend_beats": 3
+			"beat": 299.6168,
+			"type": "dodge_right"
 		},
 		{
-			"beat": 342.0,
-			"type": "jump"
+			"beat": 302.2155,
+			"type": "dodge_left"
 		},
 		{
-			"beat": 343.75,
+			"beat": 304.7805,
+			"type": "flip"
+		},
+		{
+			"beat": 310.4618,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 346.0,
+			"beat": 312.7905,
+			"type": "dodge_left"
+		},
+		{
+			"beat": 318.3593,
+			"type": "jump"
+		},
+		{
+			"beat": 322.2292,
+			"type": "jump"
+		},
+		{
+			"beat": 323.9167,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 347.5,
+			"beat": 327.2917,
 			"type": "jump"
 		},
 		{
-			"beat": 350.0,
+			"beat": 328.6755,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 331.263,
 			"type": "jump"
+		},
+		{
+			"beat": 334.3905,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 336.8205,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 344.7743,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 348.3743,
+			"type": "jump",
+			"hazard": "none"
 		},
 		{
 			"beat": 352,
-			"type": "vfx",
-			"name": "burst"
+			"type": "camera",
+			"shot": "diagonal",
+			"blend_beats": 2
 		}
 	]
 }

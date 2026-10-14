@@ -27,6 +27,10 @@ FOLLOW_TOLERANCE_SEC = 0.035
 ## percentile its later taps must reach (only clear hits become taps).
 START_PERCENTILE = (0.8, 0.6)
 FOLLOW_PERCENTILE = 0.5
+# Loudness jumps are fewer and all audible: wider percentiles (first tap, later taps).
+LOUDNESS_START_PERCENTILE = (0.4, 0.15)
+LOUDNESS_FOLLOW_PERCENTILE = 0.3
+LOUDNESS_REST_START = 2.0
 MAX_HEIGHT = 6.0
 START_BEAT = 8.0
 # Beats of breathing room after a pattern, from the start of the level to its end (the difficulty ramp;
@@ -174,16 +178,27 @@ def level_end(analysis):
 
 
 class Generator:
-    def __init__(self, analysis, seed):
+    def __init__(self, analysis, seed, options=None):
+        options = options or {}
         self.bpm, self.offset = refine_tempo(analysis)
+        if options.get("bpm"):
+            self.bpm, self.offset = options["bpm"], options["offset"]
         seconds_per_beat = 60.0 / self.bpm
         # Bars re-timed onto the (possibly refitted) tempo.
         analysis = dict(analysis)
         analysis["bars"] = [dict(bar, beat=round((bar["time"] - self.offset) / seconds_per_beat))
                             for bar in analysis["bars"]]
         self.analysis = analysis
-        self.onsets = Onsets(analysis, self.bpm, self.offset)
-        self.follow_threshold = self.onsets.percentile(FOLLOW_PERCENTILE)
+        if options.get("onsets") == "loudness":
+            from loudness_onsets import LoudnessOnsets
+            self.onsets = LoudnessOnsets(analysis["song"], self.bpm, self.offset)
+            self.start_percentile, follow = LOUDNESS_START_PERCENTILE, LOUDNESS_FOLLOW_PERCENTILE
+            self.rest_start = LOUDNESS_REST_START
+        else:
+            self.onsets = Onsets(analysis, self.bpm, self.offset)
+            self.start_percentile, follow = START_PERCENTILE, FOLLOW_PERCENTILE
+            self.rest_start = REST_START
+        self.follow_threshold = self.onsets.percentile(follow)
         self.end_beat = level_end(analysis)
         self.sections = find_sections(analysis, self.end_beat)
         length = self.end_beat - START_BEAT
@@ -196,7 +211,8 @@ class Generator:
 
     def start_threshold(self, beat):
         progress = min(max(self.progress(beat), 0.0), 1.0)
-        return self.onsets.percentile(START_PERCENTILE[0] + (START_PERCENTILE[1] - START_PERCENTILE[0]) * progress)
+        low, high = self.start_percentile
+        return self.onsets.percentile(low + (high - low) * progress)
 
     def progress(self, beat):
         return (beat - START_BEAT) / (self.end_beat - START_BEAT)
@@ -295,7 +311,7 @@ class Generator:
             if drop >= 0.0:
                 self.level.drop(drop)
             self.place(pattern, beat)
-            rest = REST_START + (REST_END - REST_START) * min(self.progress(beat), 1.0)
+            rest = self.rest_start + (REST_END - self.rest_start) * min(self.progress(beat), 1.0)
             free_from = beat + pattern.busy
             next_start = free_from + rest
             # Come back down now and then, on the beat the player lands.
@@ -323,8 +339,8 @@ class Generator:
 PLAYER_HALF_BEATS = 0.38 / SPEEDS[0]
 
 
-def build_chart(analysis, title, artist, seed):
-    generator = Generator(analysis, seed)
+def build_chart(analysis, title, artist, seed, options=None):
+    generator = Generator(analysis, seed, options)
     level = generator.run()
     events = list(level.events)
     events.append({"beat": -8, "type": "camera", "shot": "front", "blend_beats": 0})
@@ -388,12 +404,17 @@ def main():
     parser.add_argument("--artist", default="Unknown")
     parser.add_argument("--seed", type=int, default=1)
     parser.add_argument("--out")
+    parser.add_argument("--onsets", choices=["analysis", "loudness"], default="analysis",
+                        help="loudness: taps on whole-mix loudness jumps (tools/charting/loudness_onsets.py)")
+    parser.add_argument("--bpm", type=float, help="tempo override (with --offset)")
+    parser.add_argument("--offset", type=float)
     args = parser.parse_args()
     with open(args.analysis, encoding="utf-8") as handle:
         analysis = json.load(handle)
     # Try consecutive seeds until the difficulty ramp has a safe margin over the test's 1.5x.
     for seed in range(args.seed, args.seed + MAX_SEED_TRIES):
-        chart, generator = build_chart(analysis, args.title, args.artist, seed)
+        chart, generator = build_chart(analysis, args.title, args.artist, seed,
+                                       {"onsets": args.onsets, "bpm": args.bpm, "offset": args.offset})
         first, last = quarter_difficulty(chart, generator)
         if last >= RAMP_MARGIN * first:
             break
