@@ -53,6 +53,9 @@ GODOT="D:/Godot_v4.6.1-stable_win64.exe/Godot_v4.6.1-stable_win64_console.exe"
 "D:/Programs/Blender/blender.exe" -b --factory-startup -P assets/blender/generate_models.py -- --out assets/models
 # Sinh chart từ phân tích + plan (Python hệ thống); plan có thể dùng recording / fixed
 python tools/audio/draft_chart.py <analysis.json> <plan.json> <out.chart.json>
+# Map chính hiện tại (địa hình, gameplay v3) viết bằng mẫu; dung sai từng lần chạm của một chart
+python tools/charting/the_dawn_assembly_level.py
+"$GODOT" --headless --path . -s res://tools/charting/tolerance_report.gd -- --chart=res://assets/music/the_dawn_assembly.chart.json
 # .sm (ArrowVortex/StepMania) → recording
 python tools/charting/sm_to_recording.py <song.sm> <out.recording.json>
 # SFX: video Flow đặt ở art_source/sfx/<ID>_take<N>.mp4 → tách/cắt/chuẩn hóa → assets/audio + catalog

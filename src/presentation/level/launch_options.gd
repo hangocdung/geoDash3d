@@ -97,18 +97,10 @@ static func take_next_run() -> LaunchOptions:
 	return next_options
 
 
-## Practice (checkpoints, optional slower playback) on `chart` (empty = the level's default chart).
-static func practice_run(rate: float, chart: String = "") -> LaunchOptions:
+static func practice_run(rate: float) -> LaunchOptions:
 	var options := LaunchOptions.new()
 	options.practice = true
 	options.playback_rate = rate
-	options.chart_path = chart
-	return options
-
-
-static func chart_run(chart: String) -> LaunchOptions:
-	var options := LaunchOptions.new()
-	options.chart_path = chart
 	return options
 
 

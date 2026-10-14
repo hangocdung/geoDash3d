@@ -1,16 +1,16 @@
-"""Builds the terrain demo chart (gameplay v3 prototype) from musical patterns.
+"""Builds the main chart of the_dawn_assembly (gameplay v3: terrain, orbs, pads) from musical patterns.
 
-Usage: python tools/charting/terrain_demo.py [out.chart.json]
+Usage: python tools/charting/the_dawn_assembly_level.py [out.chart.json]
 Jump orbs sit at an arc's apex, where tap timing barely changes the height (forgiving).
 Every pattern places taps on strong onsets of the_dawn_assembly and shapes the ground around them so the
 timing tolerance is symmetric. Arc numbers mirror GameplayConfig.create_default(): jump and orb last 1 beat
 and peak at 2.0 (gravity 16 units/beat^2), a pad launch lasts 1.5 beats and peaks at 4.5.
-Related: docs/design/gameplay_v3.md, assets/music/the_dawn_assembly.terrain.chart.json
+Related: docs/design/gameplay_v3.md, assets/music/the_dawn_assembly.chart.json
 """
 import json
 import sys
 
-OUT_PATH = "assets/music/the_dawn_assembly.terrain.chart.json"
+OUT_PATH = "assets/music/the_dawn_assembly.chart.json"
 END_BEAT = 116
 SPEED_KEYS = [(0, 7.0), (48, 7.5), (80, 8.0)]
 PLAYER_HALF_LENGTH = 0.38
@@ -205,7 +205,7 @@ def build_chart():
     events.sort(key=lambda event: (event["beat"], event["type"]))
     return {
         "version": 1,
-        "title": "The Dawn Assembly - Terrain Demo",
+        "title": "The Dawn Assembly",
         "artist": "Google Flow Music (AI)",
         "song": "res://assets/music/the_dawn_assembly.mp3",
         "offset_sec": 0.058,

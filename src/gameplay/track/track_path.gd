@@ -16,15 +16,17 @@ var _yaws: PackedFloat32Array = []
 var _pitches: PackedFloat32Array = []
 
 
-static func build(chart: LevelChart) -> TrackPath:
+## `min_end_beat`: build at least this far (the end of the song, so a short chart's outro still has road).
+static func build(chart: LevelChart, min_end_beat: float = -INF) -> TrackPath:
 	var path := TrackPath.new()
+	var last_beat: float = maxf(chart.end_beat + LEAD_OUT_BEATS, min_end_beat)
 	path.start_distance = chart.distance_at(-LEAD_IN_BEATS)
-	path.end_distance = chart.distance_at(chart.end_beat + LEAD_OUT_BEATS)
+	path.end_distance = chart.distance_at(last_beat)
 	var ranges: Array[Vector2] = []
 	for index: int in chart.track_segments.size():
 		var segment_start: float = chart.distance_at(chart.track_segments[index].beat)
 		var next_beat: float = chart.track_segments[index + 1].beat if index + 1 < chart.track_segments.size() \
-				else chart.end_beat + LEAD_OUT_BEATS
+				else last_beat
 		ranges.append(Vector2(segment_start, chart.distance_at(next_beat)))
 	path._integrate(chart.track_segments, ranges)
 	return path

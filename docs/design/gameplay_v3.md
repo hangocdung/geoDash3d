@@ -1,8 +1,8 @@
-# Gameplay v3: địa hình, vòng nhảy, bệ bật, bậc thang nhanh (bản demo chờ duyệt)
+# Gameplay v3: địa hình, vòng nhảy, bệ bật, bậc thang nhanh
 
-> Nguồn: yêu cầu của người dùng ngày 2026-10-14. Trạng thái: **demo chơi được** (menu TERRAIN DEMO, nhánh
-> `feat/terrain-demo`), **chờ người dùng duyệt** cả lối chơi lẫn phần mở rộng định dạng chart (mục 6).
-> Chart demo: `assets/music/the_dawn_assembly.terrain.chart.json`, sinh bằng `tools/charting/terrain_demo.py`.
+> Nguồn: yêu cầu của người dùng ngày 2026-10-14. **Đã duyệt** (2026-10-14): map địa hình là map chính
+> `assets/music/the_dawn_assembly.chart.json`, sinh bằng `tools/charting/the_dawn_assembly_level.py`.
+> Map cũ (đủ bài, có dodge/flip, không địa hình) giữ ở `the_dawn_assembly.classic.chart.json` để so sánh.
 
 ## 1. Mục tiêu và luật đã chốt
 - Màn có **địa hình** như Geometry Dash: bệ nhiều độ cao, hố, bậc thang, khối lơ lửng. Không chỉ chạy trên một mặt phẳng.
@@ -44,7 +44,7 @@
 Tiếp đất sau khi nhảy (từ đất), theo độ cao bậc: 0 → 1 beat · +1.0 → 0.854 beat · +1.5 → **0.75 beat** ·
 +2.0 → 0.5 beat (đúng đỉnh, không dung sai, không dùng).
 
-## 4. Các mẫu màn (trong `terrain_demo.py`) và dung sai đo được
+## 4. Các mẫu màn (trong `the_dawn_assembly_level.py`) và dung sai đo được
 Mép bệ đặt dưới đỉnh parabol (cộng nửa chiều dài người chơi) để dung sai sớm/trễ đối xứng.
 
 | Mẫu | Nhịp chạm | Dung sai (đo bằng `tolerance_report.gd`) |
@@ -85,7 +85,7 @@ theo thứ tự ngược):
 Đoạn từ beat 20 và 84 (2 mẫu): chênh lệch trong khoảng ±1.3 FPS, tùy mật độ vật cản chứ không do địa hình.
 Frame tệ nhất 42–47 ms, 1–2 lần khựng mỗi 15 s ở **cả hai** chart (có từ trước). Game vẫn nghẽn ở GPU (glow).
 
-## 6. Định dạng chart (mở rộng, tương thích ngược — **cần duyệt**)
+## 6. Định dạng chart (mở rộng, tương thích ngược, đã duyệt)
 ```json
 "terrain": [{ "beat": 12.55, "height": 1.5 }, { "beat": 17.75, "gap": true }, { "beat": 18.25, "height": 0 }],
 "events":  [{ "beat": 12, "type": "jump", "hazard": "none" },
@@ -97,6 +97,7 @@ bệ bật và vật cản không được đặt trên hố.
 
 ## 7. Giới hạn của demo
 - Dodge/flip chỉ dùng trên đường phẳng. Địa hình chưa chia theo làn, chưa có trần/bệ treo để chạy bên dưới.
-- `draft_chart.py` chưa sinh địa hình; demo được viết bằng mẫu trong `terrain_demo.py` (nhạc đầu tới điệp khúc).
+- `draft_chart.py` chưa sinh địa hình; map chính được viết bằng mẫu trong `the_dawn_assembly_level.py` và mới phủ
+  116/224 beat (đầu bài tới hết nửa đầu điệp khúc), chưa có dodge/flip.
 - Orb và bệ bật dùng tạm âm `player.jump`.
 - Chuỗi chạm nhanh bị giới hạn ±90 ms bởi `input_buffer_sec` (100 ms); có thể nới lên 150 ms nếu thấy gắt.

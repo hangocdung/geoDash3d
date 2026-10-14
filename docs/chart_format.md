@@ -37,7 +37,7 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
 | `speed` | Số đơn vị đường đi được mỗi beat, kể từ beat đó. Tốc độ cao hơn thì vật cản cách xa nhau hơn. |
 | `sections` | Đoạn nhạc. `energy` (0..1) điều khiển glow, màu trời, sương mù và nhịp đập ánh sáng. |
 | `track` | Hình dạng đường từ beat đó đến điểm kế tiếp: `straight`, `turn` (`angle_deg`, dương = rẽ trái), `slope` (`rise`). |
-| `terrain` | *(tùy chọn, gameplay v3 — chờ duyệt)* Mặt đất từ beat đó tới mục kế tiếp: `height` (0 = mặt đường, tối đa 12) hoặc `"gap": true` (hố). Không có thì đường phẳng. Xem `docs/design/gameplay_v3.md`. |
+| `terrain` | *(tùy chọn, gameplay v3)* Mặt đất từ beat đó tới mục kế tiếp: `height` (0 = mặt đường, tối đa 12) hoặc `"gap": true` (hố). Không có thì đường phẳng. Xem `docs/design/gameplay_v3.md`. |
 | `end_beat` | Beat hoàn thành màn. Nhạc vẫn chạy tiếp phần outro. |
 
 ## Các loại event
@@ -86,6 +86,8 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
 3. Viết `assets/music/<id>.plan.json`: các đoạn, luật mật độ cho từng đoạn, tốc độ, hình dạng đường, camera, VFX.
    Xem bài mẫu `the_dawn_assembly.plan.json`.
 4. Sinh chart: `python tools/audio/draft_chart.py <analysis> <plan> assets/music/<id>.chart.json`.
+   (Bài `the_dawn_assembly` dùng map địa hình viết bằng mẫu: `python tools/charting/the_dawn_assembly_level.py`.
+   `draft_chart.py` chưa sinh địa hình.)
 5. Chạy test, rồi chụp ảnh hoặc chơi thử: `godot --path . -- --chart=res://assets/music/<id>.chart.json`.
 6. Muốn chỉnh thì sửa **plan** rồi sinh lại. Chỉ sửa tay file chart cho những chi tiết cuối cùng.
 

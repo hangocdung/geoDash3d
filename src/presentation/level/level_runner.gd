@@ -10,6 +10,8 @@ const COUNT_IN_BEATS: float = 4.0
 const RESTART_DELAY_SEC: float = 0.9
 const SCENERY_SEED: int = 1337
 const ATTRACT_VOLUME_OFFSET_DB: float = -4.0
+## Menu background: loop back to the start this long after the chart ends (the song may run much longer).
+const ATTRACT_OUTRO_BEATS: float = 8.0
 
 @export_file("*.json") var chart_path: String = Scenes.DEFAULT_CHART
 @export var gameplay_config: GameplayConfig
@@ -61,7 +63,8 @@ func _ready() -> void:
 	if _stream == null:
 		hud.show_message("Cannot load chart or song:\n%s" % path)
 		return
-	_context = LevelContext.new(chart, config, TrackPath.build(chart), UserSettings.quality_tier)
+	var song_end_beat: float = chart.beat_at_time(_stream.get_length())
+	_context = LevelContext.new(chart, config, TrackPath.build(chart, song_end_beat), UserSettings.quality_tier)
 	QualityTier.apply_to_viewport(get_viewport(), UserSettings.quality_tier)
 	for view: Node in [environment_director, track_view, decor_view, obstacle_view, player_view, camera_director,
 			vfx_director]:
@@ -155,6 +158,9 @@ func _process(delta: float) -> void:
 	match state:
 		RunState.RUNNING, RunState.COMPLETE:
 			var beat: float = current_beat()
+			if options.attract_mode and beat > chart.end_beat + ATTRACT_OUTRO_BEATS:
+				restart()
+				return
 			for tap_time: float in _pending_tap_times:
 				simulation.tap(chart.beat_at_time(tap_time))
 			_pending_tap_times.clear()

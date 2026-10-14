@@ -94,8 +94,8 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
 
 ## 4b. UI và luồng màn hình
 - `MainMenu` (main scene): instance `level.tscn` với `LaunchOptions.attract()` (autoplay, ẩn HUD, lặp khi hết nhạc)
-  làm nền, các nút PLAY / PRACTICE / TERRAIN DEMO (chart gameplay v3: chơi hoặc luyện tập) / CALIBRATE AUDIO /
-  SYNC TEST / SETTINGS / QUIT (ẩn trên mobile). Theme chung: `UiTheme`.
+  làm nền, các nút PLAY / PRACTICE / CALIBRATE AUDIO / SYNC TEST / SETTINGS / QUIT (ẩn trên mobile).
+  Theme chung: `UiTheme`.
 - `CalibrationScreen`: click 100 BPM (`ClickTrack` sinh WAV trong code), đo lệch so với beat gần nhất,
   `CalibrationMath.estimate` (median + MAD loại outlier, cần ≥ 8 lần gõ hợp lệ) → lưu `audio_offset_sec`.
 - `Metronome` (SYNC TEST): `AudioStreamSynchronized` [nhạc, click] khóa mẫu, nháy theo beat, ←/→ chỉnh offset.
@@ -125,5 +125,6 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
 - Chưa có model Blender: mọi hình khối hiện là primitive hoặc mesh sinh bằng code.
 - Chạm khi đang bay mà không trúng vòng nhảy và không trong vùng buffer sẽ bị bỏ qua (giống Geometry Dash, không có
   double jump, không có giữ để nhảy).
-- Gameplay v3 (địa hình) là demo chờ duyệt: chưa có địa hình theo làn, trần/bệ treo, `draft_chart.py` chưa sinh địa hình.
+- Gameplay v3 (địa hình): chưa có địa hình theo làn, trần/bệ treo; `draft_chart.py` chưa sinh địa hình; map chính mới
+  phủ 116/224 beat.
 - Hành động mới (trượt, đổi làn, đảo trọng lực) sẽ cần thêm trục lệch ngang/lộn ngược trong `HazardChecker`.

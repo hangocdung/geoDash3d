@@ -9,8 +9,6 @@ const CALIBRATION: String = "res://src/ui/calibration/calibration_screen.tscn"
 const METRONOME: String = "res://src/authoring/metronome/metronome.tscn"
 const RECORDER: String = "res://src/authoring/recorder/recorder.tscn"
 const DEFAULT_CHART: String = "res://assets/music/the_dawn_assembly.chart.json"
-## Gameplay v3 prototype (terrain, orbs, pads): see docs/design/gameplay_v3.md.
-const TERRAIN_DEMO_CHART: String = "res://assets/music/the_dawn_assembly.terrain.chart.json"
 
 
 ## Deferred so the current scene finishes handling the input event (touch release) before it is freed.

@@ -1,6 +1,6 @@
 # Prints how early and how late each cue can be tapped (every other cue perfect) while the run survives.
 # Usage: "$GODOT" --headless --path . -s res://tools/charting/tolerance_report.gd -- --chart=res://... [--max-ms=150]
-# Related: src/gameplay/simulation/run_simulation.gd, tools/charting/terrain_demo.py
+# Related: src/gameplay/simulation/run_simulation.gd, tools/charting/the_dawn_assembly_level.py
 extends SceneTree
 
 const STEP_MS: int = 10

@@ -5,7 +5,7 @@
 # Arguments reach the game through user://debug_args.txt (written with `run-as`, debug builds only).
 # Usage: bash tools/device/perf_matrix.sh [variant ...]   (default: the full list below)
 # EXTRA_ARGS adds level arguments to every run, e.g.
-#   EXTRA_ARGS="--chart=res://assets/music/the_dawn_assembly.terrain.chart.json --start-beat=84" bash ... baseline
+#   EXTRA_ARGS="--chart=res://assets/music/the_dawn_assembly.classic.chart.json --start-beat=84" bash ... baseline
 ADB="${ADB:-$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe}"
 PACKAGE="com.dunghn.geodash3d"
 ACTIVITY="$PACKAGE/com.godot.game.GodotAppLauncher"
