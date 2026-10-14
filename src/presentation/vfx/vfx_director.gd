@@ -1,5 +1,6 @@
 # Event-driven effects with pooled nodes: takeoff/landing bursts, landing rings, dash afterimages,
-# perfect sparkles, death shatter and chart VFX cues. Never touches gameplay state.
+# perfect sparkles, death shatter, shield effects and chart VFX cues, plus ambient motes and speed lines
+# (MEDIUM/HIGH; denser in high-energy sections). Never touches gameplay state.
 # Related: src/presentation/vfx/trail_particles.gd, src/presentation/vfx/effect_pools.gd
 class_name VfxDirector
 extends Node3D
@@ -9,6 +10,10 @@ const RING_LIFETIME: float = 0.45
 const GHOST_LIFETIME: float = 0.28
 const PERFECT_COLOR: Color = Color(1.0, 0.95, 0.55)
 const DEATH_COLOR: Color = Color(0.35, 0.95, 1.0)
+const SPEED_LINE_COLOR: Color = Color(0.7, 0.85, 1.0)
+## Speed-line emitter in the player's track frame: ahead, a little up, on the background side (-Z), so the
+## streaks never cross the road between the camera and the player.
+const SPEED_LINES_OFFSET: Transform3D = Transform3D(Basis(), Vector3(12.0, 3.0, -8.0))
 
 var _bursts_small: EffectPools.ParticlePool
 var _bursts_sparkle: EffectPools.ParticlePool
@@ -16,6 +21,9 @@ var _bursts_death: EffectPools.ParticlePool
 var _rings: EffectPools.TimedPool
 var _ghosts: EffectPools.TimedPool
 var _motes: GPUParticles3D
+## Null on LOW.
+var _speed_lines: GPUParticles3D
+var _context: LevelContext
 var _quality_scale: float = 1.0
 
 
@@ -31,6 +39,11 @@ func setup(context: LevelContext) -> void:
 	_ghosts = EffectPools.TimedPool.new(self, 6, _create_ghost, _animate_ghost)
 	_motes = _create_motes(context.quality)
 	add_child(_motes)
+	_context = context
+	var speed_lines: int = QualityTier.speed_line_count(context.quality)
+	if speed_lines > 0:
+		_speed_lines = TrailParticles.create_speed_lines(SPEED_LINE_COLOR, speed_lines)
+		add_child(_speed_lines)
 
 
 func _process(delta: float) -> void:
@@ -38,13 +51,20 @@ func _process(delta: float) -> void:
 	_ghosts.update(delta)
 
 
-func follow_camera(camera_position: Vector3) -> void:
+func follow_camera(camera_position: Vector3, beat: float) -> void:
 	_motes.global_position = camera_position
+	if _speed_lines == null:
+		return
+	_speed_lines.global_transform = _context.frame_at_beat(beat) * SPEED_LINES_OFFSET
+	var section: ChartItems.Section = _context.chart.section_at(beat)
+	_speed_lines.amount_ratio = lerpf(0.3, 1.0, section.energy if section != null else 0.3)
 
 
 func reset_view() -> void:
 	_rings.clear()
 	_ghosts.clear()
+	if _speed_lines != null:
+		_speed_lines.emitting = true
 
 
 ## Fires every pooled effect once far ahead of the camera (inside the fog) so their shader pipelines
@@ -98,6 +118,8 @@ func on_perfect(center: Vector3) -> void:
 
 
 func on_died(center: Vector3, frame: Transform3D) -> void:
+	if _speed_lines != null:
+		_speed_lines.emitting = false
 	_bursts_death.emit_at(center, DEATH_COLOR)
 	var upright := Transform3D(frame.basis * Basis(Vector3.RIGHT, PI * 0.5), center)
 	_rings.spawn(upright.scaled_local(Vector3.ONE * 7.0), DEATH_COLOR)

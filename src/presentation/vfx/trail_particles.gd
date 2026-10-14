@@ -1,5 +1,5 @@
-# Factory for particle systems used by the player and effects: a world-space pixel trail and
-# one-shot cube bursts. Materials are unshaded emissive so they bloom on every renderer.
+# Factory for particle systems used by the player and effects: a world-space pixel trail, one-shot cube
+# bursts and speed lines. Materials are unshaded emissive so they bloom on every renderer.
 # Related: src/presentation/player/player_view.gd, src/presentation/vfx/vfx_director.gd
 class_name TrailParticles
 extends RefCounted
@@ -62,6 +62,32 @@ static func create_burst(color: Color, amount: int, speed: float, size: float, l
 	return particles
 
 
+## Thin streaks flying back past the player (emitter local -X); place the emitter in the track frame.
+static func create_speed_lines(color: Color, amount: int) -> GPUParticles3D:
+	var particles := GPUParticles3D.new()
+	particles.name = "SpeedLines"
+	particles.amount = maxi(1, amount)
+	particles.lifetime = 0.5
+	particles.local_coords = false
+	particles.transform_align = GPUParticles3D.TRANSFORM_ALIGN_Y_TO_VELOCITY
+	particles.visibility_aabb = AABB(Vector3(-60, -30, -60), Vector3(120, 60, 120))
+	var process := ParticleProcessMaterial.new()
+	process.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	process.emission_box_extents = Vector3(14.0, 4.5, 3.0)
+	process.direction = Vector3(-1, 0, 0)
+	process.spread = 0.0
+	process.initial_velocity_min = 45.0
+	process.initial_velocity_max = 65.0
+	process.gravity = Vector3.ZERO
+	process.color_ramp = _flash_ramp(color)
+	particles.process_material = process
+	var mesh := _cube_mesh(1.0, 1.4)
+	# Long along Y: TRANSFORM_ALIGN_Y_TO_VELOCITY points it along the flight.
+	mesh.size = Vector3(0.035, 2.8, 0.035)
+	particles.draw_pass_1 = mesh
+	return particles
+
+
 static func _cube_mesh(size: float, brightness: float) -> BoxMesh:
 	var mesh := BoxMesh.new()
 	mesh.size = Vector3.ONE * size
@@ -81,6 +107,17 @@ static func _shrink_curve() -> CurveTexture:
 	curve.add_point(Vector2(1.0, 0.0))
 	var texture := CurveTexture.new()
 	texture.curve = curve
+	return texture
+
+
+## Fades in quickly, then out (streaks never pop in at full brightness).
+static func _flash_ramp(color: Color) -> GradientTexture1D:
+	var gradient := Gradient.new()
+	gradient.set_color(0, Color(color, 0.0))
+	gradient.set_color(1, Color(color, 0.0))
+	gradient.add_point(0.25, Color(color, 0.8))
+	var texture := GradientTexture1D.new()
+	texture.gradient = gradient
 	return texture
 
 

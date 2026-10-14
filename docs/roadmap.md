@@ -70,7 +70,8 @@ Thiết kế: `docs/design/gameplay_v3.md`. **Đã duyệt 2026-10-14: map đị
       Công cụ: `--autoplay-miss`, `--capture-continuous`.
 - [x] **GD3-091** Sóng năng lượng chạy dọc đường theo beat (mặt sóng + đuôi trên đường kẻ làn) + vật cản sáng dần
       khi tới gần (`proximity_gain`, sáng lên chứ không nhấp nháy). Chỉ là shader, theo `run_beat`/`player_distance`.
-- [ ] **GD3-092** Speed lines nhẹ ở MEDIUM/HIGH.
+- [x] **GD3-092** Speed lines ở MEDIUM (18) / HIGH (32), không có ở LOW; phát ở phía nền sau đường để không che
+      đường chạy; mật độ theo energy đoạn nhạc; tắt khi chết.
 - [ ] **GD3-093** Biome theo đoạn nhạc (bảng màu tông lạnh + bộ hình khối cảnh nền) — cần chọn chủ đề.
 
 ## Phase 5 — Mobile

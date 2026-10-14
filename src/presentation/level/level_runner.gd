@@ -242,7 +242,7 @@ func _update_presentation(beat: float, delta: float) -> void:
 	obstacle_view.update_view(beat)
 	environment_director.update_environment(beat, delta)
 	decor_view.update_view(beat)
-	vfx_director.follow_camera(camera_director.camera.global_position)
+	vfx_director.follow_camera(camera_director.camera.global_position, beat)
 	hud.set_progress(chart.progress_at(beat))
 
 

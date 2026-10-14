@@ -57,6 +57,16 @@ static func apply_to_viewport(viewport: Viewport, tier: Tier) -> void:
 	viewport.msaa_3d = Viewport.MSAA_2X if tier == Tier.HIGH else Viewport.MSAA_DISABLED
 
 
+## Speed lines (thin additive streaks beside the track): none on LOW, which has no fill-rate to spare.
+static func speed_line_count(tier: Tier) -> int:
+	match tier:
+		Tier.LOW:
+			return 0
+		Tier.MEDIUM:
+			return 18
+	return 32
+
+
 ## Fraction of background scenery kept (fill-rate on phones).
 static func scenery_density(tier: Tier) -> float:
 	match tier:
