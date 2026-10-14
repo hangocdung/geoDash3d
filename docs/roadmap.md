@@ -116,7 +116,9 @@ Người dùng cho phép **trời tông ấm** ở vài phase; camera trong vòn
       8 palette (`PaletteLibrary`, 2 palette trời ấm `sunset`/`ember` có mặt trời sọc), mọi vật liệu nền theo palette
       qua global `pal_*`, blend 1 beat (LOW đổi ngay), hiệu ứng đổi phase + cổng lớn + toast tốc độ. Sinh lại mọi chart;
       nhịp chạm không đổi, dung sai tệ nhất như cũ (±90 ms; `fault_line` ±80 ms như trước). Test: `test_phase_palettes.gd`.
-- [ ] **GD3-101** Vòng cue nháy theo nhạc + vòng co dần chạm đúng beat + vòng dưới chân người chơi.
+- [x] **GD3-101** Vạch chạm (vòng cue, vòng nhảy) đập theo nhạc, vòng ngoài co dần chạm khít vạch đúng beat phải chạm
+      (kiểu osu!), vạch lóe sáng đúng lúc đó; vòng dưới chân người chơi phát sóng mỗi beat, đổi màu theo hành động sắp tới.
+      Thuần shader (glyph), +1 draw call.
 - [ ] **GD3-102** Đường đua đa dạng: xoắn ốc, vòng lộn dọc, cuộn, cua nghiêng, sóng.
 - [ ] **GD3-103** Texture Codex cho đường, bệ, cột, cảnh nền (MEDIUM/HIGH; LOW giữ nguyên).
 - [ ] **GD3-104** Chướng ngại mới (model Blender) + mẫu màn, sinh lại chart.

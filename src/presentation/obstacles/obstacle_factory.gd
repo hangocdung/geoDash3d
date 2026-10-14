@@ -30,6 +30,11 @@ const PAD_WIDTH: float = 1.3
 const PAD_THICKNESS: float = 0.14
 ## Hazards (and pads) brighten up to (1 + gain)x as the player approaches (shader proximity glow).
 const APPROACH_GAIN: float = 1.0
+## Tap markers: the quad is this much bigger than the glyph so an approach ring can shrink onto it during the
+## last `CUE_APPROACH_BEATS` before the tap; markers pulse harder with the beat than other glyphs.
+const CUE_APPROACH_SCALE: float = 2.2
+const CUE_APPROACH_BEATS: float = 2.0
+const CUE_BEAT_GAIN: float = 1.8
 
 var _cache := MaterialCache.new()
 var _spike_meshes: Dictionary[StringName, Mesh] = {}
@@ -71,7 +76,8 @@ func build_cue_markers(cue: ChartItems.ActionCue, cue_height: float,
 		return _orb_markers(cue, cue_height, context)
 	var lane: float = action.lateral_distance if action.kind == ActionDefinition.Kind.DODGE else 0.0
 	var markers: Array[GeometryInstance3D] = []
-	var ring: MeshInstance3D = _plane(Vector2(PAD_SIZE, PAD_SIZE), _glyph(action, GLYPH_RING, false))
+	var ring: MeshInstance3D = _plane(Vector2(PAD_SIZE, PAD_SIZE) * CUE_APPROACH_SCALE, _cue_glyph(action,
+			GLYPH_RING, false, 0.42))
 	ring.transform = context.frame_at_height(cue.beat, cue_height) * Transform3D(Basis(), Vector3(0, 0.03, lane))
 	markers.append(ring)
 	if cue.has_hazard:
@@ -131,8 +137,8 @@ func _orb_markers(cue: ChartItems.ActionCue, cue_height: float, context: LevelCo
 		glyph = GLYPH_BIG_ORB
 		size *= BIG_ORB_SCALE
 	var quad := QuadMesh.new()
-	quad.size = Vector2(size, size)
-	var orb: MeshInstance3D = _mesh_instance(quad, _glyph(cue.action, glyph, true))
+	quad.size = Vector2(size, size) * CUE_APPROACH_SCALE
+	var orb: MeshInstance3D = _mesh_instance(quad, _cue_glyph(cue.action, glyph, true, 0.47))
 	orb.transform = context.frame_at_height(cue.beat, cue_height + GameplayConfig.CUBE_SIZE * 0.5)
 	return [orb]
 
@@ -212,6 +218,15 @@ func _icon_glyph(action: ActionDefinition) -> int:
 func _glyph(action: ActionDefinition, glyph: int, billboard: bool) -> ShaderMaterial:
 	return _cache.get_material(StringName("glyph_%s_%d" % [action.id, glyph]), GLYPH_SHADER,
 			{"glyph_color": action.color, "glyph": glyph, "billboard": billboard, "energy": 2.2})
+
+
+## Tap marker glyph: approach ring landing on `target_radius` (glyph space) on the cue beat (instance uniform
+## `cue_beat`, set by ObstacleView), stronger beat pulse.
+func _cue_glyph(action: ActionDefinition, glyph: int, billboard: bool, target_radius: float) -> ShaderMaterial:
+	return _cache.get_material(StringName("cue_%s_%d" % [action.id, glyph]), GLYPH_SHADER,
+			{"glyph_color": action.color, "glyph": glyph, "billboard": billboard, "energy": 2.2,
+			"approach_scale": CUE_APPROACH_SCALE, "approach_beats": CUE_APPROACH_BEATS,
+			"approach_target": target_radius, "beat_gain": CUE_BEAT_GAIN})
 
 
 func _plane(size: Vector2, material: Material) -> MeshInstance3D:

@@ -1,6 +1,8 @@
 # Visual player cube: follows the simulation pose on the track, rolls forward while airborne (a quarter
 # turn per beat, snapped to the nearest face on landing), rolls sideways on dodges, swings around the
-# edge on flips, squashes on landing, shows a ring while a shield is held and leaves a pixel trail. Read-only.
+# edge on flips, squashes on landing, shows a ring while a shield is held and leaves a pixel trail. A beat
+# ring on the ground under the player sends out a wave on every beat and takes the color of the next tap's
+# action as it approaches (stays on the ground while jumping, hidden over gaps and under the track). Read-only.
 # Related: src/gameplay/simulation/run_simulation.gd, src/presentation/shaders/neon_box.gdshader
 class_name PlayerView
 extends Node3D
@@ -15,10 +17,18 @@ const SHIELD_RING_SIZE: float = 2.1
 const ROLL_PER_BEAT: float = PI * 0.5
 ## How fast the leftover roll settles after a landing snaps the cube flat (per second).
 const ROLL_SNAP_RATE: float = 18.0
+const FOOT_RING_SIZE: float = 2.6
+const FOOT_RING_GLYPH: int = 10
+## The foot ring turns to the next cue's action color over this many beats before it.
+const FOOT_RING_LEAD_BEATS: float = 2.0
 
 var body: MeshInstance3D
 var trail: GPUParticles3D
 var _shield_ring: MeshInstance3D
+var _foot_ring: MeshInstance3D
+var _foot_material: ShaderMaterial
+## First cue at or after the last posed beat (the foot ring's color target).
+var _next_cue: int = 0
 var _context: LevelContext
 var _roll_base: float = 0.0
 ## Roll still to settle after landing (the cube eases onto its nearest face).
@@ -48,6 +58,10 @@ func setup(context: LevelContext) -> void:
 	add_child(trail)
 	_shield_ring = _create_shield_ring()
 	add_child(_shield_ring)
+	_foot_ring = _create_foot_ring()
+	# Top level: placed on the ground in world space while the cube jumps.
+	_foot_ring.top_level = true
+	add_child(_foot_ring)
 
 
 func reset_view() -> void:
@@ -57,6 +71,7 @@ func reset_view() -> void:
 	_flash = 0.0
 	visible = true
 	_shield_ring.visible = false
+	_next_cue = 0
 	trail.emitting = true
 	trail.restart()
 
@@ -88,6 +103,29 @@ func update_pose(beat: float, simulation: RunSimulation, delta: float) -> void:
 	# Rotate around the cube center; squash around the bottom so the cube stays planted.
 	var half: float = CUBE_SIZE * 0.5
 	body.transform = Transform3D(rotation_basis.scaled(stretch), Vector3(0.0, half * stretch.y, 0.0))
+	_update_foot_ring(beat, offset)
+
+
+func _update_foot_ring(beat: float, offset: Vector2) -> void:
+	var chart: LevelChart = _context.chart
+	var distance: float = chart.distance_at(beat)
+	var ground: float = chart.terrain.height_at(distance)
+	_foot_ring.visible = not Terrain.is_gap(ground) and offset.y > -0.5
+	if not _foot_ring.visible:
+		return
+	_foot_ring.global_transform = _context.frame_at_height(beat, ground) * Transform3D(Basis(),
+			Vector3(0.0, 0.05, offset.x))
+	if _next_cue > 0 and chart.cues[_next_cue - 1].beat > beat:
+		_next_cue = 0
+	while _next_cue < chart.cues.size() and chart.cues[_next_cue].beat < beat:
+		_next_cue += 1
+	var color: Color = PLAYER_COLOR
+	if _next_cue < chart.cues.size():
+		var cue: ChartItems.ActionCue = chart.cues[_next_cue]
+		var closeness: float = 1.0 - clampf((cue.beat - beat) / FOOT_RING_LEAD_BEATS, 0.0, 1.0)
+		color = PLAYER_COLOR.lerp(cue.action.color, smoothstep(0.0, 1.0, closeness))
+	_foot_material.set_shader_parameter("glyph_color", color)
+	_foot_ring.set_instance_shader_parameter("flash", _flash)
 
 
 ## Snaps the roll to the nearest face; the remainder eases out over a few frames.
@@ -112,6 +150,7 @@ func on_cue_hit(grade: Judgement.Grade) -> void:
 
 func on_died() -> void:
 	visible = false
+	_foot_ring.visible = false
 	trail.emitting = false
 
 
@@ -131,6 +170,23 @@ func _create_shield_ring() -> MeshInstance3D:
 	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	ring.position = Vector3(0.0, CUBE_SIZE * 0.5, 0.0)
 	ring.visible = false
+	return ring
+
+
+## Flat beat ring on the ground (glyph 10); its color follows the next cue.
+func _create_foot_ring() -> MeshInstance3D:
+	var ring := MeshInstance3D.new()
+	ring.name = "FootRing"
+	var plane := PlaneMesh.new()
+	plane.size = Vector2(FOOT_RING_SIZE, FOOT_RING_SIZE)
+	ring.mesh = plane
+	_foot_material = ShaderMaterial.new()
+	_foot_material.shader = GLYPH_SHADER
+	_foot_material.set_shader_parameter("glyph", FOOT_RING_GLYPH)
+	_foot_material.set_shader_parameter("glyph_color", PLAYER_COLOR)
+	_foot_material.set_shader_parameter("energy", 1.8)
+	ring.material_override = _foot_material
+	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	return ring
 
 

@@ -109,7 +109,10 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   lên và đóng nắp hai đầu) và kim tự tháp. Thứ tự đỉnh được tự sửa sang chiều kim đồng hồ.
 - **TrackView**: đường bị cắt ở hố (mép hố đóng nắp), bệ là đoạn đường nâng lên (vật liệu riêng); nắp mặt đứng
   có viền sáng (`COLOR.g` = 1 trong `neon_track`). Cột đỡ tránh mép hố.
-- **ObstacleView**: vật cản và bệ bật đặt trên mặt đất; vòng cue ở độ cao `cue_heights`; icon lơ lửng chỉ khi cue có
+- **ObstacleView**: vật cản và bệ bật đặt trên mặt đất; vòng cue ở độ cao `cue_heights` (GD3-101: quad to gấp
+  `CUE_APPROACH_SCALE`, một vòng ngoài co dần trong 2 beat cuối và chạm khít vạch đúng beat của cue — instance uniform
+  `cue_beat` so với global `run_beat` —, vạch sáng lên đúng lúc đó và đập theo `beat_pulse` mạnh hơn glyph khác; vòng
+  nhảy cũng vậy); icon lơ lửng chỉ khi cue có
   vật cản (`ActionCue.has_hazard`); vòng nhảy là billboard glyph 6 (vòng lớn glyph 8, vòng lao xuống glyph 7).
   Vật cản: gai / hàng gai (`HazardDefinition.repeat`), lưỡi cưa (node con `Spinner` xoay theo beat), trần gai,
   tường, cổng. Vòng lao xuống là JUMP có `ActionDefinition.dive_speed` > 0 (vận tốc ban đầu hướng xuống).
@@ -120,6 +123,8 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
 - **VFX** (`vfx/`): pool (`EffectPools`) để không tạo node hay biên dịch shader giữa màn. Gồm vệt pixel,
   bung hạt khi cất cánh, vòng sóng khi tiếp đất, bóng mờ khi dash, lấp lánh khi PERFECT, vỡ vụn khi chết, bụi lơ lửng,
   hiệu ứng lá chắn, speed lines (chỉ MEDIUM/HIGH: 18/32 vệt, phát ở phía nền sau đường, dày theo energy đoạn nhạc).
+- **Vòng dưới chân** (`PlayerView`, glyph 10): nằm trên mặt đất dưới người chơi (không bay theo cú nhảy, ẩn trên hố và
+  khi lộn xuống mặt dưới), mỗi beat phát một sóng vòng, đổi dần sang màu hành động của cue kế tiếp trong 2 beat trước nó.
 - **HUD** (`src/ui/hud`): thanh tiến độ, %, chữ chấm điểm, combo, thanh nạp lá chắn, ATTEMPT, thông báo. Có xử lý
   safe area trên mobile.
 

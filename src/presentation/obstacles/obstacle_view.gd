@@ -56,6 +56,8 @@ func setup(context: LevelContext) -> void:
 		for marker: GeometryInstance3D in markers:
 			marker.visibility_range_end = VISIBILITY_RANGE
 			add_child(marker)
+			# Drives the approach ring of tap markers (ignored by other glyphs).
+			marker.set_instance_shader_parameter("cue_beat", context.chart.cues[index].beat)
 		_cue_markers.append(markers)
 	_cue_flash.resize(_cue_markers.size())
 	_cue_flash.fill(0.0)
