@@ -39,6 +39,8 @@ Trạng thái: `[ ]` chưa làm · `[~]` đang làm / làm một phần · `[x]`
   Làm lại giao diện: chia đoạn 16 beat theo section, timeline cố định cả đoạn (click để phát từ đó, kéo-thả/
   double-click/chuột phải để sửa note), nút bấm cho mọi chức năng, undo/redo, ALIGN TIMING, BUILD & PLAY SEGMENT
   (chơi thử rồi quay lại màn RECORD).
+  Một loại đánh dấu duy nhất (tool tự chọn cả tường/cổng). Mỗi đoạn hiện thời gian + số note gợi ý theo độ khó
+  (EASY/NORMAL/HARD, lấy mật độ của `the_dawn_assembly` làm mức HARD).
   **→ Cần người dùng thử ghi thật (âm thanh ở 25%, thao tác chuột).**
 
 ## Phase 4 — Trình bày

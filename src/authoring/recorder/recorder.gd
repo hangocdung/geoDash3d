@@ -1,17 +1,12 @@
-# Record mode (dev tool): the song is split into short segments; each is shown whole and can loop (with a
-# pre-roll) at 25–100% speed, original pitch. Tap along (keys or on-screen pads) to place notes, then click,
-# drag, add or delete them; BUILD & PLAY runs tools/charting/recording_level.py and play-tests the segment.
-# Related: recorder_toolbar.gd, recorder_timeline.gd, recorder_playback.gd, recorder_segments.gd, recording_editor.gd
+# Record mode (dev tool): mark where the player taps, segment by segment (looped, 25-100% speed, original pitch,
+# suggested note count per difficulty); BUILD & PLAY runs tools/charting/recording_level.py and play-tests it.
+# Related: recorder_toolbar.gd, recorder_timeline.gd, recorder_playback.gd, recording_editor.gd, tap_density_guide.gd
 class_name Recorder
 extends Control
 
 const GRIDS: Array[float] = [1.0, 0.5, 0.25]
 const RATES: Array[float] = [0.25, 0.5, 0.75, 1.0]
 const PREROLL_BEATS: float = 4.0
-const HELP_TEXT: String = "Mark where the player taps; the level builder picks the obstacles.   Playing: Space/J or TAP adds a mark   " \
-		+ "Paused: TAP adds one at the playhead   " \
-		+ "Timeline: click = play from there, drag a note = move, double-click = add, right-click = delete   " \
-		+ "Keys: P play  ←/→ beat  PgUp/PgDn segment  Ctrl+Z/Y undo/redo  Del delete  -/= speed  G grid  S save"
 
 ## Chart and segment to open (set by the menu or when coming back from a play-test; consumed on load).
 static var next_chart_path: String = ""
@@ -28,6 +23,7 @@ var _playback: RecorderPlayback
 var _timeline: RecorderTimeline
 var _toolbar: RecorderToolbar
 var _segment_strip: RecorderSegmentStrip
+var _guide: TapDensityGuide
 var _status: Label
 var _message: Label
 var _grid_index: int = 1
@@ -59,15 +55,16 @@ func _ready() -> void:
 	_segments = RecorderSegments.from_chart(_chart)
 	_timeline.tempo = _chart.tempo
 	_timeline.editor = _editor
+	_guide = TapDensityGuide.from_reference()
 	_segment_strip.setup(_segments)
 	_refresh_segment_labels()
 	_playback.setup(_song)
 	_grid_index = maxi(GRIDS.find(_recording.grid_beats), 0)
-	_toolbar.set_rate(_rate_index)
-	_toolbar.set_grid(_grid_index)
-	_toolbar.set_toggle(&"loop", _loop)
-	_toolbar.set_toggle(&"preroll", _preroll)
-	_toolbar.set_toggle(&"record", _record)
+	_toolbar.set_option(&"speed", _rate_index)
+	_toolbar.set_option(&"grid", _grid_index)
+	_toolbar.set_option(&"difficulty", _recording.difficulty)
+	for toggle: StringName in [&"loop", &"preroll", &"record"]:
+		_toolbar.set_toggle(toggle, get("_" + toggle))
 	_playback.set_rate(RATES[_rate_index])
 	_select_segment(clampi(next_segment, 0, _segments.size() - 1), true)
 	next_segment = 0
@@ -98,9 +95,10 @@ func _update_status(time_sec: float) -> void:
 	var selection: String = ""
 	if _editor.selected >= 0:
 		selection = "   selected: bar %s" % _bar_beat(_chart.beat_at_time(_editor.selected_time()))
-	_status.text = "%s   ·   segment %d/%d %s   ·   bar %s   %.2f s   ·   %d notes here, %d total%s   ·   %s" % [
+	_status.text = "%s  ·  segment %d/%d %s  ·  bar %s  %.2f s  ·  %d notes here (%s: ~%d), %d total%s  ·  %s" % [
 		_chart.title, _segment_index + 1, _segments.size(), segment.label, _bar_beat(beat), time_sec,
-		_notes_in(segment), _recording.count(), selection, "unsaved" if _dirty else "saved"]
+		_notes_in(segment), TapDensityGuide.LEVEL_NAMES[_recording.difficulty], _suggested(segment),
+		_recording.count(), selection, "unsaved" if _dirty else "saved"]
 
 
 ## _input (not _unhandled_input): the keyboard drives the recorder even while the mouse is over a button.
@@ -146,9 +144,9 @@ func _on_action(name: StringName) -> void:
 		&"select_next", &"select_previous":
 			_editor.select_step(_playback.time(), 1 if name == &"select_next" else -1)
 		&"next_grid":
-			_on_grid((_grid_index + 1) % GRIDS.size())
+			_on_option(&"grid", (_grid_index + 1) % GRIDS.size())
 		&"slower", &"faster":
-			_on_rate(clampi(_rate_index + (1 if name == &"faster" else -1), 0, RATES.size() - 1))
+			_on_option(&"speed", clampi(_rate_index + (1 if name == &"faster" else -1), 0, RATES.size() - 1))
 		&"align":
 			var shift: float = _editor.align_range(_chart.time_at(segment.start_beat), _chart.time_at(segment.end_beat),
 					GRIDS[_grid_index])
@@ -177,17 +175,19 @@ func _on_pad() -> void:
 		_changed(true)
 
 
-func _on_rate(index: int) -> void:
-	_rate_index = index
-	_playback.set_rate(RATES[index])
-	_toolbar.set_rate(index)
-
-
-func _on_grid(index: int) -> void:
-	_grid_index = index
-	_recording.grid_beats = GRIDS[index]
-	_dirty = true
-	_toolbar.set_grid(index)
+func _on_option(group: StringName, index: int) -> void:
+	_toolbar.set_option(group, index)
+	match group:
+		&"speed":
+			_rate_index = index
+			_playback.set_rate(RATES[index])
+		&"grid":
+			_grid_index = index
+			_recording.grid_beats = GRIDS[index]
+			_dirty = true
+		&"difficulty":
+			_recording.difficulty = index
+			_changed(true)
 
 
 func _changed(changed: bool) -> void:
@@ -244,11 +244,18 @@ func _bar_beat(beat: float) -> String:
 	return "%d.%d" % [floori(beat / 4.0) + 1, posmod(floori(beat), 4) + 1]
 
 
+func _suggested(segment: RecorderSegments.Segment) -> int:
+	return _guide.suggested_taps(segment.energy, _chart.time_at(segment.end_beat) - _chart.time_at(segment.start_beat),
+			_recording.difficulty)
+
+
 func _refresh_segment_labels() -> void:
-	var counts: PackedInt32Array = []
+	var entries: Array[Vector4] = []
 	for segment: RecorderSegments.Segment in _segments:
-		counts.append(_notes_in(segment))
-	_segment_strip.set_counts(counts)
+		entries.append(Vector4(_chart.time_at(segment.start_beat), _chart.time_at(segment.end_beat),
+				_notes_in(segment), _suggested(segment)))
+	_segment_strip.refresh(_segments, entries)
+
 
 
 func _build_layout() -> void:
@@ -287,11 +294,7 @@ func _build_layout() -> void:
 	_toolbar = RecorderToolbar.new()
 	_toolbar.setup(RATES, GRIDS)
 	_toolbar.action.connect(_on_action)
-	_toolbar.rate_chosen.connect(_on_rate)
-	_toolbar.grid_chosen.connect(_on_grid)
+	_toolbar.option_chosen.connect(_on_option)
 	_toolbar.pad_down.connect(_on_pad)
 	column.add_child(_toolbar)
-	var help: Label = UiTheme.make_label(HELP_TEXT, 14, Color(0.6, 0.65, 0.85))
-	help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	column.add_child(help)
 

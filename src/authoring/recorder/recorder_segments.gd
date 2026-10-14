@@ -13,30 +13,38 @@ class Segment:
 	var start_beat: float
 	var end_beat: float
 	var label: String
+	## Energy of the chart section it belongs to (0..1).
+	var energy: float
 
-	func _init(start: float, end: float, segment_label: String) -> void:
+	func _init(start: float, end: float, segment_label: String, segment_energy: float) -> void:
 		start_beat = start
 		end_beat = end
 		label = segment_label
+		energy = segment_energy
 
 
-## `sections`: (beat, name) of each chart section, sorted; sections before beat 0 start at 0.
-static func split(section_beats: PackedFloat64Array, section_names: PackedStringArray, end_beat: float) -> Array[Segment]:
+## Sections (beat, name, energy), sorted; sections before beat 0 start at 0.
+static func split(section_beats: PackedFloat64Array, section_names: PackedStringArray,
+		section_energies: PackedFloat32Array, end_beat: float) -> Array[Segment]:
 	var segments: Array[Segment] = []
-	if section_beats.size() != section_names.size():
-		push_error("RecorderSegments: %d section beats but %d names" % [section_beats.size(), section_names.size()])
+	if section_beats.size() != section_names.size() or section_beats.size() != section_energies.size():
+		push_error("RecorderSegments: %d section beats, %d names, %d energies" % [section_beats.size(),
+				section_names.size(), section_energies.size()])
 		return segments
 	var starts: PackedFloat64Array = [0.0]
 	var names: PackedStringArray = ["intro"]
+	var energies: PackedFloat32Array = [0.5]
 	for index: int in section_beats.size():
 		var beat: float = maxf(section_beats[index], 0.0)
 		if beat >= end_beat:
 			break
 		if is_equal_approx(beat, starts[starts.size() - 1]):
 			names[names.size() - 1] = section_names[index]
+			energies[energies.size() - 1] = section_energies[index]
 		else:
 			starts.append(beat)
 			names.append(section_names[index])
+			energies.append(section_energies[index])
 	starts.append(end_beat)
 	for index: int in names.size():
 		var span_start: float = starts[index]
@@ -46,17 +54,19 @@ static func split(section_beats: PackedFloat64Array, section_names: PackedString
 			var chunk_start: float = span_start + chunk * SEGMENT_BEATS
 			var chunk_end: float = span_end if chunk == count - 1 else chunk_start + SEGMENT_BEATS
 			var label: String = names[index] if count == 1 else "%s %d/%d" % [names[index], chunk + 1, count]
-			segments.append(Segment.new(chunk_start, chunk_end, label))
+			segments.append(Segment.new(chunk_start, chunk_end, label, energies[index]))
 	return segments
 
 
 static func from_chart(chart: LevelChart) -> Array[Segment]:
 	var beats: PackedFloat64Array = []
 	var names: PackedStringArray = []
+	var energies: PackedFloat32Array = []
 	for section: ChartItems.Section in chart.sections:
 		beats.append(section.beat)
 		names.append(String(section.name))
-	return split(beats, names, chart.end_beat)
+		energies.append(section.energy)
+	return split(beats, names, energies, chart.end_beat)
 
 
 ## Index of the segment containing `beat` (clamped to the first/last).

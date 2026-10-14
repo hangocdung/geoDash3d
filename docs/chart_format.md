@@ -106,6 +106,12 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
 - **Record mode** (menu RECORD (DEV) → chọn bài, chỉ có ở bản debug), mọi chức năng đều có nút trên màn hình:
   - Bài được chia thành **đoạn** (mỗi section cắt thành khúc 16 beat, khúc lẻ < 6 beat gộp vào khúc trước), chọn
     trên dải đoạn ở trên. Timeline hiển thị trọn đoạn đang soạn; LOOP lặp đoạn, PRE-ROLL phát trước 1 ô nhịp.
+  - Mỗi nút đoạn hiện: tên, **thời gian** (giờ trong file nhạc, `m:ss.s`), **số note / số gợi ý** theo độ khó
+    EASY/NORMAL/HARD (chọn ở hàng DIFFICULTY, lưu vào recording là `"difficulty"`). Màu: xám = chưa có note,
+    xanh dương = ít hơn 70% gợi ý, xanh lá = vừa, cam = nhiều hơn 130% gợi ý.
+    Gợi ý (`TapDensityGuide`) = thời lượng đoạn × mật độ chạm của **bài chuẩn** `the_dawn_assembly` (xếp mức HARD):
+    mật độ chạm/giây được khớp thành đường thẳng theo `energy` của section, rồi nhân 0.5 (EASY) / 0.75 (NORMAL) /
+    1.0 (HARD). Đổi bài chuẩn: `TapDensityGuide.REFERENCE_CHART`.
   - Tốc độ 25/50/75/100% (mặc định 50%). Khi chậm, nhạc vẫn giữ cao độ (`PitchKeeper`: hiệu ứng pitch shift trên
     bus `Music`, độ trễ của hiệu ứng được cộng vào calibration).
   - Chỉ có **một loại đánh dấu**: chỗ người chơi sẽ chạm (nghe tiếng nhạc nổi bật thì gõ). Đang phát: Space/J hoặc pad TAP;

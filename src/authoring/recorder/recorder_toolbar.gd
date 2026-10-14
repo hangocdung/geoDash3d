@@ -1,21 +1,24 @@
-# On-screen controls of the recorder: transport, segment navigation, speed/grid, editing, save/build, and
+# On-screen controls of the recorder: transport, segment navigation, speed/grid/difficulty, editing, save/build, and
 # one big TAP pad that fires on press. Buttons never take keyboard focus (Space is a tap).
 # Emits intents only; Recorder owns the state. Related: src/authoring/recorder/recorder.gd
 class_name RecorderToolbar
 extends VBoxContainer
 
 signal action(name: StringName)
-signal rate_chosen(index: int)
-signal grid_chosen(index: int)
+## A choice in one of the radio groups (&"speed", &"grid", &"difficulty").
+signal option_chosen(group: StringName, index: int)
 signal pad_down
 
 const FONT_SIZE: int = 18
 const ROW_HEIGHT: float = 46.0
 const PAD_HEIGHT: float = 76.0
+const HELP_TEXT: String = "Mark where the player taps; the level builder picks the obstacles.   " \
+		+ "Playing: Space/J or TAP adds a mark   Paused: TAP adds one at the playhead   " \
+		+ "Timeline: click = play from there, drag a note = move, double-click = add, right-click = delete   " \
+		+ "Keys: P play  ←/→ beat  PgUp/PgDn segment  Ctrl+Z/Y undo/redo  Del delete  -/= speed  G grid  S save"
 
 var _buttons: Dictionary[StringName, Button] = {}
-var _rate_buttons: Array[Button] = []
-var _grid_buttons: Array[Button] = []
+var _groups: Dictionary[StringName, Array] = {}
 
 
 func setup(rates: Array[float], grids: Array[float]) -> void:
@@ -31,35 +34,26 @@ func setup(rates: Array[float], grids: Array[float]) -> void:
 	_add(transport, &"preroll", "PRE-ROLL", 120, true)
 	_add(transport, &"record", "REC", 90, true)
 	var timing: HBoxContainer = _row()
-	timing.add_child(_caption("SPEED"))
-	var rate_group := ButtonGroup.new()
-	for index: int in rates.size():
-		var button: Button = _make("%d%%" % roundi(rates[index] * 100.0), 76)
-		button.toggle_mode = true
-		button.button_group = rate_group
-		button.pressed.connect(func() -> void: rate_chosen.emit(index))
-		timing.add_child(button)
-		_rate_buttons.append(button)
-	timing.add_child(_caption("GRID"))
-	var grid_group := ButtonGroup.new()
-	for index: int in grids.size():
-		var button: Button = _make("1/%d" % roundi(1.0 / grids[index]), 66)
-		button.toggle_mode = true
-		button.button_group = grid_group
-		button.pressed.connect(func() -> void: grid_chosen.emit(index))
-		timing.add_child(button)
-		_grid_buttons.append(button)
+	var rate_labels: PackedStringArray = []
+	for rate: float in rates:
+		rate_labels.append("%d%%" % roundi(rate * 100.0))
+	_radio(timing, &"speed", rate_labels, 76)
+	var grid_labels: PackedStringArray = []
+	for grid: float in grids:
+		grid_labels.append("1/%d" % roundi(1.0 / grid))
+	_radio(timing, &"grid", grid_labels, 66)
 	timing.add_child(_caption("EDIT"))
 	_add(timing, &"delete", "DELETE", 100)
 	_add(timing, &"align", "ALIGN TIMING", 150)
 	_add(timing, &"clear_segment", "CLEAR SEGMENT", 170)
 	var files: HBoxContainer = _row()
+	_radio(files, &"difficulty", PackedStringArray(TapDensityGuide.LEVEL_NAMES), 96)
 	_add(files, &"undo", "UNDO", 90)
 	_add(files, &"redo", "REDO", 90)
-	_add(files, &"save", "SAVE", 100)
+	_add(files, &"save", "SAVE", 90)
 	if not OS.has_feature("mobile"):
-		_add(files, &"build", "BUILD & PLAY SEGMENT", 250)
-	_add(files, &"exit", "EXIT", 100)
+		_add(files, &"build", "BUILD & PLAY SEGMENT", 240)
+	_add(files, &"exit", "EXIT", 90)
 	var pads: HBoxContainer = _row()
 	var pad: Button = _make("TAP  [Space / J]   -   the player acts here", 300)
 	pad.custom_minimum_size.y = PAD_HEIGHT
@@ -67,6 +61,9 @@ func setup(rates: Array[float], grids: Array[float]) -> void:
 	pad.add_theme_color_override("font_color", RecorderTimeline.TAP_COLOR)
 	pad.button_down.connect(func() -> void: pad_down.emit())
 	pads.add_child(pad)
+	var help: Label = UiTheme.make_label(HELP_TEXT, 14, Color(0.6, 0.65, 0.85))
+	help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	add_child(help)
 
 
 func set_playing(playing: bool) -> void:
@@ -82,12 +79,23 @@ func set_enabled(name: StringName, enabled: bool) -> void:
 		_buttons[name].disabled = not enabled
 
 
-func set_rate(index: int) -> void:
-	_rate_buttons[index].set_pressed_no_signal(true)
+## Highlights option `index` of a radio group without emitting.
+func set_option(group: StringName, index: int) -> void:
+	(_groups[group][index] as Button).set_pressed_no_signal(true)
 
 
-func set_grid(index: int) -> void:
-	_grid_buttons[index].set_pressed_no_signal(true)
+func _radio(row: HBoxContainer, group: StringName, labels: PackedStringArray, width: float) -> void:
+	row.add_child(_caption(String(group).to_upper()))
+	var button_group := ButtonGroup.new()
+	var buttons: Array[Button] = []
+	for index: int in labels.size():
+		var button: Button = _make(labels[index], width)
+		button.toggle_mode = true
+		button.button_group = button_group
+		button.pressed.connect(func() -> void: option_chosen.emit(group, index))
+		row.add_child(button)
+		buttons.append(button)
+	_groups[group] = buttons
 
 
 func _row() -> HBoxContainer:

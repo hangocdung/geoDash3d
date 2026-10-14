@@ -123,7 +123,7 @@ func _draw_taps(font: Font) -> void:
 				_draw_diamond(ghost, 13.0, Color(1, 1, 1, 0.6))
 		_draw_diamond(center, 13.0, TAP_COLOR)
 	if recording.count() == 0:
-		draw_string(font, Vector2(0, size.y * 0.5), "Press Play and tap where the player should act (Space / J or the TAP pad)",
+		draw_string(font, Vector2(0, size.y * 0.5), "Press Play and tap where the player should act",
 				HORIZONTAL_ALIGNMENT_CENTER, size.x, 22, Color(0.7, 0.75, 0.9, 0.6))
 
 
