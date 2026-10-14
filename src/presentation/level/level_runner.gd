@@ -86,6 +86,8 @@ func _ready() -> void:
 	UserSettings.changed.connect(_apply_volume)
 	_apply_volume()
 	_connect_hud()
+	if UserSettings.show_music_meter and not options.attract_mode:
+		hud.enable_music_meter(chart, song_clock)
 	if (OS.is_debug_build() or OS.has_feature("perf_probe")) and not options.perf_flags.is_empty():
 		PerfFlags.apply(self, options.perf_flags)
 	if not is_nan(options.start_beat):

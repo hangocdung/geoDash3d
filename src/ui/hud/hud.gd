@@ -36,6 +36,7 @@ var _combo_label: Label
 var _combo_age: float = INF
 var _shield_label: Label
 var _shield_fill: ColorRect
+var _root: Control
 
 
 func _ready() -> void:
@@ -43,6 +44,7 @@ func _ready() -> void:
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
+	_root = root
 	_apply_safe_area(root)
 	_build_progress(root)
 	_judgement_label = _make_label(root, 56, Control.PRESET_CENTER_TOP, Vector2(0, 110))
@@ -60,6 +62,13 @@ func _ready() -> void:
 	_build_shield_meter(root)
 	run_menu = RunMenu.new()
 	add_child(run_menu)
+
+
+## Diagnostic spectrum + cue lane along the bottom (Settings > Music meter).
+func enable_music_meter(chart: LevelChart, clock: SongClock) -> void:
+	var meter := MusicMeter.new()
+	meter.setup(chart, clock, AudioBuses.music_spectrum())
+	_root.add_child(meter)
 
 
 ## Hides everything (menu attract mode).

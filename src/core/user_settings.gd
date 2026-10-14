@@ -39,6 +39,12 @@ var reduce_flashing: bool = false:
 		reduce_flashing = value
 		changed.emit()
 
+## Diagnostic music meter in the level (spectrum + cue lane).
+var show_music_meter: bool = false:
+	set(value):
+		show_music_meter = value
+		changed.emit()
+
 var music_volume_db: float = 0.0:
 	set(value):
 		music_volume_db = clampf(value, -60.0, 6.0)
@@ -71,6 +77,7 @@ func load_settings() -> void:
 	quality_auto = bool(config.get_value(SECTION, "quality_auto", true))
 	auto_offset = bool(config.get_value(SECTION, "auto_offset", true))
 	reduce_flashing = bool(config.get_value(SECTION, "reduce_flashing", false))
+	show_music_meter = bool(config.get_value(SECTION, "show_music_meter", false))
 	music_volume_db = float(config.get_value(SECTION, "music_volume_db", 0.0))
 	sfx_volume_db = float(config.get_value(SECTION, "sfx_volume_db", -2.0))
 
@@ -82,6 +89,7 @@ func save_settings() -> void:
 	config.set_value(SECTION, "quality_auto", quality_auto)
 	config.set_value(SECTION, "auto_offset", auto_offset)
 	config.set_value(SECTION, "reduce_flashing", reduce_flashing)
+	config.set_value(SECTION, "show_music_meter", show_music_meter)
 	config.set_value(SECTION, "music_volume_db", music_volume_db)
 	config.set_value(SECTION, "sfx_volume_db", sfx_volume_db)
 	var error: Error = config.save(SETTINGS_PATH)

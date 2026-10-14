@@ -68,6 +68,13 @@ func _ready() -> void:
 	calm.toggled.connect(func(enabled: bool) -> void: UserSettings.reduce_flashing = enabled)
 	column.add_child(_row("Reduce flashing", calm))
 
+	var meter := CheckButton.new()
+	meter.text = "spectrum + tap lane"
+	meter.button_pressed = UserSettings.show_music_meter
+	meter.add_theme_font_size_override("font_size", 26)
+	meter.toggled.connect(func(enabled: bool) -> void: UserSettings.show_music_meter = enabled)
+	column.add_child(_row("Music meter", meter))
+
 	var back: Button = UiTheme.make_button("BACK", 300.0, 72.0, &"ui.back")
 	back.pressed.connect(_close)
 	column.add_child(back)
