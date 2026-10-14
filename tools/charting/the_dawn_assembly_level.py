@@ -12,7 +12,9 @@ from terrain_patterns import Level, SpeedMap
 
 OUT_PATH = "assets/music/the_dawn_assembly.chart.json"
 END_BEAT = 116
-SPEED_KEYS = [(0, 7.0), (48, 7.5), (80, 8.0)]
+# Phases: (beat, palette, units_per_beat); the speed ladder rises with each phase.
+PHASES = [(0, "indigo", 7.0), (32, "ocean", 7.75), (64, "ultraviolet", 8.5), (96, "sunset", 9.25)]
+SPEED_KEYS = [(beat, rate) for beat, _, rate in PHASES]
 
 
 def build_level():
@@ -96,6 +98,7 @@ def build_chart():
         "end_beat": END_BEAT,
         "tempo": [{"beat": 0, "bpm": 120.0}],
         "speed": [{"beat": beat, "units_per_beat": rate} for beat, rate in SPEED_KEYS],
+        "phases": [{"beat": beat, "palette": palette} for beat, palette, _ in PHASES],
         "sections": [
             {"beat": -16, "name": "intro", "energy": 0.2}, {"beat": 32, "name": "build", "energy": 0.42},
             {"beat": 64, "name": "verse", "energy": 0.55}, {"beat": 92, "name": "lift", "energy": 0.7},

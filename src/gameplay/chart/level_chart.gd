@@ -12,6 +12,8 @@ var tempo: TempoMap
 ## beat → distance along the track (units).
 var distance_map: PiecewiseLinearMap
 var sections: Array[ChartItems.Section] = []
+## Sorted by beat; empty = one phase for the whole level.
+var phases: Array[ChartItems.Phase] = []
 var track_segments: Array[ChartItems.TrackSegment] = []
 var terrain_segments: Array[ChartItems.TerrainSegment] = []
 ## Ground profile by distance, built from terrain_segments in finalize().
@@ -39,6 +41,11 @@ func distance_at(beat: float) -> float:
 
 func beat_at_distance(distance: float) -> float:
 	return distance_map.inverse(distance)
+
+
+## Track units travelled per beat at `beat`.
+func speed_at(beat: float) -> float:
+	return distance_map.rate_at(beat)
 
 
 func time_at(beat: float) -> float:
@@ -72,6 +79,18 @@ func section_at(beat: float) -> ChartItems.Section:
 		if section.beat > beat:
 			break
 		current = section
+	return current
+
+
+## Index into `phases` of the phase in effect at `beat` (0 before the first phase starts, -1 without phases).
+func phase_index_at(beat: float) -> int:
+	if phases.is_empty():
+		return -1
+	var current: int = 0
+	for index: int in phases.size():
+		if phases[index].beat > beat:
+			break
+		current = index
 	return current
 
 
@@ -116,6 +135,7 @@ func _ground_safe_start(beat: float, lead_beats: float) -> float:
 ## Sorts events and fills derived fields. Called once by the loader.
 func finalize() -> void:
 	sections.sort_custom(func(a: ChartItems.Section, b: ChartItems.Section) -> bool: return a.beat < b.beat)
+	phases.sort_custom(func(a: ChartItems.Phase, b: ChartItems.Phase) -> bool: return a.beat < b.beat)
 	track_segments.sort_custom(
 			func(a: ChartItems.TrackSegment, b: ChartItems.TrackSegment) -> bool: return a.beat < b.beat)
 	cues.sort_custom(func(a: ChartItems.ActionCue, b: ChartItems.ActionCue) -> bool: return a.beat < b.beat)

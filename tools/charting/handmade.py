@@ -148,10 +148,18 @@ def add_variety(plan, sections):
     return result
 
 
+def speed_keys(song):
+    """Speed ladder: explicit `speed` keys, else one key per phase (beat, palette, units_per_beat)."""
+    if "speed" in song:
+        return song["speed"]
+    return [(beat, rate) for beat, _, rate in song["phases"]]
+
+
 def build(song, steps, variety=True):
-    """`song`: id, title, artist, bpm, offset, end_beat, speed, sections, cameras, track, vfx; optional audio
-    (mp3 base name when several charts share one song, default id). `variety`: see add_variety()."""
-    level = Level(SpeedMap(song["speed"]))
+    """`song`: id, title, artist, bpm, offset, end_beat, phases [(beat, palette, units_per_beat)] (or plain
+    speed keys), sections, cameras, track, vfx; optional audio (mp3 base name when several charts share one
+    song, default id). `variety`: see add_variety()."""
+    level = Level(SpeedMap(speed_keys(song)))
     checker = Checker(level)
     previous = -100.0
     plan = parse(steps)
@@ -188,7 +196,8 @@ def build(song, steps, variety=True):
         "offset_sec": song["offset"],
         "end_beat": song["end_beat"],
         "tempo": [{"beat": 0, "bpm": song["bpm"]}],
-        "speed": [{"beat": b, "units_per_beat": rate} for b, rate in song["speed"]],
+        "speed": [{"beat": b, "units_per_beat": rate} for b, rate in speed_keys(song)],
+        "phases": [{"beat": b, "palette": palette} for b, palette, _ in song.get("phases", [])],
         "sections": [{"beat": b, "name": name, "energy": energy} for b, name, energy in song["sections"]],
         "track": [dict(beat=b, **shape) for b, shape in song["track"]],
         "terrain": level.terrain,

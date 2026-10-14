@@ -9,16 +9,24 @@ const GLOW_SHADER: Shader = preload("res://src/presentation/shaders/neon_glow.gd
 
 ## Instantiates `scene` and overrides its surface materials. Returns the instance root.
 static func instantiate(scene: PackedScene, glow_color: Color, accent_color: Color, energy: float = 4.0) -> Node3D:
+	return _instantiate(scene, _glow_material(glow_color, energy), _glow_material(accent_color, energy))
+
+
+## Like instantiate(), but Glow / GlowAlt follow the phase palette's decor glow / accent colors.
+static func instantiate_palette(scene: PackedScene, energy: float = 4.0) -> Node3D:
+	var glow: ShaderMaterial = _glow_material(Color.WHITE, energy)
+	glow.set_shader_parameter("palette_role", 1)
+	var accent: ShaderMaterial = _glow_material(Color.WHITE, energy)
+	accent.set_shader_parameter("palette_role", 2)
+	return _instantiate(scene, glow, accent)
+
+
+static func _instantiate(scene: PackedScene, glow: Material, accent: Material) -> Node3D:
 	var root: Node3D = scene.instantiate() as Node3D
 	if root == null:
 		push_error("NeonModel: scene root is not a Node3D")
 		return Node3D.new()
-	var materials: Dictionary[String, Material] = {
-		"Body": _body_material(),
-		"Glow": _glow_material(glow_color, energy),
-		"GlowAlt": _glow_material(accent_color, energy),
-	}
-	_apply(root, materials)
+	_apply(root, {"Body": _body_material(), "Glow": glow, "GlowAlt": accent})
 	return root
 
 

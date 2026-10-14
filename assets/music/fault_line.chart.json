@@ -18,19 +18,33 @@
 		},
 		{
 			"beat": 100,
-			"units_per_beat": 7.5
-		},
-		{
-			"beat": 172,
 			"units_per_beat": 8.0
 		},
 		{
-			"beat": 268,
-			"units_per_beat": 8.5
+			"beat": 172,
+			"units_per_beat": 9.0
 		},
 		{
-			"beat": 300,
-			"units_per_beat": 9.0
+			"beat": 268,
+			"units_per_beat": 10.0
+		}
+	],
+	"phases": [
+		{
+			"beat": 0,
+			"palette": "indigo"
+		},
+		{
+			"beat": 100,
+			"palette": "aurora"
+		},
+		{
+			"beat": 172,
+			"palette": "ember"
+		},
+		{
+			"beat": 268,
+			"palette": "glacier"
 		}
 	],
 	"sections": [
@@ -240,7 +254,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 155.0507,
+			"beat": 155.0475,
 			"height": 1.5
 		},
 		{
@@ -260,7 +274,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 179.5475,
+			"beat": 179.5422,
 			"height": 1.5
 		},
 		{
@@ -276,7 +290,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 211.5475,
+			"beat": 211.5422,
 			"height": 1.5
 		},
 		{
@@ -292,7 +306,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 231.5475,
+			"beat": 231.5422,
 			"height": 1.5
 		},
 		{
@@ -300,7 +314,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 251.5475,
+			"beat": 251.5422,
 			"height": 1.5
 		},
 		{
@@ -996,7 +1010,7 @@
 			"type": "orb_drop"
 		},
 		{
-			"beat": 289.1824,
+			"beat": 289.14,
 			"type": "hazard",
 			"hazard": "ceiling"
 		},
@@ -1077,7 +1091,7 @@
 			"type": "orb_drop"
 		},
 		{
-			"beat": 321.1667,
+			"beat": 321.14,
 			"type": "hazard",
 			"hazard": "ceiling"
 		},

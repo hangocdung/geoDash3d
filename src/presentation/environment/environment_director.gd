@@ -2,8 +2,11 @@
 # (`beat_pulse`, `run_beat`, `player_distance`, `player_position`: all functions of the beat) and eases
 # glow/fog/background energy toward the current section's energy. The sky's beat pulse is off on LOW and
 # with "reduce flashing", which also scales the neon beat pulses and flashes down.
-# The sky material is never changed per frame: that would re-render its radiance map every frame.
-# Related: src/presentation/shaders/neon_sky.gdshader, tools/setup/configure_project.gd (shader globals)
+# Phase palettes (PhasePalettes, a function of the beat) go out as `pal_*` globals only when they change;
+# the sky material itself changes once per settled phase: changing it per frame would re-render its
+# radiance map every frame. On LOW the phase change is instant (one sky change instead of a blend).
+# Related: src/presentation/shaders/neon_sky.gdshader, tools/setup/configure_project.gd (shader globals),
+# phase_palettes.gd
 class_name EnvironmentDirector
 extends Node3D
 
@@ -18,10 +21,26 @@ const ENERGY_EASE_PER_SEC: float = 1.5
 ## Sky horizon brightening per unit of beat pulse, and the pulse/flash scale under "reduce flashing".
 const SKY_BEAT_BRIGHTNESS: float = 0.2
 const REDUCED_FLASH_SCALE: float = 0.35
-const CALM_FOG: Color = Color(0.08, 0.05, 0.2)
-const HOT_FOG: Color = Color(0.17, 0.04, 0.2)
+## Beats a phase change blends over (MEDIUM/HIGH).
+const PHASE_TRANSITION_BEATS: float = 1.0
+const PALETTE_GLOBALS: Dictionary[StringName, StringName] = {
+	&"pal_sky_zenith": &"sky_zenith", &"pal_sky_mid": &"sky_mid", &"pal_sky_horizon": &"sky_horizon",
+	&"pal_sky_accent": &"sky_accent", &"pal_sky_style": &"sky_style", &"pal_track_base": &"track_base",
+	&"pal_track_grid": &"track_grid", &"pal_track_rail": &"track_rail", &"pal_track_streak": &"track_streak",
+	&"pal_block_base": &"block_base", &"pal_block_rail": &"block_rail", &"pal_scenery_a": &"scenery_a",
+	&"pal_scenery_b": &"scenery_b", &"pal_pillar": &"pillar", &"pal_decor_glow": &"decor_glow",
+	&"pal_decor_accent": &"decor_accent",
+}
 
 var environment: Environment
+## Palette in effect this frame (blended during a phase change).
+var palette: ScenePalette
+var _phases: PhasePalettes
+var _palette_index: int = -1
+var _palette_weight: float = -1.0
+## Phase whose palette the sky material (radiance) currently shows.
+var _sky_phase: int = -1
+var _light: DirectionalLight3D
 var _sky_material: ShaderMaterial
 ## Last value given to the sky's `beat_brightness` (-1 = not set yet).
 var _sky_beat_brightness: float = -1.0
@@ -33,6 +52,8 @@ var _flash: float = 0.0
 
 func setup(context: LevelContext) -> void:
 	_context = context
+	_phases = PhasePalettes.from_chart(context.chart, PHASE_TRANSITION_BEATS)
+	palette = _phases.settled_palette(0)
 	_sky_material = ShaderMaterial.new()
 	_sky_material.shader = SKY_SHADER
 	var sky := Sky.new()
@@ -44,7 +65,6 @@ func setup(context: LevelContext) -> void:
 	environment.background_mode = Environment.BG_SKY
 	environment.sky = sky
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	environment.ambient_light_color = Color(0.32, 0.24, 0.6)
 	environment.ambient_light_energy = 0.7
 	environment.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
 	environment.tonemap_mode = Environment.TONE_MAPPER_ACES
@@ -59,12 +79,12 @@ func setup(context: LevelContext) -> void:
 	var world := WorldEnvironment.new()
 	world.environment = environment
 	add_child(world)
-	var light := DirectionalLight3D.new()
-	light.rotation_degrees = Vector3(-52.0, 35.0, 0.0)
-	light.light_color = Color(0.75, 0.65, 1.0)
-	light.light_energy = 0.7
-	light.shadow_enabled = false
-	add_child(light)
+	_light = DirectionalLight3D.new()
+	_light.rotation_degrees = Vector3(-52.0, 35.0, 0.0)
+	_light.light_energy = 0.7
+	_light.shadow_enabled = false
+	add_child(_light)
+	_update_palette(0.0)
 
 
 func flash(amount: float) -> void:
@@ -73,6 +93,7 @@ func flash(amount: float) -> void:
 
 func reset_view() -> void:
 	_flash = 0.0
+	_palette_index = -1
 
 
 func update_environment(beat: float, delta: float) -> void:
@@ -88,7 +109,36 @@ func update_environment(beat: float, delta: float) -> void:
 	RenderingServer.global_shader_parameter_set(PLAYER_POSITION_PARAMETER, _context.frame_at_beat(beat).origin)
 	environment.background_energy_multiplier = lerpf(0.85, 1.15, _energy) * (1.0 + _flash * 0.6 * flash_scale)
 	environment.glow_intensity = lerpf(0.75, 1.15, _energy) + _flash * 0.6 * flash_scale
-	environment.fog_light_color = CALM_FOG.lerp(HOT_FOG, _energy)
+	_update_palette(beat)
+	environment.fog_light_color = palette.fog_calm.lerp(palette.fog_hot, _energy)
+
+
+## Publishes the phase palette when it changes; the sky material follows once the phase has settled.
+func _update_palette(beat: float) -> void:
+	var index: int = _phases.index_at(beat)
+	var weight: float = _phases.blend_at(beat)
+	if index == _palette_index and weight == _palette_weight:
+		return
+	_palette_index = index
+	_palette_weight = weight
+	palette = _phases.palette_at(beat)
+	for parameter: StringName in PALETTE_GLOBALS:
+		var value: Variant = palette.get(PALETTE_GLOBALS[parameter])
+		if value is Color:
+			# vec4 globals hold linear colors, like `source_color` uniforms.
+			var linear: Color = (value as Color).srgb_to_linear()
+			value = Vector4(linear.r, linear.g, linear.b, linear.a)
+		RenderingServer.global_shader_parameter_set(parameter, value)
+	environment.ambient_light_color = palette.ambient
+	_light.light_color = palette.light
+	if weight >= 1.0 and _sky_phase != index:
+		_sky_phase = index
+		var settled: ScenePalette = _phases.settled_palette(index)
+		_sky_material.set_shader_parameter("zenith_color", settled.sky_zenith)
+		_sky_material.set_shader_parameter("mid_color", settled.sky_mid)
+		_sky_material.set_shader_parameter("horizon_color", settled.sky_horizon)
+		_sky_material.set_shader_parameter("planet_color", settled.sky_accent)
+		_sky_material.set_shader_parameter("style", settled.sky_style)
 
 
 ## Changes the sky material only when the setting changes (each change re-renders the radiance map once).
@@ -111,6 +161,8 @@ func _beat_pulse(beat: float) -> float:
 ## Glow post-process on/off per tier; without it shaders draw soft halos (`soft_glow` global).
 func apply_quality(quality: QualityTier.Tier) -> void:
 	_quality = quality
+	if _phases != null:
+		_phases.transition_beats = PHASE_TRANSITION_BEATS if QualityTier.blends_phase_changes(quality) else 0.0
 	_apply_flash_setting()
 	var glow: bool = QualityTier.uses_glow(quality)
 	environment.glow_enabled = glow

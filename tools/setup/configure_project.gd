@@ -15,13 +15,31 @@ const AUTOLOADS: Dictionary[String, String] = {
 const MAIN_SCENE: String = "res://src/ui/menu/main_menu.tscn"
 
 ## Global shader uniforms (`global uniform float beat_pulse;`), set at runtime by EnvironmentDirector.
-## A Vector3 value declares a vec3 global, anything else a float.
+## A Vector3 value declares a vec3 global, a Vector4 a vec4, anything else a float. A Color declares a vec4
+## holding the linear color: the shaders get the same values as `source_color` uniforms (EnvironmentDirector
+## converts the same way). The `pal_*` phase palette defaults are the `indigo` palette (PaletteLibrary.DEFAULT).
 const SHADER_GLOBALS: Dictionary[String, Variant] = {
 	"beat_pulse": 0.0,
 	"soft_glow": 0.0,
 	"run_beat": 0.0,
 	"player_distance": 0.0,
 	"player_position": Vector3.ZERO,
+	"pal_sky_zenith": Color(0.02, 0.01, 0.07),
+	"pal_sky_mid": Color(0.12, 0.04, 0.28),
+	"pal_sky_horizon": Color(0.55, 0.16, 0.6),
+	"pal_sky_accent": Color(0.35, 0.45, 1.0),
+	"pal_sky_style": Vector4(1.0, 0.0, 1.0, 1.0),
+	"pal_track_base": Color(0.03, 0.025, 0.07),
+	"pal_track_grid": Color(0.25, 0.85, 1.0),
+	"pal_track_rail": Color(0.3, 0.95, 1.0),
+	"pal_track_streak": Color(0.75, 0.97, 1.0),
+	"pal_block_base": Color(0.05, 0.045, 0.12),
+	"pal_block_rail": Color(0.45, 0.75, 1.0),
+	"pal_scenery_a": Color(0.25, 0.75, 1.0),
+	"pal_scenery_b": Color(0.55, 0.4, 0.98),
+	"pal_pillar": Color(0.55, 0.35, 1.0),
+	"pal_decor_glow": Color(0.45, 0.4, 1.0),
+	"pal_decor_accent": Color(0.3, 0.9, 1.0),
 }
 
 
@@ -73,5 +91,12 @@ func _configure_autoloads() -> void:
 func _configure_shader_globals() -> void:
 	for parameter_name: String in SHADER_GLOBALS:
 		var value: Variant = SHADER_GLOBALS[parameter_name]
-		ProjectSettings.set_setting("shader_globals/%s" % parameter_name,
-				{"type": "vec3" if value is Vector3 else "float", "value": value})
+		var type_name: String = "float"
+		if value is Color:
+			var linear: Color = (value as Color).srgb_to_linear()
+			value = Vector4(linear.r, linear.g, linear.b, linear.a)
+		if value is Vector3:
+			type_name = "vec3"
+		elif value is Vector4:
+			type_name = "vec4"
+		ProjectSettings.set_setting("shader_globals/%s" % parameter_name, {"type": type_name, "value": value})

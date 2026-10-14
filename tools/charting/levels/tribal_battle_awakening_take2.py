@@ -14,7 +14,7 @@ SONG = {
     "id": "tribal_battle_awakening_take2", "audio": "tribal_battle_awakening_take2",
     "title": "Tribal Battle Awakening 2 (Beat)", "artist": "Unknown", "bpm": 150.02, "offset": 0.082,
     "end_beat": 440,
-    "speed": [(0, 7.0), (128, 7.5), (256, 8.0), (352, 8.5)],
+    "phases": [(0, "ocean", 7.0), (128, "sunset", 8.0), (256, "ultraviolet", 8.75), (352, "ember", 9.5)],
     "sections": [(-16, "intro", 0.5), (64, "groove", 0.7), (128, "drop", 0.9), (184, "verse", 0.65),
                  (256, "drop2", 0.95), (312, "break", 0.25), (352, "final", 1.0), (408, "outro", 0.3)],
     "cameras": [(-8, "front", 0), (-2, "side", 4), (64, "side_far", 2), (128, "diagonal", 2), (184, "side", 4),

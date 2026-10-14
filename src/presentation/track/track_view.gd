@@ -14,9 +14,6 @@ const PILLAR_DEPTH: float = 60.0
 const PILLAR_GAP_CLEARANCE: float = 2.0
 ## Clear space under the track so the player can run on the underside (flip).
 const UNDERSIDE_CLEARANCE: float = 2.8
-## Raised ground: slightly brighter body and a cooler rail than the road, so steps read against it.
-const BLOCK_BASE_COLOR: Color = Color(0.05, 0.045, 0.12)
-const BLOCK_RAIL_COLOR: Color = Color(0.45, 0.75, 1.0)
 
 var track_material: ShaderMaterial
 var block_material: ShaderMaterial
@@ -25,12 +22,14 @@ var block_material: ShaderMaterial
 func setup(context: LevelContext) -> void:
 	var width: float = context.config.track_width
 	var thickness: float = context.config.track_thickness
+	# Colors follow the phase palette; raised ground has a slightly brighter body and a cooler rail than the
+	# road, so steps read against it.
 	track_material = ShaderMaterial.new()
 	track_material.shader = TRACK_SHADER
+	track_material.set_shader_parameter("palette_role", 1)
 	block_material = ShaderMaterial.new()
 	block_material.shader = TRACK_SHADER
-	block_material.set_shader_parameter("base_color", BLOCK_BASE_COLOR)
-	block_material.set_shader_parameter("rail_color", BLOCK_RAIL_COLOR)
+	block_material.set_shader_parameter("palette_role", 2)
 	block_material.set_shader_parameter("grid_energy", 0.8)
 	var terrain: Terrain = context.chart.terrain
 	for stretch: Vector2 in _road_stretches(terrain, context.track.start_distance, context.track.end_distance):
@@ -96,7 +95,7 @@ func _add_mesh(node_name: String, mesh: ArrayMesh, material: Material) -> void:
 func _build_pillars(context: LevelContext, terrain: Terrain, width: float, thickness: float) -> void:
 	var material := ShaderMaterial.new()
 	material.shader = BOX_SHADER
-	material.set_shader_parameter("edge_color", Color(0.55, 0.35, 1.0))
+	material.set_shader_parameter("palette_role", 2)
 	material.set_shader_parameter("edge_energy", 2.5)
 	material.set_shader_parameter("edge_width", 0.1)
 	var transforms: Array[Transform3D] = []

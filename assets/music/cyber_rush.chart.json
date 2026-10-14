@@ -17,16 +17,42 @@
 			"units_per_beat": 7.0
 		},
 		{
+			"beat": 60,
+			"units_per_beat": 7.75
+		},
+		{
 			"beat": 124,
-			"units_per_beat": 7.5
+			"units_per_beat": 8.5
 		},
 		{
 			"beat": 172,
-			"units_per_beat": 8.0
+			"units_per_beat": 9.25
 		},
 		{
 			"beat": 284,
-			"units_per_beat": 8.5
+			"units_per_beat": 10.0
+		}
+	],
+	"phases": [
+		{
+			"beat": 0,
+			"palette": "indigo"
+		},
+		{
+			"beat": 60,
+			"palette": "ocean"
+		},
+		{
+			"beat": 124,
+			"palette": "sunset"
+		},
+		{
+			"beat": 172,
+			"palette": "ultraviolet"
+		},
+		{
+			"beat": 284,
+			"palette": "ember"
 		}
 	],
 	"sections": [
@@ -129,7 +155,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 71.5543,
+			"beat": 71.549,
 			"height": 1.5
 		},
 		{
@@ -141,7 +167,7 @@
 			"height": 1.5
 		},
 		{
-			"beat": 80.5543,
+			"beat": 80.549,
 			"height": 3.0
 		},
 		{
@@ -157,7 +183,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 89.5543,
+			"beat": 89.549,
 			"height": 1.5
 		},
 		{
@@ -169,7 +195,7 @@
 			"height": 1.5
 		},
 		{
-			"beat": 104.5543,
+			"beat": 104.549,
 			"height": 3.0
 		},
 		{
@@ -185,7 +211,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 117.5543,
+			"beat": 117.549,
 			"height": 1.5
 		},
 		{
@@ -221,7 +247,7 @@
 			"height": 1.5
 		},
 		{
-			"beat": 179.0475,
+			"beat": 179.0411,
 			"height": 3.0
 		},
 		{
@@ -237,7 +263,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 199.0475,
+			"beat": 199.0411,
 			"height": 1.5
 		},
 		{
@@ -249,7 +275,7 @@
 			"height": 1.5
 		},
 		{
-			"beat": 211.0475,
+			"beat": 211.0411,
 			"height": 3.0
 		},
 		{
@@ -265,7 +291,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 222.0475,
+			"beat": 222.0411,
 			"height": 1.5
 		},
 		{
@@ -293,7 +319,7 @@
 			"height": 1.5
 		},
 		{
-			"beat": 286.0447,
+			"beat": 286.038,
 			"height": 3.0
 		},
 		{
@@ -317,7 +343,7 @@
 			"height": 2.0
 		},
 		{
-			"beat": 311.0447,
+			"beat": 311.038,
 			"height": 3.5
 		},
 		{
@@ -333,7 +359,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 335.0447,
+			"beat": 335.038,
 			"height": 1.5
 		},
 		{

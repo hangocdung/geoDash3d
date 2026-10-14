@@ -58,6 +58,7 @@ func _parse(root: Dictionary) -> LevelChart:
 	chart.tempo = _parse_tempo(root)
 	chart.distance_map = _parse_speed(root)
 	_parse_sections(root, chart)
+	_parse_phases(root, chart)
 	_parse_track(root, chart)
 	_parse_terrain(root, chart)
 	_parse_events(root, chart)
@@ -105,6 +106,22 @@ func _parse_sections(root: Dictionary, chart: LevelChart) -> void:
 		chart.sections.append(ChartItems.Section.new(
 				_number(entry, "beat", 0.0), StringName(str(entry.get("name", "section"))),
 				clampf(_number(entry, "energy", 0.5), 0.0, 1.0)))
+
+
+## Optional `phases`: [{beat, palette}]. Palette names are resolved by presentation (PaletteLibrary).
+func _parse_phases(root: Dictionary, chart: LevelChart) -> void:
+	var seen: Dictionary[float, bool] = {}
+	for entry: Dictionary in _objects(root, "phases"):
+		var beat: float = _number(entry, "beat", NAN)
+		var palette: String = str(entry.get("palette", ""))
+		if is_nan(beat) or palette.is_empty():
+			_errors.append("phase entries need 'beat' and 'palette'")
+			continue
+		if seen.has(beat):
+			_errors.append("two phases start at beat %.3f" % beat)
+			continue
+		seen[beat] = true
+		chart.phases.append(ChartItems.Phase.new(beat, StringName(palette)))
 
 
 func _parse_track(root: Dictionary, chart: LevelChart) -> void:

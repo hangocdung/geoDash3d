@@ -17,16 +17,42 @@
 			"units_per_beat": 7.0
 		},
 		{
+			"beat": 60,
+			"units_per_beat": 7.75
+		},
+		{
 			"beat": 124,
-			"units_per_beat": 7.5
+			"units_per_beat": 8.5
 		},
 		{
 			"beat": 172,
-			"units_per_beat": 8.0
+			"units_per_beat": 9.25
 		},
 		{
 			"beat": 284,
-			"units_per_beat": 8.5
+			"units_per_beat": 10.0
+		}
+	],
+	"phases": [
+		{
+			"beat": 0,
+			"palette": "indigo"
+		},
+		{
+			"beat": 60,
+			"palette": "ocean"
+		},
+		{
+			"beat": 124,
+			"palette": "sunset"
+		},
+		{
+			"beat": 172,
+			"palette": "ultraviolet"
+		},
+		{
+			"beat": 284,
+			"palette": "ember"
 		}
 	],
 	"sections": [

@@ -1,6 +1,7 @@
 # Procedural background: floating neon monoliths and crystal spires scattered along the track,
 # kept clear of the track corridor and of the side camera's line of sight. Grouped into MultiMesh
-# chunks along the track so far chunks are culled; density scales with the quality tier.
+# chunks along the track so far chunks are culled; density scales with the quality tier. Edge colors come
+# from the phase palette (instance COLOR.r = brightness, COLOR.g = blend between its two scenery colors).
 # Related: src/presentation/track/track_view.gd, src/presentation/shaders/neon_box.gdshader
 class_name SceneryView
 extends Node3D
@@ -12,10 +13,8 @@ const CLEAR_RADIUS: float = 16.0
 ## Track length covered by one MultiMesh chunk, and how far chunks stay visible (fog hides the rest).
 const CHUNK_LENGTH: float = 120.0
 const VISIBILITY_RANGE: float = 320.0
-## Cool colors only: hot pink/gold are reserved for hazards so they always stand out.
-const PALETTE: Array[Color] = [
-	Color(0.25, 0.75, 1.0), Color(0.45, 0.35, 1.0), Color(0.3, 0.5, 1.0), Color(0.6, 0.45, 0.95),
-]
+## Number of tint steps between the palette's two scenery colors.
+const TINT_STEPS: int = 4
 
 var _random := RandomNumberGenerator.new()
 
@@ -39,7 +38,8 @@ func setup(context: LevelContext, seed_value: int) -> void:
 			for attempt: int in 2:
 				# Draw every random number even when skipped, so the layout is identical on every tier.
 				var placement: Transform3D = _random_block(frame)
-				var color: Color = PALETTE[_random.randi() % PALETTE.size()] * _random.randf_range(0.5, 1.0)
+				var tint: float = float(_random.randi() % TINT_STEPS) / float(TINT_STEPS - 1)
+				var color := Color(_random.randf_range(0.5, 1.0), tint, 0.0)
 				var has_spire: bool = _random.randf() < 0.35
 				var kept: bool = _random.randf() < density
 				if kept and _is_clear(placement.origin, placement.basis.get_scale(), corridor):
@@ -122,7 +122,7 @@ func _multimesh_instance(node_name: String, mesh: Mesh, transforms: Array[Transf
 func _box_material() -> ShaderMaterial:
 	var material := ShaderMaterial.new()
 	material.shader = BOX_SHADER
-	material.set_shader_parameter("edge_color", Color.WHITE)
+	material.set_shader_parameter("palette_role", 1)
 	material.set_shader_parameter("edge_width", 0.18)
 	material.set_shader_parameter("edge_energy", 1.6)
 	material.set_shader_parameter("face_energy", 0.03)
@@ -133,7 +133,7 @@ func _box_material() -> ShaderMaterial:
 func _wire_material() -> ShaderMaterial:
 	var material := ShaderMaterial.new()
 	material.shader = WIRE_SHADER
-	material.set_shader_parameter("edge_color", Color(0.45, 0.55, 1.0))
+	material.set_shader_parameter("palette_role", 1)
 	material.set_shader_parameter("edge_energy", 1.6)
 	material.set_shader_parameter("face_energy", 0.1)
 	return material

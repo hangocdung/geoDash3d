@@ -5,11 +5,16 @@ class_name PresentationRouter
 extends RefCounted
 
 const GHOST_INTERVAL_SEC: float = 0.045
+## Phase change: flash, shockwave in the new palette, FOV punch and a toast with the new speed.
+const PHASE_FLASH: float = 1.0
+const PHASE_FOV_KICK_DEG: float = 9.0
+const PHASE_SHAKE: float = 0.25
 
 var _runner: LevelRunner
 var _context: LevelContext
 var _simulation: RunSimulation
 var _next_vfx_cue: int = 0
+var _next_phase: int = 0
 var _shields_shown: int = 0
 var _ghost_timer: float = 0.0
 ## Off for the menu attract mode, so the backdrop stays quiet.
@@ -38,9 +43,17 @@ func bind(simulation: RunSimulation, start_beat: float) -> void:
 	var cues: Array[ChartItems.VfxCue] = _context.chart.vfx_cues
 	while _next_vfx_cue < cues.size() and cues[_next_vfx_cue].beat < start_beat:
 		_next_vfx_cue += 1
+	var phases: Array[ChartItems.Phase] = _context.chart.phases
+	_next_phase = 1
+	while _next_phase < phases.size() and phases[_next_phase].beat <= start_beat:
+		_next_phase += 1
 
 
 func fire_vfx_cues(beat: float) -> void:
+	var phases: Array[ChartItems.Phase] = _context.chart.phases
+	while _next_phase < phases.size() and phases[_next_phase].beat <= beat:
+		_on_phase_started(_next_phase, phases[_next_phase])
+		_next_phase += 1
 	var cues: Array[ChartItems.VfxCue] = _context.chart.vfx_cues
 	while _next_vfx_cue < cues.size() and cues[_next_vfx_cue].beat <= beat:
 		var cue: ChartItems.VfxCue = cues[_next_vfx_cue]
@@ -51,6 +64,20 @@ func fire_vfx_cues(beat: float) -> void:
 		else:
 			_runner.vfx_director.play_cue(cue.effect, _runner.player_view.center_position(),
 					_context.frame_at_beat(beat), PlayerView.PLAYER_COLOR)
+
+
+func _on_phase_started(index: int, phase: ChartItems.Phase) -> void:
+	var palette: ScenePalette = PaletteLibrary.get_palette(phase.palette)
+	_play(&"fx.shockwave")
+	_runner.environment_director.flash(PHASE_FLASH)
+	_runner.camera_director.add_fov_kick(PHASE_FOV_KICK_DEG)
+	_runner.camera_director.add_shake(PHASE_SHAKE)
+	_runner.vfx_director.play_cue(&"shockwave", _runner.player_view.center_position(),
+			_context.frame_at_beat(phase.beat), palette.track_rail)
+	var first_speed: float = _context.chart.speed_at(_context.chart.phases[0].beat)
+	var speed_ratio: float = _context.chart.speed_at(phase.beat) / maxf(first_speed, 0.001)
+	var speed_note: String = "  ·  SPEED ×%.2f" % speed_ratio if speed_ratio > 1.001 else ""
+	_runner.hud.show_toast("PHASE %d%s" % [index + 1, speed_note])
 
 
 ## Afterimages while a dodge or flip is active.

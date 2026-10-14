@@ -1,11 +1,14 @@
 // Dark solid with glowing triangle edges. Procedural meshes put barycentric coordinates in
 // COLOR.rgb (one vertex per corner = 1) so edges are where any coordinate approaches 0.
+// `palette_role` 1 (background spires) takes the edge color from the phase palette globals.
 shader_type spatial;
 
 global uniform float beat_pulse;
 global uniform float soft_glow;
 // Road-level position of the player: hazards brighten as it approaches (`proximity_gain` > 0).
 global uniform vec3 player_position;
+global uniform vec4 pal_scenery_a;
+global uniform vec4 pal_scenery_b;
 
 uniform vec3 body_color : source_color = vec3(0.04, 0.015, 0.06);
 uniform vec3 edge_color : source_color = vec3(1.0, 0.25, 0.85);
@@ -13,6 +16,7 @@ uniform float edge_width = 1.2;
 uniform float edge_energy = 5.0;
 uniform float face_energy = 0.25;
 uniform float pulse_gain = 0.8;
+uniform int palette_role = 0;
 uniform float proximity_gain = 0.0;
 uniform float proximity_near = 5.0;
 uniform float proximity_far = 24.0;
@@ -32,5 +36,6 @@ void fragment() {
 	ALBEDO = body_color;
 	ROUGHNESS = 0.15;
 	METALLIC = 0.7;
-	EMISSION = edge_color * (edge * edge_energy + glow) * pulse;
+	vec3 tint = palette_role == 1 ? mix(pal_scenery_a.rgb, pal_scenery_b.rgb, 0.5) : edge_color;
+	EMISSION = tint * (edge * edge_energy + glow) * pulse;
 }

@@ -83,6 +83,17 @@ class Section:
 		energy = section_energy
 
 
+## Gameplay phase: from `beat` on the level wears `palette` (presentation look; the speed ladder lives in
+## the chart's `speed` keys). Phases start on bar lines so the change lands on the music.
+class Phase:
+	var beat: float
+	var palette: StringName
+
+	func _init(phase_beat: float, palette_name: StringName) -> void:
+		beat = phase_beat
+		palette = palette_name
+
+
 class TrackSegment:
 	enum Shape { STRAIGHT, TURN, SLOPE }
 

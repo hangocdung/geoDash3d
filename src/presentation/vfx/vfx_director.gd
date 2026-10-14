@@ -60,6 +60,13 @@ func follow_camera(camera_position: Vector3, beat: float) -> void:
 	_speed_lines.amount_ratio = lerpf(0.3, 1.0, section.energy if section != null else 0.3)
 
 
+## Ambient motes take the phase palette's color (only touched when it changes).
+func set_palette(palette: ScenePalette) -> void:
+	var process: ParticleProcessMaterial = _motes.process_material as ParticleProcessMaterial
+	if process.color != palette.motes:
+		process.color = palette.motes
+
+
 func reset_view() -> void:
 	_rings.clear()
 	_ghosts.clear()
@@ -181,7 +188,8 @@ func _animate_ghost(node: GeometryInstance3D, age: float, color: Color) -> bool:
 
 
 func _create_motes(quality: QualityTier.Tier) -> GPUParticles3D:
-	var motes: GPUParticles3D = TrailParticles.create(Color(0.5, 0.45, 0.9, 0.6), QualityTier.particle_scale(quality), 0.06)
+	# White ramp: the tint is `process.color`, set from the phase palette.
+	var motes: GPUParticles3D = TrailParticles.create(Color.WHITE, QualityTier.particle_scale(quality), 0.06)
 	motes.name = "Motes"
 	motes.amount = int(90 * QualityTier.particle_scale(quality))
 	motes.lifetime = 4.0

@@ -1,12 +1,17 @@
 // Box with glowing edges of constant world width (works for scaled MultiMesh instances).
 // Mesh must be a unit cube (±0.5). Instance/vertex COLOR tints the edge color.
 // Optional face (two eyes) on the local +Z side for the player cube.
+// `palette_role` 1 (scenery: COLOR.r = brightness, COLOR.g = mix between the two scenery colors) / 2 (pillars)
+// takes the edge tint from the phase palette globals.
 shader_type spatial;
 
 global uniform float beat_pulse;
 global uniform float soft_glow;
 // Road-level position of the player: hazards brighten as it approaches (`proximity_gain` > 0).
 global uniform vec3 player_position;
+global uniform vec4 pal_scenery_a;
+global uniform vec4 pal_scenery_b;
+global uniform vec4 pal_pillar;
 
 uniform vec3 body_color : source_color = vec3(0.02, 0.035, 0.08);
 uniform vec3 edge_color : source_color = vec3(0.25, 0.95, 1.0);
@@ -16,6 +21,7 @@ uniform float face_energy = 0.12;
 uniform float pulse_gain = 0.0;
 uniform bool draw_face = false;
 uniform vec3 face_color : source_color = vec3(0.45, 1.0, 1.0);
+uniform int palette_role = 0;
 uniform float proximity_gain = 0.0;
 uniform float proximity_near = 5.0;
 uniform float proximity_far = 24.0;
@@ -45,6 +51,11 @@ void fragment() {
 	float near = 1.0 - smoothstep(proximity_near, proximity_far, distance(NODE_POSITION_WORLD, player_position));
 	float pulse = (1.0 + beat_pulse * pulse_gain + flash * 3.0) * (1.0 + proximity_gain * near);
 	vec3 tint = edge_color * COLOR.rgb;
+	if (palette_role == 1) {
+		tint = mix(pal_scenery_a.rgb, pal_scenery_b.rgb, COLOR.g) * COLOR.r;
+	} else if (palette_role == 2) {
+		tint = pal_pillar.rgb;
+	}
 
 	vec3 emission = tint * (edge + halo) * edge_energy * pulse + tint * face_energy * (1.0 - edge);
 	if (draw_face && local_position.z > 0.49) {

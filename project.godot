@@ -87,3 +87,67 @@ player_position={
 "type": "vec3",
 "value": Vector3(0, 0, 0)
 }
+pal_sky_zenith={
+"type": "vec4",
+"value": Vector4(0.0015479876, 0.0007739938, 0.005981058, 1)
+}
+pal_sky_mid={
+"type": "vec4",
+"value": Vector4(0.013411746, 0.0030959751, 0.06372379, 1)
+}
+pal_sky_horizon={
+"type": "vec4",
+"value": Vector4(0.26327342, 0.021980943, 0.31854683, 1)
+}
+pal_sky_accent={
+"type": "vec4",
+"value": Vector4(0.100481495, 0.17064492, 1, 1)
+}
+pal_sky_style={
+"type": "vec4",
+"value": Vector4(1, 0, 1, 1)
+}
+pal_track_base={
+"type": "vec4",
+"value": Vector4(0.0023219814, 0.0019349846, 0.005981058, 1)
+}
+pal_track_grid={
+"type": "vec4",
+"value": Vector4(0.050876077, 0.6920711, 1, 1)
+}
+pal_track_rail={
+"type": "vec4",
+"value": Vector4(0.073238954, 0.89000535, 1, 1)
+}
+pal_track_streak={
+"type": "vec4",
+"value": Vector4(0.5225215, 0.9331069, 1, 1)
+}
+pal_block_base={
+"type": "vec4",
+"value": Vector4(0.003935939, 0.0035010155, 0.013411746, 1)
+}
+pal_block_rail={
+"type": "vec4",
+"value": Vector4(0.17064492, 0.5225215, 1, 1)
+}
+pal_scenery_a={
+"type": "vec4",
+"value": Vector4(0.050876077, 0.5225215, 1, 1)
+}
+pal_scenery_b={
+"type": "vec4",
+"value": Vector4(0.26327342, 0.13286832, 0.95510465, 1)
+}
+pal_pillar={
+"type": "vec4",
+"value": Vector4(0.26327342, 0.100481495, 1, 1)
+}
+pal_decor_glow={
+"type": "vec4",
+"value": Vector4(0.17064492, 0.13286832, 1, 1)
+}
+pal_decor_accent={
+"type": "vec4",
+"value": Vector4(0.073238954, 0.7874122, 1, 1)
+}

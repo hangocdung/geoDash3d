@@ -13,6 +13,7 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
   "end_beat": 224,
   "tempo":    [{ "beat": 0, "bpm": 120 }],
   "speed":    [{ "beat": 0, "units_per_beat": 7 }, { "beat": 96, "units_per_beat": 8 }],
+  "phases":   [{ "beat": 0, "palette": "indigo" }, { "beat": 96, "palette": "sunset" }],
   "sections": [{ "beat": 0, "name": "intro", "energy": 0.2 }],
   "track":    [{ "beat": 0, "shape": "straight" },
                { "beat": 40, "shape": "turn", "angle_deg": 30 },
@@ -35,6 +36,7 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
 |---|---|
 | `tempo` | Danh sách điểm đổi BPM. Phải có ít nhất 1 điểm. |
 | `speed` | Số đơn vị đường đi được mỗi beat, kể từ beat đó. Tốc độ cao hơn thì vật cản cách xa nhau hơn. |
+| `phases` | *(tùy chọn, GD3-100)* Phase của màn: từ `beat` đó màn mang palette `palette` (`indigo`, `ocean`, `sunset`, `aurora`, `ultraviolet`, `ember`, `glacier`, `void` — `src/presentation/environment/palette_library.gd`). Đặt ở đầu ô nhịp (test kiểm tra beat chia hết cho 4) và mỗi phase phải nhanh hơn phase trước (thêm một khóa `speed` ở cùng beat). Đổi phase: lóe sáng, sóng vòng, FOV kick, cổng lớn, chữ "PHASE n · SPEED ×k". Không có `phases` thì cả màn dùng `indigo` (giao diện cũ). |
 | `sections` | Đoạn nhạc. `energy` (0..1) điều khiển glow, màu trời, sương mù và nhịp đập ánh sáng. |
 | `track` | Hình dạng đường từ beat đó đến điểm kế tiếp: `straight`, `turn` (`angle_deg`, dương = rẽ trái), `slope` (`rise`). |
 | `terrain` | *(tùy chọn, gameplay v3)* Mặt đất từ beat đó tới mục kế tiếp: `height` (0 = mặt đường, tối đa 12) hoặc `"gap": true` (hố). Không có thì đường phẳng. Xem `docs/design/gameplay_v3.md`. |
@@ -71,7 +73,8 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
   hành động trước (jump 1, dodge 1.25, flip 2 beat); lên bậc +1.5 thì 0.75 beat là đủ.
   `draft_chart.py` chừa thêm ~0.5 beat: jump 1.5, dodge 1.75, flip 2.5.
 - Dodge/flip cần đường phẳng ở độ cao 0 cho tới khi kết thúc; bệ bật và vật cản không được đặt trên hố (loader báo lỗi).
-- Tốc độ không được giảm; độ khó có trọng số (jump 1, dodge 1.25, flip 1.75, × tốc độ) của 1/4 cuối phải > 1.5 lần 1/4 đầu.
+- Tốc độ không được giảm; mỗi phase nhanh hơn phase trước (bậc thang chuẩn của các màn đặt tay: 7 → 7.75 → 8.5 →
+  9.25 → 10, hoặc 7 → 8 → 8.75/9 → 9.5/10 với 4 phase); độ khó có trọng số (jump 1, dodge 1.25, flip 1.75, × tốc độ) của 1/4 cuối phải > 1.5 lần 1/4 đầu.
 - Autoplay (chạm đúng mọi cue) phải qua màn: `tests/gameplay/test_shipped_charts.gd`.
 
 ## Cửa sổ timing (`GameplayConfig`)
@@ -93,7 +96,7 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
    Xem bài mẫu `the_dawn_assembly.plan.json`.
 4. **Đặt tay** (cách chính, người dùng yêu cầu 2026-10-14 vì bản tự sinh không khớp nhạc): in lưới onset theo dải
    tần (kick / snare / hi-hat) từng ô nhịp, tìm motif của mỗi đoạn, viết `tools/charting/levels/<id>.py` là danh sách
-   `beat:mẫu` (xem `tools/charting/handmade.py`: bộ kiểm tra báo lỗi nếu người chơi chưa tiếp đất, quá cao, hay lách
+   `beat:mẫu` (khai báo `"phases": [(beat, palette, units_per_beat)]` trong `SONG`, tool tự sinh `speed`; xem `tools/charting/handmade.py`: bộ kiểm tra báo lỗi nếu người chơi chưa tiếp đất, quá cao, hay lách
    làn/lộn khi không ở đường phẳng). `build()` mặc định thêm biến thể (giữ nguyên nhịp chạm và độ cao đất):
    `spike` xoay vòng gai / cưa / hàng gai theo energy, cứ 2 `orb` đủ chỗ thì 1 thành `borb`, cứ 2 lần `orb` + `drop`
    từ mặt đường thì 1 thành `dive`. Tắt bằng `build(SONG, STEPS, variety=False)`. Bài nhịp trôi thì đặt chạm theo thời điểm onset thật (vd. neon_arcade_dash_take2).

@@ -13,7 +13,7 @@ from handmade import build  # noqa: E402
 SONG = {
     "id": "cyber_rush_take2", "title": "Cyber Rush (Take 2)", "artist": "Unknown", "bpm": 139.98, "offset": 1.324,
     "end_beat": 388,
-    "speed": [(0, 7.0), (124, 7.5), (264, 8.0), (332, 8.5)],
+    "phases": [(0, "ocean", 7.0), (64, "aurora", 7.75), (188, "sunset", 8.5), (264, "ultraviolet", 9.25), (332, "void", 10.0)],
     "sections": [(-16, "intro", 0.7), (52, "break", 0.3), (64, "drop", 0.9), (124, "verse", 0.7),
                  (188, "break2", 0.25), (264, "drop2", 0.95), (320, "break3", 0.35), (332, "final", 1.0),
                  (388, "outro", 0.3)],

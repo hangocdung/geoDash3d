@@ -15,7 +15,7 @@ from handmade import build  # noqa: E402
 SONG = {
     "id": "neon_arcade_dash_take2", "title": "Neon Arcade Dash (Take 2)", "artist": "Unknown", "bpm": 125.894,
     "offset": 1.307, "end_beat": 306,
-    "speed": [(0, 7.0), (96, 7.5), (176, 8.0), (240, 8.5)],
+    "phases": [(0, "ultraviolet", 7.0), (28, "ocean", 7.75), (96, "aurora", 8.5), (176, "sunset", 9.25), (240, "ember", 10.0)],
     "sections": [(-16, "intro", 0.3), (28, "drop", 0.85), (96, "verse", 0.75), (160, "break", 0.25),
                  (176, "drop2", 0.85), (240, "final", 1.0), (304, "outro", 0.3)],
     "cameras": [(-8, "front", 0), (-2, "side", 4), (28, "side_far", 2), (96, "side", 2), (160, "side", 4),

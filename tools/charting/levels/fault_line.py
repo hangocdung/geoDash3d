@@ -16,7 +16,7 @@ from handmade import build  # noqa: E402
 SONG = {
     "id": "fault_line", "title": "Fault Line", "artist": "hdgstudio86", "bpm": 128.0, "offset": 0.448,
     "end_beat": 332,
-    "speed": [(0, 7.0), (100, 7.5), (172, 8.0), (268, 8.5), (300, 9.0)],
+    "phases": [(0, "indigo", 7.0), (100, "aurora", 8.0), (172, "ember", 9.0), (268, "glacier", 10.0)],
     "sections": [(-16, "intro", 0.25), (36, "verse", 0.45), (68, "verse2", 0.5), (100, "verse3", 0.55),
                  (136, "bridge", 0.7), (168, "riser", 0.75), (172, "chorus", 0.9), (268, "outro", 0.6),
                  (332, "end", 0.3)],

@@ -18,15 +18,33 @@
 		},
 		{
 			"beat": 128,
-			"units_per_beat": 7.5
-		},
-		{
-			"beat": 256,
 			"units_per_beat": 8.0
 		},
 		{
+			"beat": 256,
+			"units_per_beat": 8.75
+		},
+		{
 			"beat": 352,
-			"units_per_beat": 8.5
+			"units_per_beat": 9.5
+		}
+	],
+	"phases": [
+		{
+			"beat": 0,
+			"palette": "ocean"
+		},
+		{
+			"beat": 128,
+			"palette": "sunset"
+		},
+		{
+			"beat": 256,
+			"palette": "ultraviolet"
+		},
+		{
+			"beat": 352,
+			"palette": "ember"
 		}
 	],
 	"sections": [
@@ -186,7 +204,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 132.5507,
+			"beat": 132.5475,
 			"height": 1.5
 		},
 		{
@@ -206,11 +224,11 @@
 			"height": 0.0
 		},
 		{
-			"beat": 164.5507,
+			"beat": 164.5475,
 			"height": 1.5
 		},
 		{
-			"beat": 166.0507,
+			"beat": 166.0475,
 			"height": 3.0
 		},
 		{
@@ -226,7 +244,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 190.0507,
+			"beat": 190.0475,
 			"height": 1.5
 		},
 		{
@@ -234,7 +252,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 202.0507,
+			"beat": 202.0475,
 			"height": 1.5
 		},
 		{
@@ -250,11 +268,11 @@
 			"height": 0.0
 		},
 		{
-			"beat": 220.5507,
+			"beat": 220.5475,
 			"height": 1.5
 		},
 		{
-			"beat": 222.0507,
+			"beat": 222.0475,
 			"height": 3.0
 		},
 		{
@@ -270,11 +288,11 @@
 			"height": 0.0
 		},
 		{
-			"beat": 252.5507,
+			"beat": 252.5475,
 			"height": 1.5
 		},
 		{
-			"beat": 254.0507,
+			"beat": 254.0475,
 			"height": 3.0
 		},
 		{
@@ -282,7 +300,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 264.5475,
+			"beat": 264.5434,
 			"height": 1.5
 		},
 		{
@@ -306,11 +324,11 @@
 			"height": 0.0
 		},
 		{
-			"beat": 296.5475,
+			"beat": 296.5434,
 			"height": 1.5
 		},
 		{
-			"beat": 298.0475,
+			"beat": 298.0434,
 			"height": 3.0
 		},
 		{
@@ -322,7 +340,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 340.5475,
+			"beat": 340.5434,
 			"height": 1.5
 		},
 		{
@@ -330,7 +348,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 356.5447,
+			"beat": 356.54,
 			"height": 1.5
 		},
 		{
@@ -354,11 +372,11 @@
 			"height": 0.0
 		},
 		{
-			"beat": 384.5447,
+			"beat": 384.54,
 			"height": 1.5
 		},
 		{
-			"beat": 387.5447,
+			"beat": 387.54,
 			"height": 3.0
 		},
 		{

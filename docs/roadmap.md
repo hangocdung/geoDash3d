@@ -109,6 +109,19 @@ Thiết kế: `docs/design/gameplay_v3.md`. **Đã duyệt 2026-10-14: map đị
       với onset thật) → bản `.rec` còn lệch (×0.72) tới khi dùng ALIGN TIMING (lưới 1/2) trong màn RECORD.
 - [ ] **GD3-093** Biome theo đoạn nhạc (bảng màu tông lạnh + bộ hình khối cảnh nền) — cần chọn chủ đề.
 
+## Phase 4.8 — Đa dạng hình ảnh và nhịp độ (yêu cầu 2026-10-14, người dùng duyệt toàn bộ)
+Ưu tiên tối thượng: **giữ FPS gần như hiện tại** (mọi chi phí hình ảnh mới theo tier, LOW giữ nguyên nếu chưa đo).
+Người dùng cho phép **trời tông ấm** ở vài phase; camera trong vòng lộn/cuộn **bám theo đường**.
+- [x] **GD3-100** Phase theo beat: chart `phases` (palette), mỗi phase nhanh hơn (bậc 7 → 10, trước đây 7 → 8.5–9),
+      8 palette (`PaletteLibrary`, 2 palette trời ấm `sunset`/`ember` có mặt trời sọc), mọi vật liệu nền theo palette
+      qua global `pal_*`, blend 1 beat (LOW đổi ngay), hiệu ứng đổi phase + cổng lớn + toast tốc độ. Sinh lại mọi chart;
+      nhịp chạm không đổi, dung sai tệ nhất như cũ (±90 ms; `fault_line` ±80 ms như trước). Test: `test_phase_palettes.gd`.
+- [ ] **GD3-101** Vòng cue nháy theo nhạc + vòng co dần chạm đúng beat + vòng dưới chân người chơi.
+- [ ] **GD3-102** Đường đua đa dạng: xoắn ốc, vòng lộn dọc, cuộn, cua nghiêng, sóng.
+- [ ] **GD3-103** Texture Codex cho đường, bệ, cột, cảnh nền (MEDIUM/HIGH; LOW giữ nguyên).
+- [ ] **GD3-104** Chướng ngại mới (model Blender) + mẫu màn, sinh lại chart.
+- [ ] **GD3-105** Đo hiệu năng (PC Mobile renderer) + APK A/B cho `perf_ab.sh`.
+
 ## Phase 5 — Mobile
 - [x] **GD3-050** Export Android (`export_presets.cfg`, arm64, debug keystore), cài và đo trên Galaxy Note10 Lite
       (Mali-G72, Vulkan Mobile). Đo bằng `PerfProbe` + `tools/device/perf_matrix.sh`. Kết quả, khi máy đang ấm

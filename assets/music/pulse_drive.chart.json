@@ -18,19 +18,41 @@
 		},
 		{
 			"beat": 96,
-			"units_per_beat": 7.5
+			"units_per_beat": 7.75
 		},
 		{
 			"beat": 160,
-			"units_per_beat": 8.0
-		},
-		{
-			"beat": 256,
 			"units_per_beat": 8.5
 		},
 		{
+			"beat": 256,
+			"units_per_beat": 9.25
+		},
+		{
 			"beat": 324,
-			"units_per_beat": 9.0
+			"units_per_beat": 10.0
+		}
+	],
+	"phases": [
+		{
+			"beat": 0,
+			"palette": "ocean"
+		},
+		{
+			"beat": 96,
+			"palette": "indigo"
+		},
+		{
+			"beat": 160,
+			"palette": "sunset"
+		},
+		{
+			"beat": 256,
+			"palette": "ultraviolet"
+		},
+		{
+			"beat": 324,
+			"palette": "void"
 		}
 	],
 	"sections": [
@@ -222,7 +244,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 105.5507,
+			"beat": 105.549,
 			"height": 1.5
 		},
 		{
@@ -230,7 +252,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 135.5507,
+			"beat": 135.549,
 			"height": 1.5
 		},
 		{
@@ -246,7 +268,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 169.5475,
+			"beat": 169.5447,
 			"height": 1.5
 		},
 		{
@@ -254,7 +276,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 185.5475,
+			"beat": 185.5447,
 			"height": 1.5
 		},
 		{
@@ -266,7 +288,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 211.0475,
+			"beat": 211.0447,
 			"height": 1.5
 		},
 		{
@@ -282,7 +304,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 244.5475,
+			"beat": 244.5447,
 			"height": 1.5
 		},
 		{
@@ -290,7 +312,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 279.0447,
+			"beat": 279.0411,
 			"height": 1.5
 		},
 		{
@@ -306,7 +328,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 304.0447,
+			"beat": 304.0411,
 			"height": 1.5
 		},
 		{
@@ -314,7 +336,7 @@
 			"height": 0.0
 		},
 		{
-			"beat": 328.5422,
+			"beat": 328.538,
 			"height": 1.5
 		},
 		{

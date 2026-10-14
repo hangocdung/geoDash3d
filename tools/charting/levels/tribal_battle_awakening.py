@@ -13,7 +13,7 @@ from handmade import build  # noqa: E402
 SONG = {
     "id": "tribal_battle_awakening", "audio": "tribal_battle_awakening", "title": "Tribal Battle Awakening (Beat)",
     "artist": "Unknown", "bpm": 150.0, "offset": 0.786, "end_beat": 432,
-    "speed": [(0, 7.0), (96, 7.5), (192, 8.0), (288, 8.5)],
+    "phases": [(0, "indigo", 7.0), (96, "sunset", 8.0), (192, "aurora", 8.75), (288, "ember", 9.5)],
     "sections": [(-16, "intro", 0.4), (48, "build", 0.6), (96, "drop", 0.85), (144, "verse", 0.6),
                  (192, "drop2", 0.85), (240, "bridge", 0.7), (288, "final", 1.0), (384, "outro", 0.35)],
     "cameras": [(-8, "front", 0), (-2, "side", 4), (96, "side_far", 2), (144, "side", 4), (192, "diagonal", 2),

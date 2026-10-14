@@ -38,7 +38,8 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   (hộp va chạm 3 trục + kiểu hiển thị SPIKE/WALL/GATE + kiểu vào sân RISE/DROP/UNFOLD, `appear_beat`).
   Chi tiết thông số: `docs/design/gameplay_v2.md`.
 - **Chart** (`chart/`): `ChartLoader` gom *mọi* lỗi validate rồi báo một lượt. `LevelChart` lưu cue (theo beat),
-  vật cản (theo khoảng cách), camera, vfx, section, track. Hàm `safe_start_beat()` lùi điểm bắt đầu để không
+  vật cản (theo khoảng cách), camera, vfx, section, phase (`phase_index_at`, tên palette chỉ là dữ liệu: phần trình
+  bày tra cứu), track. Hàm `safe_start_beat()` lùi điểm bắt đầu để không
   kẹt trước vật cản có cue đã bị bỏ qua. Định dạng chi tiết: `docs/chart_format.md`.
 - **RunSimulation** (`simulation/`):
   - Va chạm chỉ kiểm tra trên lưới cố định 1/96 beat, nên kết quả không phụ thuộc FPS (có test chứng minh).
@@ -85,6 +86,15 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
     MEDIUM). "Reduce flashing" (`UserSettings.reduce_flashing`) tắt nhịp trời và giảm nhịp đập/lóe sáng của vật thể
     neon còn 35%.
   - Glow additive, ACES, fog exponential cộng height fog.
+  - **Phase và palette** (GD3-100): `PhasePalettes` (hàm thuần của beat) cho palette đang dùng (`ScenePalette`, thư
+    viện `PaletteLibrary`); khi đổi phase thì blend trong 1 beat (LOW: đổi ngay trong một frame). Palette được đẩy ra
+    global `pal_*` (vec4, màu linear) **chỉ khi thay đổi**. Các shader nền chọn màu theo `palette_role`: đường/bệ
+    (`neon_track` 1/2), cảnh nền/cột (`neon_box` 1/2, `neon_wire` 1), decor (`neon_glow` 1/2). Vật cản và người chơi
+    giữ màu dành riêng. Trời: pass nền đọc global (blend mượt), pass cubemap đọc uniform của material, chỉ đổi một lần
+    khi phase đã ổn định (radiance render lại đúng một lần). Fog, ambient, đèn chính và bụi (`VfxDirector.set_palette`)
+    cũng theo palette. Trời có thêm mặt trời sọc ở chân trời cho palette ấm (`sky_style.y`).
+    `PresentationRouter` bắn hiệu ứng đổi phase (lóe, sóng vòng, FOV kick, rung nhẹ, toast "PHASE n · SPEED ×k");
+    `DecorView` đặt cổng vòng lớn màu palette mới ở đầu mỗi phase.
   - Đẩy global shader uniform `beat_pulse`: nhịp đầu ô nhịp mạnh hơn, tỉ lệ theo energy của section; cùng
     `run_beat`, `player_distance`, `player_position` (vị trí người chơi trên đường, theo beat). Danh sách global
     khai báo trong `tools/setup/configure_project.gd`.
