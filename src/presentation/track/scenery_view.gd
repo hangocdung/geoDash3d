@@ -34,7 +34,8 @@ func setup(context: LevelContext, seed_value: int) -> void:
 		var spires: Array[Transform3D] = []
 		var distance: float = chunk_start
 		while distance < minf(chunk_start + CHUNK_LENGTH, context.track.end_distance):
-			var frame: Transform3D = context.track.transform_at(distance)
+			# Upright frame: scenery stands on world up through loops and rolls.
+			var frame: Transform3D = context.track.upright_transform_at(distance)
 			for attempt: int in 2:
 				# Draw every random number even when skipped, so the layout is identical on every tier.
 				var placement: Transform3D = _random_block(frame)

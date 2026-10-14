@@ -98,21 +98,70 @@
 			"shape": "straight"
 		},
 		{
+			"beat": 72,
+			"shape": "wave",
+			"amplitude": 2,
+			"count": 2
+		},
+		{
+			"beat": 88,
+			"shape": "straight"
+		},
+		{
 			"beat": 124,
 			"shape": "turn",
-			"angle_deg": 30
+			"angle_deg": 30,
+			"bank_deg": 20
 		},
 		{
 			"beat": 132,
 			"shape": "straight"
 		},
 		{
+			"beat": 140,
+			"shape": "helix",
+			"angle_deg": 360,
+			"rise": 18
+		},
+		{
+			"beat": 156,
+			"shape": "straight"
+		},
+		{
+			"beat": 172,
+			"shape": "loop",
+			"lateral": 7
+		},
+		{
+			"beat": 184,
+			"shape": "straight"
+		},
+		{
+			"beat": 208,
+			"shape": "roll",
+			"roll_deg": 360
+		},
+		{
+			"beat": 216,
+			"shape": "straight"
+		},
+		{
 			"beat": 240,
 			"shape": "turn",
-			"angle_deg": -35
+			"angle_deg": -35,
+			"bank_deg": 22
 		},
 		{
 			"beat": 248,
+			"shape": "straight"
+		},
+		{
+			"beat": 284,
+			"shape": "roll",
+			"roll_deg": -360
+		},
+		{
+			"beat": 292,
 			"shape": "straight"
 		},
 		{
@@ -122,6 +171,15 @@
 		},
 		{
 			"beat": 304,
+			"shape": "straight"
+		},
+		{
+			"beat": 316,
+			"shape": "loop",
+			"lateral": -7
+		},
+		{
+			"beat": 328,
 			"shape": "straight"
 		}
 	],

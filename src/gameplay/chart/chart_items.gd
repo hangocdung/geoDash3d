@@ -94,15 +94,25 @@ class Phase:
 		palette = palette_name
 
 
+## Track shape from `beat` until the next segment (see docs/chart_format.md and TrackPath).
 class TrackSegment:
-	enum Shape { STRAIGHT, TURN, SLOPE }
+	enum Shape { STRAIGHT, TURN, SLOPE, HELIX, LOOP, ROLL, WAVE }
 
 	var beat: float
 	var shape: Shape
-	## TURN: total yaw change in degrees (positive = left).
+	## TURN / HELIX: total yaw change in degrees (positive = left).
 	var angle_deg: float = 0.0
-	## SLOPE: total height change in units.
+	## SLOPE / HELIX: total height change in units.
 	var rise: float = 0.0
+	## TURN: lean into the turn by up to this many degrees (0 = flat).
+	var bank_deg: float = 0.0
+	## ROLL: total roll around the direction of travel in degrees (positive = clockwise seen from behind).
+	var roll_deg: float = 0.0
+	## LOOP: sideways shift over the loop in units (positive = right), so it never runs into itself.
+	var lateral: float = 0.0
+	## WAVE: height of each hill and number of hills.
+	var amplitude: float = 0.0
+	var count: int = 1
 
 	func _init(segment_beat: float, segment_shape: Shape) -> void:
 		beat = segment_beat

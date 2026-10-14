@@ -9,6 +9,14 @@ const SUPPORTED_VERSION: int = 1
 const NO_HAZARD: String = "none"
 ## Sanity bound for terrain heights (units above the road surface).
 const MAX_TERRAIN_HEIGHT: float = 12.0
+const TRACK_SHAPES: Dictionary[String, ChartItems.TrackSegment.Shape] = {
+	"straight": ChartItems.TrackSegment.Shape.STRAIGHT, "turn": ChartItems.TrackSegment.Shape.TURN,
+	"slope": ChartItems.TrackSegment.Shape.SLOPE, "helix": ChartItems.TrackSegment.Shape.HELIX,
+	"loop": ChartItems.TrackSegment.Shape.LOOP, "roll": ChartItems.TrackSegment.Shape.ROLL,
+	"wave": ChartItems.TrackSegment.Shape.WAVE,
+}
+const DEFAULT_LOOP_LATERAL: float = 6.0
+const MAX_BANK_DEG: float = 45.0
 
 var _errors: PackedStringArray = []
 var _config: GameplayConfig
@@ -128,19 +136,41 @@ func _parse_track(root: Dictionary, chart: LevelChart) -> void:
 	for entry: Dictionary in _objects(root, "track"):
 		var beat: float = _number(entry, "beat", 0.0)
 		var shape_name: String = str(entry.get("shape", "straight"))
-		match shape_name:
-			"straight":
-				chart.track_segments.append(ChartItems.TrackSegment.new(beat, ChartItems.TrackSegment.Shape.STRAIGHT))
-			"turn":
-				var turn := ChartItems.TrackSegment.new(beat, ChartItems.TrackSegment.Shape.TURN)
-				turn.angle_deg = _number(entry, "angle_deg", 0.0)
-				chart.track_segments.append(turn)
-			"slope":
-				var slope := ChartItems.TrackSegment.new(beat, ChartItems.TrackSegment.Shape.SLOPE)
-				slope.rise = _number(entry, "rise", 0.0)
-				chart.track_segments.append(slope)
-			_:
-				_errors.append("track segment at beat %.3f has unknown shape '%s'" % [beat, shape_name])
+		if not TRACK_SHAPES.has(shape_name):
+			_errors.append("track segment at beat %.3f has unknown shape '%s'" % [beat, shape_name])
+			continue
+		var segment := ChartItems.TrackSegment.new(beat, TRACK_SHAPES[shape_name])
+		segment.angle_deg = _number(entry, "angle_deg", 0.0)
+		segment.rise = _number(entry, "rise", 0.0)
+		segment.bank_deg = _number(entry, "bank_deg", 0.0)
+		segment.roll_deg = _number(entry, "roll_deg", 360.0)
+		segment.lateral = _number(entry, "lateral", DEFAULT_LOOP_LATERAL)
+		segment.amplitude = _number(entry, "amplitude", 2.0)
+		segment.count = int(_number(entry, "count", 1.0))
+		_validate_track_segment(segment)
+		chart.track_segments.append(segment)
+
+
+## Shapes that would run into themselves (or flip the road over too far) are rejected.
+func _validate_track_segment(segment: ChartItems.TrackSegment) -> void:
+	var where: String = "track %s at beat %.3f" % [TRACK_SHAPES.find_key(segment.shape), segment.beat]
+	match segment.shape:
+		ChartItems.TrackSegment.Shape.HELIX:
+			var turns: float = absf(segment.angle_deg) / 360.0
+			var layer: float = TrackPath.CLEARANCE_ABOVE + TrackPath.CLEARANCE_BELOW
+			if turns >= 0.8 and absf(segment.rise) / turns < layer:
+				_errors.append("%s climbs %.1f per turn, needs at least %.1f" % [where, absf(segment.rise) / turns,
+						layer])
+		ChartItems.TrackSegment.Shape.LOOP:
+			if absf(segment.lateral) < _config.track_width + 2.0:
+				_errors.append("%s: 'lateral' must be at least %.1f so the loop clears itself" % [where,
+						_config.track_width + 2.0])
+		ChartItems.TrackSegment.Shape.TURN:
+			if absf(segment.bank_deg) > MAX_BANK_DEG:
+				_errors.append("%s: 'bank_deg' is limited to %.0f" % [where, MAX_BANK_DEG])
+		ChartItems.TrackSegment.Shape.WAVE:
+			if segment.count < 1 or segment.amplitude <= 0.0:
+				_errors.append("%s needs 'count' >= 1 and 'amplitude' > 0" % where)
 
 
 func _parse_terrain(root: Dictionary, chart: LevelChart) -> void:

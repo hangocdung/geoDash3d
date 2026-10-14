@@ -1,6 +1,7 @@
 # Builds the visible road from TrackPath in chunks (for frustum culling), cut open where the terrain has
 # gaps, plus raised ground blocks (same neon road look, lit step faces) and support pillars that drop into
-# the fog. Purely visual; collision lives in RunSimulation.
+# the fog (only under upright road with no other track below: helices, loops and rolls stand free).
+# Purely visual; collision lives in RunSimulation.
 # Related: src/presentation/meshes/procedural_meshes.gd, src/gameplay/track/terrain.gd, neon_track.gdshader
 class_name TrackView
 extends Node3D
@@ -93,6 +94,7 @@ func _add_mesh(node_name: String, mesh: ArrayMesh, material: Material) -> void:
 
 
 func _build_pillars(context: LevelContext, terrain: Terrain, width: float, thickness: float) -> void:
+	var clearance := TrackClearance.new(context.track)
 	var material := ShaderMaterial.new()
 	material.shader = BOX_SHADER
 	material.set_shader_parameter("palette_role", 2)
@@ -103,7 +105,8 @@ func _build_pillars(context: LevelContext, terrain: Terrain, width: float, thick
 	while distance < context.track.end_distance:
 		if not Terrain.is_gap(terrain.support_height(distance - PILLAR_GAP_CLEARANCE, distance + PILLAR_GAP_CLEARANCE)) \
 				and terrain.is_level(distance - PILLAR_GAP_CLEARANCE, distance + PILLAR_GAP_CLEARANCE,
-				terrain.height_at(distance)):
+				terrain.height_at(distance)) and context.track.is_upright_at(distance) 				and clearance.is_column_clear(context.track.transform_at(distance).origin, width,
+				PILLAR_DEPTH + UNDERSIDE_CLEARANCE + thickness):
 			var frame: Transform3D = context.track.transform_at(distance)
 			var center: Vector3 = frame.origin - Vector3.UP * (thickness + UNDERSIDE_CLEARANCE + PILLAR_DEPTH * 0.5)
 			var basis := Basis(Vector3.UP, atan2(-frame.basis.x.z, frame.basis.x.x)).scaled(

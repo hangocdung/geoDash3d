@@ -36,6 +36,11 @@ func setup(context: LevelContext) -> void:
 	var beat: float = MACE_SPACING_BEATS * 0.5
 	var index: int = 0
 	while beat < context.chart.end_beat + 8.0:
+		# Maces hang from world up: none over loops, rolls or steep banks.
+		if not context.track.is_upright_at(context.chart.distance_at(beat)):
+			beat += MACE_SPACING_BEATS
+			index += 1
+			continue
 		var mace: Node3D = NeonModel.instantiate_palette(MACE_SCENE, 3.5)
 		var rest: Transform3D = context.frame_at_beat(beat) * Transform3D(Basis(),
 				Vector3(0, MACE_PIVOT_HEIGHT - float(index % 3), MACE_LATERAL - float(index % 2) * 4.0))

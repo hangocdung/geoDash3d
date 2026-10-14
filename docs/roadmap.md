@@ -119,7 +119,11 @@ Người dùng cho phép **trời tông ấm** ở vài phase; camera trong vòn
 - [x] **GD3-101** Vạch chạm (vòng cue, vòng nhảy) đập theo nhạc, vòng ngoài co dần chạm khít vạch đúng beat phải chạm
       (kiểu osu!), vạch lóe sáng đúng lúc đó; vòng dưới chân người chơi phát sóng mỗi beat, đổi màu theo hành động sắp tới.
       Thuần shader (glyph), +1 draw call.
-- [ ] **GD3-102** Đường đua đa dạng: xoắn ốc, vòng lộn dọc, cuộn, cua nghiêng, sóng.
+- [x] **GD3-102** Đường đua đa dạng: `helix` (xoắn ốc 360°, lên 18), `loop` (vòng lộn dọc 12 beat, dịch ngang 7),
+      `roll` (cuộn 360° trong 8 beat), `wave` (đồi), cua nghiêng `bank_deg`. Mỗi màn có 1 xoắn ốc, 1–3 vòng lộn, 2–3
+      vòng cuộn, sóng và cua nghiêng (vòng lộn thường ở đầu phase/đoạn drop). Chỉ là hình ảnh, không đổi gameplay.
+      Cột đỡ/cầu gai tránh chỗ không thẳng đứng hoặc có đường bên dưới; cảnh nền theo frame thẳng đứng.
+      Test `test_track_shapes.gd` (hình học + mọi chart không tự cắt). **→ Cần người chơi thử cảm giác vòng lộn/cuộn.**
 - [ ] **GD3-103** Texture Codex cho đường, bệ, cột, cảnh nền (MEDIUM/HIGH; LOW giữ nguyên).
 - [ ] **GD3-104** Chướng ngại mới (model Blender) + mẫu màn, sinh lại chart.
 - [ ] **GD3-105** Đo hiệu năng (PC Mobile renderer) + APK A/B cho `perf_ab.sh`.

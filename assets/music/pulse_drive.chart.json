@@ -120,10 +120,21 @@
 		{
 			"beat": 40,
 			"shape": "turn",
-			"angle_deg": 30
+			"angle_deg": 30,
+			"bank_deg": 20
 		},
 		{
 			"beat": 48,
+			"shape": "straight"
+		},
+		{
+			"beat": 72,
+			"shape": "wave",
+			"amplitude": 2,
+			"count": 2
+		},
+		{
+			"beat": 88,
 			"shape": "straight"
 		},
 		{
@@ -136,18 +147,66 @@
 			"shape": "straight"
 		},
 		{
+			"beat": 132,
+			"shape": "helix",
+			"angle_deg": 360,
+			"rise": 18
+		},
+		{
+			"beat": 148,
+			"shape": "straight"
+		},
+		{
+			"beat": 160,
+			"shape": "loop",
+			"lateral": 7
+		},
+		{
+			"beat": 172,
+			"shape": "straight"
+		},
+		{
+			"beat": 196,
+			"shape": "roll",
+			"roll_deg": 360
+		},
+		{
+			"beat": 204,
+			"shape": "straight"
+		},
+		{
 			"beat": 224,
 			"shape": "turn",
-			"angle_deg": -35
+			"angle_deg": -35,
+			"bank_deg": 22
 		},
 		{
 			"beat": 232,
 			"shape": "straight"
 		},
 		{
+			"beat": 256,
+			"shape": "loop",
+			"lateral": -7
+		},
+		{
+			"beat": 268,
+			"shape": "straight"
+		},
+		{
+			"beat": 292,
+			"shape": "roll",
+			"roll_deg": -360
+		},
+		{
+			"beat": 300,
+			"shape": "straight"
+		},
+		{
 			"beat": 322,
 			"shape": "turn",
-			"angle_deg": 30
+			"angle_deg": 30,
+			"bank_deg": 20
 		},
 		{
 			"beat": 328,

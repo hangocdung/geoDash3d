@@ -108,30 +108,99 @@
 			"shape": "straight"
 		},
 		{
+			"beat": 64,
+			"shape": "loop",
+			"lateral": 7
+		},
+		{
+			"beat": 76,
+			"shape": "straight"
+		},
+		{
+			"beat": 96,
+			"shape": "wave",
+			"amplitude": 2.5,
+			"count": 3
+		},
+		{
+			"beat": 112,
+			"shape": "straight"
+		},
+		{
 			"beat": 124,
 			"shape": "turn",
-			"angle_deg": 30
+			"angle_deg": 30,
+			"bank_deg": 20
 		},
 		{
 			"beat": 132,
 			"shape": "straight"
 		},
 		{
+			"beat": 160,
+			"shape": "roll",
+			"roll_deg": 360
+		},
+		{
+			"beat": 168,
+			"shape": "straight"
+		},
+		{
 			"beat": 188,
 			"shape": "turn",
-			"angle_deg": -35
+			"angle_deg": -35,
+			"bank_deg": 22
 		},
 		{
 			"beat": 196,
 			"shape": "straight"
 		},
 		{
+			"beat": 204,
+			"shape": "helix",
+			"angle_deg": 360,
+			"rise": 18
+		},
+		{
+			"beat": 220,
+			"shape": "straight"
+		},
+		{
+			"beat": 264,
+			"shape": "loop",
+			"lateral": -7
+		},
+		{
+			"beat": 276,
+			"shape": "straight"
+		},
+		{
+			"beat": 300,
+			"shape": "roll",
+			"roll_deg": -360
+		},
+		{
+			"beat": 308,
+			"shape": "straight"
+		},
+		{
 			"beat": 320,
 			"shape": "turn",
-			"angle_deg": 40
+			"angle_deg": 40,
+			"bank_deg": 25
 		},
 		{
 			"beat": 328,
+			"shape": "straight"
+		},
+		{
+			"beat": 340,
+			"shape": "wave",
+			"amplitude": 2,
+			"count": 4
+		},
+		{
+			"beat": 356,
 			"shape": "straight"
 		}
 	],

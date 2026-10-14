@@ -66,8 +66,13 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   bao giờ chọn điểm bắt đầu giữa không trung) và `reference_beats/motions` (trạng thái lên xuống, cho lá chắn).
   Chart phẳng (không địa hình/bệ bật/vòng nhảy) bỏ qua bước này.
 - **Autoplay**: chạm đúng mọi cue. Dùng cho test, chụp ảnh và chế độ demo.
-- **TrackPath** (`track/`): bảng frame mỗi 0.5 đơn vị, tích phân từ các đoạn straight/turn/slope (dùng midpoint).
-  Trục của frame: X = hướng đi, Y = lên, Z = bên phải (phía camera side). Ngoài hai đầu thì ngoại suy thẳng.
+- **TrackPath** (`track/`): bảng frame mỗi 0.5 đơn vị (quaternion + hướng yaw), tích phân từ các đoạn
+  straight/turn (có thể nghiêng)/slope/helix/loop/roll/wave (dùng midpoint). Loop đi theo cung thật trong mặt phẳng
+  dọc và dịch ngang; helix/wave/slope cộng độ cao lên bước ngang (độ cao chính xác). Trục của frame: X = hướng đi,
+  Y = lên, Z = bên phải (phía camera side). Ngoài hai đầu thì ngoại suy thẳng. `upright_transform_at` chỉ theo hướng
+  (cho cảnh nền), `is_upright_at` (cột đỡ, cầu gai). `TrackClearance`: lưới ô 8 đơn vị để tìm chỗ đường tự cắt
+  (test) và kiểm tra cột đỡ không xuyên qua đoạn đường bên dưới. Camera bám frame (xoay theo vòng lộn/cuộn, người
+  dùng chọn 2026-10-14).
 - **Terrain** (`track/terrain.gd`, gameplay v3): độ cao mặt đất theo quãng đường, dạng bậc, có `GAP`. Xây trong
   `LevelChart.finalize()` từ mục `terrain` của chart. Truy vấn: `support_height`, `surface_height_at` (cho hình ảnh),
   `smoothed_height_at` (trung bình chính xác, liên tục, cho camera). Chi tiết: `docs/design/gameplay_v3.md`.
