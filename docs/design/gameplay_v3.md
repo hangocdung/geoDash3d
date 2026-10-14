@@ -142,3 +142,22 @@ Mẫu màn mới (`terrain_patterns.py` / `handmade.py`):
 
 Dung sai đo bằng `tolerance_report.gd` (test `test_obstacles.gd` kiểm tra ±0.15 beat ở 120 BPM): mọi chart vẫn có
 dung sai tệ nhất ±90 ms; `dive` ở 150 BPM: nhảy −150/+90 ms, lao xuống ±110 ms.
+
+## 10. Chướng ngại từ model (GD3-104, 2026-10-14)
+Người dùng muốn thêm nhiều model chướng ngại. Vẫn một thao tác chạm; mỗi loại mới là **biến thể** của một vật cản cũ
+(cùng cách vượt, hộp va chạm bằng hoặc rộng hơn) nên nhịp chạm và dung sai các chart không đổi. Phần chuyển động là
+hàm thuần của beat (`ObstacleModels.pose_moving_part`), hộp va chạm đứng yên.
+
+| Loại | Thay cho | Hình | Chuyển động theo nhạc |
+|---|---|---|---|
+| `laser_fence` | gai | 2 cột phát, 2 tia laser thấp (0.25 / 0.55) ngang cả đường; hộp dài 0.3, cao 0.7 | tia lóe theo `beat_pulse` |
+| `pendulum` | gai | khung cổng + rìu lưỡi liềm; hộp như gai | lắc ±55°, chu kỳ 2 beat, buông thẳng đúng beat người chơi tới |
+| `spike_mine` | gai | mìn gai phát sáng (vẽ to 1.5× hộp) | nhấp nhô ±0.1, xoay chậm |
+| `crusher` | trần gai | tấm ép có răng + 2 cần piston; hộp như trần gai | đập xuống điểm thấp nhất (không thấp hơn hộp) đúng mỗi beat |
+| `laser_gap_*` | tường 2 làn | 2 cột + 5 tia + màn năng lượng | tia lóe theo beat |
+| `ring_gate` | cổng | vòng đứng + màn năng lượng tròn | vòng xoay chậm |
+
+Màu giữ quy tắc: họ nhảy hồng, lách làn cam, lộn lime. Tool đặt màn: gai thường xoay vòng thêm `laser`, `pendulum`,
+`mine` theo energy (`handmade.SPIKE_VARIETY`, `recording_level` AUTO_*); cứ 2 lần lao xuống / tường / cổng thì 1 lần
+dùng biến thể (`terrain_patterns.Level._variant`). Model: `assets/blender/generate_models.py` (chỉ Body + Glow, ≤ 2 draw
+call mỗi model, 132–832 đỉnh), vật liệu dùng chung theo màu (`ObstacleModels`).

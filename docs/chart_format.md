@@ -56,7 +56,10 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
 
   `"hazard"` có thể đổi vật cản đi kèm sang biến thể (GD3-095): `spike_double` (2 gai, thấp hơn),
   `spike_triple` (3 gai, thấp hơn nữa), `saw` (lưỡi cưa xoay theo nhịp). Mọi biến thể vượt qua bằng một cú nhảy,
-  dung sai ≥ ±90 ms ở 150 BPM. `ceiling` (trần gai phủ cả đường, đáy cao 1.3) chỉ đặt bằng `"type": "hazard"`:
+  dung sai ≥ ±90 ms ở 150 BPM. GD3-104 thêm (model Blender, cùng cách vượt và hộp va chạm bằng hoặc rộng hơn bản gốc):
+  `laser_fence` (hàng rào laser thấp), `pendulum` (rìu con lắc, buông thẳng đúng lúc người chơi tới), `spike_mine`
+  (mìn gai lơ lửng) cho `jump`; `laser_gap_left` / `laser_gap_right` (lưới laser) cho `dodge_*`; `ring_gate` (cổng vòng)
+  cho `flip`; `crusher` (máy dập, như `ceiling`) chỉ đặt bằng `"type": "hazard"`. `ceiling` (trần gai phủ cả đường, đáy cao 1.3) chỉ đặt bằng `"type": "hazard"`:
   chạy bên dưới thì an toàn, đang bay thì chết — dùng với `orb_drop`.
   Cú nhảy kết thúc khi tiếp đất (sớm hơn nếu đáp lên bệ cao hơn). Vật cản đứng trên mặt đất tại chỗ nó đứng (`terrain`). Vật cản luôn vào sân đúng **nguyên beat** `floor(beat_vật_cản − lead)` (lead: spike 2, tường/cổng 3). `"hazard": "none"` để chỉ có cue,
   không có vật cản. Có thể thêm `"hazard_offset": <beats>` để dịch vật cản.

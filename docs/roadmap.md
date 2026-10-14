@@ -127,7 +127,10 @@ Người dùng cho phép **trời tông ấm** ở vài phase; camera trong vòn
 - [x] **GD3-103** Texture Codex (6 ảnh: tấm sàn, tấm lục giác, tấm hông, mặt tiền tháp, mạch, gờ cột) → 2 texture gộp kênh
       512 px. Đường: rãnh tấm sáng nhẹ + mạch đập theo beat; bệ: tấm lục giác; hông: tấm thông gió; tháp nền: cửa sổ
       sáng theo palette; cột: gờ dọc. MEDIUM/HIGH, mỗi pixel 1 lần lấy mẫu; **LOW giữ y như cũ** (ảnh so sánh lệch 1/255).
-- [ ] **GD3-104** Chướng ngại mới (model Blender) + mẫu màn, sinh lại chart.
+- [x] **GD3-104** 6 model chướng ngại mới (Blender): hàng rào laser, rìu con lắc, mìn gai, máy dập, tường lưới laser,
+      cổng vòng — biến thể của gai / trần gai / tường / cổng (cùng cách vượt), chuyển động theo beat. Tool đặt màn tự xen
+      kẽ; sinh lại mọi chart: nhịp chạm và dung sai không đổi. Test trong `test_obstacles.gd`. Thiết kế:
+      `docs/design/gameplay_v3.md` mục 10. Dùng lại SFX vào sân có sẵn (`hazard.rise/drop/unfold`).
 - [ ] **GD3-105** Đo hiệu năng (PC Mobile renderer) + APK A/B cho `perf_ab.sh`.
 
 ## Phase 5 — Mobile

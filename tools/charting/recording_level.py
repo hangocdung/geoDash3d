@@ -31,8 +31,8 @@ DROP_REST_BEATS = 2.0
 LEDGE_RUN_BEATS = 0.5
 HIGH_ENERGY = 0.8
 # Rotation of obstacles for single taps ("wall" alternates dodge left/right); calm sections stay simpler.
-AUTO_CALM = ["spike", "saw", "step", "spike2", "gap", "wall", "spike", "step1"]
-AUTO_HIGH = ["spike2", "gap", "wall", "step", "saw", "flip", "spike3", "gap", "wall", "spike"]
+AUTO_CALM = ["spike", "saw", "step", "laser", "spike2", "gap", "wall", "mine", "spike", "step1"]
+AUTO_HIGH = ["spike2", "gap", "wall", "step", "pendulum", "saw", "flip", "spike3", "gap", "laser", "wall", "spike"]
 SINGLE_FALLBACKS = ["spike", "gap", "step", "step1", "saw", "wall", "flip"]
 # Two taps half a beat apart: plain orb, dive under a spiked ceiling, big orb (each needs more room after it).
 PAIRS = ["orb", "dive", "orb", "borb"]

@@ -80,3 +80,32 @@ func test_spike_rows_are_cleared_by_one_jump_with_tolerance() -> void:
 		assert_true(_simulate(chart, [], 6.0).is_dead, "%s kills without a jump" % hazard_id)
 		for tap_beat: float in [4.0, 4.0 - 0.15, 4.0 + 0.15]:
 			assert_false(_simulate(chart, [tap_beat], 6.0).is_dead, "%s jump at %.2f" % [hazard_id, tap_beat])
+
+
+func test_model_obstacles_load_and_are_jumped_with_tolerance() -> void:
+	# GD3-104: laser fence, swinging axe, spiked mine are jumped like a spike (same or looser window).
+	for hazard_id: String in ["laser_fence", "pendulum", "spike_mine"]:
+		var chart: LevelChart = ChartFixtures.make_chart([{"beat": 4, "type": "jump", "hazard": hazard_id}])
+		assert_not_null(chart, hazard_id)
+		assert_true(_simulate(chart, [], 6.0).is_dead, "%s kills without a jump" % hazard_id)
+		for tap_beat: float in [4.0, 4.0 - 0.15, 4.0 + 0.15]:
+			assert_false(_simulate(chart, [tap_beat], 6.0).is_dead, "%s jump at %.2f" % [hazard_id, tap_beat])
+
+
+func test_crusher_works_like_the_spiked_ceiling() -> void:
+	var crusher: HazardDefinition = GameplayConfig.create_default().find_hazard(&"crusher")
+	var center_beat: float = CEILING_EDGE_BEAT + crusher.half_length / 7.0
+	var chart: LevelChart = ChartFixtures.make_chart([{"beat": 4, "type": "jump", "hazard": "none"},
+			{"beat": 4.5, "type": "orb_drop"}, {"beat": center_beat, "type": "hazard", "hazard": "crusher"}],
+			120.0, 7.0, 12.0)
+	assert_true(_simulate(chart, [4.0], 8.0).is_dead, "a plain jump runs into the press")
+	assert_false(_simulate(chart, [4.0, 4.5], 8.0).is_dead, "diving under it survives")
+
+
+func test_laser_walls_and_ring_gate_keep_the_dodge_and_flip_rules() -> void:
+	var chart: LevelChart = ChartFixtures.make_chart([{"beat": 4, "type": "dodge_left", "hazard": "laser_gap_left"},
+			{"beat": 8, "type": "dodge_right", "hazard": "laser_gap_right"}, {"beat": 12, "type": "flip", "hazard": "ring_gate"}],
+			120.0, 7.0, 20.0)
+	assert_eq(chart.hazards.size(), 3)
+	assert_true(_simulate(chart, [], 18.0).is_dead, "running straight hits the laser wall")
+	assert_false(_simulate(chart, [4.0, 8.0, 12.0], 18.0).is_dead, "dodging and flipping clears them")

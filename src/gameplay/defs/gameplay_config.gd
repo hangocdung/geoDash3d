@@ -72,6 +72,10 @@ static func create_default() -> GameplayConfig:
 	config.hazards = [spike, _wall(config, &"wall_gap_left", 1.0), _wall(config, &"wall_gap_right", -1.0), gate,
 			_spike_row(&"spike_double", 2, 0.75, 0.75, 1.8, 1.05), _spike_row(&"spike_triple", 3, 1.05, 0.65, 2.4, 0.9),
 			_saw(), _ceiling(config)]
+	# GD3-104 variants: same ways through (and the same or a looser hitbox) as the hazard they stand in for.
+	config.hazards.append_array([_laser_fence(config), _pendulum(), _spike_mine(), _crusher(config),
+			_wall(config, &"laser_gap_left", 1.0, HazardDefinition.Visual.LASER_WALL),
+			_wall(config, &"laser_gap_right", -1.0, HazardDefinition.Visual.LASER_WALL), _ring_gate(gate)])
 	return config
 
 
@@ -197,9 +201,66 @@ static func _ceiling(config: GameplayConfig) -> HazardDefinition:
 	return ceiling
 
 
+## Low laser fence across the whole road: a thinner, lower box than a spike (jumped the same way).
+static func _laser_fence(config: GameplayConfig) -> HazardDefinition:
+	var laser: HazardDefinition = _hazard(&"laser_fence", HazardDefinition.Visual.LASER, HazardDefinition.Entrance.RISE,
+			2.0, JUMP_COLOR, &"hazard.rise")
+	laser.half_length = 0.15
+	laser.lateral_half_width = config.track_width * 0.5 + 0.4
+	laser.top = 0.7
+	laser.visual_length = 0.2
+	laser.visual_width = config.track_width + 0.6
+	laser.visual_height = 0.55
+	return laser
+
+
+## Swinging axe: the hitbox is where the blade hangs as the player passes (a spike-sized box).
+static func _pendulum() -> HazardDefinition:
+	var pendulum: HazardDefinition = _hazard(&"pendulum", HazardDefinition.Visual.PENDULUM,
+			HazardDefinition.Entrance.DROP, 3.0, JUMP_COLOR, &"hazard.drop")
+	pendulum.half_length = 0.3
+	pendulum.lateral_half_width = 0.4
+	pendulum.top = 0.85
+	pendulum.visual_length = 1.4
+	pendulum.visual_width = 4.0
+	pendulum.visual_height = 4.2
+	return pendulum
+
+
+## Spiked mine floating just above the road (spike-sized box).
+static func _spike_mine() -> HazardDefinition:
+	var mine: HazardDefinition = _hazard(&"spike_mine", HazardDefinition.Visual.MINE, HazardDefinition.Entrance.RISE,
+			2.0, JUMP_COLOR, &"hazard.rise")
+	mine.half_length = 0.3
+	mine.lateral_half_width = 0.4
+	mine.bottom = 0.1
+	mine.top = 0.85
+	mine.visual_length = 0.8
+	mine.visual_width = 0.8
+	mine.visual_height = 0.5
+	return mine
+
+
+## Hydraulic press: the spiked ceiling's hitbox with a heavier look.
+static func _crusher(config: GameplayConfig) -> HazardDefinition:
+	var crusher: HazardDefinition = _ceiling(config)
+	crusher.id = &"crusher"
+	crusher.visual = HazardDefinition.Visual.CRUSHER
+	return crusher
+
+
+## Ring gate: the energy gate's hitbox, a ring instead of posts.
+static func _ring_gate(gate: HazardDefinition) -> HazardDefinition:
+	var ring: HazardDefinition = gate.duplicate() as HazardDefinition
+	ring.id = &"ring_gate"
+	ring.visual = HazardDefinition.Visual.RING_GATE
+	return ring
+
+
 ## Wall covering the middle lane and the lane on `covered_side` (+1 right / -1 left); the gap is opposite.
-static func _wall(config: GameplayConfig, hazard_id: StringName, covered_side: float) -> HazardDefinition:
-	var wall: HazardDefinition = _hazard(hazard_id, HazardDefinition.Visual.WALL, HazardDefinition.Entrance.DROP,
+static func _wall(config: GameplayConfig, hazard_id: StringName, covered_side: float,
+		visual: HazardDefinition.Visual = HazardDefinition.Visual.WALL) -> HazardDefinition:
+	var wall: HazardDefinition = _hazard(hazard_id, visual, HazardDefinition.Entrance.DROP,
 			3.0, DODGE_COLOR, &"hazard.drop")
 	wall.half_length = 0.45
 	wall.lateral_center = covered_side * config.lane_width * 0.5

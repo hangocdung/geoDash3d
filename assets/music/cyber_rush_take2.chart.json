@@ -744,7 +744,8 @@
 		},
 		{
 			"beat": 17.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "pendulum"
 		},
 		{
 			"beat": 19.0,
@@ -763,12 +764,13 @@
 		},
 		{
 			"beat": 25.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 27.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 28.5,
@@ -791,7 +793,7 @@
 		{
 			"beat": 37.0,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "saw"
 		},
 		{
 			"beat": 39.0,
@@ -805,12 +807,13 @@
 		},
 		{
 			"beat": 43.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "pendulum"
 		},
 		{
 			"beat": 45.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 47.0,
@@ -819,7 +822,8 @@
 		},
 		{
 			"beat": 49.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 51.0,
@@ -829,7 +833,7 @@
 		{
 			"beat": 57.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 61.0,
@@ -849,7 +853,7 @@
 		{
 			"beat": 64.0,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 64,
@@ -868,8 +872,7 @@
 		},
 		{
 			"beat": 69.0,
-			"type": "jump",
-			"hazard": "saw"
+			"type": "jump"
 		},
 		{
 			"beat": 71.0,
@@ -879,7 +882,7 @@
 		{
 			"beat": 73.0,
 			"type": "jump",
-			"hazard": "spike_triple"
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 74.75,
@@ -888,7 +891,8 @@
 		},
 		{
 			"beat": 77.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "pendulum"
 		},
 		{
 			"beat": 79.0,
@@ -898,7 +902,7 @@
 		{
 			"beat": 81.0,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "saw"
 		},
 		{
 			"beat": 82.75,
@@ -908,7 +912,7 @@
 		{
 			"beat": 85.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 87.0,
@@ -930,7 +934,7 @@
 		{
 			"beat": 92.0,
 			"type": "jump",
-			"hazard": "spike_triple"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 95.25,
@@ -949,17 +953,17 @@
 		},
 		{
 			"beat": 98.75,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 101.0,
-			"type": "jump",
-			"hazard": "spike_double"
+			"type": "jump"
 		},
 		{
 			"beat": 103.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 104.75,
@@ -969,7 +973,7 @@
 		{
 			"beat": 106.75,
 			"type": "jump",
-			"hazard": "spike_triple"
+			"hazard": "pendulum"
 		},
 		{
 			"beat": 108.0,
@@ -978,12 +982,13 @@
 		},
 		{
 			"beat": 111.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 113.0,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 114.0,
@@ -993,7 +998,7 @@
 		{
 			"beat": 116.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 119.0,
@@ -1003,7 +1008,7 @@
 		{
 			"beat": 121.0,
 			"type": "jump",
-			"hazard": "spike_triple"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 122.5,
@@ -1018,7 +1023,7 @@
 		{
 			"beat": 128.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 130.0,
@@ -1032,7 +1037,7 @@
 		{
 			"beat": 134.0,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "saw"
 		},
 		{
 			"beat": 136.5,
@@ -1045,16 +1050,18 @@
 		},
 		{
 			"beat": 142.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "pendulum"
 		},
 		{
 			"beat": 145.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 147.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 148.5,
@@ -1073,7 +1080,7 @@
 		{
 			"beat": 153.0,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 154.0,
@@ -1111,7 +1118,8 @@
 		},
 		{
 			"beat": 170.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "pendulum"
 		},
 		{
 			"beat": 171.75,
@@ -1130,7 +1138,8 @@
 		},
 		{
 			"beat": 177.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 178.0,
@@ -1140,7 +1149,7 @@
 		{
 			"beat": 180.5,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 183.25,
@@ -1149,11 +1158,12 @@
 		{
 			"beat": 185.25,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "saw"
 		},
 		{
 			"beat": 187.25,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "pendulum"
 		},
 		{
 			"beat": 188,
@@ -1164,11 +1174,12 @@
 		{
 			"beat": 193.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 201.25,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 210.5,
@@ -1183,7 +1194,7 @@
 		{
 			"beat": 218.5,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 222.75,
@@ -1192,7 +1203,7 @@
 		{
 			"beat": 225.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 229.25,
@@ -1201,7 +1212,8 @@
 		},
 		{
 			"beat": 232.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 237.5,
@@ -1211,7 +1223,7 @@
 		{
 			"beat": 241.5,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 243.75,
@@ -1225,11 +1237,12 @@
 		{
 			"beat": 250.5,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 257.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 263.0,
@@ -1255,7 +1268,7 @@
 		{
 			"beat": 265.0,
 			"type": "jump",
-			"hazard": "spike_triple"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 267.0,
@@ -1301,7 +1314,7 @@
 		{
 			"beat": 280.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "pendulum"
 		},
 		{
 			"beat": 281.0,
@@ -1325,7 +1338,7 @@
 		{
 			"beat": 286.0,
 			"type": "jump",
-			"hazard": "spike_triple"
+			"hazard": "saw"
 		},
 		{
 			"beat": 287.0,
@@ -1334,12 +1347,13 @@
 		},
 		{
 			"beat": 289.75,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 291.0,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 292.0,
@@ -1349,7 +1363,7 @@
 		{
 			"beat": 293.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 294.25,
@@ -1358,8 +1372,7 @@
 		},
 		{
 			"beat": 295.75,
-			"type": "jump",
-			"hazard": "spike_triple"
+			"type": "jump"
 		},
 		{
 			"beat": 296,
@@ -1374,16 +1387,18 @@
 		},
 		{
 			"beat": 299.0,
-			"type": "jump"
-		},
-		{
-			"beat": 301.0,
 			"type": "jump",
 			"hazard": "spike_double"
 		},
 		{
+			"beat": 301.0,
+			"type": "jump",
+			"hazard": "pendulum"
+		},
+		{
 			"beat": 302.0,
-			"type": "dodge_right"
+			"type": "dodge_right",
+			"hazard": "laser_gap_right"
 		},
 		{
 			"beat": 304.0,
@@ -1402,21 +1417,22 @@
 		},
 		{
 			"beat": 310.0,
-			"type": "flip"
+			"type": "flip",
+			"hazard": "ring_gate"
 		},
 		{
 			"beat": 313.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 315.5,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 319.0,
-			"type": "jump",
-			"hazard": "saw"
+			"type": "jump"
 		},
 		{
 			"beat": 320,
@@ -1427,7 +1443,7 @@
 		{
 			"beat": 326.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 327.5,
@@ -1452,7 +1468,7 @@
 		{
 			"beat": 332.0,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "saw"
 		},
 		{
 			"beat": 332,
@@ -1481,12 +1497,12 @@
 		{
 			"beat": 337.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 339.0,
 			"type": "jump",
-			"hazard": "spike_triple"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 340.0,
@@ -1505,12 +1521,12 @@
 		},
 		{
 			"beat": 345.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 347.0,
-			"type": "jump",
-			"hazard": "spike_double"
+			"type": "jump"
 		},
 		{
 			"beat": 348.0,
@@ -1530,12 +1546,12 @@
 		{
 			"beat": 350.75,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 353.0,
 			"type": "jump",
-			"hazard": "spike_triple"
+			"hazard": "pendulum"
 		},
 		{
 			"beat": 354.0,
@@ -1544,7 +1560,8 @@
 		},
 		{
 			"beat": 356.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 357.0,
@@ -1554,7 +1571,7 @@
 		{
 			"beat": 359.75,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 360,
@@ -1565,7 +1582,7 @@
 		{
 			"beat": 361.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 362.0,
@@ -1574,7 +1591,7 @@
 		{
 			"beat": 364.0,
 			"type": "jump",
-			"hazard": "spike_triple"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 365.0,
@@ -1597,7 +1614,7 @@
 		{
 			"beat": 372.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "pendulum"
 		},
 		{
 			"beat": 373.0,
@@ -1617,7 +1634,7 @@
 		{
 			"beat": 377.0,
 			"type": "jump",
-			"hazard": "spike_triple"
+			"hazard": "saw"
 		},
 		{
 			"beat": 380.0,
@@ -1633,7 +1650,8 @@
 		},
 		{
 			"beat": 383.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 385.0,

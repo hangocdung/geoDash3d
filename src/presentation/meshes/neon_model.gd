@@ -22,11 +22,16 @@ static func instantiate_palette(scene: PackedScene, energy: float = 4.0) -> Node
 
 
 static func _instantiate(scene: PackedScene, glow: Material, accent: Material) -> Node3D:
+	return instantiate_with(scene, {"Body": _body_material(), "Glow": glow, "GlowAlt": accent})
+
+
+## Instantiates `scene` with caller-owned materials by name (so many instances share them).
+static func instantiate_with(scene: PackedScene, materials: Dictionary[String, Material]) -> Node3D:
 	var root: Node3D = scene.instantiate() as Node3D
 	if root == null:
 		push_error("NeonModel: scene root is not a Node3D")
 		return Node3D.new()
-	_apply(root, {"Body": _body_material(), "Glow": glow, "GlowAlt": accent})
+	_apply(root, materials)
 	return root
 
 

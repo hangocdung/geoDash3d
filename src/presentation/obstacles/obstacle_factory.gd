@@ -1,4 +1,5 @@
-# Builds obstacle visuals (crystal spikes, saw blade, spiked ceiling, two-lane wall, energy gate), jump pads
+# Builds obstacle visuals (crystal spikes, saw blade, spiked ceiling, two-lane wall, energy gate; model-based
+# ones in obstacle_models.gd), jump pads
 # and cue markers (timing ring, floating action icon, lit lane strip for dodges, floating rings for jump /
 # big / dive orbs). Visual only; sizes come from HazardDefinition / GameplayConfig.
 # Related: obstacle_view.gd, material_cache.gd, src/presentation/shaders/glyph.gdshader
@@ -16,8 +17,8 @@ const GLYPH_FLIP: int = 5
 const GLYPH_ORB: int = 6
 const GLYPH_DIVE_ORB: int = 7
 const GLYPH_BIG_ORB: int = 8
-## Name of the child ObstacleView turns with the beat (saw blades).
-const SPINNER_NAME: StringName = &"Spinner"
+## Name of the child ObstacleView moves with the beat (saw blade, pendulum axe, mine, crusher, ring).
+const MOVING_PART: StringName = &"MovingPart"
 const BIG_ORB_SCALE: float = 1.3
 const CEILING_SLAB: float = 0.4
 const CEILING_SPIKE_SPACING: float = 0.8
@@ -37,12 +38,16 @@ const CUE_APPROACH_BEATS: float = 2.0
 const CUE_BEAT_GAIN: float = 1.8
 
 var _cache := MaterialCache.new()
+var _models := ObstacleModels.new(_cache)
 var _spike_meshes: Dictionary[StringName, Mesh] = {}
 
 
 ## Root origin = hazard center on the track surface; children are offset laterally as needed.
 func build_hazard(hazard: HazardDefinition) -> Node3D:
 	var root := Node3D.new()
+	if ObstacleModels.handles(hazard.visual):
+		_models.build(root, hazard)
+		return root
 	match hazard.visual:
 		HazardDefinition.Visual.SPIKE:
 			var spike: MeshInstance3D = _mesh_instance(_spike_mesh(hazard), _cache.get_material(
@@ -171,7 +176,7 @@ func _build_saw(root: Node3D, hazard: HazardDefinition) -> void:
 	var blade: MeshInstance3D = _mesh_instance(ProceduralMeshes.saw_blade(radius, radius * 0.7, 8,
 			hazard.visual_width), _cache.get_material(StringName("saw_%s" % hazard.id), WIRE_SHADER,
 			{"edge_color": hazard.color, "face_energy": 0.15, "proximity_gain": APPROACH_GAIN}))
-	blade.name = SPINNER_NAME
+	blade.name = MOVING_PART
 	blade.position = Vector3(0, hazard.visual_height - radius, hazard.lateral_center)
 	root.add_child(blade)
 

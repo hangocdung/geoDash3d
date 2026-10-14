@@ -17,10 +17,12 @@ class Obstacle:
 	var rest: Transform3D
 	var hazard: HazardDefinition
 	var appear_beat: float
+	## When the player passes it (pendulum phase).
+	var hazard_beat: float
 	var landed: bool = false
 	var settled: bool = false
-	## Saw blade turned with the beat (null for other hazards).
-	var spinner: Node3D = null
+	## Part moved with the beat (saw blade, axe, mine, crusher, ring; null for other hazards).
+	var moving_part: Node3D = null
 	## Shattered by a shield: stays hidden until the next run.
 	var broken: bool = false
 
@@ -39,9 +41,10 @@ func setup(context: LevelContext) -> void:
 		obstacle.rest = context.track.transform_at(placement.distance) * Transform3D(Basis(),
 				Vector3(0, placement.base_height, 0))
 		obstacle.appear_beat = placement.hazard.appear_beat(placement.beat)
+		obstacle.hazard_beat = placement.beat
 		obstacle.root = factory.build_hazard(placement.hazard)
 		obstacle.root.visible = false
-		obstacle.spinner = obstacle.root.find_child(ObstacleFactory.SPINNER_NAME, true, false) as Node3D
+		obstacle.moving_part = obstacle.root.find_child(ObstacleFactory.MOVING_PART, true, false) as Node3D
 		_set_visibility_range(obstacle.root)
 		add_child(obstacle.root)
 		_obstacles.append(obstacle)
@@ -83,8 +86,11 @@ func update_view(beat: float) -> void:
 			obstacle.settled = false
 			continue
 		obstacle.root.visible = true
-		if obstacle.spinner != null:
-			obstacle.spinner.rotation.z = beat * SPIN_TURNS_PER_BEAT * TAU
+		if obstacle.moving_part != null:
+			if obstacle.hazard.visual == HazardDefinition.Visual.SAW:
+				obstacle.moving_part.rotation.z = beat * SPIN_TURNS_PER_BEAT * TAU
+			else:
+				ObstacleModels.pose_moving_part(obstacle.moving_part, obstacle.hazard, obstacle.hazard_beat, beat)
 		if not obstacle.landed and since_landing >= 0.0:
 			obstacle.landed = true
 			hazard_landed.emit(obstacle.rest.origin, obstacle.hazard)

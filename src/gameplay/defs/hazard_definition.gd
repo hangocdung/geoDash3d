@@ -12,6 +12,18 @@ enum Visual {
 	SAW,
 	## Slab hanging over the road with spikes pointing down: pass under it on the ground.
 	CEILING,
+	## Low laser fence between two emitter posts (jumped like a spike).
+	LASER,
+	## Axe swinging under a gantry: it sweeps the road exactly when the player gets there (jump it).
+	PENDULUM,
+	## Spiked mine floating just above the road, bobbing with the beat (jump it).
+	MINE,
+	## Hydraulic press over the road, pumping on the beat but never below its hitbox (stay on the ground).
+	CRUSHER,
+	## Two-lane laser grid instead of a solid wall (dodge into the free lane).
+	LASER_WALL,
+	## Ring standing across the road with an energy field (flip under the track).
+	RING_GATE,
 }
 enum Entrance {
 	## Grows out of the track surface.

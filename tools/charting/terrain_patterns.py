@@ -63,6 +63,13 @@ class Level:
         self.ground = 0.0
         self.events = []
         self.terrain = []
+        # GD3-104: every other dive / two-lane wall / gate uses the variant look (crusher, laser grid, ring gate);
+        # same hitboxes, so the same taps and tolerances.
+        self.variant_counts = {"dive": 0, "dodge": 0, "flip": 0}
+
+    def _variant(self, kind):
+        self.variant_counts[kind] += 1
+        return self.variant_counts[kind] % 2 == 0
 
     def _set_ground(self, beat, height):
         self.terrain.append({"beat": round(beat, 4), "height": round(height, 3)})
@@ -143,7 +150,7 @@ class Level:
         speed = self.speed.speed_at(dive_beat)
         edge = dive_beat + CEILING_EDGE_AFTER_DIVE
         self.events.append({"beat": round(edge + CEILING_HALF_LENGTH / speed, 4), "type": "hazard",
-                            "hazard": "ceiling"})
+                            "hazard": "crusher" if self._variant("dive") else "ceiling"})
         return edge + 2.0 * CEILING_HALF_LENGTH / speed + PLAYER_HALF_LENGTH / speed
 
     def floating_stairs(self, beat, count, spacing=0.75, rise=1.5):
@@ -168,8 +175,14 @@ class Level:
 
     def dodge(self, beat, side):
         """Two-lane wall: slide into the free lane (`side` = "left" / "right"). Needs flat road at 0."""
-        self.events.append({"beat": beat, "type": "dodge_" + side})
+        event = {"beat": beat, "type": "dodge_" + side}
+        if self._variant("dodge"):
+            event["hazard"] = "laser_gap_" + side
+        self.events.append(event)
 
     def flip(self, beat):
         """Energy gate across the road: wrap under the track. Needs flat road at 0."""
-        self.events.append({"beat": beat, "type": "flip"})
+        event = {"beat": beat, "type": "flip"}
+        if self._variant("flip"):
+            event["hazard"] = "ring_gate"
+        self.events.append(event)

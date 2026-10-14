@@ -126,8 +126,9 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   `cue_beat` so với global `run_beat` —, vạch sáng lên đúng lúc đó và đập theo `beat_pulse` mạnh hơn glyph khác; vòng
   nhảy cũng vậy); icon lơ lửng chỉ khi cue có
   vật cản (`ActionCue.has_hazard`); vòng nhảy là billboard glyph 6 (vòng lớn glyph 8, vòng lao xuống glyph 7).
-  Vật cản: gai / hàng gai (`HazardDefinition.repeat`), lưỡi cưa (node con `Spinner` xoay theo beat), trần gai,
-  tường, cổng. Vòng lao xuống là JUMP có `ActionDefinition.dive_speed` > 0 (vận tốc ban đầu hướng xuống).
+  Vật cản: gai / hàng gai (`HazardDefinition.repeat`), lưỡi cưa, trần gai, tường, cổng, và (GD3-104, `ObstacleModels`,
+  model Blender) hàng rào laser, rìu con lắc, mìn gai, máy dập, tường laser, cổng vòng. Phần chuyển động là node con
+  `MovingPart`, đặt theo beat (cưa xoay, rìu lắc buông thẳng đúng lúc người chơi tới, mìn nhấp nhô, máy dập đập mỗi beat). Vòng lao xuống là JUMP có `ActionDefinition.dive_speed` > 0 (vận tốc ban đầu hướng xuống).
 - **Decor từ Blender** (`track/decor_view.gd`): cổng vòng tại đầu mỗi section, cầu gai treo đung đưa theo
   ô nhịp (hàm thuần của beat). Model `.glb` sinh bằng script, material theo tên `Body/Glow/GlowAlt` → `NeonModel`.
 - **Cảnh nền** (`track/scenery_view.gd`): 2 MultiMesh (tháp, chóp) sinh theo seed. Tránh hành lang đường và

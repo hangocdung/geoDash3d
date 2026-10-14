@@ -2,7 +2,7 @@
 
 This module parses the step list, checks it (the player has landed before each tap, ground height limits,
 flat road for dodges and flips), places the patterns (terrain_patterns.py) and writes the chart.
-Patterns: spike spike2 spike3 saw gap step step1 chain2 chain3 orb borb dive trip stairs fstairs pad dl dr flip
+Patterns: spike spike2 spike3 saw laser pendulum mine gap step step1 chain2 chain3 orb borb dive trip stairs fstairs pad dl dr flip
 drop drop2 drop4 (drop/drop2/drop4: run off the ledge down to 0 / 2 / 4; spike2/spike3: spike rows; borb: big
 orb onto +2, lands 2 beats after the jump; dive: jump + dive orb under a spiked ceiling).
 build() adds variety by default: plain `spike` steps rotate through spike / saw / spike rows by section energy, and
@@ -18,9 +18,13 @@ from terrain_patterns import Level, SpeedMap, fall_beats, PLAYER_HALF_LENGTH
 
 MAX_HEIGHT = 6.0
 EPSILON = 0.0001
-SPIKE_HAZARDS = {"spike": "spike", "spike2": "spike_double", "spike3": "spike_triple", "saw": "saw"}
-# Variety rotations for plain spikes, by section energy (below 0.5 / below 0.8 / above).
-SPIKE_VARIETY = (["spike", "saw"], ["spike", "saw", "spike", "spike2"], ["spike", "spike2", "saw", "spike3"])
+SPIKE_HAZARDS = {"spike": "spike", "spike2": "spike_double", "spike3": "spike_triple", "saw": "saw",
+                 "laser": "laser_fence", "pendulum": "pendulum", "mine": "spike_mine"}
+# Variety rotations for plain spikes, by section energy (below 0.5 / below 0.8 / above). GD3-104 adds the laser
+# fence, the swinging axe and the spiked mine (same jump, same or looser hitbox).
+SPIKE_VARIETY = (["spike", "laser", "saw", "mine"],
+                 ["spike", "saw", "pendulum", "spike2", "laser", "mine"],
+                 ["spike", "spike2", "pendulum", "saw", "spike3", "laser", "mine"])
 BIG_ORB_LANDING = 2.0
 
 
