@@ -1,20 +1,24 @@
 # Visual player cube: follows the simulation pose on the track, rolls forward while airborne (a quarter
 # turn per beat, snapped to the nearest face on landing), rolls sideways on dodges, swings around the
-# edge on flips, squashes on landing and leaves a pixel trail. Read-only.
+# edge on flips, squashes on landing, shows a ring while a shield is held and leaves a pixel trail. Read-only.
 # Related: src/gameplay/simulation/run_simulation.gd, src/presentation/shaders/neon_box.gdshader
 class_name PlayerView
 extends Node3D
 
 const BOX_SHADER: Shader = preload("res://src/presentation/shaders/neon_box.gdshader")
+const GLYPH_SHADER: Shader = preload("res://src/presentation/shaders/glyph.gdshader")
 const CUBE_SIZE: float = 1.0
 const LAND_SQUASH_DECAY: float = 7.0
 const PLAYER_COLOR: Color = Color(0.3, 0.95, 1.0)
+const SHIELD_COLOR: Color = Color(0.6, 0.75, 1.0)
+const SHIELD_RING_SIZE: float = 2.1
 const ROLL_PER_BEAT: float = PI * 0.5
 ## How fast the leftover roll settles after a landing snaps the cube flat (per second).
 const ROLL_SNAP_RATE: float = 18.0
 
 var body: MeshInstance3D
 var trail: GPUParticles3D
+var _shield_ring: MeshInstance3D
 var _context: LevelContext
 var _roll_base: float = 0.0
 ## Roll still to settle after landing (the cube eases onto its nearest face).
@@ -42,6 +46,8 @@ func setup(context: LevelContext) -> void:
 	trail = TrailParticles.create(PLAYER_COLOR, QualityTier.particle_scale(context.quality))
 	trail.position = Vector3(-CUBE_SIZE * 0.45, CUBE_SIZE * 0.5, 0.0)
 	add_child(trail)
+	_shield_ring = _create_shield_ring()
+	add_child(_shield_ring)
 
 
 func reset_view() -> void:
@@ -50,6 +56,7 @@ func reset_view() -> void:
 	_land_squash = 0.0
 	_flash = 0.0
 	visible = true
+	_shield_ring.visible = false
 	trail.emitting = true
 	trail.restart()
 
@@ -95,6 +102,10 @@ func on_action_finished(action: ActionDefinition) -> void:
 	_land_squash = 0.7 if action.kind == ActionDefinition.Kind.FLIP else 0.4
 
 
+func set_shield(active: bool) -> void:
+	_shield_ring.visible = active
+
+
 func on_cue_hit(grade: Judgement.Grade) -> void:
 	_flash = 1.0 if grade == Judgement.Grade.PERFECT else 0.5
 
@@ -102,6 +113,25 @@ func on_cue_hit(grade: Judgement.Grade) -> void:
 func on_died() -> void:
 	visible = false
 	trail.emitting = false
+
+
+## Camera-facing ring around the cube (glyph ring), pulsing with the beat like every neon glyph.
+func _create_shield_ring() -> MeshInstance3D:
+	var ring := MeshInstance3D.new()
+	var quad := QuadMesh.new()
+	quad.size = Vector2(SHIELD_RING_SIZE, SHIELD_RING_SIZE)
+	ring.mesh = quad
+	var material := ShaderMaterial.new()
+	material.shader = GLYPH_SHADER
+	material.set_shader_parameter("glyph", 0)
+	material.set_shader_parameter("billboard", true)
+	material.set_shader_parameter("glyph_color", SHIELD_COLOR)
+	material.set_shader_parameter("energy", 1.6)
+	ring.material_override = material
+	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	ring.position = Vector3(0.0, CUBE_SIZE * 0.5, 0.0)
+	ring.visible = false
+	return ring
 
 
 ## World-space center of the cube (for camera and effects).

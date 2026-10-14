@@ -28,6 +28,9 @@ var vfx_cues: Array[ChartItems.VfxCue] = []
 ## ranges (x = take-off, y = landing) where the autoplay player is in the air.
 var cue_heights: PackedFloat32Array = []
 var airborne_ranges: PackedVector2Array = []
+## Also from ReferenceRun: the perfect run's vertical state from each beat on (empty for flat charts).
+var reference_beats: PackedFloat64Array = []
+var reference_motions: Array[VerticalMotion] = []
 
 
 func distance_at(beat: float) -> float:
@@ -49,6 +52,12 @@ func beat_at_time(time_sec: float) -> float:
 ## Ground height under the player at `beat` for visuals (gaps report the ground before them).
 func surface_height_at(beat: float) -> float:
 	return terrain.surface_height_at(distance_at(beat))
+
+
+## The perfect run's vertical state in effect at `beat`, or null (flat chart, or before it starts).
+func reference_motion_at(beat: float) -> VerticalMotion:
+	var index: int = reference_beats.bsearch(beat, false) - 1
+	return reference_motions[index] if index >= 0 else null
 
 
 func progress_at(beat: float) -> float:

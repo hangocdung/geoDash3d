@@ -17,6 +17,8 @@ class Obstacle:
 	var appear_beat: float
 	var landed: bool = false
 	var settled: bool = false
+	## Shattered by a shield: stays hidden until the next run.
+	var broken: bool = false
 
 
 var _obstacles: Array[Obstacle] = []
@@ -59,11 +61,15 @@ func rewind_to(beat: float) -> void:
 	for obstacle: Obstacle in _obstacles:
 		obstacle.landed = beat >= obstacle.appear_beat
 		obstacle.settled = false
+		obstacle.broken = false
 	update_view(beat)
 
 
 func update_view(beat: float) -> void:
 	for obstacle: Obstacle in _obstacles:
+		if obstacle.broken:
+			obstacle.root.visible = false
+			continue
 		var since_landing: float = beat - obstacle.appear_beat
 		if since_landing < -ObstacleEntrance.lead_in(obstacle.hazard.entrance):
 			obstacle.root.visible = false
@@ -81,6 +87,14 @@ func update_view(beat: float) -> void:
 		obstacle.settled = false
 		obstacle.root.transform = obstacle.rest * ObstacleEntrance.pose(obstacle.hazard.entrance, since_landing,
 				obstacle.hazard.visual_height)
+
+
+## Hides a hazard a shield destroyed (same index as chart.hazards); returns where it stood.
+func shatter(hazard_index: int) -> Vector3:
+	var obstacle: Obstacle = _obstacles[hazard_index]
+	obstacle.broken = true
+	obstacle.root.visible = false
+	return obstacle.rest.origin
 
 
 func flash_cue(cue_index: int, strength: float) -> void:

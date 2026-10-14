@@ -28,6 +28,9 @@ extends Resource
 @export var pad_half_length: float = 0.6
 ## Launch performed by jump pads (no tap needed).
 @export var pad_launch: ActionDefinition
+## Every this many consecutive cue hits charge one shield; a shield absorbs one fatal hit.
+@export var shield_combo: int = 16
+@export var max_shields: int = 1
 @export var actions: Array[ActionDefinition] = []
 @export var hazards: Array[HazardDefinition] = []
 

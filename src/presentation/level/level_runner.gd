@@ -118,7 +118,7 @@ func prepare_run() -> void:
 	_sync.bind(simulation)
 	if _practice != null:
 		_practice.begin(start_beat)
-	_autoplay = Autoplay.new(chart, start_beat) if options.autoplay else null
+	_autoplay = Autoplay.new(chart, start_beat, options.autoplay_missed_beats) if options.autoplay else null
 	_pending_tap_times.clear()
 	for view: Node in [player_view, obstacle_view, camera_director, vfx_director, environment_director]:
 		view.call(&"reset_view")
@@ -276,8 +276,8 @@ func _on_run_completed(_beat: float) -> void:
 	_learn_sync()
 	var counts: PackedInt32Array = simulation.grade_counts
 	var title: String = "PRACTICE COMPLETE" if _practice != null else "LEVEL COMPLETE"
-	hud.run_menu.open("%s\nPERFECT %d   GREAT %d   GOOD %d   MISS %d" % [title, counts[0], counts[1],
-			counts[2], counts[3]], false)
+	hud.run_menu.open("%s\nPERFECT %d   GREAT %d   GOOD %d   MISS %d\nMAX COMBO %d" % [title, counts[0],
+			counts[1], counts[2], counts[3], simulation.streak.max_combo], false)
 
 
 ## Folds learned audio-offset corrections in between runs; the note appears with the next attempt.

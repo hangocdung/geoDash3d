@@ -82,6 +82,17 @@ func on_hazard_landed(world_position: Vector3, hazard: HazardDefinition) -> void
 	_rings.spawn(Transform3D(Basis().scaled(Vector3.ONE * size), world_position + Vector3.UP * 0.06), hazard.color)
 
 
+func on_shield_broken(center: Vector3, frame: Transform3D, color: Color) -> void:
+	_bursts_sparkle.emit_at(center, color)
+	var upright := Transform3D(frame.basis * Basis(Vector3.RIGHT, PI * 0.5), center)
+	_rings.spawn(upright.scaled_local(Vector3.ONE * 5.0), color)
+
+
+## A hazard destroyed by a shield breaks into shards in its own color.
+func on_hazard_shattered(world_position: Vector3, color: Color) -> void:
+	_bursts_death.emit_at(world_position + Vector3.UP * 0.4, color)
+
+
 func on_perfect(center: Vector3) -> void:
 	_bursts_sparkle.emit_at(center, PERFECT_COLOR)
 

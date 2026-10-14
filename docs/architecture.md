@@ -49,12 +49,18 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
     Đâm hông bệ (cao hơn chân quá `step_snap`) hoặc rơi dưới `fall_death_height` → chết với
     `TERRAIN_HIT` (−2). Chạy khỏi mép → rơi tự do. Bệ bật (`chart.pads`) tự phóng khi đang đứng chạm vào.
   - Signal `player_landed(beat, airtime)` cho mọi lần tiếp đất; `action_finished` chỉ còn cho dodge/flip.
+  - `PlayerBody` gói chuyển động lên xuống (`VerticalMotion`), đất dưới chân, rơi khỏi mép và bệ bật.
+  - Combo và lá chắn (`ComboShield`, đọc qua `simulation.streak`): mọi cú va chạm chết người đi qua
+    `_survive_hit` — bất tử thì ghi lại, có lá chắn thì vật cản vỡ (thêm vào `hit_hazards`) hoặc, với địa hình,
+    `VerticalMotion.restore()` về trạng thái của lượt hoàn hảo (`chart.reference_motion_at`). Signal
+    `combo_changed`, `shield_changed`, `shield_used`.
   - `HazardChecker` xét chồng lấn hộp (khoảng cách × ngang × độ cao), hộp vật cản đặt trên mặt đất tại chỗ
     (`HazardPlacement.base_height`), có cursor vì người chơi chỉ đi tới.
   - `invincible` ghi lại các lần trúng thay vì chết (đâm bệ thì đặt lên mặt bệ), dùng cho luyện tập và soạn màn.
 - **ReferenceRun**: lúc nạp chart, chạy autoplay một lượt (invincible) để ghi `chart.cue_heights` (độ cao người chơi
-  ở mỗi cue: vòng cue và vòng nhảy vẽ ở đó) và `chart.airborne_ranges` (khoảng đang bay: `safe_start_beat` không
-  bao giờ chọn điểm bắt đầu giữa không trung).
+  ở mỗi cue: vòng cue và vòng nhảy vẽ ở đó), `chart.airborne_ranges` (khoảng đang bay: `safe_start_beat` không
+  bao giờ chọn điểm bắt đầu giữa không trung) và `reference_beats/motions` (trạng thái lên xuống, cho lá chắn).
+  Chart phẳng (không địa hình/bệ bật/vòng nhảy) bỏ qua bước này.
 - **Autoplay**: chạm đúng mọi cue. Dùng cho test, chụp ảnh và chế độ demo.
 - **TrackPath** (`track/`): bảng frame mỗi 0.5 đơn vị, tích phân từ các đoạn straight/turn/slope (dùng midpoint).
   Trục của frame: X = hướng đi, Y = lên, Z = bên phải (phía camera side). Ngoài hai đầu thì ngoại suy thẳng.
@@ -90,7 +96,8 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   tầm nhìn của camera side. Chỉ dùng tông lạnh.
 - **VFX** (`vfx/`): pool (`EffectPools`) để không tạo node hay biên dịch shader giữa màn. Gồm vệt pixel,
   bung hạt khi cất cánh, vòng sóng khi tiếp đất, bóng mờ khi dash, lấp lánh khi PERFECT, vỡ vụn khi chết, bụi lơ lửng.
-- **HUD** (`src/ui/hud`): thanh tiến độ, %, chữ chấm điểm, ATTEMPT, thông báo. Có xử lý safe area trên mobile.
+- **HUD** (`src/ui/hud`): thanh tiến độ, %, chữ chấm điểm, combo, thanh nạp lá chắn, ATTEMPT, thông báo. Có xử lý
+  safe area trên mobile.
 
 ## 4b. UI và luồng màn hình
 - `MainMenu` (main scene): instance `level.tscn` với `LaunchOptions.attract()` (autoplay, ẩn HUD, lặp khi hết nhạc)

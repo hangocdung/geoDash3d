@@ -1,5 +1,6 @@
 # Screenshot mode (`--capture=t1,t2 --capture-out=dir`): for each song time, restarts the run
 # a little earlier with autoplay + frame-delta clock, lets effects warm up, saves a PNG, then quits.
+# `--capture-continuous` instead plays one run from the start (combo, shields) and shoots every time.
 # Related: src/presentation/level/launch_options.gd, tools/capture/README.md
 class_name CaptureController
 extends Node
@@ -23,13 +24,16 @@ func begin(runner: LevelRunner, options: LaunchOptions) -> void:
 		push_error("CaptureController: cannot create '%s' (%s)" % [directory, error_string(error)])
 		runner.get_tree().quit(1)
 		return
-	_run_captures(runner, options.capture_times, directory)
+	_run_captures(runner, options.capture_times, directory, options.capture_continuous)
 
 
-func _run_captures(runner: LevelRunner, times: PackedFloat64Array, directory: String) -> void:
-	for capture_time: float in times:
-		runner.start_beat = runner.chart.safe_start_beat(runner.chart.beat_at_time(capture_time - WARMUP_SEC))
+func _run_captures(runner: LevelRunner, times: PackedFloat64Array, directory: String, continuous: bool) -> void:
+	if continuous:
 		runner.restart()
+	for capture_time: float in times:
+		if not continuous:
+			runner.start_beat = runner.chart.safe_start_beat(runner.chart.beat_at_time(capture_time - WARMUP_SEC))
+			runner.restart()
 		while runner.song_clock.frame_time() < capture_time and not runner.simulation.is_dead:
 			await runner.get_tree().process_frame
 		if runner.simulation.is_dead:

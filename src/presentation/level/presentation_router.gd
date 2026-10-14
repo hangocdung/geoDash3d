@@ -10,6 +10,7 @@ var _runner: LevelRunner
 var _context: LevelContext
 var _simulation: RunSimulation
 var _next_vfx_cue: int = 0
+var _shields_shown: int = 0
 var _ghost_timer: float = 0.0
 ## Off for the menu attract mode, so the backdrop stays quiet.
 var sfx_enabled: bool = true
@@ -26,6 +27,13 @@ func bind(simulation: RunSimulation, start_beat: float) -> void:
 	simulation.action_finished.connect(_on_action_finished)
 	simulation.player_landed.connect(_on_player_landed)
 	simulation.cue_judged.connect(_on_cue_judged)
+	simulation.combo_changed.connect(_on_combo_changed)
+	simulation.shield_changed.connect(_on_shield_changed)
+	simulation.shield_used.connect(_on_shield_used)
+	_shields_shown = 0
+	_runner.hud.set_combo(0)
+	_runner.hud.set_shield(false, 0.0)
+	_runner.player_view.set_shield(false)
 	_next_vfx_cue = 0
 	var cues: Array[ChartItems.VfxCue] = _context.chart.vfx_cues
 	while _next_vfx_cue < cues.size() and cues[_next_vfx_cue].beat < start_beat:
@@ -102,6 +110,31 @@ func _on_cue_judged(cue_index: int, grade: Judgement.Grade, _error_sec: float) -
 		_runner.vfx_director.on_perfect(_runner.player_view.center_position())
 	elif grade == Judgement.Grade.GREAT:
 		_play(&"judge.great")
+
+
+func _on_combo_changed(combo: int) -> void:
+	_runner.hud.set_combo(combo)
+	_runner.hud.set_shield(_simulation.streak.shields > 0, _simulation.streak.charge())
+
+
+func _on_shield_changed(shields: int) -> void:
+	_runner.player_view.set_shield(shields > 0)
+	_runner.hud.set_shield(shields > 0, _simulation.streak.charge())
+	if shields > _shields_shown:
+		_play(&"player.shield")
+		_runner.vfx_director.on_perfect(_runner.player_view.center_position())
+	_shields_shown = shields
+
+
+func _on_shield_used(hazard_index: int, beat: float) -> void:
+	_play(&"player.shield_break")
+	_runner.vfx_director.on_shield_broken(_runner.player_view.center_position(), _context.frame_at_beat(beat),
+			PlayerView.SHIELD_COLOR)
+	if hazard_index >= 0:
+		var hazard: HazardDefinition = _context.chart.hazards[hazard_index].hazard
+		_runner.vfx_director.on_hazard_shattered(_runner.obstacle_view.shatter(hazard_index), hazard.color)
+	_runner.camera_director.add_shake(0.45)
+	_runner.environment_director.flash(0.5)
 
 
 func on_hazard_landed(world_position: Vector3, hazard: HazardDefinition) -> void:

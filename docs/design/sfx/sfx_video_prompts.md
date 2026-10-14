@@ -59,6 +59,8 @@ Script in ra những ID đã xử lý và ID còn thiếu, đồng thời tạo 
 | C1 | `judge.great` | P3 | `in_jump` | chạm GREAT |
 | C2 | `run.attempt` | P3 | `in_chase` | bắt đầu lượt chơi |
 | C3 | `ui.pause` | P3 | `in_menu` | tạm dừng |
+| D1 | `player.shield` | P2 | `in_chase` | combo nạp đầy một lá chắn |
+| D2 | `player.shield_break` | P2 | `in_death` | lá chắn đỡ một cú va chạm |
 
 > Ảnh của B4–B8 đã được chụp lại sau Phase 4.5, đúng cảnh tường cam, cổng lime và lúc lộn xuống mặt dưới.
 
@@ -182,4 +184,18 @@ Three times, about 2.5 seconds apart, the glowing cube materializes on the neon 
 <img src="inputs/in_menu.jpg" width="240"> `inputs/in_menu.jpg`
 ```
 Four times, about 1.5 seconds apart, the screen dims slightly as if the game is paused, then brightens again. Sound of each dim: a soft muffled downward whoosh, short and gentle. Static locked-off camera, no cuts, no new text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
+```
+
+## D. Lá chắn (P2, thêm 2026-10-14)
+
+### D1 · `player.shield` · P2
+<img src="inputs/in_chase.jpg" width="240"> `inputs/in_chase.jpg`
+```
+Three times, about 2 seconds apart, a pale blue ring of light snaps into place around the glowing cyan cube as it runs along the neon track. Sound of each: a bright two-step rising crystal chime with a soft shimmer tail, short and positive. Static locked-off camera, no cuts, no text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
+```
+
+### D2 · `player.shield_break` · P2
+<img src="inputs/in_death.jpg" width="240"> `inputs/in_death.jpg`
+```
+Three times, about 2 seconds apart, the glowing cube hits a pink crystal spike, but a pale blue ring of light around it bursts like glass and the spike shatters while the cube keeps running. Sound of each: a bright glassy shatter with a ringing metallic shimmer and a soft low thump, lighter and shorter than a crash. Static locked-off camera, no cuts, no text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
 ```

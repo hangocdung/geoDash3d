@@ -2,24 +2,30 @@
 #   --chart=res://...  --start-beat=32  --autoplay  --invincible  --clock=delta|audio
 #   --capture=12.5,40 --capture-out=res://tools/capture/out  (screenshot song times, then quit)
 #   --capture-manual (capture without autoplay, to see deaths)  --debug-clock (print audio drift)
+#   --capture-continuous (one run from the start for all capture times, instead of a restart per time)
 #   --practice --rate=0.75 (practice mode with checkpoints, slower playback)
+#   --autoplay-miss=34,66.5 (autoplay skips the cues on these beats: shows misses, shields, deaths)
 # Related: src/presentation/level/level_runner.gd, tools/capture/README.md
 class_name LaunchOptions
 extends RefCounted
 
 const DEBUG_ARGS_PATH: String = "user://debug_args.txt"
 const LEVEL_ARGUMENT_KEYS: PackedStringArray = ["chart", "start-beat", "autoplay", "invincible", "clock", "capture",
-		"capture-out", "capture-manual", "skip-start", "debug-clock", "practice", "rate", "perf"]
+		"capture-out", "capture-manual", "skip-start", "debug-clock", "practice", "rate", "perf", "autoplay-miss",
+		"capture-continuous"]
 
 var chart_path: String = ""
 var start_beat: float = NAN
 var autoplay: bool = false
+## Cue beats the autoplay bot deliberately skips.
+var autoplay_missed_beats: PackedFloat64Array = []
 var invincible: bool = false
 var frame_delta_clock: bool = false
 var capture_times: PackedFloat64Array = []
 var capture_directory: String = "res://tools/capture/out"
 var skip_start_screen: bool = false
 var capture_without_autoplay: bool = false
+var capture_continuous: bool = false
 var debug_clock: bool = false
 ## Debug performance experiments, e.g. --perf=noglow,nosky,scale=0.5 (see LevelRunner._apply_perf_flags).
 var perf_flags: PackedStringArray = []
@@ -68,6 +74,8 @@ static func from_command_line() -> LaunchOptions:
 				options.skip_start_screen = true
 			"capture-manual":
 				options.capture_without_autoplay = true
+			"capture-continuous":
+				options.capture_continuous = true
 			"debug-clock":
 				options.debug_clock = true
 			"perf":
@@ -76,6 +84,9 @@ static func from_command_line() -> LaunchOptions:
 				options.practice = true
 			"rate":
 				options.playback_rate = clampf(value.to_float(), 0.25, 1.0)
+			"autoplay-miss":
+				for item: String in value.split(",", false):
+					options.autoplay_missed_beats.append(item.to_float())
 			_:
 				push_warning("LaunchOptions: unknown argument '%s'" % argument)
 	if not options.capture_times.is_empty():

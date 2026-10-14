@@ -1,5 +1,6 @@
-# In-run overlay: progress bar with percentage, judgement popups, attempt counter, centered message,
-# a touch-friendly pause button and the pause/complete RunMenu. Respects the mobile safe area.
+# In-run overlay: progress bar with percentage, judgement popups, combo counter, shield charge meter,
+# attempt counter, centered message, a touch-friendly pause button and the pause/complete RunMenu.
+# Respects the mobile safe area.
 # Related: src/presentation/level/level_runner.gd, src/ui/hud/run_menu.gd
 class_name Hud
 extends CanvasLayer
@@ -9,6 +10,11 @@ signal pause_pressed
 const BAR_WIDTH: float = 760.0
 const BAR_HEIGHT: float = 16.0
 const POPUP_LIFETIME: float = 0.55
+## The combo shows from this many hits on.
+const COMBO_MIN_SHOWN: int = 2
+const SHIELD_BAR_WIDTH: float = 170.0
+const SHIELD_COLOR: Color = Color(0.6, 0.75, 1.0)
+const SHIELD_DIM: Color = Color(0.45, 0.5, 0.7, 0.75)
 const GRADE_COLORS: Dictionary[int, Color] = {
 	Judgement.Grade.PERFECT: Color(1.0, 0.95, 0.5),
 	Judgement.Grade.GREAT: Color(0.45, 1.0, 0.9),
@@ -26,6 +32,10 @@ var _attempt_fade: float = 0.0
 var run_menu: RunMenu
 var _pause_button: Button
 var _mode_label: Label
+var _combo_label: Label
+var _combo_age: float = INF
+var _shield_label: Label
+var _shield_fill: ColorRect
 
 
 func _ready() -> void:
@@ -36,6 +46,7 @@ func _ready() -> void:
 	_apply_safe_area(root)
 	_build_progress(root)
 	_judgement_label = _make_label(root, 56, Control.PRESET_CENTER_TOP, Vector2(0, 110))
+	_combo_label = _make_label(root, 34, Control.PRESET_CENTER_TOP, Vector2(0, 182))
 	_message_label = _make_label(root, 64, Control.PRESET_CENTER, Vector2(0, -40))
 	_attempt_label = _make_label(root, 40, Control.PRESET_CENTER_TOP, Vector2(0, 260))
 	_pause_button = UiTheme.make_button("II", 84.0)
@@ -46,6 +57,7 @@ func _ready() -> void:
 	root.add_child(_pause_button)
 	_mode_label = _make_label(root, 28, Control.PRESET_TOP_LEFT, Vector2(130, 34))
 	_mode_label.add_theme_color_override("font_color", Color(0.55, 1.0, 0.45))
+	_build_shield_meter(root)
 	run_menu = RunMenu.new()
 	add_child(run_menu)
 
@@ -60,6 +72,8 @@ func _process(delta: float) -> void:
 	var popup_t: float = clampf(_popup_age / POPUP_LIFETIME, 0.0, 1.0)
 	_judgement_label.modulate.a = 1.0 - popup_t * popup_t
 	_judgement_label.scale = Vector2.ONE * lerpf(1.25, 1.0, minf(popup_t * 4.0, 1.0))
+	_combo_age += delta
+	_combo_label.scale = Vector2.ONE * lerpf(1.18, 1.0, clampf(_combo_age * 8.0, 0.0, 1.0))
 	_attempt_fade = maxf(_attempt_fade - delta * 0.6, 0.0)
 	_attempt_label.modulate.a = clampf(_attempt_fade, 0.0, 1.0)
 
@@ -74,6 +88,21 @@ func show_judgement(grade: Judgement.Grade) -> void:
 	_judgement_label.add_theme_color_override("font_color", GRADE_COLORS[grade])
 	_judgement_label.pivot_offset = _judgement_label.size * 0.5
 	_popup_age = 0.0
+
+
+func set_combo(combo: int) -> void:
+	_combo_label.visible = combo >= COMBO_MIN_SHOWN
+	_combo_label.text = "%d COMBO" % combo
+	_combo_label.pivot_offset = _combo_label.size * 0.5
+	_combo_age = 0.0 if combo > 0 else INF
+
+
+## `charge` = 0..1 progress toward the next shield; `ready` = a shield is held.
+func set_shield(ready: bool, charge: float) -> void:
+	_shield_label.text = "SHIELD READY" if ready else "SHIELD"
+	_shield_label.add_theme_color_override("font_color", SHIELD_COLOR if ready else SHIELD_DIM)
+	_shield_fill.size.x = (SHIELD_BAR_WIDTH - 4.0) * clampf(1.0 if ready else charge, 0.0, 1.0)
+	_shield_fill.color = SHIELD_COLOR if ready else SHIELD_DIM
 
 
 ## Short centered notice that fades out (attempts, checkpoints).
@@ -112,6 +141,25 @@ func _build_progress(root: Control) -> void:
 	_bar_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	frame.add_child(_bar_fill)
 	_percent_label = _make_label(root, 34, Control.PRESET_CENTER_TOP, Vector2(BAR_WIDTH * 0.5 + 70.0, 20.0))
+
+
+## Small meter under the pause button: fills with the combo, glows when a shield is ready.
+func _build_shield_meter(root: Control) -> void:
+	_shield_label = _make_label(root, 22, Control.PRESET_TOP_LEFT, Vector2(30, 112))
+	_shield_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_shield_label.grow_horizontal = Control.GROW_DIRECTION_END
+	var frame := ColorRect.new()
+	frame.color = Color(0.05, 0.03, 0.12, 0.7)
+	frame.position = Vector2(30, 146)
+	frame.size = Vector2(SHIELD_BAR_WIDTH, 10)
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(frame)
+	_shield_fill = ColorRect.new()
+	_shield_fill.position = Vector2(2, 2)
+	_shield_fill.size = Vector2(0, 6)
+	_shield_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.add_child(_shield_fill)
+	set_shield(false, 0.0)
 
 
 func _make_label(root: Control, font_size: int, preset: Control.LayoutPreset, offset: Vector2) -> Label:

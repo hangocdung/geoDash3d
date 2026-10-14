@@ -29,6 +29,8 @@ SOUNDS = {
     "player.dodge": "player",
     "player.flip": "player",
     "player.death": "impact",
+    "player.shield": "judge",
+    "player.shield_break": "impact",
     "judge.perfect": "judge",
     "judge.great": "judge",
     "run.checkpoint": "judge",

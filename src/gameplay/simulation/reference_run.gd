@@ -1,5 +1,6 @@
 # Annotates a loaded chart with what a perfect (autoplay) run does: the player's height at every cue
-# (cue rings and jump orbs are drawn there) and the beat ranges it spends in the air (safe start points).
+# (cue rings and jump orbs are drawn there), the beat ranges it spends in the air (safe start points) and
+# its vertical states (a shield puts a falling player back onto them).
 # Related: autoplay.gd, src/gameplay/chart/level_chart.gd, src/gameplay/chart/chart_loader.gd
 class_name ReferenceRun
 extends RefCounted
@@ -14,12 +15,20 @@ static func annotate(chart: LevelChart, config: GameplayConfig) -> void:
 		chart.cue_heights.resize(chart.cues.size())
 		chart.cue_heights.fill(0.0)
 		chart.airborne_ranges = PackedVector2Array()
+		chart.reference_beats = PackedFloat64Array()
+		chart.reference_motions = []
 		return
 	var simulation := RunSimulation.new(chart, config, START_BEAT)
 	simulation.invincible = true
 	var ranges: Array[Vector2] = []
 	simulation.player_landed.connect(func(beat: float, airtime: float) -> void:
 		ranges.append(Vector2(beat - airtime, beat)))
+	# The lambdas must not capture `simulation` (a reference cycle through its own signal would leak it).
+	var beats: Array[float] = [START_BEAT]
+	var motions: Array[VerticalMotion] = [simulation.motion_snapshot()]
+	simulation.motion_changed.connect(func(beat: float, motion: VerticalMotion) -> void:
+		beats.append(beat)
+		motions.append(motion))
 	var bot := Autoplay.new(chart, START_BEAT)
 	chart.cue_heights.resize(chart.cues.size())
 	for index: int in chart.cues.size():
@@ -31,6 +40,8 @@ static func annotate(chart: LevelChart, config: GameplayConfig) -> void:
 		chart.cue_heights[index] = simulation.player_height_at(cue_beat)
 	bot.drive(simulation, chart.end_beat + 1.0)
 	chart.airborne_ranges = PackedVector2Array(ranges)
+	chart.reference_beats = PackedFloat64Array(beats)
+	chart.reference_motions = motions
 
 
 ## No terrain, pads or orbs: the pre-v3 kind of chart, which needs no simulation pass.

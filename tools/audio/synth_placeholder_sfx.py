@@ -82,6 +82,13 @@ def make(sound_id, variant):
         crackle = (RNG.uniform(0, 1, int(0.45 * SR)) > 0.995) * RNG.uniform(-1, 1, int(0.45 * SR)) * env(0.45, 0.001, 0.2)
         zap = sweep(900 * k, 90, 0.3, "square") * env(0.3, 0.001, 0.1) * 0.5
         return mix(shatter, crackle * 0.8, zap)
+    if sound_id == "player.shield":
+        return np.concatenate([tones([1318.5 * k, 2637 * k], 0.07, 0.03), tones([1975.5 * k, 3951 * k, 5274 * k], 0.35, 0.11)])
+    if sound_id == "player.shield_break":
+        glass = band(noise(0.4), 3000, 10000) * env(0.4, 0.001, 0.07)
+        ring = tones([1661 * k, 2489 * k, 3322 * k], 0.35, 0.07) * 0.6
+        thump = sweep(220 * k, 60, 0.2) * env(0.2, 0.001, 0.05)
+        return mix(glass, ring, thump)
     if sound_id == "judge.perfect":
         return tones([2637 * k, 3951 * k, 5274 * k, 6644 * k], 0.3, 0.07) * (1 + 0.3 * np.sin(2 * np.pi * 30 * t_axis(0.3)))
     if sound_id == "judge.great":

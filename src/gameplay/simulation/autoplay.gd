@@ -1,5 +1,5 @@
-# Perfect bot: taps exactly on every action cue. Used by tests (prove a chart is passable),
-# the capture tool and the in-game demo/attract mode.
+# Perfect bot: taps exactly on every action cue (except `missed_beats`, to show misses, shields and
+# deaths on purpose). Used by tests (prove a chart is passable), the capture tool and the attract mode.
 # Related: src/gameplay/simulation/run_simulation.gd
 class_name Autoplay
 extends RefCounted
@@ -8,9 +8,9 @@ var _cue_beats: PackedFloat64Array = []
 var _next_index: int = 0
 
 
-func _init(chart: LevelChart, start_beat: float) -> void:
+func _init(chart: LevelChart, start_beat: float, missed_beats: PackedFloat64Array = []) -> void:
 	for cue: ChartItems.ActionCue in chart.cues:
-		if cue.beat >= start_beat:
+		if cue.beat >= start_beat and not missed_beats.has(cue.beat):
 			_cue_beats.append(cue.beat)
 
 

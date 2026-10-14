@@ -64,6 +64,14 @@ Thiết kế: `docs/design/gameplay_v3.md`. **Đã duyệt 2026-10-14: map đị
 - [ ] **GD3-084** Mở rộng map chính ra đủ bài (có dodge/flip ở đoạn đường phẳng), sinh địa hình trong
       `draft_chart.py`, SFX riêng cho orb/pad.
 
+## Phase 4.7 — Cảm giác chơi (đề xuất 2026-10-14, theo thứ tự)
+- [x] **GD3-090** Combo + lá chắn nạp theo combo (16 lần trúng → 1 lá chắn): vật cản vỡ, rơi/đâm bệ thì về quỹ đạo
+      chuẩn để không lệch nhịp; HUD combo + thanh nạp, MAX COMBO; SFX tạm `player.shield(_break)`; test.
+      Công cụ: `--autoplay-miss`, `--capture-continuous`.
+- [ ] **GD3-091** Vệt năng lượng chạy dọc ray theo beat + vật cản sáng lên khi tới gần (shader).
+- [ ] **GD3-092** Speed lines nhẹ ở MEDIUM/HIGH.
+- [ ] **GD3-093** Biome theo đoạn nhạc (bảng màu tông lạnh + bộ hình khối cảnh nền) — cần chọn chủ đề.
+
 ## Phase 5 — Mobile
 - [x] **GD3-050** Export Android (`export_presets.cfg`, arm64, debug keystore), cài và đo trên Galaxy Note10 Lite
       (Mali-G72, Vulkan Mobile). Đo bằng `PerfProbe` + `tools/device/perf_matrix.sh`. Kết quả, khi máy đang ấm

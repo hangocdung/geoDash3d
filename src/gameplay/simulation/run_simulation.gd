@@ -1,6 +1,6 @@
-# Deterministic run state: player motion over the terrain, tap handling, misses and collisions, in beats.
-# Same chart + same tap beats ⇒ same result, independent of frame rate (fixed collision grid).
-# Related: action_resolver.gd, hazard_checker.gd, vertical_motion.gd, src/presentation/level/level_runner.gd
+# Deterministic run state: player motion over the terrain, tap handling, misses, combo/shields and
+# collisions, in beats. Same chart + same tap beats ⇒ same result, independent of frame rate (fixed grid).
+# Related: action_resolver.gd, hazard_checker.gd, player_body.gd, combo_shield.gd, level_runner.gd
 class_name RunSimulation
 extends RefCounted
 
@@ -15,6 +15,13 @@ signal player_died(hazard_index: int, beat: float)
 signal run_completed(beat: float)
 ## Every tap near a cue (±TAP_TIMING_RANGE_SEC), hit or not: tap − cue in seconds (positive = late).
 signal tap_timed(error_sec: float)
+signal combo_changed(combo: int)
+signal shield_changed(shields: int)
+## A shield absorbed a fatal hit: the hazard (index) shatters, or the terrain (TERRAIN_HIT) puts the player
+## back onto the perfect run's path.
+signal shield_used(hazard_index: int, beat: float)
+## Take-off, landing or restore, with a copy of the new vertical state (ReferenceRun).
+signal motion_changed(beat: float, motion: VerticalMotion)
 
 const TAP_TIMING_RANGE_SEC: float = 0.4
 ## Hazard index reported when the terrain kills the player (side of a ledge, fall into a gap).
@@ -28,20 +35,23 @@ var current_beat: float = 0.0
 var is_dead: bool = false
 var is_completed: bool = false
 var tap_log: PackedFloat64Array = []
+## Hazards that hit an invincible run or were shattered by a shield (ignored from then on).
 var hit_hazards: PackedInt32Array = []
 ## Count per Judgement.Grade value.
 var grade_counts: PackedInt32Array = [0, 0, 0, 0]
+## Combo and shields (read-only outside the simulation).
+var streak: ComboShield
 
 var _resolver: ActionResolver
 var _checker: HazardChecker
-var _motion := VerticalMotion.new()
-var _fall_gravity: float = 0.0
+var _body: PlayerBody
+## The body's vertical motion (jumps, falls): same object as _body.motion.
+var _motion: VerticalMotion
 ## Dodge or flip in progress (fixed duration); jumps live in _motion.
 var _active_action: ActionDefinition = null
 var _active_start_beat: float = 0.0
 var _buffered_tap_beat: float = NAN
 var _grid_index: int = 0
-var _pad_cursor: int = 0
 
 
 func _init(level_chart: LevelChart, gameplay_config: GameplayConfig, start_beat: float) -> void:
@@ -52,11 +62,10 @@ func _init(level_chart: LevelChart, gameplay_config: GameplayConfig, start_beat:
 	_resolver = ActionResolver.new(chart.cues, chart.tempo, config.cue_window_sec)
 	_resolver.skip_before(start_beat)
 	_checker = HazardChecker.new(chart.hazards)
-	_fall_gravity = config.fall_gravity()
-	var support: float = _support_at(start_beat)
-	_motion.reset(start_beat, 0.0 if Terrain.is_gap(support) else support)
-	if Terrain.is_gap(support):
-		_motion.launch(null, start_beat, 0.0, _fall_gravity)
+	streak = ComboShield.new(config.shield_combo, config.max_shields)
+	_body = PlayerBody.new(chart, config, start_beat)
+	_motion = _body.motion
+	_motion.changed.connect(_on_motion_changed)
 
 
 func tap(beat: float) -> void:
@@ -141,6 +150,10 @@ func player_distance_at(beat: float) -> float:
 	return chart.distance_at(beat)
 
 
+func motion_snapshot() -> VerticalMotion:
+	return _motion.snapshot()
+
+
 func _perform_tap(tap_beat: float, start_beat: float) -> void:
 	var cue_index: int = _resolver.match_tap(tap_beat)
 	var action: ActionDefinition
@@ -151,13 +164,16 @@ func _perform_tap(tap_beat: float, start_beat: float) -> void:
 		var grade: Judgement.Grade = Judgement.grade_for_error(error_sec, config)
 		grade_counts[grade] += 1
 		cue_judged.emit(cue_index, grade, error_sec)
+		if streak.register_hit():
+			shield_changed.emit(streak.shields)
+		combo_changed.emit(streak.combo)
 	else:
 		action = config.find_action(config.default_action)
 		if action == null:
 			push_error("RunSimulation: default action '%s' is not defined" % config.default_action)
 			return
 	if action.kind == ActionDefinition.Kind.JUMP:
-		_motion.launch(action, start_beat, action.launch_velocity(), action.gravity())
+		_body.launch(action, start_beat)
 	else:
 		_active_action = action
 		_active_start_beat = start_beat
@@ -169,20 +185,20 @@ func _simulate_step(beat: float) -> void:
 	for missed_index: int in _resolver.collect_missed(beat):
 		grade_counts[Judgement.Grade.MISS] += 1
 		cue_judged.emit(missed_index, Judgement.Grade.MISS, NAN)
+		if streak.combo > 0:
+			streak.register_miss()
+			combo_changed.emit(0)
 	if not _update_motion(beat):
 		return
-	_check_pads(beat)
+	var pad_launch_beat: float = _body.check_pads(beat)
+	if not is_nan(pad_launch_beat):
+		action_started.emit(config.pad_launch, pad_launch_beat, ActionResolver.NO_CUE)
 	var offset: Vector2 = player_offset_at(beat)
 	var hazard_index: int = _checker.find_collision(chart.distance_at(beat), config.player_half_length,
 			Vector2(offset.x - config.player_half_width, offset.x + config.player_half_width),
 			Vector2(offset.y + config.player_bottom, offset.y + config.player_top), active_action(), hit_hazards)
-	if hazard_index != HazardChecker.NO_HAZARD:
-		if invincible:
-			hit_hazards.append(hazard_index)
-			hazard_hit.emit(hazard_index, beat)
-		else:
-			_die(hazard_index, beat)
-			return
+	if hazard_index != HazardChecker.NO_HAZARD and not _survive_hit(hazard_index, beat, Terrain.GAP):
+		return
 	if not is_completed and beat >= chart.end_beat:
 		is_completed = true
 		run_completed.emit(beat)
@@ -190,26 +206,61 @@ func _simulate_step(beat: float) -> void:
 
 ## Ground contact for this grid step. Returns false when the player died.
 func _update_motion(beat: float) -> bool:
-	var support: float = _support_at(beat)
-	match _motion.step(beat, support, config.step_snap, config.fall_death_height):
-		VerticalMotion.Contact.LEFT_GROUND:
-			_motion.launch(null, beat, 0.0, _fall_gravity)
+	var support: float = _body.support_at(beat)
+	match _body.step(beat, support):
 		VerticalMotion.Contact.LANDED:
 			_on_landed()
 		VerticalMotion.Contact.HIT_SIDE:
-			if not invincible:
-				_die(TERRAIN_HIT, beat)
-				return false
-			hazard_hit.emit(TERRAIN_HIT, beat)
-			var was_airborne: bool = _motion.airborne
-			_motion.land(beat, support)
-			if was_airborne:
-				_on_landed()
+			return _survive_hit(TERRAIN_HIT, beat, support)
 		VerticalMotion.Contact.FELL:
-			if not invincible:
-				_die(TERRAIN_HIT, beat)
-				return false
+			# Invincible runs keep falling until the next ledge side snaps them up.
+			return invincible or _survive_hit(TERRAIN_HIT, beat, support)
 	return true
+
+
+## A fatal hit: invincible runs record it, a shield absorbs it, otherwise the player dies.
+## `support` = ground under the player for terrain hits. Returns false when the player died.
+func _survive_hit(hazard_index: int, beat: float, support: float) -> bool:
+	if invincible:
+		hazard_hit.emit(hazard_index, beat)
+		if hazard_index == TERRAIN_HIT:
+			_put_on_ground(beat, support)
+		else:
+			hit_hazards.append(hazard_index)
+		return true
+	if not streak.use_shield():
+		_die(hazard_index, beat)
+		return false
+	shield_used.emit(hazard_index, beat)
+	shield_changed.emit(streak.shields)
+	combo_changed.emit(0)
+	if hazard_index != TERRAIN_HIT:
+		hit_hazards.append(hazard_index)
+		return true
+	# Back onto the perfect run's ground or arc at this very beat, so the next cue lands on its beat.
+	_buffered_tap_beat = NAN
+	var reference: VerticalMotion = chart.reference_motion_at(beat)
+	if reference == null:
+		_put_on_ground(beat, support)
+		return true
+	var was_airborne: bool = _motion.airborne
+	var take_off: float = _motion.take_off_beat
+	_motion.restore(reference, beat)
+	if was_airborne and not _motion.airborne:
+		player_landed.emit(beat, beat - take_off)
+	return true
+
+
+func _put_on_ground(beat: float, support: float) -> void:
+	var was_airborne: bool = _motion.airborne
+	_motion.land(beat, 0.0 if Terrain.is_gap(support) else support)
+	if was_airborne:
+		_on_landed()
+
+
+func _on_motion_changed(beat: float) -> void:
+	if not motion_changed.get_connections().is_empty():
+		motion_changed.emit(beat, _motion.snapshot())
 
 
 func _on_landed() -> void:
@@ -221,30 +272,6 @@ func _on_landed() -> void:
 	_buffered_tap_beat = NAN
 	if chart.tempo.seconds_between(buffered, landing_beat) <= config.input_buffer_sec:
 		_perform_tap(buffered, maxf(buffered, landing_beat))
-
-
-## Jump pads launch the player (no tap) once its feet touch the pad while on the ground.
-func _check_pads(beat: float) -> void:
-	var distance: float = chart.distance_at(beat)
-	while _pad_cursor < chart.pads.size() \
-			and chart.pads[_pad_cursor].distance + config.pad_half_length < distance - config.player_half_length:
-		_pad_cursor += 1
-	if _motion.airborne or _pad_cursor >= chart.pads.size():
-		return
-	var pad: ChartItems.PadPlacement = chart.pads[_pad_cursor]
-	var trigger_distance: float = pad.distance - config.pad_half_length - config.player_half_length
-	if distance < trigger_distance:
-		return
-	_pad_cursor += 1
-	var launch_beat: float = maxf(chart.beat_at_distance(trigger_distance), _motion.grounded_since)
-	var launch: ActionDefinition = config.pad_launch
-	_motion.launch(launch, launch_beat, launch.launch_velocity(), launch.gravity())
-	action_started.emit(launch, launch_beat, ActionResolver.NO_CUE)
-
-
-func _support_at(beat: float) -> float:
-	var distance: float = chart.distance_at(beat)
-	return chart.terrain.support_height(distance - config.player_half_length, distance + config.player_half_length)
 
 
 func _die(hazard_index: int, beat: float) -> void:

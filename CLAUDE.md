@@ -43,6 +43,8 @@ GODOT="D:/Godot_v4.6.1-stable_win64.exe/Godot_v4.6.1-stable_win64_console.exe"
 "$GODOT" --path . -- --capture=8.1,49,72.2
 # Như trên nhưng không autoplay (xem cảnh chết); đo độ lệch audio: --debug-clock
 "$GODOT" --path . -- --capture=5 --capture-manual
+# Một lượt chơi liên tục cho mọi thời điểm chụp, autoplay cố tình bỏ cue ở beat 44 (xem lá chắn / MISS / chết)
+"$GODOT" --path . -- --capture=21.4,22.36 --capture-continuous --autoplay-miss=44
 # Chụp ảnh một scene bất kỳ (menu, calibration…) sau N frame
 "$GODOT" --path . -s res://tools/capture/scene_shot.gd -- --scene=res://src/ui/menu/main_menu.tscn --frames=240 --out=res://tools/capture/out/menu.png
 # Cấu hình project (input map, autoload, shader globals, main scene) — sửa trong script rồi chạy lại

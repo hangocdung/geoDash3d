@@ -101,3 +101,18 @@ bệ bật và vật cản không được đặt trên hố.
   116/224 beat (đầu bài tới hết nửa đầu điệp khúc), chưa có dodge/flip.
 - Orb và bệ bật dùng tạm âm `player.jump`.
 - Chuỗi chạm nhanh bị giới hạn ±90 ms bởi `input_buffer_sec` (100 ms); có thể nới lên 150 ms nếu thấy gắt.
+
+## 8. Combo và lá chắn (GD3-090, 2026-10-14)
+- **Combo** = số cue chạm trúng liên tiếp (PERFECT/GREAT/GOOD). MISS hoặc một cú va chạm được lá chắn đỡ → về 0.
+  Chạm không trúng cue (nhảy mặc định) không tính. HUD hiện "N COMBO" từ 2 trở lên; màn kết thúc có MAX COMBO.
+- **Lá chắn**: mỗi `shield_combo` (16) lần trúng liên tiếp nạp 1 lá chắn, giữ tối đa `max_shields` (1). Nguồn duy nhất
+  là combo (tất định, thưởng cho chơi đúng nhịp, không thêm vật thể phải đọc trên đường).
+- **Đỡ một cú chết, không lệch nhịp**. Vị trí theo thời gian không bao giờ đổi (không đẩy lùi, không slow-mo):
+  - Gai / tường / cổng: vật cản vỡ vụn (bị bỏ qua), người chơi chạy tiếp như cũ.
+  - Đâm hông bệ hoặc rơi xuống hố: người chơi được đặt lại vào **trạng thái của lượt chơi hoàn hảo** ở đúng beat
+    đó (ReferenceRun lưu mọi lần cất cánh/tiếp đất). Vì vậy cue kế tiếp vẫn chạm được đúng beat của nó.
+  - Cue bị lỡ vẫn tính MISS; lá chắn không chạm hộ. Chế độ bất tử (luyện tập/soạn màn) không dùng lá chắn.
+- Hiển thị: vòng sáng xanh nhạt quanh khối khi có lá chắn; thanh nạp dưới nút pause ("SHIELD" / "SHIELD READY");
+  khi vỡ: lóe sáng, vòng sóng, vật cản vỡ thành mảnh, âm `player.shield_break` (nạp đầy: `player.shield`).
+- Công cụ kiểm tra: `--autoplay-miss=44,74` (autoplay cố tình bỏ cue) và `--capture-continuous` (một lượt chơi
+  liên tục cho mọi thời điểm chụp).

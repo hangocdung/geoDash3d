@@ -4,6 +4,9 @@
 class_name VerticalMotion
 extends RefCounted
 
+## Every take-off, landing and restore (ReferenceRun records the perfect run's states from it).
+signal changed(beat: float)
+
 enum Contact {
 	NONE,
 	## Came down onto the ground (or onto a ledge within the snap distance).
@@ -74,6 +77,7 @@ func launch(action: ActionDefinition, beat: float, velocity: float, gravity_valu
 	gravity = gravity_value
 	_last_height = height
 	_last_beat = beat
+	changed.emit(beat)
 
 
 ## Evaluates ground contact at grid `beat`; `support` = highest ground under the player (Terrain.GAP if none).
@@ -105,6 +109,34 @@ func land(beat: float, height: float) -> void:
 	grounded_since = beat
 	_last_height = height
 	_last_beat = beat
+	changed.emit(beat)
+
+
+func snapshot() -> VerticalMotion:
+	var copy := VerticalMotion.new()
+	copy._copy_state(self)
+	return copy
+
+
+## Takes over `other`'s ground / arc as of `beat` (a shield puts the player back on the perfect run).
+func restore(other: VerticalMotion, beat: float) -> void:
+	_copy_state(other)
+	_last_height = height_at(beat)
+	_last_beat = beat
+	changed.emit(beat)
+
+
+func _copy_state(other: VerticalMotion) -> void:
+	airborne = other.airborne
+	ground_height = other.ground_height
+	take_off_beat = other.take_off_beat
+	launch_beat = other.launch_beat
+	launch_height = other.launch_height
+	launch_velocity = other.launch_velocity
+	gravity = other.gravity
+	launch_action = other.launch_action
+	grounded_since = other.grounded_since
+	last_airtime = other.last_airtime
 
 
 ## Exact beat where the descending arc meets `height`, kept within the grid step that detected it.

@@ -133,6 +133,28 @@
 			"max_polyphony": 2,
 			"status": "placeholder"
 		},
+		"player.shield": {
+			"files": [
+				"res://assets/audio/sfx/placeholder/player.shield_1.wav",
+				"res://assets/audio/sfx/placeholder/player.shield_2.wav"
+			],
+			"bus": "SFX",
+			"volume_db": 0.0,
+			"pitch_random": 0.03,
+			"max_polyphony": 3,
+			"status": "placeholder"
+		},
+		"player.shield_break": {
+			"files": [
+				"res://assets/audio/sfx/placeholder/player.shield_break_1.wav",
+				"res://assets/audio/sfx/placeholder/player.shield_break_2.wav"
+			],
+			"bus": "SFX",
+			"volume_db": 0.0,
+			"pitch_random": 0.04,
+			"max_polyphony": 2,
+			"status": "placeholder"
+		},
 		"run.attempt": {
 			"files": [
 				"res://assets/audio/sfx/placeholder/run.attempt_1.wav",
