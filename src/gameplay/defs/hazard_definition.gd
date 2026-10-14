@@ -24,6 +24,8 @@ enum Visual {
 	LASER_WALL,
 	## Ring standing across the road with an energy field (flip under the track).
 	RING_GATE,
+	## Spiked mace swinging along the track from a tall gantry (roll under the track).
+	MACE_SWEEP,
 }
 enum Entrance {
 	## Grows out of the track surface.

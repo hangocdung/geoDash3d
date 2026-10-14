@@ -620,8 +620,7 @@
 		},
 		{
 			"beat": 89.0,
-			"type": "flip",
-			"hazard": "ring_gate"
+			"type": "roll"
 		},
 		{
 			"beat": 93.0,
@@ -866,7 +865,8 @@
 		},
 		{
 			"beat": 205.0,
-			"type": "flip"
+			"type": "flip",
+			"hazard": "ring_gate"
 		},
 		{
 			"beat": 209.0,
@@ -1020,8 +1020,8 @@
 		},
 		{
 			"beat": 273.0,
-			"type": "flip",
-			"hazard": "ring_gate"
+			"type": "roll",
+			"hazard": "falling_block"
 		},
 		{
 			"beat": 277.0,

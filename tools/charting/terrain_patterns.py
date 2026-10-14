@@ -65,7 +65,7 @@ class Level:
         self.terrain = []
         # GD3-104: every other dive / two-lane wall / gate uses the variant look (crusher, laser grid, ring gate);
         # same hitboxes, so the same taps and tolerances.
-        self.variant_counts = {"dive": 0, "dodge": 0, "flip": 0}
+        self.variant_counts = {"dive": 0, "dodge": 0, "flip": 0, "roll": 0}
 
     def _variant(self, kind):
         self.variant_counts[kind] += 1
@@ -185,4 +185,12 @@ class Level:
         event = {"beat": beat, "type": "flip"}
         if self._variant("flip"):
             event["hazard"] = "ring_gate"
+        self.events.append(event)
+
+    def roll(self, beat):
+        """Sweeping spiked mace (every other one a falling block) across the road: roll all the way around the
+        track, over one edge and up the other (GD3-106). Same timing and flat-road rule as a flip."""
+        event = {"beat": beat, "type": "roll"}
+        if self._variant("roll"):
+            event["hazard"] = "falling_block"
         self.events.append(event)

@@ -109,3 +109,27 @@ func test_laser_walls_and_ring_gate_keep_the_dodge_and_flip_rules() -> void:
 	assert_eq(chart.hazards.size(), 3)
 	assert_true(_simulate(chart, [], 18.0).is_dead, "running straight hits the laser wall")
 	assert_false(_simulate(chart, [4.0, 8.0, 12.0], 18.0).is_dead, "dodging and flipping clears them")
+
+
+func test_roll_goes_all_the_way_around_the_track() -> void:
+	var roll: ActionDefinition = GameplayConfig.create_default().find_action(&"roll")
+	assert_true(roll.full_turn)
+	assert_true(roll.offset_at(0.2).x > 0.5, "over the right-hand edge first")
+	assert_true(roll.offset_at(0.5).y < -1.5, "under the track halfway")
+	assert_true(roll.offset_at(0.8).x < -0.5, "comes back up the left-hand edge")
+	assert_almost_eq(roll.flip_angle(0.9), TAU - PI * roll.hold_amount(0.9), 0.0001)
+	var flip: ActionDefinition = GameplayConfig.create_default().find_action(&"flip")
+	assert_true(flip.offset_at(0.92).x > 0.5, "a flip wraps back over the edge it went down")
+
+
+func test_roll_clears_the_sweeping_mace_and_the_falling_block_with_tolerance() -> void:
+	for hazard_id: String in ["mace_sweep", "falling_block"]:
+		var chart: LevelChart = ChartFixtures.make_chart([{"beat": 4, "type": "roll", "hazard": hazard_id}], 120.0, 7.0,
+				12.0)
+		assert_not_null(chart, hazard_id)
+		assert_true(_simulate(chart, [], 8.0).is_dead, "%s blocks the road" % hazard_id)
+		var jump_chart: LevelChart = ChartFixtures.make_chart([{"beat": 4, "type": "jump", "hazard": "none"},
+				{"beat": 5, "type": "hazard", "hazard": hazard_id}], 120.0, 7.0, 12.0)
+		assert_true(_simulate(jump_chart, [4.6], 8.0).is_dead, "%s is too tall to jump" % hazard_id)
+		for tap_beat: float in [4.0, 4.0 - 0.15, 4.0 + 0.15]:
+			assert_false(_simulate(chart, [tap_beat], 8.0).is_dead, "%s roll at %.2f" % [hazard_id, tap_beat])

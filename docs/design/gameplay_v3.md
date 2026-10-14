@@ -162,3 +162,16 @@ Màu giữ quy tắc: họ nhảy hồng, lách làn cam, lộn lime. Tool đặ
 dùng biến thể (`terrain_patterns.Level._variant`). Model: `assets/blender/generate_models.py` (chỉ Body + Glow, 144–832
 đỉnh), vật liệu dùng chung theo màu (`ObstacleModels`). Mỗi vật cản tối đa 3 draw call: hàng rào laser và lưới laser là
 một mesh gộp (cột + tia), rìu chỉ một vật liệu — đo trên PC, bản tách rời (6–8 draw call) làm tụt FPS rõ hơn.
+
+## 11. Lộn tròn quanh đường (GD3-106, 2026-10-15)
+Người dùng muốn quả cầu gai lia qua theo hướng chạy, người chơi phải lộn xuống mặt dưới rồi lên lại thành một vòng
+tròn, camera đi theo; hoặc một vật thể rơi xuống chặn đường.
+- Hành động `roll`: một `flip` có `full_turn` (`ActionDefinition.flip_angle`): góc quanh trục dọc đường đi 0 → π
+  (xuống mép phải, dưới đường) rồi π → 2π (lên mép trái) thay vì quay về. 2 beat, chuyển 0.5 beat mỗi chiều (`flip`:
+  0.3 beat). Cần đường phẳng như `flip`; tool đặt màn đổi xen kẽ một nửa số `flip` thành `roll` (cùng nhịp).
+- Vật cản (lime, họ lộn): `mace_sweep` — quả cầu gai (model `spiked_mace`) treo dưới khung cao (`mace_gantry`), lắc
+  ±62° dọc đường, chu kỳ 2 beat, buông thẳng đúng beat người chơi tới; `falling_block` — khối hộp rơi chặn mọi làn.
+  Hộp va chạm như cổng (`gate`): không nhảy qua được, chỉ lộn dưới đường mới qua.
+- Camera: ở MEDIUM/HIGH xoay quanh tâm đường theo đúng góc của người chơi (áp sau bước làm mượt khung đường, nên
+  không bị "đi đường tắt" khi xoay nhanh). Ở LOW dùng góc nhìn dưới đường như `flip` (camera xoay liên tục ở LOW tốn
+  FPS, xem GD3-105).

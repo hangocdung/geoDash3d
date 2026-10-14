@@ -2,7 +2,7 @@
 
 This module parses the step list, checks it (the player has landed before each tap, ground height limits,
 flat road for dodges and flips), places the patterns (terrain_patterns.py) and writes the chart.
-Patterns: spike spike2 spike3 saw laser pendulum mine gap step step1 chain2 chain3 orb borb dive trip stairs fstairs pad dl dr flip
+Patterns: spike spike2 spike3 saw laser pendulum mine roll gap step step1 chain2 chain3 orb borb dive trip stairs fstairs pad dl dr flip
 drop drop2 drop4 (drop/drop2/drop4: run off the ledge down to 0 / 2 / 4; spike2/spike3: spike rows; borb: big
 orb onto +2, lands 2 beats after the jump; dive: jump + dive orb under a spiked ceiling).
 build() adds variety by default: plain `spike` steps rotate through spike / saw / spike rows by section energy, and
@@ -68,7 +68,7 @@ class Checker:
         self.need(start >= self.free - EPSILON, beat, "%s before the player is free (%.2f)" % (name, self.free))
         rise = {"step": 1.5, "step1": 1.0, "orb": 2.0, "borb": 2.0, "trip": 4.0, "stairs": 4.5, "fstairs": 4.5, "pad": 4.0}.get(name, 0.0)
         self.need(ground + rise <= MAX_HEIGHT, beat, "%s from height %.1f goes above %.1f" % (name, ground, MAX_HEIGHT))
-        if name in ("dl", "dr", "flip"):
+        if name in ("dl", "dr", "flip", "roll"):
             self.need(ground == 0.0, beat, "%s needs the road (height 0), ground is %.1f" % (name, ground))
         if name in SPIKE_HAZARDS:
             level.spike(beat, SPIKE_HAZARDS[name])
@@ -109,6 +109,9 @@ class Checker:
         elif name == "flip":
             level.flip(beat)
             self.free = beat + 2.0
+        elif name == "roll":
+            level.roll(beat)
+            self.free = beat + 2.0
         else:
             self.errors.append("beat %.2f: unknown pattern '%s'" % (beat, name))
 
@@ -129,10 +132,11 @@ def try_apply(checker, beat, name, deadline):
 
 def add_variety(plan, sections):
     """Plain spikes rotate through saw / spike rows by section energy; every other orb with 2 beats of room
-    after its jump becomes a big orb. Same tap beats, same ground heights."""
+    after its jump becomes a big orb; every other flip becomes a roll (GD3-106). Same tap beats, same ground."""
     result = []
     spikes = 0
     orbs = 0
+    flips = 0
     for index, (beat, name) in enumerate(plan):
         energy = 0.5
         for start, _, value in sections:
@@ -142,6 +146,10 @@ def add_variety(plan, sections):
             rotation = SPIKE_VARIETY[0 if energy < 0.5 else 1 if energy < 0.8 else 2]
             name = rotation[spikes % len(rotation)]
             spikes += 1
+        elif name == "flip":
+            if flips % 2 == 1:
+                name = "roll"
+            flips += 1
         elif name == "orb":
             next_beat = plan[index + 1][0] if index + 1 < len(plan) else float("inf")
             if next_beat >= beat + BIG_ORB_LANDING:
@@ -211,5 +219,6 @@ def build(song, steps, variety=True):
     with open(path, "w", encoding="utf-8", newline="\n") as handle:
         json.dump(chart, handle, indent="\t")
         handle.write("\n")
-    taps = sum(1 for e in events if e["type"] in ("jump", "orb", "orb_big", "orb_drop", "dodge_left", "dodge_right", "flip"))
+    taps = sum(1 for e in events if e["type"] in ("jump", "orb", "orb_big", "orb_drop", "dodge_left", "dodge_right", "flip",
+                                                  "roll"))
     print("wrote %s: %d taps, end beat %d" % (path, taps, song["end_beat"]))

@@ -1,6 +1,7 @@
 # Drives the Camera3D from chart camera cues: the shot is a pure function of the beat (blended
 # between cues), placed in the smoothed track frame raised to the (smoothed) terrain height. Adds shake
-# and FOV kicks from events.
+# and FOV kicks from events. Flips swing it under the track; rolls turn it around the track with the
+# player (except on LOW, where a turning camera costs FPS: see QualityTier.uses_spectacle_track).
 # Related: src/presentation/camera/camera_shots.gd, src/presentation/level/level_runner.gd
 class_name CameraDirector
 extends Node3D
@@ -52,8 +53,11 @@ func add_fov_kick(degrees: float) -> void:
 	_fov_kick = maxf(_fov_kick, degrees)
 
 
-## `underside_amount` (0..1) blends toward a low side shot so flips under the track stay visible.
-func update_camera(beat: float, player_height: float, underside_amount: float, delta: float) -> void:
+func update_camera(beat: float, simulation: RunSimulation, delta: float) -> void:
+	var player_height: float = simulation.player_height_at(beat)
+	var flip_pose: Vector2 = _flip_pose(simulation, beat)
+	var underside_amount: float = flip_pose.x
+	var roll: float = flip_pose.y
 	var shot: CameraShots.Shot = shot_at(beat)
 	if underside_amount > 0.0:
 		shot = shot.blended(CameraShots.get_shot(CameraShots.UNDERSIDE_SHOT), underside_amount)
@@ -71,6 +75,13 @@ func update_camera(beat: float, player_height: float, underside_amount: float, d
 			_context.chart.distance_at(beat) + GROUND_LOOK_AHEAD, GROUND_RADIUS)
 	var lift: float = ground + (player_height - ground) * HEIGHT_FOLLOW
 	var frame := Transform3D(_smoothed_frame.basis, target_frame.origin + _smoothed_frame.basis.y * lift)
+	if roll != 0.0:
+		# Turn around the track's centre line with the player (applied after smoothing: it is already smooth,
+		# and smoothing a fast full turn could take the short way round).
+		var half_thickness: float = _context.config.track_thickness * 0.5
+		var axis_point: Vector3 = target_frame.origin - _smoothed_frame.basis.y * half_thickness
+		var rolled: Basis = _smoothed_frame.basis * Basis(Vector3.RIGHT, roll)
+		frame = Transform3D(rolled, axis_point + rolled.y * (half_thickness + ground))
 	var eye: Vector3 = frame * shot.position
 	var target: Vector3 = frame * shot.look_at
 	_trauma = maxf(_trauma - delta * SHAKE_DECAY_PER_SEC, 0.0)
@@ -82,6 +93,18 @@ func update_camera(beat: float, player_height: float, underside_amount: float, d
 	var up: Vector3 = frame.basis.y.rotated((target - eye).normalized(), deg_to_rad(shot.roll_deg))
 	camera.global_transform = Transform3D(Basis.looking_at(target - eye, up), eye + jitter)
 	camera.fov = shot.fov + _fov_kick
+
+
+## x = 0..1 blend toward the low underside shot (flips, and rolls on LOW), y = camera roll around the track
+## (rolls on tiers with spectacle track shapes), eased so the swing is gentle.
+func _flip_pose(simulation: RunSimulation, beat: float) -> Vector2:
+	var action: ActionDefinition = simulation.active_action()
+	if action == null or action.kind != ActionDefinition.Kind.FLIP:
+		return Vector2.ZERO
+	var progress: float = simulation.action_progress_at(beat)
+	if action.full_turn and QualityTier.uses_spectacle_track(_context.quality):
+		return Vector2(0.0, action.flip_angle(progress))
+	return Vector2(smoothstep(0.0, 0.3, progress) * (1.0 - smoothstep(0.75, 1.0, progress)), 0.0)
 
 
 ## Blended shot at `beat` (deterministic: depends only on the chart and the beat).

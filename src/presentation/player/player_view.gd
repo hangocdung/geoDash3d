@@ -92,8 +92,9 @@ func update_pose(beat: float, simulation: RunSimulation, delta: float) -> void:
 				# Roll a quarter turn toward the target lane and back again.
 				side_roll = signf(action.lateral_distance) * hold * PI * 0.5
 			ActionDefinition.Kind.FLIP:
-				# Half turn around the track edge: the cube ends up upside-down under the track.
-				side_roll = hold * PI
+				# Around the track edge: upside-down under the track, then back (flip) or on around the other
+				# edge (roll, a full turn).
+				side_roll = action.flip_angle(progress)
 	_land_squash = maxf(_land_squash - delta * LAND_SQUASH_DECAY, 0.0)
 	var stretch := Vector3(1.0 + 0.18 * _land_squash, 1.0 - 0.22 * _land_squash, 1.0 + 0.18 * _land_squash)
 	_flash = maxf(_flash - delta * 5.0, 0.0)

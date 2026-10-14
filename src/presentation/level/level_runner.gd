@@ -241,22 +241,13 @@ func _apply_volume() -> void:
 
 func _update_presentation(beat: float, delta: float) -> void:
 	player_view.update_pose(beat, simulation, delta)
-	camera_director.update_camera(beat, simulation.player_height_at(beat), _underside_amount(beat), delta)
+	camera_director.update_camera(beat, simulation, delta)
 	obstacle_view.update_view(beat)
 	environment_director.update_environment(beat, delta)
 	vfx_director.set_palette(environment_director.palette)
 	decor_view.update_view(beat)
 	vfx_director.follow_camera(camera_director.camera.global_position, beat)
 	hud.set_progress(chart.progress_at(beat))
-
-
-## 0..1 while the player hangs under the track (flip), eased so the camera swing is gentle.
-func _underside_amount(beat: float) -> float:
-	var action: ActionDefinition = simulation.active_action()
-	if action == null or action.kind != ActionDefinition.Kind.FLIP:
-		return 0.0
-	var progress: float = simulation.action_progress_at(beat)
-	return smoothstep(0.0, 0.3, progress) * (1.0 - smoothstep(0.75, 1.0, progress))
 
 
 func _on_player_died(_hazard_index: int, beat: float) -> void:

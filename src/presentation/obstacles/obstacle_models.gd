@@ -13,9 +13,14 @@ const PENDULUM_BLADE: PackedScene = preload("res://assets/models/pendulum_blade.
 const SPIKE_MINE: PackedScene = preload("res://assets/models/spike_mine.glb")
 const CRUSHER: PackedScene = preload("res://assets/models/crusher.glb")
 const RING_GATE: PackedScene = preload("res://assets/models/ring_gate.glb")
+const MACE_GANTRY: PackedScene = preload("res://assets/models/mace_gantry.glb")
+const SPIKED_MACE: PackedScene = preload("res://assets/models/spiked_mace.glb")
 const BARRIER_SHADER: Shader = preload("res://src/presentation/shaders/energy_barrier.gdshader")
-## Must match generate_models.py: pendulum pivot, ring center.
+## Must match generate_models.py: pendulum pivot, ring center, mace pivot under its gantry.
 const PENDULUM_PIVOT: float = 4.2
+const MACE_PIVOT: float = 6.3
+## The sweeping mace swings this far either side of hanging straight down (one swing every two beats).
+const MACE_SWING_DEG: float = 62.0
 const RING_CENTER_HEIGHT: float = 2.2
 const RING_FIELD_SIZE: float = 4.1
 ## The mine is drawn larger than its hitbox (like spikes) so it reads from the side camera.
@@ -37,7 +42,8 @@ func _init(cache: MaterialCache) -> void:
 
 static func handles(visual: HazardDefinition.Visual) -> bool:
 	return visual in [HazardDefinition.Visual.LASER, HazardDefinition.Visual.PENDULUM, HazardDefinition.Visual.MINE,
-			HazardDefinition.Visual.CRUSHER, HazardDefinition.Visual.LASER_WALL, HazardDefinition.Visual.RING_GATE]
+			HazardDefinition.Visual.CRUSHER, HazardDefinition.Visual.LASER_WALL, HazardDefinition.Visual.RING_GATE,
+			HazardDefinition.Visual.MACE_SWEEP]
 
 
 func build(root: Node3D, hazard: HazardDefinition) -> void:
@@ -67,6 +73,12 @@ func build(root: Node3D, hazard: HazardDefinition) -> void:
 			root.add_child(grid)
 			root.add_child(_field(hazard, Vector2(hazard.visual_width, hazard.visual_height),
 					Vector3(0.0, hazard.visual_height * 0.5, hazard.lateral_center), false))
+		HazardDefinition.Visual.MACE_SWEEP:
+			root.add_child(_model(MACE_GANTRY, hazard.color))
+			var mace: Node3D = _model(SPIKED_MACE, hazard.color)
+			mace.name = ObstacleFactory.MOVING_PART
+			mace.position = Vector3(0.0, MACE_PIVOT, 0.0)
+			root.add_child(mace)
 		HazardDefinition.Visual.RING_GATE:
 			var ring: Node3D = _model(RING_GATE, hazard.color)
 			ring.name = ObstacleFactory.MOVING_PART
@@ -82,6 +94,9 @@ static func pose_moving_part(part: Node3D, hazard: HazardDefinition, hazard_beat
 		HazardDefinition.Visual.PENDULUM:
 			# Swings along the track, hanging straight down (over its hitbox) whenever the player arrives.
 			part.rotation.z = deg_to_rad(55.0) * sin(PI * (beat - hazard_beat))
+		HazardDefinition.Visual.MACE_SWEEP:
+			# Sweeps down the road toward the player and fills it exactly as the player rolls under the track.
+			part.rotation.z = deg_to_rad(MACE_SWING_DEG) * sin(PI * (beat - hazard_beat))
 		HazardDefinition.Visual.MINE:
 			part.position.y = hazard.visual_height + 0.1 * sin(beat * PI)
 			part.rotation.y = beat * 0.25 * TAU

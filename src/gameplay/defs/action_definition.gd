@@ -29,6 +29,8 @@ enum Kind {
 @export var transition_fraction: float = 0.2
 ## FLIP: depth of the player's lower edge when hanging under the track (track thickness + cube size).
 @export var flip_depth: float = 0.0
+## FLIP: keep going around instead of wrapping back: over one edge, under the track, up the other edge (roll).
+@export var full_turn: bool = false
 ## Hazard ids that cannot hurt the player while this action is active.
 @export var immune_to: Array[StringName] = []
 @export var paired_hazard: StringName = &""
@@ -62,9 +64,17 @@ func offset_at(progress: float) -> Vector2:
 		Kind.DODGE:
 			return Vector2(lateral_distance * hold_amount(progress), 0.0)
 		Kind.FLIP:
-			var angle: float = PI * hold_amount(progress)
+			var angle: float = flip_angle(progress)
 			return Vector2(sin(angle) * lateral_distance, (cos(angle) - 1.0) * flip_depth * 0.5)
 	return Vector2.ZERO
+
+
+## FLIP: angle around the track's length axis (0 = on the road, PI = under it). A flip wraps back to 0; a
+## full turn goes on to TAU, coming up the other edge.
+func flip_angle(progress: float) -> float:
+	if full_turn and progress >= 0.5:
+		return PI * (2.0 - hold_amount(progress)) if progress < 1.0 else 0.0
+	return PI * hold_amount(progress)
 
 
 ## 0 → 1 while transitioning out, 1 while holding, 1 → 0 while transitioning back.

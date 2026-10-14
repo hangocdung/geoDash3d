@@ -50,6 +50,7 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
   | `jump` | nhảy 1 beat | `spike` (+0.5) | trồi lên |
   | `dodge_left` / `dodge_right` | lăn sang làn trái / phải 1.25 beat rồi về | `wall_gap_left` / `wall_gap_right` (+0.625), tường chắn làn giữa và làn còn lại | rơi xuống |
   | `flip` | lộn qua mép xuống mặt dưới 2 beat rồi lên | `gate` (+1.0), cổng chắn cả bề ngang | bung ngang |
+  | `roll` | lộn trọn vòng quanh đường 2 beat (GD3-106): qua mép phải, chạy dưới đường, lên lại mép trái | `mace_sweep` (+1.0), quả cầu gai lia dọc hướng chạy, buông thẳng đúng lúc người chơi tới; biến thể `falling_block` (khối rơi chặn cả đường) | rơi xuống |
   | `orb` | vòng nhảy giữa không trung: chạm được cả khi đang bay, bật parabol mới (như jump) | không có | — |
   | `orb_big` | vòng nhảy lớn: như `orb` nhưng bật parabol của bệ bật (đỉnh +4.5, 1.5 beat) | không có | — |
   | `orb_drop` | vòng lao xuống: chạm khi đang bay thì lao thẳng xuống (12 đơn vị/beat, từ đỉnh +2 chạm đất sau ~0.15 beat) | không có | — |

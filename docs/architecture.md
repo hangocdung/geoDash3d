@@ -34,7 +34,7 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
 
 ## 3. Gameplay (`src/gameplay/`)
 - **Cấu hình** (`defs/`): `GameplayConfig` gồm cửa sổ timing, kích thước đường/người chơi, bước mô phỏng và thư viện
-  `ActionDefinition` (`kind` JUMP / DODGE / FLIP, `offset_at(progress) → (lateral, height)`) và `HazardDefinition`
+  vật cản `HazardLibrary`, cùng `ActionDefinition` (`kind` JUMP / DODGE / FLIP, `offset_at(progress) → (lateral, height)`) và `HazardDefinition`
   (hộp va chạm 3 trục + kiểu hiển thị SPIKE/WALL/GATE + kiểu vào sân RISE/DROP/UNFOLD, `appear_beat`).
   Chi tiết thông số: `docs/design/gameplay_v2.md`.
 - **Chart** (`chart/`): `ChartLoader` gom *mọi* lỗi validate rồi báo một lượt. `LevelChart` lưu cue (theo beat),
@@ -81,7 +81,8 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
 ## 4. Trình bày (`src/presentation/`)
 - **LevelRunner** + `level.tscn`: các trạng thái `WAITING → RUNNING ⇄ PAUSED → DEAD (tự restart sau 0.9 s) / COMPLETE`.
   Lần chạm được ghi bằng `song_clock.now()` khi có input, rồi đưa vào simulation đầu frame kế tiếp.
-- **CameraDirector**: shot là hàm thuần của beat, blend smoothstep giữa các cue. Shot được định nghĩa trong frame
+- **CameraDirector**: shot là hàm thuần của beat, blend smoothstep giữa các cue. Khi `flip` camera hạ xuống góc dưới đường;
+  khi `roll` (GD3-106) camera xoay quanh tâm đường cùng người chơi (MEDIUM/HIGH; LOW như `flip`). Shot được định nghĩa trong frame
   của người chơi (`CameraShots`). Riêng phần xoay của frame được làm mượt khi qua khúc cua. Frame được nâng theo
   độ cao địa hình đã làm mượt (±9 đơn vị, nhìn trước 4) cộng 35% độ cao người chơi so với mặt đất.
   Có thêm rung (trauma) và FOV kick.

@@ -142,6 +142,13 @@ Người dùng cho phép **trời tông ấm** ở vài phase; camera trong vòn
         (`QualityTier.uses_spectacle_track`). Kết quả: **LOW 57.05 → 56.8 FPS, MEDIUM 40.4 → 40.05 FPS** (trong nhiễu),
         frame tệ nhất tốt hơn (33–38 ms so với 33–50 ms). Cờ `--perf=nodetail` để đo riêng texture chi tiết.
 
+## Phase 4.9 — Vật cản lộn tròn, nhạc mới (yêu cầu 2026-10-15)
+- [x] **GD3-106** Hành động `roll` (lộn trọn vòng quanh đường) + vật cản `mace_sweep` (quả cầu gai lia dọc đường dưới khung
+      cao) và `falling_block` (khối rơi chặn đường); camera xoay theo người chơi ở MEDIUM/HIGH. `HazardLibrary` tách khỏi
+      `GameplayConfig`. Fault Line / Pulse Drive: một nửa số `flip` thành `roll`. Thiết kế: `gameplay_v3.md` mục 11.
+- [ ] **GD3-107** Bỏ các bài có lần chạm không nổi bật (`tools/charting/tap_salience.py`), prompt nhạc mới
+      (`docs/design/music_prompts.md`), dựng level khi có nhạc.
+
 ## Phase 5 — Mobile
 - [x] **GD3-050** Export Android (`export_presets.cfg`, arm64, debug keystore), cài và đo trên Galaxy Note10 Lite
       (Mali-G72, Vulkan Mobile). Đo bằng `PerfProbe` + `tools/device/perf_matrix.sh`. Kết quả, khi máy đang ấm

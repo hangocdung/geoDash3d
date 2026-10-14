@@ -21,8 +21,8 @@ from handmade import Checker, EPSILON, MAX_HEIGHT, try_apply  # noqa: E402
 from terrain_patterns import Level, SpeedMap  # noqa: E402
 
 MUSIC_DIR = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "assets", "music"))
-GAMEPLAY_EVENTS = {"jump", "orb", "orb_big", "orb_drop", "pad", "dodge_left", "dodge_right", "flip"}
-ROAD_PATTERNS = ("dl", "dr", "flip")
+GAMEPLAY_EVENTS = {"jump", "orb", "orb_big", "orb_drop", "pad", "dodge_left", "dodge_right", "flip", "roll"}
+ROAD_PATTERNS = ("dl", "dr", "flip", "roll")
 # No obstacle before this beat (the run-up) or in the last beat of the song.
 FIRST_BEAT = 2.0
 # Leave a ledge when the next tap is at least this long after landing; stay up for quicker rhythms.
@@ -32,7 +32,8 @@ LEDGE_RUN_BEATS = 0.5
 HIGH_ENERGY = 0.8
 # Rotation of obstacles for single taps ("wall" alternates dodge left/right); calm sections stay simpler.
 AUTO_CALM = ["spike", "saw", "step", "laser", "spike2", "gap", "wall", "mine", "spike", "step1"]
-AUTO_HIGH = ["spike2", "gap", "wall", "step", "pendulum", "saw", "flip", "spike3", "gap", "laser", "wall", "spike"]
+AUTO_HIGH = ["spike2", "gap", "wall", "step", "pendulum", "saw", "flip", "spike3", "gap", "laser", "wall", "roll",
+             "spike"]
 SINGLE_FALLBACKS = ["spike", "gap", "step", "step1", "saw", "wall", "flip"]
 # Two taps half a beat apart: plain orb, dive under a spiked ceiling, big orb (each needs more room after it).
 PAIRS = ["orb", "dive", "orb", "borb"]

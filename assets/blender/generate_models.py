@@ -337,6 +337,24 @@ def ring_gate():
     return new_object("RingGate", bm, [body(), glow()])
 
 
+MACE_PIVOT = 6.3
+
+
+def mace_gantry():
+    """Tall arch over the road for the sweeping mace (legs at both sides, beam on top, glowing pivot hub).
+    The spiked_mace model hangs from MACE_PIVOT and its spike tips reach 0.15 above the road."""
+    bm = bmesh.new()
+    half_span, top = 2.6, MACE_PIVOT + 0.4
+    for side in (-1, 1):
+        add_cuboid(bm, (0, side * half_span, top / 2), (0.35, 0.35, top), 0)
+        add_cuboid(bm, (0.19, side * half_span, top / 2), (0.04, 0.12, top - 0.5), 1)
+    add_cuboid(bm, (0, 0, top), (0.4, half_span * 2 + 0.35, 0.35), 0)
+    add_cuboid(bm, (0.21, 0, top), (0.04, half_span * 2 - 0.5, 0.1), 1)
+    hub = Matrix.Translation((0, 0, MACE_PIVOT + 0.05)) @ Matrix.Rotation(math.radians(90), 4, "X")
+    add_torus(bm, 0.25, 0.07, 16, 6, 2, hub)
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    return new_object("MaceGantry", bm, [body(), glow(), glow_alt()])
+
 def export(obj, path):
     bpy.ops.object.select_all(action="DESELECT")
     obj.select_set(True)
@@ -354,7 +372,7 @@ def main():
     builders = (("portal_ring", portal_ring), ("spiked_mace", spiked_mace), ("laser_fence", laser_fence),
                 ("laser_wall", laser_wall),
                 ("pendulum_frame", pendulum_frame), ("pendulum_blade", pendulum_blade), ("spike_mine", spike_mine),
-                ("crusher", crusher), ("ring_gate", ring_gate))
+                ("crusher", crusher), ("ring_gate", ring_gate), ("mace_gantry", mace_gantry))
     for name, builder in builders:
         reset_scene()
         export(builder(), os.path.abspath(os.path.join(out_dir, name + ".glb")))
