@@ -103,10 +103,26 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
    chi tiết cuối cùng. Bài mới tự xuất hiện trong menu chọn bài (PLAY / PRACTICE).
 
 ## Đặt hành động bằng tay: record mode, `.sm`, `fixed`
-- **Record mode** (menu RECORD (DEV), chỉ có ở bản debug): bật nhạc rồi gõ theo.
-  - Phím: Space/J = làn 0, K = làn 1, L = làn 2.
-  - Backspace để undo, X để xóa từ vị trí hiện tại trở đi, G để đổi lưới, `-`/`=` để chỉnh tốc độ 50–100%, ←/→ để tua.
+- **Record mode** (menu RECORD (DEV) → chọn bài, chỉ có ở bản debug): bật nhạc rồi gõ theo.
+  - Phím: Space/J = làn 0 (AUTO), K = làn 1 (WALL, tường 2 làn), L = làn 2 (GATE, cổng lộn).
+  - `-`/`=` chỉnh tốc độ 25/50/75/100%. Khi chậm, nhạc vẫn giữ cao độ (`PitchKeeper`: hiệu ứng pitch shift trên bus
+    `Music`, độ trễ của hiệu ứng được cộng vào calibration).
+  - Backspace để undo, X để xóa từ vị trí hiện tại trở đi, G để đổi lưới, ←/→ tua 2 ô nhịp, `,`/`.` tua 1 beat.
+  - Lặp A–B: A đặt đầu, B đặt cuối, C bỏ lặp, R xóa note trong vùng lặp để gõ lại.
+  - Khi tạm dừng (P): click để tua tới đó và chọn note gần nhất, chuột phải để xóa note, lăn chuột để tua theo lưới,
+    Tab/Shift+Tab để chọn note kế tiếp/trước, Shift+←/→ để dời note theo lưới, J/K/L để đổi làn, Del để xóa.
   - Kết quả lưu raw (giây + làn) vào `assets/music/<id>.recording.json`.
+- **Dựng level địa hình từ recording (cách nhanh nhất để có level theo ý mình):**
+  `python tools/charting/recording_level.py assets/music/<id>.chart.json` → `assets/music/<id>.rec.chart.json`
+  (tên bài thêm "(Rec)", tự hiện trong menu chọn bài). Lần gõ quyết định *khi nào* nhảy, tool chọn *vật cản gì*:
+  - 3 lần gõ cách nhau 0.5 beat thành `trip`, cách nhau 0.75 beat thành `stairs` (`fstairs` ở đoạn mạnh); 2 lần
+    cách nhau 0.5 beat thành `orb`. Các lần còn lại: làn AUTO xoay vòng spike/gap/step theo `energy` của đoạn,
+    WALL thành `dl`/`dr` xen kẽ, GATE thành `flip`.
+  - Tool tự thêm `drop` để xuống bệ khi có chỗ trống và luôn xuống trước tường/cổng. Mọi lựa chọn đều qua
+    `handmade.Checker`, nên tuân cùng ràng buộc như level viết tay.
+  - Lần gõ không đặt được vật cản nào (quá sát, gõ đúp) sẽ bị bỏ, kèm `WARN` ghi rõ beat. Sửa trong màn RECORD rồi
+    chạy lại tool. Header (tempo, tốc độ, section, track, camera, vfx) được chép từ chart nguồn; chart `.rec` dùng
+    chung recording với chart nguồn (`Recording.path_for_chart`).
 - **ArrowVortex/StepMania:**
   `python tools/charting/sm_to_recording.py song.sm assets/music/<id>.recording.json`. Cột i thành làn i.
 - Dùng recording trong plan:

@@ -62,6 +62,8 @@ python tools/charting/terrain_level.py assets/music/<id>.analysis.json --title "
 python tools/charting/the_dawn_assembly_level.py
 # Dung sai từng lần chạm của một chart
 "$GODOT" --headless --path . -s res://tools/charting/tolerance_report.gd -- --chart=res://assets/music/the_dawn_assembly.chart.json
+# Level từ recording của màn RECORD (DEV): điểm gõ → level địa hình <id>.rec.chart.json
+python tools/charting/recording_level.py assets/music/<id>.chart.json
 # .sm (ArrowVortex/StepMania) → recording
 python tools/charting/sm_to_recording.py <song.sm> <out.recording.json>
 # SFX: video Flow đặt ở art_source/sfx/<ID>_take<N>.mp4 → tách/cắt/chuẩn hóa → assets/audio + catalog

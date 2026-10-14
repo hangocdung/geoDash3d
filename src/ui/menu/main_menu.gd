@@ -1,5 +1,5 @@
-# Title screen: the level runs in attract mode (autoplay, no HUD) behind the menu. PLAY and PRACTICE
-# first pick a song (SongListPanel); practice then picks a playback speed.
+# Title screen: the level runs in attract mode (autoplay, no HUD) behind the menu. PLAY, PRACTICE and
+# RECORD (DEV) first pick a song (SongListPanel); practice then picks a playback speed.
 # If level arguments were passed on the command line (--autoplay, --capture, …) it jumps straight
 # into the level so tooling keeps working. Related: src/ui/scenes.gd, src/presentation/level/level_runner.gd
 class_name MainMenu
@@ -8,12 +8,15 @@ extends Node
 const LEVEL_SCENE: PackedScene = preload("res://src/presentation/level/level.tscn")
 const PRACTICE_RATES: Array[float] = [1.0, 0.75, 0.5]
 
+enum SongMode { PLAY, PRACTICE, RECORD }
+
 var _menu_column: VBoxContainer
 var _settings_button: Button
 var _settings: SettingsPanel
 var _practice_panel: PanelContainer
 var _play_button: Button
 var _practice_button: Button
+var _record_button: Button
 var _song_list: SongListPanel
 ## Menu button that opened the current panel (focus returns to it).
 var _panel_opener: Button
@@ -66,13 +69,13 @@ func _build_menu() -> void:
 	var spacer := Control.new()
 	spacer.custom_minimum_size = Vector2(0, 8)
 	_menu_column.add_child(spacer)
-	_play_button = _add_button("PLAY", _open_songs.bind(false), &"ui.confirm")
-	_practice_button = _add_button("PRACTICE", _open_songs.bind(true))
+	_play_button = _add_button("PLAY", _open_songs.bind(SongMode.PLAY), &"ui.confirm")
+	_practice_button = _add_button("PRACTICE", _open_songs.bind(SongMode.PRACTICE))
 	_add_button("CALIBRATE AUDIO", func() -> void: Scenes.go_to(get_tree(), Scenes.CALIBRATION))
 	_add_button("SYNC TEST", func() -> void: Scenes.go_to(get_tree(), Scenes.METRONOME))
 	_settings_button = _add_button("SETTINGS", _open_settings)
 	if OS.is_debug_build():
-		_add_button("RECORD (DEV)", func() -> void: Scenes.go_to(get_tree(), Scenes.RECORDER))
+		_record_button = _add_button("RECORD (DEV)", _open_songs.bind(SongMode.RECORD))
 	if not OS.has_feature("mobile"):
 		_add_button("QUIT", func() -> void: get_tree().quit())
 	_play_button.grab_focus()
@@ -102,17 +105,20 @@ func _close_settings() -> void:
 	_settings_button.grab_focus()
 
 
-func _open_songs(practice: bool) -> void:
-	_panel_opener = _practice_button if practice else _play_button
+func _open_songs(mode: SongMode) -> void:
+	_panel_opener = [_play_button, _practice_button, _record_button][mode]
 	_menu_column.visible = false
 	_song_list = SongListPanel.new()
-	_song_list.heading = "PRACTICE" if practice else "PLAY"
+	_song_list.heading = ["PLAY", "PRACTICE", "RECORD"][mode]
 	_center(_song_list)
 	_song_list.closed.connect(_close_songs)
 	_song_list.chosen.connect(func(chart: String) -> void:
-		if practice:
+		if mode == SongMode.PRACTICE:
 			_song_list.visible = false
 			_open_practice(chart)
+		elif mode == SongMode.RECORD:
+			Recorder.next_chart_path = chart
+			Scenes.go_to(get_tree(), Scenes.RECORDER)
 		else:
 			LaunchOptions.set_next_run(LaunchOptions.chart_run(chart))
 			Scenes.go_to(get_tree(), Scenes.LEVEL))

@@ -33,6 +33,10 @@ Trạng thái: `[ ]` chưa làm · `[~]` đang làm / làm một phần · `[x]`
 - [x] **GD3-031** `tools/charting/sm_to_recording.py`: `.sm` (ArrowVortex/StepMania) → recording → chart.
 - [x] **GD3-032** Script dò onset gợi ý sự kiện (`analyze_song.py` + `draft_chart.py`).
 - [x] **GD3-033** Luyện tập (menu PRACTICE): checkpoint mỗi 16 beat + đầu mỗi đoạn, chết → chạy lại trước checkpoint, tốc độ 100/75/50%.
+- [x] **GD3-034** Xếp màn bằng recording: màn RECORD chậm tới 25% (giữ cao độ), sửa từng note, lặp A–B, chọn bài;
+  `tools/charting/recording_level.py` dựng level địa hình từ các điểm gõ (`<id>.rec.chart.json`). SongClock bù độ
+  trễ theo `playback_rate`. Đã thử bằng recording giả lập (nhịp level Tribal/Cyber Rush ±30 ms) → qua autoplay.
+  **→ Cần người dùng thử ghi thật (âm thanh ở 25%, thao tác chuột).**
 
 ## Phase 4 — Trình bày
 - [x] **GD3-040** `CameraDirector` (shot theo beat, blend, shake, FOV kick).

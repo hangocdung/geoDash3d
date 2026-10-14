@@ -19,7 +19,9 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
 ## 2. Thời gian (`src/core/`)
 - **SongClock** (Node con của level, *không phải autoload*):
   - Ba chế độ: `AUDIO_SYNC` khi chơi thật; `FRAME_DELTA` khi chụp ảnh hoặc quay phim (tất định); `MANUAL` khi test.
-  - Thời gian người chơi nghe thấy = `playback_position + time_since_last_mix − output_latency − calibration`.
+  - Thời gian người chơi nghe thấy = `playback_position + time_since_last_mix − (output_latency + calibration) × rate`.
+    Latency và calibration là độ trễ theo đồng hồ thật, nên khi phát chậm (`playback_rate` < 1) chúng phủ ít thời
+    gian bài hơn; trước GD3-034 phần này không nhân `rate` nên luyện tập/ghi ở tốc độ chậm bị bù lố.
   - Lệch dưới 50 ms thì kéo dần về 12% mỗi frame; lệch hơn thì nhảy thẳng. Thời gian không bao giờ chạy lùi.
   - Audio được phát *sớm* đúng bằng latency + calibration để âm thanh khớp với hình.
   - Đếm ngược trước nhạc: thời gian bắt đầu âm và chạy theo đồng hồ hệ thống cho tới 0.
@@ -139,7 +141,6 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
 | Input | Space / W / ↑ / chuột trái | Chạm (giả lập chuột trái, không bị kích hoạt hai lần) |
 
 ## 7. Chưa làm / giới hạn đã biết
-- Chưa có chọn bài, luyện tập (checkpoint), record mode, importer `.sm`.
 - Chưa có model Blender: mọi hình khối hiện là primitive hoặc mesh sinh bằng code.
 - Chạm khi đang bay mà không trúng vòng nhảy và không trong vùng buffer sẽ bị bỏ qua (giống Geometry Dash, không có
   double jump, không có giữ để nhảy).

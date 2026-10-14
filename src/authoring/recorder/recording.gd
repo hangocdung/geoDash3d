@@ -1,10 +1,12 @@
-# Raw tap recording for charting: taps stored as song time + lane, quantized only when drafting
-# the chart (tools/audio/draft_chart.py), so a recording survives tempo/offset fixes.
+# Raw tap recording for charting: taps stored as song time + lane, quantized only when building
+# the level (tools/charting/recording_level.py), so a recording survives tempo/offset fixes.
 # File: assets/music/<id>.recording.json. Related: recorder.gd, tools/charting/sm_to_recording.py
 class_name Recording
 extends RefCounted
 
 const VERSION: int = 1
+## Level built from a recording (tools/charting/recording_level.py); it shares the source chart's recording.
+const BUILT_CHART_SUFFIX: String = ".rec"
 
 ## Sorted by time.
 var tap_times: PackedFloat64Array = []
@@ -13,7 +15,7 @@ var song_path: String = ""
 
 
 static func path_for_chart(chart_path: String) -> String:
-	return chart_path.trim_suffix(".chart.json") + ".recording.json"
+	return chart_path.trim_suffix(".chart.json").trim_suffix(BUILT_CHART_SUFFIX) + ".recording.json"
 
 
 static func load_file(path: String) -> Recording:
@@ -69,6 +71,56 @@ func clear_from(time_sec: float) -> int:
 	tap_times.resize(index)
 	tap_lanes.resize(index)
 	return removed
+
+
+## Removes every tap in [from_sec, to_sec) (re-record a loop).
+func clear_range(from_sec: float, to_sec: float) -> int:
+	var first: int = tap_times.bsearch(from_sec)
+	var last: int = tap_times.bsearch(to_sec)
+	for index: int in range(last - 1, first - 1, -1):
+		remove_at(index)
+	return last - first
+
+
+func remove_at(index: int) -> void:
+	if index < 0 or index >= tap_times.size():
+		push_error("Recording: tap index %d out of range (%d taps)" % [index, tap_times.size()])
+		return
+	tap_times.remove_at(index)
+	tap_lanes.remove_at(index)
+
+
+## Moves a tap to `time_sec`, keeping the list sorted; returns its new index (-1 if `index` is invalid).
+func move_tap(index: int, time_sec: float) -> int:
+	if index < 0 or index >= tap_times.size():
+		push_error("Recording: tap index %d out of range (%d taps)" % [index, tap_times.size()])
+		return -1
+	var lane: int = tap_lanes[index]
+	remove_at(index)
+	add_tap(time_sec, lane)
+	return tap_times.bsearch(time_sec)
+
+
+func set_lane(index: int, lane: int) -> void:
+	if index < 0 or index >= tap_lanes.size():
+		push_error("Recording: tap index %d out of range (%d taps)" % [index, tap_lanes.size()])
+		return
+	tap_lanes[index] = lane
+
+
+## Index of the tap closest to `time_sec` within `max_distance_sec`, or -1.
+func nearest(time_sec: float, max_distance_sec: float) -> int:
+	var index: int = tap_times.bsearch(time_sec)
+	var best: int = -1
+	var best_distance: float = max_distance_sec
+	for candidate: int in [index - 1, index]:
+		if candidate < 0 or candidate >= tap_times.size():
+			continue
+		var distance: float = absf(tap_times[candidate] - time_sec)
+		if distance <= best_distance:
+			best = candidate
+			best_distance = distance
+	return best
 
 
 func count() -> int:

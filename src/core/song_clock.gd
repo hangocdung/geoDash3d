@@ -146,7 +146,7 @@ func _advance_audio_synced() -> void:
 ## Song time the player is hearing right now according to the audio hardware clock.
 func _heard_time() -> float:
 	return audio_player.get_playback_position() + AudioServer.get_time_since_last_mix() * playback_rate \
-			- _cached_output_latency - calibration_offset_sec
+			- _latency_song_sec()
 
 
 func _try_begin_audio() -> void:
@@ -156,11 +156,16 @@ func _try_begin_audio() -> void:
 	# player hears lines up with song time. Deterministic modes play audio only for monitoring.
 	var lead_sec: float = 0.0
 	if drive_mode == DriveMode.AUDIO_SYNC:
-		lead_sec = _cached_output_latency + calibration_offset_sec
+		lead_sec = _latency_song_sec()
 	if _time_sec + lead_sec < _audio_start_sec:
 		return
 	audio_player.play(maxf(_time_sec + lead_sec, 0.0))
 	_set_state(State.PLAYING)
+
+
+## Output latency and calibration are wall-clock delays; at a slower playback rate they span less song time.
+func _latency_song_sec() -> float:
+	return (_cached_output_latency + calibration_offset_sec) * playback_rate
 
 
 func _is_running() -> bool:
