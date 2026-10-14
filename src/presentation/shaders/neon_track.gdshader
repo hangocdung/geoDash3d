@@ -1,5 +1,6 @@
 // Track surface: dark tiles with a glowing grid on top and bright neon rails along both edges.
-// COLOR.r = 1 on the top face, 0 on side faces. UV.x across (top) / down (sides), UV.y = distance.
+// COLOR.r = 1 on the top face, 0 on side faces; COLOR.g = 1 on end caps (step risers, gap edges).
+// UV.x across (top) / down (sides, caps); UV.y = distance (top, sides) / 0..1 across (caps).
 shader_type spatial;
 
 global uniform float beat_pulse;
@@ -36,10 +37,16 @@ void fragment() {
 		emission = grid_color * grid * grid_energy * pulse + rail_color * rail * rail_energy * pulse;
 	} else {
 		float band = 1.0 - smoothstep(0.0, 0.07, UV.x);
-		float panel = grid_line(UV.y / (tile_length * 2.0), 0.006) * 0.35;
 		ALBEDO = base_color * 0.6;
 		ROUGHNESS = 0.5;
-		emission = rail_color * band * rail_energy * 0.45 * pulse + grid_color * panel * grid_energy;
+		if (COLOR.g > 0.5) {
+			// End cap: outline the whole face so a wall ahead reads from far away.
+			float side_edge = 1.0 - smoothstep(0.0, 0.04, min(UV.y, 1.0 - UV.y));
+			emission = rail_color * max(band, side_edge) * rail_energy * 0.45 * pulse;
+		} else {
+			float panel = grid_line(UV.y / (tile_length * 2.0), 0.006) * 0.35;
+			emission = rail_color * band * rail_energy * 0.45 * pulse + grid_color * panel * grid_energy;
+		}
 	}
 	EMISSION = emission;
 }

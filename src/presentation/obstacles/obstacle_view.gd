@@ -1,6 +1,6 @@
-# Owns obstacle and cue-marker nodes. Obstacles stay hidden until their entrance, which lands on a whole
-# beat (HazardDefinition.appear_beat) and emits `hazard_landed` for VFX/SFX. Pose = f(beat), so seeking
-# and restarts are exact. Related: obstacle_factory.gd, obstacle_entrance.gd, level_runner.gd
+# Owns obstacle, jump pad and cue-marker nodes. Obstacles stay hidden until their entrance, which lands on
+# a whole beat (HazardDefinition.appear_beat) and emits `hazard_landed` for VFX/SFX. Pose = f(beat), so
+# seeking and restarts are exact. Related: obstacle_factory.gd, obstacle_entrance.gd, level_runner.gd
 class_name ObstacleView
 extends Node3D
 
@@ -30,15 +30,22 @@ func setup(context: LevelContext) -> void:
 	for placement: ChartItems.HazardPlacement in context.chart.hazards:
 		var obstacle := Obstacle.new()
 		obstacle.hazard = placement.hazard
-		obstacle.rest = context.track.transform_at(placement.distance)
+		obstacle.rest = context.track.transform_at(placement.distance) * Transform3D(Basis(),
+				Vector3(0, placement.base_height, 0))
 		obstacle.appear_beat = placement.hazard.appear_beat(placement.beat)
 		obstacle.root = factory.build_hazard(placement.hazard)
 		obstacle.root.visible = false
 		_set_visibility_range(obstacle.root)
 		add_child(obstacle.root)
 		_obstacles.append(obstacle)
-	for cue: ChartItems.ActionCue in context.chart.cues:
-		var markers: Array[GeometryInstance3D] = factory.build_cue_markers(cue, context)
+	for pad: ChartItems.PadPlacement in context.chart.pads:
+		var pad_node: Node3D = factory.build_pad(context.config.pad_launch.color, context.config.pad_half_length)
+		pad_node.transform = context.track.transform_at(pad.distance) * Transform3D(Basis(), Vector3(0, pad.base_height, 0))
+		_set_visibility_range(pad_node)
+		add_child(pad_node)
+	for index: int in context.chart.cues.size():
+		var markers: Array[GeometryInstance3D] = factory.build_cue_markers(context.chart.cues[index],
+				context.chart.cue_heights[index], context)
 		for marker: GeometryInstance3D in markers:
 			marker.visibility_range_end = VISIBILITY_RANGE
 			add_child(marker)

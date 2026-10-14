@@ -1,0 +1,90 @@
+# Gameplay v3: địa hình, vòng nhảy, bệ bật, bậc thang nhanh (bản demo chờ duyệt)
+
+> Nguồn: yêu cầu của người dùng ngày 2026-10-14. Trạng thái: **demo chơi được** (menu TERRAIN DEMO, nhánh
+> `feat/terrain-demo`), **chờ người dùng duyệt** cả lối chơi lẫn phần mở rộng định dạng chart (mục 6).
+> Chart demo: `assets/music/the_dawn_assembly.terrain.chart.json`, sinh bằng `tools/charting/terrain_demo.py`.
+
+## 1. Mục tiêu và luật đã chốt
+- Màn có **địa hình** như Geometry Dash: bệ nhiều độ cao, hố, bậc thang, khối lơ lửng. Không chỉ chạy trên một mặt phẳng.
+- Có **chuỗi chạm liên tục** (2–3 lần), có đoạn nhịp nhanh hơn chu kỳ rơi (đáp lên bậc cao hơn thì tiếp đất sớm hơn).
+- Vẫn **một thao tác chạm**. **Không có giữ để nhảy liên tục.**
+- **Chỉ nhảy tiếp được sau khi đã chạm mặt đất / mặt bệ, hoặc chạm một vòng nhảy (orb).**
+  Chạm khi đang bay mà không có vòng nhảy thì chỉ được giữ lại nếu còn ≤ 100 ms là tiếp đất (input buffer như cũ).
+- **Ưu tiên dễ đọc màn chơi vẫn giữ nguyên.** Vài điểm khó nhận ra do lỗi thiết kế thì chấp nhận được (người chơi
+  nhớ để chơi lại), nhưng không cố tình làm khó nhận biết.
+
+## 2. Mô hình
+- **Terrain** (`src/gameplay/track/terrain.gd`): độ cao mặt đất theo quãng đường, dạng bậc (piecewise-constant).
+  0 = mặt đường. Có thể là `GAP` (không có đất). Chart đặt theo **beat**, quy ra quãng đường qua `speed`.
+  Chart không có `terrain` thì mặt đất phẳng ở 0: chart cũ chạy y hệt trước (test chứng minh).
+- **VerticalMotion** (`src/gameplay/simulation/vertical_motion.gd`): người chơi đứng trên đất ở một độ cao, hoặc
+  bay theo parabol `y = y0 + v·t − ½·g·t²` (t tính bằng beat). Mọi cú nhảy (jump, orb, pad) và cú rơi khi chạy
+  khỏi mép đều là một parabol. Vẫn là công thức giải tích, kiểm tra trên lưới cố định 1/96 beat → tất định.
+- **Tiếp xúc** mỗi bước lưới, với `support` = mặt đất cao nhất dưới hộp người chơi (dài ±0.38):
+  - Đang đứng: đất cao lên quá `step_snap` (0.2) → **đâm vào hông bệ = chết**. Đất thấp xuống / hố → bắt đầu rơi.
+  - Đang bay: rơi qua mặt bệ từ trên xuống (hoặc chân thấp hơn mép không quá 0.2) → tiếp đất. Còn lại → đâm hông = chết.
+  - Rơi thấp hơn `fall_death_height` (−4) → chết (rơi xuống hố).
+- **Vật cản đứng trên đất**: hộp va chạm của gai/tường được nâng theo độ cao mặt đất tại đó (`base_height`).
+- **Bệ bật (pad)**: khi người chơi đang đứng chạm vào bệ → tự bật lên, **không cần chạm**. Chạm trước khi tới bệ
+  thì nhảy thường và lỡ bệ (giống GD), vì vậy bệ không có icon "chạm".
+- **Vòng nhảy (orb)**: một cue `orb` có thể chạm **khi đang bay**: bật một parabol mới từ độ cao hiện tại.
+  Cửa sổ thời gian giống cue thường (±150 ms). Vị trí vẽ = vị trí người chơi khi autoplay tới đúng beat đó.
+- **ReferenceRun** (`src/gameplay/simulation/reference_run.gd`): chạy autoplay một lượt lúc nạp chart để biết
+  độ cao người chơi ở mỗi cue (đặt vòng cue, vòng nhảy) và các khoảng đang bay (điểm bắt đầu khi luyện tập
+  không bao giờ rơi vào lúc đang bay).
+
+## 3. Thông số (trong `GameplayConfig`, ở 120 BPM)
+| | Thời lượng trên đất phẳng | Đỉnh | v0 (đơn vị/beat) | g (đơn vị/beat²) |
+|---|---|---|---|---|
+| `jump` | 1 beat | 2.0 | 8 | 16 |
+| `orb` | 1 beat | +2.0 từ chỗ chạm | 8 | 16 |
+| bệ bật (`pad_launch`) | 1.5 beat | 4.5 | 12 | 16 |
+| rơi khỏi mép | — | — | 0 | 16 (= jump) |
+
+Tiếp đất sau khi nhảy (từ đất), theo độ cao bậc: 0 → 1 beat · +1.0 → 0.854 beat · +1.5 → **0.75 beat** ·
++2.0 → 0.5 beat (đúng đỉnh, không dung sai, không dùng).
+
+## 4. Các mẫu màn (trong `terrain_demo.py`) và dung sai đo được
+Mép bệ đặt dưới đỉnh parabol (cộng nửa chiều dài người chơi) để dung sai sớm/trễ đối xứng.
+
+| Mẫu | Nhịp chạm | Dung sai (đo bằng `tolerance_report.gd`) |
+|---|---|---|
+| Gai đơn, nhảy lên bậc +1.5, nhảy qua hố | 1 lần | ±140–150 ms |
+| Chuỗi gai 2–3 lần cách 1 beat | 1, 1 | ±90 ms (giới hạn bởi input buffer 100 ms) |
+| Bậc thang 1 beat (+1.0 mỗi bậc) | 1, 1 | ±140 ms |
+| **Bậc thang nhanh** 3 bậc +1.5 | 0.75, 0.75 | ±90 ms |
+| **Bậc thang lơ lửng** (giữa các khối là hố) | 0.75, 0.75 | ±90 ms |
+| Nhảy + vòng nhảy ở đỉnh → bệ +2 | 0.5 | ±120–150 ms |
+| Nhảy + 2 vòng nhảy qua hố → bệ +4 | 0.5, 0.5 | ±120–150 ms |
+| Bệ bật → bệ +4 | không chạm | — |
+| Chạy khỏi mép xuống thấp | không chạm | — |
+
+Vòng nhảy luôn đặt **ở đỉnh parabol**: ở đó chạm lệch giờ gần như không đổi độ cao. Bản nháp có mẫu vòng nhảy ở đoạn
+đang rơi (nhịp 0.75): chạm trễ 75 ms là không lên nổi bệ → đã bỏ, thay bằng bậc thang lơ lửng.
+Demo 116 beat: 58 lần chạm, dung sai tệ nhất ±90 ms.
+
+## 5. Hiển thị
+- Bệ: cùng vật liệu đường (lưới + ray), thân sáng hơn đường một chút. **Mặt đứng của bậc được viền sáng** để thấy
+  bức tường từ xa. Hố: đường bị cắt, mép hố có viền.
+- Vòng cue nằm trên mặt đất tại chỗ chạm (ở đúng độ cao bệ). **Icon lơ lửng chỉ có khi có vật cản đi kèm**
+  (gai, tường, cổng). Bậc thang và hố không có icon, để không nhầm với vòng nhảy.
+- Vòng nhảy: billboard hồng, lõi sáng đặc trong hai vòng tròn (glyph 6), không có mũi tên.
+- Bệ bật: tấm hồng phát sáng, mũi tên phẳng chỉ về phía trước.
+- Camera bám độ cao mặt đất (trung bình chính xác trên ±9 đơn vị, nhìn trước 4 đơn vị), cộng 35% độ cao cú nhảy.
+- Khối xoay 90° mỗi beat khi bay, tiếp đất thì khớp về mặt gần nhất (ease ~0.1 s).
+
+## 6. Định dạng chart (mở rộng, tương thích ngược — **cần duyệt**)
+```json
+"terrain": [{ "beat": 12.55, "height": 1.5 }, { "beat": 17.75, "gap": true }, { "beat": 18.25, "height": 0 }],
+"events":  [{ "beat": 12, "type": "jump", "hazard": "none" },
+            { "beat": 34, "type": "orb" },
+            { "beat": 48, "type": "pad" }]
+```
+Mỗi mục `terrain` đặt mặt đất từ beat đó tới mục kế tiếp. Validate: dodge/flip cần đường phẳng ở độ cao 0;
+bệ bật và vật cản không được đặt trên hố.
+
+## 7. Giới hạn của demo
+- Dodge/flip chỉ dùng trên đường phẳng. Địa hình chưa chia theo làn, chưa có trần/bệ treo để chạy bên dưới.
+- `draft_chart.py` chưa sinh địa hình; demo được viết bằng mẫu trong `terrain_demo.py` (nhạc đầu tới điệp khúc).
+- Orb và bệ bật dùng tạm âm `player.jump`.
+- Chuỗi chạm nhanh bị giới hạn ±90 ms bởi `input_buffer_sec` (100 ms); có thể nới lên 150 ms nếu thấy gắt.

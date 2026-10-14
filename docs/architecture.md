@@ -41,18 +41,33 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   - Va chạm chỉ kiểm tra trên lưới cố định 1/96 beat, nên kết quả không phụ thuộc FPS (có test chứng minh).
   - Xử lý một lần chạm: `ActionResolver` tìm cue gần nhất trong ±150 ms rồi chấm điểm. Không có cue nào thì
     thực hiện hành động mặc định (jump).
-  - Chạm khi hành động trước sắp kết thúc (≤ 100 ms) thì được *buffer*, kích hoạt ngay khi tiếp đất.
-  - `HazardChecker` xét chồng lấn hộp (khoảng cách × ngang × độ cao), có cursor vì người chơi chỉ đi tới.
-  - `invincible` ghi lại các lần trúng thay vì chết, dùng cho luyện tập và soạn màn.
+  - Jump/orb/pad là **parabol** trong `VerticalMotion` (y = y0 + v·t − ½·g·t², theo beat), kết thúc khi tiếp đất.
+    Dodge/flip vẫn là hành động thời lượng cố định (`_active_action`), cộng offset lên độ cao nền.
+  - Đang bay chỉ chạm được cue `orb` (`ActionDefinition.air_allowed`). Lần chạm khác được *buffer* và chỉ thực
+    hiện nếu tiếp đất trong ≤ 100 ms sau đó (dodge/flip: ≤ 100 ms trước khi kết thúc).
+  - Địa hình: mỗi bước so độ cao người chơi với `Terrain.support_height` (đất cao nhất dưới hộp ±0.38).
+    Đâm hông bệ (cao hơn chân quá `step_snap`) hoặc rơi dưới `fall_death_height` → chết với
+    `TERRAIN_HIT` (−2). Chạy khỏi mép → rơi tự do. Bệ bật (`chart.pads`) tự phóng khi đang đứng chạm vào.
+  - Signal `player_landed(beat, airtime)` cho mọi lần tiếp đất; `action_finished` chỉ còn cho dodge/flip.
+  - `HazardChecker` xét chồng lấn hộp (khoảng cách × ngang × độ cao), hộp vật cản đặt trên mặt đất tại chỗ
+    (`HazardPlacement.base_height`), có cursor vì người chơi chỉ đi tới.
+  - `invincible` ghi lại các lần trúng thay vì chết (đâm bệ thì đặt lên mặt bệ), dùng cho luyện tập và soạn màn.
+- **ReferenceRun**: lúc nạp chart, chạy autoplay một lượt (invincible) để ghi `chart.cue_heights` (độ cao người chơi
+  ở mỗi cue: vòng cue và vòng nhảy vẽ ở đó) và `chart.airborne_ranges` (khoảng đang bay: `safe_start_beat` không
+  bao giờ chọn điểm bắt đầu giữa không trung).
 - **Autoplay**: chạm đúng mọi cue. Dùng cho test, chụp ảnh và chế độ demo.
 - **TrackPath** (`track/`): bảng frame mỗi 0.5 đơn vị, tích phân từ các đoạn straight/turn/slope (dùng midpoint).
   Trục của frame: X = hướng đi, Y = lên, Z = bên phải (phía camera side). Ngoài hai đầu thì ngoại suy thẳng.
+- **Terrain** (`track/terrain.gd`, gameplay v3): độ cao mặt đất theo quãng đường, dạng bậc, có `GAP`. Xây trong
+  `LevelChart.finalize()` từ mục `terrain` của chart. Truy vấn: `support_height`, `surface_height_at` (cho hình ảnh),
+  `smoothed_height_at` (trung bình chính xác, liên tục, cho camera). Chi tiết: `docs/design/gameplay_v3.md`.
 
 ## 4. Trình bày (`src/presentation/`)
 - **LevelRunner** + `level.tscn`: các trạng thái `WAITING → RUNNING ⇄ PAUSED → DEAD (tự restart sau 0.9 s) / COMPLETE`.
   Lần chạm được ghi bằng `song_clock.now()` khi có input, rồi đưa vào simulation đầu frame kế tiếp.
 - **CameraDirector**: shot là hàm thuần của beat, blend smoothstep giữa các cue. Shot được định nghĩa trong frame
-  của người chơi (`CameraShots`). Riêng phần xoay của frame được làm mượt khi qua khúc cua.
+  của người chơi (`CameraShots`). Riêng phần xoay của frame được làm mượt khi qua khúc cua. Frame được nâng theo
+  độ cao địa hình đã làm mượt (±9 đơn vị, nhìn trước 4) cộng 35% độ cao người chơi so với mặt đất.
   Có thêm rung (trauma) và FOV kick.
 - **EnvironmentDirector**:
   - Trời là shader (gradient, sao, hành tinh có vành), dùng `AT_CUBEMAP_PASS` để radiance không cập nhật mỗi frame.
@@ -63,8 +78,12 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   - `neon_box`: viền sáng có độ rộng cố định theo world, dùng được cho MultiMesh đã scale; vẽ mặt cho player.
   - `neon_wire`: viền tam giác theo barycentric trong `COLOR`.
   - `energy_barrier`, `glyph` (ring / ^ / » / shock ring), `neon_sky`.
-- **Mesh** sinh bằng code (`meshes/procedural_meshes.gd`): đoạn đường (chia chunk 48 đơn vị để culling) và kim tự tháp.
-  Thứ tự đỉnh được tự sửa sang chiều kim đồng hồ.
+- **Mesh** sinh bằng code (`meshes/procedural_meshes.gd`): đoạn đường (chia chunk 48 đơn vị để culling, có thể nâng
+  lên và đóng nắp hai đầu) và kim tự tháp. Thứ tự đỉnh được tự sửa sang chiều kim đồng hồ.
+- **TrackView**: đường bị cắt ở hố (mép hố đóng nắp), bệ là đoạn đường nâng lên (vật liệu riêng); nắp mặt đứng
+  có viền sáng (`COLOR.g` = 1 trong `neon_track`). Cột đỡ tránh mép hố.
+- **ObstacleView**: vật cản và bệ bật đặt trên mặt đất; vòng cue ở độ cao `cue_heights`; icon lơ lửng chỉ khi cue có
+  vật cản (`ActionCue.has_hazard`); vòng nhảy là billboard glyph 6.
 - **Decor từ Blender** (`track/decor_view.gd`): cổng vòng tại đầu mỗi section, cầu gai treo đung đưa theo
   ô nhịp (hàm thuần của beat). Model `.glb` sinh bằng script, material theo tên `Body/Glow/GlowAlt` → `NeonModel`.
 - **Cảnh nền** (`track/scenery_view.gd`): 2 MultiMesh (tháp, chóp) sinh theo seed. Tránh hành lang đường và
@@ -75,7 +94,8 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
 
 ## 4b. UI và luồng màn hình
 - `MainMenu` (main scene): instance `level.tscn` với `LaunchOptions.attract()` (autoplay, ẩn HUD, lặp khi hết nhạc)
-  làm nền, các nút PLAY / CALIBRATE AUDIO / SYNC TEST / SETTINGS / QUIT (ẩn trên mobile). Theme chung: `UiTheme`.
+  làm nền, các nút PLAY / PRACTICE / TERRAIN DEMO (chart gameplay v3: chơi hoặc luyện tập) / CALIBRATE AUDIO /
+  SYNC TEST / SETTINGS / QUIT (ẩn trên mobile). Theme chung: `UiTheme`.
 - `CalibrationScreen`: click 100 BPM (`ClickTrack` sinh WAV trong code), đo lệch so với beat gần nhất,
   `CalibrationMath.estimate` (median + MAD loại outlier, cần ≥ 8 lần gõ hợp lệ) → lưu `audio_offset_sec`.
 - `Metronome` (SYNC TEST): `AudioStreamSynchronized` [nhạc, click] khóa mẫu, nháy theo beat, ←/→ chỉnh offset.
@@ -103,5 +123,7 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
 ## 7. Chưa làm / giới hạn đã biết
 - Chưa có chọn bài, luyện tập (checkpoint), record mode, importer `.sm`.
 - Chưa có model Blender: mọi hình khối hiện là primitive hoặc mesh sinh bằng code.
-- Chạm khi đang nhảy mà không trong vùng buffer sẽ bị bỏ qua (giống Geometry Dash, không có double jump).
+- Chạm khi đang bay mà không trúng vòng nhảy và không trong vùng buffer sẽ bị bỏ qua (giống Geometry Dash, không có
+  double jump, không có giữ để nhảy).
+- Gameplay v3 (địa hình) là demo chờ duyệt: chưa có địa hình theo làn, trần/bệ treo, `draft_chart.py` chưa sinh địa hình.
 - Hành động mới (trượt, đổi làn, đảo trọng lực) sẽ cần thêm trục lệch ngang/lộn ngược trong `HazardChecker`.

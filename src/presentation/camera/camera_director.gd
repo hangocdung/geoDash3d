@@ -1,5 +1,6 @@
 # Drives the Camera3D from chart camera cues: the shot is a pure function of the beat (blended
-# between cues), placed in the smoothed track frame. Adds shake and FOV kicks from events.
+# between cues), placed in the smoothed track frame raised to the (smoothed) terrain height. Adds shake
+# and FOV kicks from events.
 # Related: src/presentation/camera/camera_shots.gd, src/presentation/level/level_runner.gd
 class_name CameraDirector
 extends Node3D
@@ -7,8 +8,11 @@ extends Node3D
 const SHAKE_DECAY_PER_SEC: float = 2.8
 const FOV_KICK_DECAY_PER_SEC: float = 3.0
 const MAX_SHAKE_OFFSET: float = 0.45
-## Fraction of the player's jump height the camera follows.
+## Fraction of the player's height above the ground that the camera follows.
 const HEIGHT_FOLLOW: float = 0.35
+## The camera rides on the terrain averaged over this radius, centred a little ahead of the player.
+const GROUND_RADIUS: float = 9.0
+const GROUND_LOOK_AHEAD: float = 4.0
 const FRAME_SMOOTHING: float = 6.0
 
 var camera: Camera3D
@@ -63,7 +67,10 @@ func update_camera(beat: float, player_height: float, underside_amount: float, d
 		var rotation_quat: Quaternion = _smoothed_frame.basis.get_rotation_quaternion().slerp(
 				target_frame.basis.get_rotation_quaternion(), weight)
 		_smoothed_frame = Transform3D(Basis(rotation_quat), target_frame.origin)
-	var frame := Transform3D(_smoothed_frame.basis, target_frame.origin + _smoothed_frame.basis.y * player_height * HEIGHT_FOLLOW)
+	var ground: float = _context.chart.terrain.smoothed_height_at(
+			_context.chart.distance_at(beat) + GROUND_LOOK_AHEAD, GROUND_RADIUS)
+	var lift: float = ground + (player_height - ground) * HEIGHT_FOLLOW
+	var frame := Transform3D(_smoothed_frame.basis, target_frame.origin + _smoothed_frame.basis.y * lift)
 	var eye: Vector3 = frame * shot.position
 	var target: Vector3 = frame * shot.look_at
 	_trauma = maxf(_trauma - delta * SHAKE_DECAY_PER_SEC, 0.0)

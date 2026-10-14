@@ -22,19 +22,21 @@ func test_every_chart_loads_and_autoplay_clears_it() -> void:
 	assert_true(chart_count > 0, "no charts found")
 
 
-func test_no_action_is_unreachable_after_a_previous_one() -> void:
-	# A cue must start after the previous action ends (allowing the input buffer), or it can't be hit.
+func test_every_cue_is_playable_on_its_beat() -> void:
+	# The previous action has ended and the player is on the ground (unless the cue is a jump orb), so
+	# autoplay never relies on the input buffer: a buffered cue would start late and look off-beat.
 	var config: GameplayConfig = GameplayConfig.create_default()
 	for file_name: String in DirAccess.get_files_at(MUSIC_DIRECTORY):
 		if not file_name.ends_with(".chart.json"):
 			continue
 		var chart: LevelChart = ChartLoader.load_file(MUSIC_DIRECTORY.path_join(file_name), config)
-		for index: int in range(1, chart.cues.size()):
-			var previous: ChartItems.ActionCue = chart.cues[index - 1]
-			var gap: float = chart.cues[index].beat - previous.beat
-			assert_true(gap >= previous.action.duration_beats,
-					"%s: cue at beat %.2f follows %s at %.2f too closely" % [file_name, chart.cues[index].beat,
-					previous.action.id, previous.beat])
+		var simulation := RunSimulation.new(chart, config, ReferenceRun.START_BEAT)
+		var late: PackedStringArray = []
+		simulation.action_started.connect(func(action: ActionDefinition, start_beat: float, cue_index: int) -> void:
+			if cue_index >= 0 and start_beat > chart.cues[cue_index].beat + 0.0001:
+				late.append("%s cue %.2f started %.3f" % [action.id, chart.cues[cue_index].beat, start_beat]))
+		Autoplay.new(chart, ReferenceRun.START_BEAT).drive(simulation, chart.end_beat + 1.0)
+		assert_true(late.is_empty(), "%s: %s" % [file_name, ", ".join(late)])
 
 
 func test_difficulty_ramps_up_toward_the_end() -> void:

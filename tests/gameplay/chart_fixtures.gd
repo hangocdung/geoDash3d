@@ -5,7 +5,7 @@ extends RefCounted
 
 
 static func make_chart(events: Array[Dictionary], bpm: float = 120.0, units_per_beat: float = 7.0,
-		end_beat: float = 32.0) -> LevelChart:
+		end_beat: float = 32.0, terrain: Array[Dictionary] = []) -> LevelChart:
 	var root: Dictionary = {
 		"version": 1,
 		"title": "fixture",
@@ -15,5 +15,6 @@ static func make_chart(events: Array[Dictionary], bpm: float = 120.0, units_per_
 		"tempo": [{"beat": 0, "bpm": bpm}],
 		"speed": [{"beat": 0, "units_per_beat": units_per_beat}],
 		"events": events,
+		"terrain": terrain,
 	}
 	return ChartLoader.parse_text(JSON.stringify(root), GameplayConfig.create_default(), "fixture")

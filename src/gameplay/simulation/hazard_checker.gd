@@ -15,7 +15,8 @@ func _init(hazards_sorted_by_distance: Array[ChartItems.HazardPlacement]) -> voi
 
 
 ## Returns the index of the first hazard overlapping the player box, or NO_HAZARD.
-## `lateral_range` = (min, max) of the player across the track; `vertical_range` = (bottom, top).
+## `lateral_range` = (min, max) of the player across the track; `vertical_range` = (bottom, top) above the
+## road surface (hazard boxes stand on the ground under them: HazardPlacement.base_height).
 ## `ignored` lists hazard indices that already hit (invincible practice runs).
 func find_collision(player_distance: float, half_length: float, lateral_range: Vector2, vertical_range: Vector2,
 		active_action: ActionDefinition, ignored: PackedInt32Array) -> int:
@@ -33,7 +34,7 @@ func find_collision(player_distance: float, half_length: float, lateral_range: V
 			break
 		if placement.distance + hazard.half_length < player_back:
 			continue
-		if vertical_range.y < hazard.bottom or vertical_range.x > hazard.top:
+		if vertical_range.y < placement.base_height + hazard.bottom or vertical_range.x > placement.base_height + hazard.top:
 			continue
 		var hazard_left: float = hazard.lateral_center - hazard.lateral_half_width
 		var hazard_right: float = hazard.lateral_center + hazard.lateral_half_width

@@ -26,7 +26,7 @@ func setup(context: LevelContext) -> void:
 		if section.beat <= 0.0 or section.beat >= context.chart.end_beat:
 			continue
 		var portal: Node3D = NeonModel.instantiate(PORTAL_SCENE, PORTAL_COLOR, PORTAL_ACCENT, 3.0)
-		portal.transform = context.frame_at_beat(section.beat) * Transform3D(Basis(), Vector3(0, PORTAL_HEIGHT, 0))
+		portal.transform = context.surface_frame_at_beat(section.beat) * Transform3D(Basis(), Vector3(0, PORTAL_HEIGHT, 0))
 		add_child(portal)
 	var beat: float = MACE_SPACING_BEATS * 0.5
 	var index: int = 0

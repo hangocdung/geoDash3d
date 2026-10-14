@@ -1,11 +1,14 @@
 # Parses *.chart.json (format documented in docs/chart_format.md) into a LevelChart.
 # Collects every validation problem, reports them with push_error and returns null on failure.
+# A valid chart is then annotated by an autoplay pass (ReferenceRun).
 # Related: src/gameplay/chart/level_chart.gd, src/gameplay/defs/gameplay_config.gd
 class_name ChartLoader
 extends RefCounted
 
 const SUPPORTED_VERSION: int = 1
 const NO_HAZARD: String = "none"
+## Sanity bound for terrain heights (units above the road surface).
+const MAX_TERRAIN_HEIGHT: float = 12.0
 
 var _errors: PackedStringArray = []
 var _config: GameplayConfig
@@ -34,6 +37,7 @@ static func parse_text(text: String, config: GameplayConfig, source_name: String
 		for message: String in loader._errors:
 			push_error("ChartLoader: %s: %s" % [source_name, message])
 		return null
+	ReferenceRun.annotate(chart, config)
 	return chart
 
 
@@ -55,10 +59,12 @@ func _parse(root: Dictionary) -> LevelChart:
 	chart.distance_map = _parse_speed(root)
 	_parse_sections(root, chart)
 	_parse_track(root, chart)
+	_parse_terrain(root, chart)
 	_parse_events(root, chart)
 	if chart.tempo == null or chart.distance_map == null:
 		return null
 	chart.finalize()
+	_validate_terrain(chart)
 	return chart
 
 
@@ -120,6 +126,40 @@ func _parse_track(root: Dictionary, chart: LevelChart) -> void:
 				_errors.append("track segment at beat %.3f has unknown shape '%s'" % [beat, shape_name])
 
 
+func _parse_terrain(root: Dictionary, chart: LevelChart) -> void:
+	for entry: Dictionary in _objects(root, "terrain"):
+		var beat: float = _number(entry, "beat", NAN)
+		if is_nan(beat):
+			_errors.append("terrain entry is missing 'beat'")
+			continue
+		if entry.get("gap", false) == true:
+			chart.terrain_segments.append(ChartItems.TerrainSegment.new(beat, Terrain.GAP))
+			continue
+		var height: float = _number(entry, "height", 0.0)
+		if height < 0.0 or height > MAX_TERRAIN_HEIGHT:
+			_errors.append("terrain at beat %.3f: height %.2f is outside 0..%.0f" % [beat, height, MAX_TERRAIN_HEIGHT])
+			continue
+		chart.terrain_segments.append(ChartItems.TerrainSegment.new(beat, height))
+
+
+## Dodges and flips need flat road; pads and hazards need ground under them.
+func _validate_terrain(chart: LevelChart) -> void:
+	var half_length: float = _config.player_half_length
+	for cue: ChartItems.ActionCue in chart.cues:
+		if cue.action.kind == ActionDefinition.Kind.JUMP:
+			continue
+		var from_distance: float = chart.distance_at(cue.beat) - half_length
+		var to_distance: float = chart.distance_at(cue.beat + cue.action.duration_beats) + half_length
+		if not chart.terrain.is_level(from_distance, to_distance, 0.0):
+			_errors.append("%s at beat %.3f needs flat road (terrain height 0) until it ends" % [cue.action.id, cue.beat])
+	for pad: ChartItems.PadPlacement in chart.pads:
+		if Terrain.is_gap(chart.terrain.height_at(pad.distance)):
+			_errors.append("pad at beat %.3f is over a gap" % pad.beat)
+	for placement: ChartItems.HazardPlacement in chart.hazards:
+		if Terrain.is_gap(chart.terrain.height_at(placement.distance)):
+			_errors.append("hazard '%s' at beat %.3f is over a gap" % [placement.hazard.id, placement.beat])
+
+
 func _parse_events(root: Dictionary, chart: LevelChart) -> void:
 	for entry: Dictionary in _objects(root, "events"):
 		var beat: float = _number(entry, "beat", NAN)
@@ -135,6 +175,8 @@ func _parse_events(root: Dictionary, chart: LevelChart) -> void:
 				chart.vfx_cues.append(ChartItems.VfxCue.new(beat, StringName(str(entry.get("name", "")))))
 			"hazard":
 				_add_hazard(chart, beat, str(entry.get("hazard", "")))
+			"pad":
+				chart.pads.append(ChartItems.PadPlacement.new(beat))
 			_:
 				_add_action_event(chart, beat, type_name, entry)
 
@@ -144,20 +186,22 @@ func _add_action_event(chart: LevelChart, beat: float, type_name: String, entry:
 	if action == null:
 		_errors.append("event at beat %.3f has unknown type '%s'" % [beat, type_name])
 		return
-	chart.cues.append(ChartItems.ActionCue.new(beat, action))
+	var cue := ChartItems.ActionCue.new(beat, action)
+	chart.cues.append(cue)
 	var hazard_name: String = str(entry.get("hazard", String(action.paired_hazard)))
 	if hazard_name.is_empty() or hazard_name == NO_HAZARD:
 		return
 	var hazard_offset: float = _number(entry, "hazard_offset", action.hazard_beat_offset)
-	_add_hazard(chart, beat + hazard_offset, hazard_name)
+	cue.has_hazard = _add_hazard(chart, beat + hazard_offset, hazard_name)
 
 
-func _add_hazard(chart: LevelChart, beat: float, hazard_name: String) -> void:
+func _add_hazard(chart: LevelChart, beat: float, hazard_name: String) -> bool:
 	var hazard: HazardDefinition = _config.find_hazard(StringName(hazard_name))
 	if hazard == null:
 		_errors.append("hazard at beat %.3f has unknown id '%s'" % [beat, hazard_name])
-		return
+		return false
 	chart.hazards.append(ChartItems.HazardPlacement.new(beat, hazard))
+	return true
 
 
 func _objects(root: Dictionary, key: String) -> Array[Dictionary]:

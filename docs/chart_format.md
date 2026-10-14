@@ -17,11 +17,15 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
   "track":    [{ "beat": 0, "shape": "straight" },
                { "beat": 40, "shape": "turn", "angle_deg": 30 },
                { "beat": 64, "shape": "slope", "rise": 6 }],
+  "terrain":  [{ "beat": 20.55, "height": 1.5 }, { "beat": 24, "gap": true }, { "beat": 24.5, "height": 0 }],
   "events":   [{ "beat": 8, "type": "jump" },
                { "beat": 10, "type": "dodge_left" },
                { "beat": 13, "type": "flip" },
                { "beat": 12, "type": "jump", "hazard": "none" },
                { "beat": 14, "type": "hazard", "hazard": "spike" },
+               { "beat": 20, "type": "jump", "hazard": "none" },
+               { "beat": 34, "type": "orb" },
+               { "beat": 48, "type": "pad" },
                { "beat": 32, "type": "camera", "shot": "side_low", "blend_beats": 2 },
                { "beat": 96, "type": "vfx", "name": "flash" }]
 }
@@ -33,6 +37,7 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
 | `speed` | Số đơn vị đường đi được mỗi beat, kể từ beat đó. Tốc độ cao hơn thì vật cản cách xa nhau hơn. |
 | `sections` | Đoạn nhạc. `energy` (0..1) điều khiển glow, màu trời, sương mù và nhịp đập ánh sáng. |
 | `track` | Hình dạng đường từ beat đó đến điểm kế tiếp: `straight`, `turn` (`angle_deg`, dương = rẽ trái), `slope` (`rise`). |
+| `terrain` | *(tùy chọn, gameplay v3 — chờ duyệt)* Mặt đất từ beat đó tới mục kế tiếp: `height` (0 = mặt đường, tối đa 12) hoặc `"gap": true` (hố). Không có thì đường phẳng. Xem `docs/design/gameplay_v3.md`. |
 | `end_beat` | Beat hoàn thành màn. Nhạc vẫn chạy tiếp phần outro. |
 
 ## Các loại event
@@ -43,18 +48,23 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
   | `jump` | nhảy 1 beat | `spike` (+0.5) | trồi lên |
   | `dodge_left` / `dodge_right` | lăn sang làn trái / phải 1.25 beat rồi về | `wall_gap_left` / `wall_gap_right` (+0.625), tường chắn làn giữa và làn còn lại | rơi xuống |
   | `flip` | lộn qua mép xuống mặt dưới 2 beat rồi lên | `gate` (+1.0), cổng chắn cả bề ngang | bung ngang |
+  | `orb` | vòng nhảy giữa không trung: chạm được cả khi đang bay, bật parabol mới (như jump) | không có | — |
 
-  Vật cản luôn vào sân đúng **nguyên beat** `floor(beat_vật_cản − lead)` (lead: spike 2, tường/cổng 3). `"hazard": "none"` để chỉ có cue,
+  Cú nhảy kết thúc khi tiếp đất (sớm hơn nếu đáp lên bệ cao hơn). Vật cản đứng trên mặt đất tại chỗ nó đứng (`terrain`). Vật cản luôn vào sân đúng **nguyên beat** `floor(beat_vật_cản − lead)` (lead: spike 2, tường/cổng 3). `"hazard": "none"` để chỉ có cue,
   không có vật cản. Có thể thêm `"hazard_offset": <beats>` để dịch vật cản.
 - **`hazard`**: vật cản đứng riêng, không có cue (người chơi tự nhảy bằng thao tác mặc định).
+- **`pad`**: bệ bật trên mặt đất. Người chơi đang đứng chạm vào là tự bật lên (đỉnh 4.5, 1.5 beat), không cần chạm.
 - **`camera`**: chuyển sang shot `shot`, blend trong `blend_beats`. Danh sách shot nằm ở
   `src/presentation/camera/camera_shots.gd`: `side`, `side_low`, `side_high`, `side_far`, `chase`, `chase_low`,
   `high`, `diagonal`, `front`.
 - **`vfx`**: `flash` (lóe sáng toàn cảnh), `shockwave` (vòng sóng), `burst` (bung hạt).
 
 ## Ràng buộc (được test kiểm tra)
-- Cue kế tiếp phải cách cue trước ít nhất bằng thời lượng hành động trước (jump 1, dodge 1.25, flip 2 beat).
+- Mọi cue phải chơi được **đúng beat** của nó: hành động trước đã xong và người chơi đang đứng trên đất (trừ `orb`).
+  Autoplay không bao giờ phải dựa vào input buffer. Trên đất phẳng nghĩa là cue cách nhau ít nhất bằng thời lượng
+  hành động trước (jump 1, dodge 1.25, flip 2 beat); lên bậc +1.5 thì 0.75 beat là đủ.
   `draft_chart.py` chừa thêm ~0.5 beat: jump 1.5, dodge 1.75, flip 2.5.
+- Dodge/flip cần đường phẳng ở độ cao 0 cho tới khi kết thúc; bệ bật và vật cản không được đặt trên hố (loader báo lỗi).
 - Tốc độ không được giảm; độ khó có trọng số (jump 1, dodge 1.25, flip 1.75, × tốc độ) của 1/4 cuối phải > 1.5 lần 1/4 đầu.
 - Autoplay (chạm đúng mọi cue) phải qua màn: `tests/gameplay/test_shipped_charts.gd`.
 
@@ -66,6 +76,8 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
 | GOOD | ≤ 150 ms (lệch hơn thì lần chạm thành cú nhảy mặc định) |
 
 Ở 120 BPM, vật lý cho phép lệch khoảng ±143 ms (jump), ±157 ms (dodge), rộng hơn nhiều với flip; test kiểm tra biên ±140 ms ở tốc độ 7 và 10.
+Đo dung sai từng cue của một chart:
+`"$GODOT" --headless --path . -s res://tools/charting/tolerance_report.gd -- --chart=res://assets/music/<id>.chart.json`.
 
 ## Quy trình làm chart cho một bài mới
 1. Đặt nhạc vào `assets/music/<id>.mp3`.

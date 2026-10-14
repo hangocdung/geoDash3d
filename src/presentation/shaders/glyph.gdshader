@@ -1,5 +1,6 @@
 // Additive hologram glyph on a quad: 0 = ring, 1 = up chevrons (jump), 2 = forward arrows,
-// 3 = shock ring driven by `progress`, 4 = sideways arrows (dodge), 5 = circular arrow (flip).
+// 3 = shock ring driven by `progress`, 4 = sideways arrows (dodge), 5 = circular arrow (flip),
+// 6 = jump orb (bright core inside two rings).
 // Optional camera-facing billboard.
 shader_type spatial;
 render_mode unshaded, blend_add, cull_disabled, depth_draw_never, shadows_disabled;
@@ -68,6 +69,11 @@ void fragment() {
 	} else if (glyph == 5) {
 		shape = circle_arrow(p);
 		shape += (1.0 - smoothstep(0.02, 0.04, abs(radius - 0.46))) * 0.6;
+	} else if (glyph == 6) {
+		float core = 1.0 - smoothstep(0.1, 0.17, radius);
+		float ring = 1.0 - smoothstep(0.025, 0.055, abs(radius - 0.33));
+		float outer = (1.0 - smoothstep(0.015, 0.03, abs(radius - 0.46))) * 0.5;
+		shape = core * 1.5 + ring + outer;
 	} else {
 		float ring_radius = mix(0.05, 0.48, progress);
 		float width = mix(0.06, 0.01, progress);

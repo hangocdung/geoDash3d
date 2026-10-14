@@ -12,6 +12,9 @@ var _settings_button: Button
 var _settings: SettingsPanel
 var _practice_panel: PanelContainer
 var _practice_button: Button
+var _demo_button: Button
+## Menu button that opened the practice panel (focus returns to it).
+var _panel_opener: Button
 var _root: Control
 
 
@@ -62,7 +65,8 @@ func _build_menu() -> void:
 	spacer.custom_minimum_size = Vector2(0, 8)
 	_menu_column.add_child(spacer)
 	var play: Button = _add_button("PLAY", func() -> void: Scenes.go_to(get_tree(), Scenes.LEVEL), &"ui.confirm")
-	_practice_button = _add_button("PRACTICE", _open_practice)
+	_practice_button = _add_button("PRACTICE", _open_practice.bind("", false))
+	_demo_button = _add_button("TERRAIN DEMO", _open_practice.bind(Scenes.TERRAIN_DEMO_CHART, true))
 	_add_button("CALIBRATE AUDIO", func() -> void: Scenes.go_to(get_tree(), Scenes.CALIBRATION))
 	_add_button("SYNC TEST", func() -> void: Scenes.go_to(get_tree(), Scenes.METRONOME))
 	_settings_button = _add_button("SETTINGS", _open_settings)
@@ -97,7 +101,9 @@ func _close_settings() -> void:
 	_settings_button.grab_focus()
 
 
-func _open_practice() -> void:
+## Practice speeds for `chart` (empty = default chart); `with_play` adds a normal run (terrain demo).
+func _open_practice(chart: String, with_play: bool) -> void:
+	_panel_opener = _demo_button if with_play else _practice_button
 	_menu_column.visible = false
 	_practice_panel = PanelContainer.new()
 	_practice_panel.set_anchors_preset(Control.PRESET_CENTER)
@@ -106,14 +112,20 @@ func _open_practice() -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 18)
 	_practice_panel.add_child(column)
-	column.add_child(UiTheme.make_label("PRACTICE", 48, UiTheme.ACCENT))
-	column.add_child(UiTheme.make_label("Checkpoints every 16 beats.
+	column.add_child(UiTheme.make_label("TERRAIN DEMO" if with_play else "PRACTICE", 48, UiTheme.ACCENT))
+	column.add_child(UiTheme.make_label("Practice: checkpoints every 16 beats.
 Dying restarts from the last one.", 26))
 	var first: Button = null
+	if with_play:
+		first = UiTheme.make_button("PLAY", 360.0, 72.0, &"ui.confirm")
+		first.pressed.connect(func() -> void:
+			LaunchOptions.set_next_run(LaunchOptions.chart_run(chart))
+			Scenes.go_to(get_tree(), Scenes.LEVEL))
+		column.add_child(first)
 	for rate: float in PRACTICE_RATES:
-		var button: Button = UiTheme.make_button("SPEED %d%%" % roundi(rate * 100.0), 360.0, 72.0, &"ui.confirm")
+		var button: Button = UiTheme.make_button("PRACTICE %d%%" % roundi(rate * 100.0), 360.0, 72.0, &"ui.confirm")
 		button.pressed.connect(func() -> void:
-			LaunchOptions.set_next_run(LaunchOptions.practice_run(rate))
+			LaunchOptions.set_next_run(LaunchOptions.practice_run(rate, chart))
 			Scenes.go_to(get_tree(), Scenes.LEVEL))
 		column.add_child(button)
 		if first == null:
@@ -129,4 +141,4 @@ func _close_practice() -> void:
 	_practice_panel.queue_free()
 	_practice_panel = null
 	_menu_column.visible = true
-	_practice_button.grab_focus()
+	_panel_opener.grab_focus()

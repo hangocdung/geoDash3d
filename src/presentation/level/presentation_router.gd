@@ -8,6 +8,7 @@ const GHOST_INTERVAL_SEC: float = 0.045
 
 var _runner: LevelRunner
 var _context: LevelContext
+var _simulation: RunSimulation
 var _next_vfx_cue: int = 0
 var _ghost_timer: float = 0.0
 ## Off for the menu attract mode, so the backdrop stays quiet.
@@ -20,8 +21,10 @@ func _init(runner: LevelRunner, context: LevelContext) -> void:
 
 
 func bind(simulation: RunSimulation, start_beat: float) -> void:
+	_simulation = simulation
 	simulation.action_started.connect(_on_action_started)
 	simulation.action_finished.connect(_on_action_finished)
+	simulation.player_landed.connect(_on_player_landed)
 	simulation.cue_judged.connect(_on_cue_judged)
 	_next_vfx_cue = 0
 	var cues: Array[ChartItems.VfxCue] = _context.chart.vfx_cues
@@ -64,7 +67,7 @@ func _on_action_started(action: ActionDefinition, action_beat: float, _cue_index
 	_play(action.start_sound)
 	match action.kind:
 		ActionDefinition.Kind.JUMP:
-			_runner.vfx_director.on_jump_started(_context.frame_at_beat(action_beat), action.color)
+			_runner.vfx_director.on_jump_started(_feet_at(action_beat), action.color)
 		ActionDefinition.Kind.FLIP:
 			_runner.camera_director.add_fov_kick(6.0)
 			_ghost_timer = 0.0
@@ -72,12 +75,20 @@ func _on_action_started(action: ActionDefinition, action_beat: float, _cue_index
 			_ghost_timer = 0.0
 
 
-func _on_action_finished(action: ActionDefinition, end_beat: float) -> void:
+func _on_action_finished(action: ActionDefinition, _end_beat: float) -> void:
 	_runner.player_view.on_action_finished(action)
-	if action.kind == ActionDefinition.Kind.JUMP:
-		_play(&"player.land")
-		_runner.vfx_director.on_landed(_context.frame_at_beat(end_beat), PlayerView.PLAYER_COLOR)
-		_runner.camera_director.add_shake(0.12)
+
+
+func _on_player_landed(beat: float, airtime_beats: float) -> void:
+	_runner.player_view.on_landed(airtime_beats)
+	_play(&"player.land")
+	_runner.vfx_director.on_landed(_feet_at(beat), PlayerView.PLAYER_COLOR)
+	_runner.camera_director.add_shake(0.12)
+
+
+## Track frame at the player's feet (terrain and jump height included).
+func _feet_at(beat: float) -> Transform3D:
+	return _context.frame_at_height(beat, _simulation.player_height_at(beat))
 
 
 func _on_cue_judged(cue_index: int, grade: Judgement.Grade, _error_sec: float) -> void:

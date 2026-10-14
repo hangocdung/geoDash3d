@@ -1,11 +1,12 @@
 # Data for one tap action. Motion is analytic in beats (scales with tempo) and never changes the
 # run speed. A chart event of this action also spawns `paired_hazard` at cue + `hazard_beat_offset`.
+# JUMP is a ballistic launch (see launch_velocity / gravity); it lasts until the player lands.
 # Related: src/gameplay/defs/gameplay_config.gd, src/gameplay/simulation/run_simulation.gd
 class_name ActionDefinition
 extends Resource
 
 enum Kind {
-	## Vertical parabola over the obstacle.
+	## Ballistic launch; on flat ground it lands after `duration_beats`, peaking at `jump_height`.
 	JUMP,
 	## Slide to a side lane, hold, slide back (lateral_distance is signed: negative = left).
 	DODGE,
@@ -16,8 +17,10 @@ enum Kind {
 @export var id: StringName = &""
 @export var kind: Kind = Kind.JUMP
 @export var duration_beats: float = 1.0
-## JUMP: peak height of the parabola.
+## JUMP: peak height of the parabola (on flat ground).
 @export var jump_height: float = 0.0
+## JUMP: may be performed in mid-air (jump orbs). Other jumps need the player on the ground.
+@export var air_allowed: bool = false
 ## DODGE: signed lateral target. FLIP: how far sideways the player swings around the track edge.
 @export var lateral_distance: float = 0.0
 ## DODGE / FLIP: fraction of the action spent moving out (and the same fraction moving back).
@@ -34,7 +37,18 @@ enum Kind {
 @export var start_sound: StringName = &""
 
 
+## JUMP: initial upward speed in units per beat (lands after duration_beats on flat ground).
+func launch_velocity() -> float:
+	return 4.0 * jump_height / duration_beats
+
+
+## JUMP: downward acceleration in units per beat².
+func gravity() -> float:
+	return 8.0 * jump_height / (duration_beats * duration_beats)
+
+
 ## Player offset from its resting spot: x = lateral (+ = right), y = height of the player's lower edge.
+## JUMP is the flat-ground parabola; RunSimulation integrates real jumps against the terrain.
 func offset_at(progress: float) -> Vector2:
 	if progress <= 0.0 or progress >= 1.0:
 		return Vector2.ZERO

@@ -1,5 +1,6 @@
-# Visual player cube: follows the simulation pose on the track, rolls 90° per jump, rolls sideways
-# on dodges, swings around the edge on flips, squashes on landing and leaves a pixel trail. Read-only.
+# Visual player cube: follows the simulation pose on the track, rolls forward while airborne (a quarter
+# turn per beat, snapped to the nearest face on landing), rolls sideways on dodges, swings around the
+# edge on flips, squashes on landing and leaves a pixel trail. Read-only.
 # Related: src/gameplay/simulation/run_simulation.gd, src/presentation/shaders/neon_box.gdshader
 class_name PlayerView
 extends Node3D
@@ -8,11 +9,16 @@ const BOX_SHADER: Shader = preload("res://src/presentation/shaders/neon_box.gdsh
 const CUBE_SIZE: float = 1.0
 const LAND_SQUASH_DECAY: float = 7.0
 const PLAYER_COLOR: Color = Color(0.3, 0.95, 1.0)
+const ROLL_PER_BEAT: float = PI * 0.5
+## How fast the leftover roll settles after a landing snaps the cube flat (per second).
+const ROLL_SNAP_RATE: float = 18.0
 
 var body: MeshInstance3D
 var trail: GPUParticles3D
 var _context: LevelContext
 var _roll_base: float = 0.0
+## Roll still to settle after landing (the cube eases onto its nearest face).
+var _roll_residual: float = 0.0
 var _land_squash: float = 0.0
 var _flash: float = 0.0
 
@@ -40,6 +46,7 @@ func setup(context: LevelContext) -> void:
 
 func reset_view() -> void:
 	_roll_base = 0.0
+	_roll_residual = 0.0
 	_land_squash = 0.0
 	_flash = 0.0
 	visible = true
@@ -52,13 +59,13 @@ func update_pose(beat: float, simulation: RunSimulation, delta: float) -> void:
 	var action: ActionDefinition = simulation.active_action()
 	var progress: float = simulation.action_progress_at(beat)
 	var offset: Vector2 = simulation.player_offset_at(beat)
-	var forward_roll: float = _roll_base
+	var air_beats: float = simulation.air_beats_at(beat)
+	_roll_residual *= exp(-ROLL_SNAP_RATE * delta)
+	var forward_roll: float = _roll_base - air_beats * ROLL_PER_BEAT if air_beats >= 0.0 else _roll_base + _roll_residual
 	var side_roll: float = 0.0
 	if action != null and progress >= 0.0:
 		var hold: float = action.hold_amount(progress)
 		match action.kind:
-			ActionDefinition.Kind.JUMP:
-				forward_roll -= progress * PI * 0.5
 			ActionDefinition.Kind.DODGE:
 				# Roll a quarter turn toward the target lane and back again.
 				side_roll = signf(action.lateral_distance) * hold * PI * 0.5
@@ -76,15 +83,16 @@ func update_pose(beat: float, simulation: RunSimulation, delta: float) -> void:
 	body.transform = Transform3D(rotation_basis.scaled(stretch), Vector3(0.0, half * stretch.y, 0.0))
 
 
+## Snaps the roll to the nearest face; the remainder eases out over a few frames.
+func on_landed(airtime_beats: float) -> void:
+	var landed_roll: float = _roll_base - airtime_beats * ROLL_PER_BEAT
+	_roll_base = roundf(landed_roll / ROLL_PER_BEAT) * ROLL_PER_BEAT
+	_roll_residual = landed_roll - _roll_base
+	_land_squash = 1.0
+
+
 func on_action_finished(action: ActionDefinition) -> void:
-	match action.kind:
-		ActionDefinition.Kind.JUMP:
-			_roll_base -= PI * 0.5
-			_land_squash = 1.0
-		ActionDefinition.Kind.FLIP:
-			_land_squash = 0.7
-		_:
-			_land_squash = 0.4
+	_land_squash = 0.7 if action.kind == ActionDefinition.Kind.FLIP else 0.4
 
 
 func on_cue_hit(grade: Judgement.Grade) -> void:

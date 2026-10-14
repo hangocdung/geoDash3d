@@ -51,6 +51,16 @@ Thiết kế đã chốt: `docs/design/gameplay_v2.md`.
 - [x] **GD3-073** Độ khó tăng dần về cuối: tốc độ chỉ tăng, mở khóa hành động dần, đoạn `finale` dày nhất. Có test kiểm tra.
 - [x] **GD3-074** Ký hiệu cue mới (↔ lách, ↻ lộn), dải sáng ở làn trống.
 
+## Phase 4.6 — Gameplay v3: địa hình (yêu cầu 2026-10-14)
+Thiết kế: `docs/design/gameplay_v3.md`. Nhánh `feat/terrain-demo`. **Chờ người dùng duyệt demo** (menu TERRAIN DEMO).
+- [x] **GD3-080** `Terrain` + chart `terrain` (bệ, hố) + validate; vật cản đứng trên mặt đất.
+- [x] **GD3-081** Nhảy thành parabol tới khi tiếp đất (`VerticalMotion`): đâm hông bệ/rơi hố = chết, chạy khỏi mép = rơi,
+      chỉ nhảy tiếp khi đã chạm đất; vòng nhảy `orb` (chạm khi đang bay), bệ bật `pad`; `ReferenceRun`; test.
+- [x] **GD3-082** Hiển thị: bệ/hố/mặt đứng có viền, vòng nhảy, bệ bật, camera bám địa hình, khối xoay khi bay.
+- [x] **GD3-083** Chart demo `the_dawn_assembly.terrain.chart.json` (116 beat, 58 lần chạm) từ
+      `tools/charting/terrain_demo.py`; `tools/charting/tolerance_report.gd` (dung sai tệ nhất ±90 ms).
+- [ ] **GD3-084** Sau khi duyệt: sinh địa hình trong `draft_chart.py`, làm lại chart chính, SFX riêng cho orb/pad.
+
 ## Phase 5 — Mobile
 - [x] **GD3-050** Export Android (`export_presets.cfg`, arm64, debug keystore), cài và đo trên Galaxy Note10 Lite
       (Mali-G72, Vulkan Mobile). Đo bằng `PerfProbe` + `tools/device/perf_matrix.sh`. Kết quả, khi máy đang ấm

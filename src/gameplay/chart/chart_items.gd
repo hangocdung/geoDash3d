@@ -9,6 +9,8 @@ extends RefCounted
 class ActionCue:
 	var beat: float
 	var action: ActionDefinition
+	## False when the chart said "hazard": "none" (terrain jumps: the ground itself is the obstacle).
+	var has_hazard: bool = false
 
 	func _init(cue_beat: float, cue_action: ActionDefinition) -> void:
 		beat = cue_beat
@@ -20,10 +22,33 @@ class HazardPlacement:
 	var hazard: HazardDefinition
 	## Distance along the track of the hazard center (filled by LevelChart).
 	var distance: float = 0.0
+	## Ground height under the hazard (filled by LevelChart); its hitbox sits on top of it.
+	var base_height: float = 0.0
 
 	func _init(hazard_beat: float, hazard_definition: HazardDefinition) -> void:
 		beat = hazard_beat
 		hazard = hazard_definition
+
+
+## Ground height from `beat` until the next segment (Terrain.GAP = no ground).
+class TerrainSegment:
+	var beat: float
+	var height: float
+
+	func _init(segment_beat: float, segment_height: float) -> void:
+		beat = segment_beat
+		height = segment_height
+
+
+## Jump pad on the ground: launches the player (no tap) when it runs over it.
+class PadPlacement:
+	var beat: float
+	## Filled by LevelChart: distance along the track and ground height under the pad.
+	var distance: float = 0.0
+	var base_height: float = 0.0
+
+	func _init(pad_beat: float) -> void:
+		beat = pad_beat
 
 
 class CameraCue:

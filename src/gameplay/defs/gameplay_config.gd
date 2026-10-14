@@ -1,5 +1,5 @@
-# Tunable gameplay numbers: timing windows, track/player dimensions, simulation step and the
-# action/hazard libraries. `create_default()` builds the set used by charts (see gameplay_v2.md).
+# Tunable gameplay numbers: timing windows, track/player dimensions, simulation step, terrain rules and
+# the action/hazard libraries. `create_default()` builds the set used by charts (gameplay_v2/v3.md).
 # Related: src/gameplay/defs/action_definition.gd, src/gameplay/defs/hazard_definition.gd
 class_name GameplayConfig
 extends Resource
@@ -20,6 +20,14 @@ extends Resource
 ## Collision sampling step. Fixed in beats so results never depend on frame rate.
 @export var simulation_step_beats: float = 1.0 / 96.0
 @export var default_action: StringName = &"jump"
+## Feet up to this far below a ledge top still land on it instead of hitting its side.
+@export var step_snap: float = 0.2
+## Falling below this height (relative to the road surface) kills the player.
+@export var fall_death_height: float = -4.0
+## Half length along the track of a jump pad's trigger zone.
+@export var pad_half_length: float = 0.6
+## Launch performed by jump pads (no tap needed).
+@export var pad_launch: ActionDefinition
 @export var actions: Array[ActionDefinition] = []
 @export var hazards: Array[HazardDefinition] = []
 
@@ -36,7 +44,10 @@ static func create_default() -> GameplayConfig:
 		_dodge(config, &"dodge_left", -1.0, &"wall_gap_left"),
 		_dodge(config, &"dodge_right", 1.0, &"wall_gap_right"),
 		_flip(config),
+		_orb(),
 	]
+	config.pad_launch = _action(&"pad", ActionDefinition.Kind.JUMP, 1.5, &"", 0.0, JUMP_COLOR, &"player.jump")
+	config.pad_launch.jump_height = 4.5
 	var spike: HazardDefinition = _hazard(&"spike", HazardDefinition.Visual.SPIKE, HazardDefinition.Entrance.RISE,
 			2.0, JUMP_COLOR, &"hazard.rise")
 	spike.half_length = 0.32
@@ -62,6 +73,15 @@ func find_action(action_id: StringName) -> ActionDefinition:
 		if action.id == action_id:
 			return action
 	return null
+
+
+## Gravity for falls that start without a jump (walking off a ledge): same as the default jump.
+func fall_gravity() -> float:
+	var action: ActionDefinition = find_action(default_action)
+	if action == null or action.kind != ActionDefinition.Kind.JUMP:
+		push_error("GameplayConfig: default action '%s' must be a JUMP" % default_action)
+		return 16.0
+	return action.gravity()
 
 
 func find_hazard(hazard_id: StringName) -> HazardDefinition:
@@ -101,6 +121,13 @@ static func _flip(config: GameplayConfig) -> ActionDefinition:
 	flip.flip_depth = config.track_thickness + CUBE_SIZE
 	flip.transition_fraction = 0.15
 	return flip
+
+
+## Mid-air jump ring: same arc as a jump, but it can be tapped while airborne.
+static func _orb() -> ActionDefinition:
+	var orb: ActionDefinition = _action(&"orb", ActionDefinition.Kind.JUMP, 1.0, &"", 0.5, JUMP_COLOR, &"player.jump")
+	orb.air_allowed = true
+	return orb
 
 
 ## Wall covering the middle lane and the lane on `covered_side` (+1 right / -1 left); the gap is opposite.

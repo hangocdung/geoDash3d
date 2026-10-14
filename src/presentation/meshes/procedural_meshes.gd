@@ -1,5 +1,6 @@
-# Procedural meshes for the neon look: track chunks (extruded along TrackPath) and crystal
-# pyramids with barycentric vertex colors for edge glow. Winding is fixed automatically.
+# Procedural meshes for the neon look: track chunks and raised ground (extruded along TrackPath, with
+# optional end caps) and crystal pyramids with barycentric vertex colors for edge glow. Winding is fixed
+# automatically.
 # Related: src/presentation/track/track_view.gd, src/presentation/shaders/neon_wire.gdshader
 class_name ProceduralMeshes
 extends RefCounted
@@ -9,6 +10,7 @@ const BARY_B: Color = Color(0, 1, 0)
 const BARY_C: Color = Color(0, 0, 1)
 const TOP_FACE: Color = Color(1, 0, 0)
 const SIDE_FACE: Color = Color(0, 0, 0)
+const CAP_FACE: Color = Color(0, 1, 0)
 
 
 ## Square pyramid (spike). Origin at the base center, apex at +Y.
@@ -29,9 +31,10 @@ static func pyramid(base_size: float, height: float) -> ArrayMesh:
 	return tool.commit()
 
 
-## Box-section road between two distances. Top face: UV.x across, UV.y distance; sides: UV.x down.
+## Box-section road between two distances, its top `lift` above the track. Top face: UV.x across,
+## UV.y distance; sides and caps: UV.x down from the top edge. Caps close the start/end faces.
 static func track_chunk(track: TrackPath, from_distance: float, to_distance: float, width: float,
-		thickness: float) -> ArrayMesh:
+		thickness: float, lift: float = 0.0, cap_start: bool = false, cap_end: bool = false) -> ArrayMesh:
 	var tool := SurfaceTool.new()
 	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var half_width: float = width * 0.5
@@ -41,10 +44,10 @@ static func track_chunk(track: TrackPath, from_distance: float, to_distance: flo
 	for step: int in range(1, steps + 1):
 		var distance: float = minf(from_distance + float(step) * TrackPath.SAMPLE_SPACING, to_distance)
 		var current: Transform3D = track.transform_at(distance)
-		var near_left: Vector3 = previous * Vector3(0, 0, -half_width)
-		var near_right: Vector3 = previous * Vector3(0, 0, half_width)
-		var far_left: Vector3 = current * Vector3(0, 0, -half_width)
-		var far_right: Vector3 = current * Vector3(0, 0, half_width)
+		var near_left: Vector3 = previous * Vector3(0, lift, -half_width)
+		var near_right: Vector3 = previous * Vector3(0, lift, half_width)
+		var far_left: Vector3 = current * Vector3(0, lift, -half_width)
+		var far_right: Vector3 = current * Vector3(0, lift, half_width)
 		var drop_near: Vector3 = -previous.basis.y * thickness
 		var drop_far: Vector3 = -current.basis.y * thickness
 		var up: Vector3 = current.basis.y
@@ -63,7 +66,23 @@ static func track_chunk(track: TrackPath, from_distance: float, to_distance: flo
 				SIDE_FACE, -up)
 		previous = current
 		previous_distance = distance
+	if cap_start:
+		var start_frame: Transform3D = track.transform_at(from_distance)
+		_add_cap(tool, start_frame, half_width, lift, thickness, -start_frame.basis.x)
+	if cap_end:
+		var end_frame: Transform3D = track.transform_at(to_distance)
+		_add_cap(tool, end_frame, half_width, lift, thickness, end_frame.basis.x)
 	return tool.commit()
+
+
+static func _add_cap(tool: SurfaceTool, frame: Transform3D, half_width: float, lift: float, thickness: float,
+		outward: Vector3) -> void:
+	var top_left: Vector3 = frame * Vector3(0, lift, -half_width)
+	var top_right: Vector3 = frame * Vector3(0, lift, half_width)
+	var bottom_right: Vector3 = frame * Vector3(0, lift - thickness, half_width)
+	var bottom_left: Vector3 = frame * Vector3(0, lift - thickness, -half_width)
+	_add_quad(tool, [top_left, top_right, bottom_right, bottom_left],
+			[Vector2(0, 0), Vector2(0, 1), Vector2(1, 1), Vector2(1, 0)], CAP_FACE, outward)
 
 
 static func _add_quad(tool: SurfaceTool, points: Array[Vector3], uvs: Array[Vector2], color: Color,
