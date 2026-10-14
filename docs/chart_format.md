@@ -93,7 +93,11 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
 `"$GODOT" --headless --path . -s res://tools/charting/tolerance_report.gd -- --chart=res://assets/music/<id>.chart.json`.
 
 ## Quy trình làm chart cho một bài mới
-1. Đặt nhạc vào `assets/music/<id>.mp3`.
+Tạo nhạc bằng các prompt ở `docs/design/music_prompts.md` (tempo cố định, cú đánh rời rạc, motif 1 / 2-và / 3).
+1. Đặt nhạc vào `assets/music/<id>.mp3`. Kiểm tra bài bằng `python tools/charting/hit_grid.py assets/music/<id>.mp3
+   <bpm> <offset>`: dòng cuối phải ≥ 50 % ô nhịp có "X" (cú đánh vừa nổi so với ±1 beat vừa có attack mạnh); lưới in
+   ra chính là chỗ đặt chạm. Sau khi dựng chart, `python tools/charting/tap_salience.py assets/music/<id>.chart.json`
+   phải ra OK.
 2. Phân tích: `blender -b --factory-startup -P tools/audio/analyze_song.py -- assets/music/<id>.mp3 assets/music/<id>.analysis.json`.
    Bước này cho ra BPM, offset (nhịp mạnh đầu tiên), onset theo dải tần và năng lượng từng ô nhịp (để chia đoạn).
 3. Viết `assets/music/<id>.plan.json`: các đoạn, luật mật độ cho từng đoạn, tốc độ, hình dạng đường, camera, VFX.
@@ -103,14 +107,14 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
    `beat:mẫu` (khai báo `"phases": [(beat, palette, units_per_beat)]` trong `SONG`, tool tự sinh `speed`; xem `tools/charting/handmade.py`: bộ kiểm tra báo lỗi nếu người chơi chưa tiếp đất, quá cao, hay lách
    làn/lộn khi không ở đường phẳng). `build()` mặc định thêm biến thể (giữ nguyên nhịp chạm và độ cao đất):
    `spike` xoay vòng gai / cưa / hàng gai theo energy, cứ 2 `orb` đủ chỗ thì 1 thành `borb`, cứ 2 lần `orb` + `drop`
-   từ mặt đường thì 1 thành `dive`. Tắt bằng `build(SONG, STEPS, variety=False)`. Bài nhịp trôi thì đặt chạm theo thời điểm onset thật (vd. neon_arcade_dash_take2).
+   từ mặt đường thì 1 thành `dive`. Tắt bằng `build(SONG, STEPS, variety=False)`. Bài nhịp trôi thì đặt chạm theo thời điểm onset thật.
    Cuối cùng đo độ lệch cố định giữa lần chạm và onset để chỉnh `offset`.
    Bản nháp tự sinh (tham khảo):
    `python tools/charting/terrain_level.py assets/music/<id>.analysis.json --title "<Tên>" --seed 1`.
    Bộ sinh chia đoạn theo năng lượng ô nhịp, đặt mẫu (gai, bậc, hố, chuỗi, vòng nhảy, bệ bật, bậc thang, lách làn,
    lộn) sao cho mọi lần chạm rơi đúng **thời điểm onset thật** (không làm tròn vào lưới nhịp: nhạc AI có thể trôi
    nhịp), chỉ chọn nhịp nhấn rõ (đầu bài top 20% onset mạnh nhất, cuối bài top 40%), độ khó tăng theo tiến độ, tự hạ
-   độ cao. BPM/offset được khớp lại với onset nếu tốt hơn rõ rệt (vd. neon_arcade_dash_take2: 124.5 → 125.9).
+   độ cao. BPM/offset được khớp lại với onset nếu tốt hơn rõ rệt.
    Tự thử seed kế tiếp tới khi độ khó cuối ≥ 1.6× đầu. Đổi `--seed` để có bản khác.
    (`the_dawn_assembly` viết tay bằng cùng thư viện mẫu; `draft_chart.py` + plan chỉ còn cho map classic.)
 5. Chạy test, rồi chụp ảnh hoặc chơi thử: `godot --path . -- --chart=res://assets/music/<id>.chart.json`.
@@ -142,7 +146,7 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
     `<id>.rec.chart.json` từ đầu đoạn. Nút MENU của level quay lại màn RECORD (`LaunchOptions.return_scene`).
   - Kết quả lưu raw (giây + lưới đang chọn; trường `lane` luôn 0) vào `assets/music/<id>.recording.json`.
 - **Dựng level địa hình từ recording (cách nhanh nhất để có level theo ý mình):**
-  `python tools/charting/recording_level.py cyber_rush` (id bài; chạy không tham số để xem danh sách) → `assets/music/<id>.rec.chart.json`
+  `python tools/charting/recording_level.py pulse_drive` (id bài; chạy không tham số để xem danh sách) → `assets/music/<id>.rec.chart.json`
   (tên bài thêm "(Rec)", tự hiện trong menu chọn bài). Lần gõ quyết định *khi nào* nhảy, tool chọn *vật cản gì*:
   - Lượng tử hóa theo lưới đã lưu trong recording (`"grid"`; file cũ không có thì dùng 1/4), giống hình thoi trên timeline.
   - 3 lần gõ cách nhau 0.5 beat thành `trip`, cách nhau 0.75 beat thành `stairs` (`fstairs` ở đoạn mạnh); 2 lần

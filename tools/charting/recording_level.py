@@ -196,7 +196,7 @@ def list_songs():
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("chart", nargs="?",
-                        help="song id (e.g. cyber_rush) or chart path; no argument lists the songs and their recordings")
+                        help="song id (e.g. pulse_drive) or chart path; no argument lists the songs and their recordings")
     parser.add_argument("--recording", help="default: <id>.recording.json next to the chart")
     parser.add_argument("--grid", type=float,
                         help="quantization step in beats (default: the grid saved by the recorder, else 0.25)")
