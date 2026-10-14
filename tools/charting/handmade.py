@@ -98,7 +98,8 @@ class Checker:
 
 
 def build(song, steps):
-    """`song`: id, title, artist, bpm, offset, end_beat, speed, sections, cameras, track, vfx."""
+    """`song`: id, title, artist, bpm, offset, end_beat, speed, sections, cameras, track, vfx; optional audio
+    (mp3 base name when several charts share one song, default id)."""
     level = Level(SpeedMap(song["speed"]))
     checker = Checker(level)
     previous = -100.0
@@ -117,7 +118,7 @@ def build(song, steps):
         "version": 1,
         "title": song["title"],
         "artist": song["artist"],
-        "song": "res://assets/music/%s.mp3" % song["id"],
+        "song": "res://assets/music/%s.mp3" % song.get("audio", song["id"]),
         "offset_sec": song["offset"],
         "end_beat": song["end_beat"],
         "tempo": [{"beat": 0, "bpm": song["bpm"]}],

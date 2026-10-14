@@ -146,5 +146,7 @@ Mỗi feature để `.gd` và `.tscn` cạnh nhau trong cùng thư mục.
 | `assets/music/cyber_rush_take2.mp3` | Người dùng cung cấp 2026-10-14 | **Chưa xác nhận** | 139.98 | 1.324 s |
 | `assets/music/neon_arcade_dash.mp3` | Người dùng cung cấp 2026-10-14 | **Chưa xác nhận** | 124 | 1.258 s |
 | `assets/music/neon_arcade_dash_take2.mp3` | Người dùng cung cấp 2026-10-14 | **Chưa xác nhận** | 125.89 (khớp lại; phân tích báo 124.5) | 1.307 s |
+| `assets/music/tribal_battle_awakening.mp3` | Người dùng cung cấp 2026-10-14 | **Chưa xác nhận** | 150 (phân tích báo nhầm 100) | 0.786 s |
+| `assets/music/tribal_battle_awakening_take2.mp3` | Người dùng cung cấp 2026-10-14 | **Chưa xác nhận** | 150.02 (phân tích báo nhầm 100) | 0.082 s |
 
 Bản trùng audio (chỉ khác metadata) nằm ở `art_source/music_duplicates/` (không commit).
