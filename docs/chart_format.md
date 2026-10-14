@@ -85,11 +85,14 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
    Bước này cho ra BPM, offset (nhịp mạnh đầu tiên), onset theo dải tần và năng lượng từng ô nhịp (để chia đoạn).
 3. Viết `assets/music/<id>.plan.json`: các đoạn, luật mật độ cho từng đoạn, tốc độ, hình dạng đường, camera, VFX.
    Xem bài mẫu `the_dawn_assembly.plan.json`.
-4. Sinh chart: `python tools/audio/draft_chart.py <analysis> <plan> assets/music/<id>.chart.json`.
-   (Bài `the_dawn_assembly` dùng map địa hình viết bằng mẫu: `python tools/charting/the_dawn_assembly_level.py`.
-   `draft_chart.py` chưa sinh địa hình.)
+4. Sinh level địa hình (gameplay v3):
+   `python tools/charting/terrain_level.py assets/music/<id>.analysis.json --title "<Tên>" --seed 1`.
+   Bộ sinh chia đoạn theo năng lượng ô nhịp, đặt mẫu (gai, bậc, hố, chuỗi, vòng nhảy, bệ bật, bậc thang, lách làn,
+   lộn) sao cho mọi lần chạm rơi đúng onset, độ khó tăng theo tiến độ, tự hạ độ cao. Đổi `--seed` để có bản khác.
+   (`the_dawn_assembly` viết tay bằng cùng thư viện mẫu; `draft_chart.py` + plan chỉ còn cho map classic.)
 5. Chạy test, rồi chụp ảnh hoặc chơi thử: `godot --path . -- --chart=res://assets/music/<id>.chart.json`.
-6. Muốn chỉnh thì sửa **plan** rồi sinh lại. Chỉ sửa tay file chart cho những chi tiết cuối cùng.
+6. Kiểm tra dung sai bằng `tolerance_report.gd`; muốn chỉnh thì sửa bộ sinh/seed rồi sinh lại, chỉ sửa tay chart cho
+   chi tiết cuối cùng. Bài mới tự xuất hiện trong menu chọn bài (PLAY / PRACTICE).
 
 ## Đặt hành động bằng tay: record mode, `.sm`, `fixed`
 - **Record mode** (menu RECORD (DEV), chỉ có ở bản debug): bật nhạc rồi gõ theo.

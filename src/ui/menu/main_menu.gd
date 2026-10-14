@@ -1,4 +1,5 @@
-# Title screen: the level runs in attract mode (autoplay, no HUD) behind the menu.
+# Title screen: the level runs in attract mode (autoplay, no HUD) behind the menu. PLAY and PRACTICE
+# first pick a song (SongListPanel); practice then picks a playback speed.
 # If level arguments were passed on the command line (--autoplay, --capture, …) it jumps straight
 # into the level so tooling keeps working. Related: src/ui/scenes.gd, src/presentation/level/level_runner.gd
 class_name MainMenu
@@ -11,7 +12,11 @@ var _menu_column: VBoxContainer
 var _settings_button: Button
 var _settings: SettingsPanel
 var _practice_panel: PanelContainer
+var _play_button: Button
 var _practice_button: Button
+var _song_list: SongListPanel
+## Menu button that opened the current panel (focus returns to it).
+var _panel_opener: Button
 var _root: Control
 
 
@@ -61,8 +66,8 @@ func _build_menu() -> void:
 	var spacer := Control.new()
 	spacer.custom_minimum_size = Vector2(0, 8)
 	_menu_column.add_child(spacer)
-	var play: Button = _add_button("PLAY", func() -> void: Scenes.go_to(get_tree(), Scenes.LEVEL), &"ui.confirm")
-	_practice_button = _add_button("PRACTICE", _open_practice)
+	_play_button = _add_button("PLAY", _open_songs.bind(false), &"ui.confirm")
+	_practice_button = _add_button("PRACTICE", _open_songs.bind(true))
 	_add_button("CALIBRATE AUDIO", func() -> void: Scenes.go_to(get_tree(), Scenes.CALIBRATION))
 	_add_button("SYNC TEST", func() -> void: Scenes.go_to(get_tree(), Scenes.METRONOME))
 	_settings_button = _add_button("SETTINGS", _open_settings)
@@ -70,7 +75,7 @@ func _build_menu() -> void:
 		_add_button("RECORD (DEV)", func() -> void: Scenes.go_to(get_tree(), Scenes.RECORDER))
 	if not OS.has_feature("mobile"):
 		_add_button("QUIT", func() -> void: get_tree().quit())
-	play.grab_focus()
+	_play_button.grab_focus()
 
 
 func _add_button(text: String, action: Callable, sound_id: StringName = &"ui.tap") -> Button:
@@ -97,12 +102,39 @@ func _close_settings() -> void:
 	_settings_button.grab_focus()
 
 
-func _open_practice() -> void:
+func _open_songs(practice: bool) -> void:
+	_panel_opener = _practice_button if practice else _play_button
 	_menu_column.visible = false
+	_song_list = SongListPanel.new()
+	_song_list.heading = "PRACTICE" if practice else "PLAY"
+	_center(_song_list)
+	_song_list.closed.connect(_close_songs)
+	_song_list.chosen.connect(func(chart: String) -> void:
+		if practice:
+			_song_list.visible = false
+			_open_practice(chart)
+		else:
+			LaunchOptions.set_next_run(LaunchOptions.chart_run(chart))
+			Scenes.go_to(get_tree(), Scenes.LEVEL))
+	_root.add_child(_song_list)
+
+
+func _close_songs() -> void:
+	_song_list.queue_free()
+	_song_list = null
+	_menu_column.visible = true
+	_panel_opener.grab_focus()
+
+
+func _center(panel: Control) -> void:
+	panel.set_anchors_preset(Control.PRESET_CENTER)
+	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+
+
+func _open_practice(chart: String) -> void:
 	_practice_panel = PanelContainer.new()
-	_practice_panel.set_anchors_preset(Control.PRESET_CENTER)
-	_practice_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	_practice_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_center(_practice_panel)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 18)
 	_practice_panel.add_child(column)
@@ -113,7 +145,7 @@ Dying restarts from the last one.", 26))
 	for rate: float in PRACTICE_RATES:
 		var button: Button = UiTheme.make_button("SPEED %d%%" % roundi(rate * 100.0), 360.0, 72.0, &"ui.confirm")
 		button.pressed.connect(func() -> void:
-			LaunchOptions.set_next_run(LaunchOptions.practice_run(rate))
+			LaunchOptions.set_next_run(LaunchOptions.practice_run(rate, chart))
 			Scenes.go_to(get_tree(), Scenes.LEVEL))
 		column.add_child(button)
 		if first == null:
@@ -125,8 +157,8 @@ Dying restarts from the last one.", 26))
 	first.grab_focus()
 
 
+## Back to the song list.
 func _close_practice() -> void:
 	_practice_panel.queue_free()
 	_practice_panel = null
-	_menu_column.visible = true
-	_practice_button.grab_focus()
+	_song_list.visible = true

@@ -108,10 +108,17 @@ static func take_next_run() -> LaunchOptions:
 	return next_options
 
 
-static func practice_run(rate: float) -> LaunchOptions:
+static func practice_run(rate: float, chart: String) -> LaunchOptions:
 	var options := LaunchOptions.new()
 	options.practice = true
 	options.playback_rate = rate
+	options.chart_path = chart
+	return options
+
+
+static func chart_run(chart: String) -> LaunchOptions:
+	var options := LaunchOptions.new()
+	options.chart_path = chart
 	return options
 
 

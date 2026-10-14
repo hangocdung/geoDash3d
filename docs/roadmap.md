@@ -61,8 +61,10 @@ Thiết kế: `docs/design/gameplay_v3.md`. **Đã duyệt 2026-10-14: map đị
 - [x] **GD3-083** Map chính `the_dawn_assembly.chart.json` (116 beat, 58 lần chạm) từ
       `tools/charting/the_dawn_assembly_level.py`; `tools/charting/tolerance_report.gd` (dung sai tệ nhất ±90 ms).
       Map cũ giữ ở `the_dawn_assembly.classic.chart.json`.
-- [ ] **GD3-084** Mở rộng map chính ra đủ bài (có dodge/flip ở đoạn đường phẳng), sinh địa hình trong
-      `draft_chart.py`, SFX riêng cho orb/pad.
+- [x] **GD3-084** Bộ sinh level địa hình tự động `tools/charting/terrain_level.py` (thư viện mẫu chung
+      `terrain_patterns.py`, có dodge/flip ở đoạn phẳng): 4 bài mới (cyber_rush, cyber_rush_take2, neon_arcade_dash,
+      neon_arcade_dash_take2), mỗi bài 79–147 lần chạm, dung sai tệ nhất ±90 ms, qua mọi test. Menu chọn bài.
+      Còn lại: map the_dawn_assembly mới phủ 116/224 beat (có thể sinh lại cả bài), SFX riêng cho orb/pad.
 
 ## Phase 4.7 — Cảm giác chơi (đề xuất 2026-10-14, theo thứ tự)
 - [x] **GD3-090** Combo + lá chắn nạp theo combo (16 lần trúng → 1 lá chắn): vật cản vỡ, rơi/đâm bệ thì về quỹ đạo

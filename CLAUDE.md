@@ -55,8 +55,10 @@ GODOT="D:/Godot_v4.6.1-stable_win64.exe/Godot_v4.6.1-stable_win64_console.exe"
 "D:/Programs/Blender/blender.exe" -b --factory-startup -P assets/blender/generate_models.py -- --out assets/models
 # Sinh chart từ phân tích + plan (Python hệ thống); plan có thể dùng recording / fixed
 python tools/audio/draft_chart.py <analysis.json> <plan.json> <out.chart.json>
-# Map chính hiện tại (địa hình, gameplay v3) viết bằng mẫu; dung sai từng lần chạm của một chart
+# Level địa hình tự sinh cho một bài đã phân tích (ghi assets/music/<id>.chart.json); the_dawn_assembly viết tay
+python tools/charting/terrain_level.py assets/music/<id>.analysis.json --title "Tên bài" --seed 1
 python tools/charting/the_dawn_assembly_level.py
+# Dung sai từng lần chạm của một chart
 "$GODOT" --headless --path . -s res://tools/charting/tolerance_report.gd -- --chart=res://assets/music/the_dawn_assembly.chart.json
 # .sm (ArrowVortex/StepMania) → recording
 python tools/charting/sm_to_recording.py <song.sm> <out.recording.json>
@@ -138,3 +140,9 @@ Mỗi feature để `.gd` và `.tscn` cạnh nhau trong cùng thư mục.
 | File | Nguồn | Giấy phép | BPM | Offset |
 |---|---|---|---|---|
 | `assets/music/the_dawn_assembly.mp3` | Google Flow Music (AI) | **Chưa xác nhận dùng thương mại** | 120 | 0.058 s |
+| `assets/music/cyber_rush.mp3` | Người dùng cung cấp 2026-10-14 | **Chưa xác nhận** | 135 | 1.760 s |
+| `assets/music/cyber_rush_take2.mp3` | Người dùng cung cấp 2026-10-14 | **Chưa xác nhận** | 140 | 1.307 s |
+| `assets/music/neon_arcade_dash.mp3` | Người dùng cung cấp 2026-10-14 | **Chưa xác nhận** | 124 | 1.256 s |
+| `assets/music/neon_arcade_dash_take2.mp3` | Người dùng cung cấp 2026-10-14 | **Chưa xác nhận** | 124.5 | 1.327 s |
+
+Bản trùng audio (chỉ khác metadata) nằm ở `art_source/music_duplicates/` (không commit).
