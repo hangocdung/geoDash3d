@@ -88,7 +88,10 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
 4. Sinh level địa hình (gameplay v3):
    `python tools/charting/terrain_level.py assets/music/<id>.analysis.json --title "<Tên>" --seed 1`.
    Bộ sinh chia đoạn theo năng lượng ô nhịp, đặt mẫu (gai, bậc, hố, chuỗi, vòng nhảy, bệ bật, bậc thang, lách làn,
-   lộn) sao cho mọi lần chạm rơi đúng onset, độ khó tăng theo tiến độ, tự hạ độ cao. Đổi `--seed` để có bản khác.
+   lộn) sao cho mọi lần chạm rơi đúng **thời điểm onset thật** (không làm tròn vào lưới nhịp: nhạc AI có thể trôi
+   nhịp), chỉ chọn nhịp nhấn rõ (đầu bài top 20% onset mạnh nhất, cuối bài top 40%), độ khó tăng theo tiến độ, tự hạ
+   độ cao. BPM/offset được khớp lại với onset nếu tốt hơn rõ rệt (vd. neon_arcade_dash_take2: 124.5 → 125.9).
+   Tự thử seed kế tiếp tới khi độ khó cuối ≥ 1.6× đầu. Đổi `--seed` để có bản khác.
    (`the_dawn_assembly` viết tay bằng cùng thư viện mẫu; `draft_chart.py` + plan chỉ còn cho map classic.)
 5. Chạy test, rồi chụp ảnh hoặc chơi thử: `godot --path . -- --chart=res://assets/music/<id>.chart.json`.
 6. Kiểm tra dung sai bằng `tolerance_report.gd`; muốn chỉnh thì sửa bộ sinh/seed rồi sinh lại, chỉ sửa tay chart cho

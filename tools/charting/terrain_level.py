@@ -1,5 +1,7 @@
 """Generates a terrain level (gameplay v3) for any analysed song: sections from bar energy, patterns whose
-taps land on the song's onsets, a difficulty ramp (unlocks, density, speed) and ground-height management.
+taps land exactly on the song's strong onsets (real onset times, not a beat grid: AI songs can drift), a
+difficulty ramp (unlocks, density, speed) and ground-height management. The tempo is re-fitted to the onsets
+when that clearly improves on the analysis.
 
 Usage: python tools/charting/terrain_level.py <id.analysis.json> --title "Song" [--artist A] [--seed N]
        Writes assets/music/<id>.chart.json next to the analysis (or --out PATH).
@@ -16,8 +18,15 @@ import random
 
 from terrain_patterns import Level, SpeedMap, fall_beats
 
-GRID = 0.25
 BAND_WEIGHTS = {"low": 1.0, "mid": 0.85, "high": 0.45}
+## Onsets from different bands closer than this are one hit.
+MERGE_SEC = 0.04
+## A pattern's later taps need a real onset this close to their nominal time.
+FOLLOW_TOLERANCE_SEC = 0.035
+## Strength percentiles a pattern's first tap must reach, from the start of the level to its end, and the
+## percentile its later taps must reach (only clear hits become taps).
+START_PERCENTILE = (0.8, 0.6)
+FOLLOW_PERCENTILE = 0.5
 MAX_HEIGHT = 6.0
 START_BEAT = 8.0
 # Beats of breathing room after a pattern, from the start of the level to its end (the difficulty ramp;
@@ -64,20 +73,61 @@ PATTERNS = [
 ]
 
 
-def onset_grid(analysis):
-    """Strongest weighted onset per 1/4 beat, keyed by grid beat."""
-    seconds_per_beat = 60.0 / analysis["bpm"]
-    grid = {}
-    for band, onsets in analysis["onsets"].items():
-        for time_sec, strength in onsets:
-            beat = (time_sec - analysis["offset_sec"]) / seconds_per_beat
-            snapped = round(beat / GRID) * GRID
-            if abs(snapped - beat) < 0.09:
-                grid[snapped] = max(grid.get(snapped, 0.0), strength * BAND_WEIGHTS.get(band, 0.5))
-    return grid
+def refine_tempo(analysis):
+    """Best BPM (within 2%) and phase for the onsets; kept only if it fits >25% better than the analysis."""
+    points = [(time_sec, strength * (1.0 if band == "low" else 0.6))
+              for band, onsets in analysis["onsets"].items() for time_sec, strength in onsets]
+
+    def fit(bpm):
+        angle = 2.0 * math.pi * bpm / 60.0
+        real = sum(w * math.cos(angle * t) for t, w in points)
+        imag = sum(w * math.sin(angle * t) for t, w in points)
+        return math.hypot(real, imag), math.atan2(imag, real)
+
+    base = analysis["bpm"]
+    base_score, _ = fit(base)
+    best_score, best_bpm = base_score, base
+    for step in range(-400, 401):
+        bpm = base * (1.0 + step * 0.00005)
+        score, _ = fit(bpm)
+        if score > best_score:
+            best_score, best_bpm = score, bpm
+    if best_score < base_score * 1.25:
+        return base, analysis["offset_sec"]
+    seconds_per_beat = 60.0 / best_bpm
+    phase = (fit(best_bpm)[1] / (2.0 * math.pi)) * seconds_per_beat % seconds_per_beat
+    offset = phase + round((analysis["offset_sec"] - phase) / seconds_per_beat) * seconds_per_beat
+    return best_bpm, offset
+
+
+class Onsets:
+    """Merged onsets of all bands as (beat, strength), on the chart's tempo, with strength percentiles."""
+
+    def __init__(self, analysis, bpm, offset):
+        self.seconds_per_beat = 60.0 / bpm
+        hits = sorted((time_sec, strength * BAND_WEIGHTS.get(band, 0.5))
+                      for band, onsets in analysis["onsets"].items() for time_sec, strength in onsets)
+        merged = []
+        for time_sec, strength in hits:
+            if merged and time_sec - merged[-1][0] < MERGE_SEC:
+                if strength > merged[-1][1]:
+                    merged[-1] = (time_sec, strength)
+                continue
+            merged.append((time_sec, strength))
+        self.beats = [(time_sec - offset) / self.seconds_per_beat for time_sec, _ in merged]
+        self.strengths = [strength for _, strength in merged]
+        self._sorted = sorted(self.strengths)
+
+    def percentile(self, fraction):
+        return self._sorted[min(int(fraction * len(self._sorted)), len(self._sorted) - 1)]
+
+    def strength_near(self, beat, tolerance_sec):
+        tolerance = tolerance_sec / self.seconds_per_beat
+        return max((s for b, s in zip(self.beats, self.strengths) if abs(b - beat) <= tolerance), default=0.0)
 
 
 def find_sections(analysis, end_beat):
+    """`analysis["bars"][*]["beat"]` must be on the chart's tempo (see Generator)."""
     """Groups of 4 bars with similar energy, merged into sections; energy normalised to 0.2..1."""
     bars = analysis["bars"]
     loud = max(bar["rms"] for bar in bars) or 1.0
@@ -125,8 +175,15 @@ def level_end(analysis):
 
 class Generator:
     def __init__(self, analysis, seed):
+        self.bpm, self.offset = refine_tempo(analysis)
+        seconds_per_beat = 60.0 / self.bpm
+        # Bars re-timed onto the (possibly refitted) tempo.
+        analysis = dict(analysis)
+        analysis["bars"] = [dict(bar, beat=round((bar["time"] - self.offset) / seconds_per_beat))
+                            for bar in analysis["bars"]]
         self.analysis = analysis
-        self.grid = onset_grid(analysis)
+        self.onsets = Onsets(analysis, self.bpm, self.offset)
+        self.follow_threshold = self.onsets.percentile(FOLLOW_PERCENTILE)
         self.end_beat = level_end(analysis)
         self.sections = find_sections(analysis, self.end_beat)
         length = self.end_beat - START_BEAT
@@ -137,8 +194,9 @@ class Generator:
         self.history = []
         self.counts = {}
 
-    def strength(self, beat):
-        return self.grid.get(round(beat / GRID) * GRID, 0.0)
+    def start_threshold(self, beat):
+        progress = min(max(self.progress(beat), 0.0), 1.0)
+        return self.onsets.percentile(START_PERCENTILE[0] + (START_PERCENTILE[1] - START_PERCENTILE[0]) * progress)
 
     def progress(self, beat):
         return (beat - START_BEAT) / (self.end_beat - START_BEAT)
@@ -150,10 +208,8 @@ class Generator:
     def fits(self, pattern, start, free_from):
         """Taps on onsets, ground allows it, the player is free. Returns the needed drop beat or None/-1."""
         level = self.level
-        energy = section_at(self.sections, start)["energy"]
-        follow_threshold = 0.32 - 0.12 * energy
         for offset in pattern.taps[1:]:
-            if self.strength(start + offset) < follow_threshold:
+            if self.onsets.strength_near(start + offset, FOLLOW_TOLERANCE_SEC) < self.follow_threshold:
                 return None
         earliest = start - 0.3 if pattern.anchor_only else start
         needs_drop = level.ground > 0.0 and (pattern.flat or level.ground + (pattern.rise or 0.0) > MAX_HEIGHT)
@@ -223,19 +279,17 @@ class Generator:
     def run(self):
         self.assign_cameras()
         free_from = START_BEAT
-        beat = START_BEAT
+        next_start = START_BEAT
         stop = self.end_beat - 4.0
-        while beat < stop:
-            # Pattern starts stay on the half-beat grid (the onsets), whatever the landings and drops did.
-            beat = math.ceil(beat / 0.5 - 1e-6) * 0.5
-            intensity = self.intensity(beat)
-            threshold = 0.3 - 0.15 * intensity
-            if self.strength(beat) < threshold or beat < free_from:
-                beat += 0.5
+        # Every pattern starts on a real onset: walk them in time order.
+        for onset_beat, onset_strength in zip(self.onsets.beats, self.onsets.strengths):
+            beat = round(onset_beat, 4)
+            if beat >= stop:
+                break
+            if beat < next_start or beat < free_from - 0.3 or onset_strength < self.start_threshold(beat):
                 continue
             choice = self.choose(beat, free_from)
             if choice is None:
-                beat += 0.5
                 continue
             pattern, drop = choice
             if drop >= 0.0:
@@ -243,16 +297,16 @@ class Generator:
             self.place(pattern, beat)
             rest = REST_START + (REST_END - REST_START) * min(self.progress(beat), 1.0)
             free_from = beat + pattern.busy
-            beat = free_from + rest
+            next_start = free_from + rest
             # Come back down now and then, on the beat the player lands.
             height = self.level.ground
             if height >= 4.0 or (height > 0.0 and self.random.random() < 0.1):
-                drop_at = max(free_from, beat - 1.0)
+                drop_at = max(free_from, next_start - 1.0)
                 landed = drop_at + fall_beats(height) + PLAYER_HALF_BEATS + 0.25
                 if landed < stop:
                     self.level.drop(drop_at)
                     free_from = landed
-                    beat = max(beat, free_from)
+                    next_start = max(next_start, free_from)
         return self.level
 
     def assign_cameras(self):
@@ -295,9 +349,9 @@ def build_chart(analysis, title, artist, seed):
         "title": title,
         "artist": artist,
         "song": "res://assets/music/%s.mp3" % song_id,
-        "offset_sec": round(analysis["offset_sec"], 4),
+        "offset_sec": round(generator.offset, 4),
         "end_beat": generator.end_beat,
-        "tempo": [{"beat": 0, "bpm": round(analysis["bpm"], 3)}],
+        "tempo": [{"beat": 0, "bpm": round(generator.bpm, 3)}],
         "speed": [{"beat": beat, "units_per_beat": rate} for beat, rate in generator.speed_keys],
         "sections": [{"beat": s["beat"], "name": s["name"], "energy": s["energy"]} for s in generator.sections],
         "track": track,
@@ -306,6 +360,8 @@ def build_chart(analysis, title, artist, seed):
     }, generator
 
 
+MAX_SEED_TRIES = 20
+RAMP_MARGIN = 1.6
 # Same weights as tests/gameplay/test_shipped_charts.gd (last quarter must exceed 1.5x the first).
 DIFFICULTY_WEIGHTS = {"jump": 1.0, "orb": 1.0, "dodge_left": 1.25, "dodge_right": 1.25, "flip": 1.75}
 
@@ -335,16 +391,22 @@ def main():
     args = parser.parse_args()
     with open(args.analysis, encoding="utf-8") as handle:
         analysis = json.load(handle)
-    chart, generator = build_chart(analysis, args.title, args.artist, args.seed)
+    # Try consecutive seeds until the difficulty ramp has a safe margin over the test's 1.5x.
+    for seed in range(args.seed, args.seed + MAX_SEED_TRIES):
+        chart, generator = build_chart(analysis, args.title, args.artist, seed)
+        first, last = quarter_difficulty(chart, generator)
+        if last >= RAMP_MARGIN * first:
+            break
+    else:
+        raise SystemExit("no seed in %d..%d gives a difficulty ramp of %.1fx" % (args.seed, seed, RAMP_MARGIN))
     out_path = args.out or args.analysis.replace(".analysis.json", ".chart.json")
     with open(out_path, "w", encoding="utf-8", newline="\n") as handle:
         json.dump(chart, handle, indent="\t")
         handle.write("\n")
     taps = sum(1 for event in chart["events"] if event["type"] in DIFFICULTY_WEIGHTS)
     counts = ", ".join("%s %d" % item for item in sorted(generator.counts.items()))
-    first, last = quarter_difficulty(chart, generator)
-    print("wrote %s: %d beats, %d taps, %d sections, difficulty first/last quarter %.0f/%.0f (%s)" % (
-        out_path, chart["end_beat"], taps, len(chart["sections"]), first, last, counts))
+    print("wrote %s (seed %d): %.2f BPM (analysis %.2f), %d beats, %d taps, difficulty first/last quarter %.0f/%.0f (%s)" % (
+        out_path, seed, generator.bpm, analysis["bpm"], chart["end_beat"], taps, first, last, counts))
 
 
 if __name__ == "__main__":
