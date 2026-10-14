@@ -64,7 +64,8 @@ func _ready() -> void:
 		hud.show_message("Cannot load chart or song:\n%s" % path)
 		return
 	var song_end_beat: float = chart.beat_at_time(_stream.get_length())
-	_context = LevelContext.new(chart, config, TrackPath.build(chart, song_end_beat), UserSettings.quality_tier)
+	var flatten: bool = not QualityTier.uses_spectacle_track(UserSettings.quality_tier)
+	_context = LevelContext.new(chart, config, TrackPath.build(chart, song_end_beat, flatten), UserSettings.quality_tier)
 	QualityTier.apply_to_viewport(get_viewport(), UserSettings.quality_tier)
 	for view: Node in [environment_director, track_view, decor_view, obstacle_view, player_view, camera_director,
 			vfx_director]:

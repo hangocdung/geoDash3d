@@ -131,13 +131,16 @@ Người dùng cho phép **trời tông ấm** ở vài phase; camera trong vòn
       cổng vòng — biến thể của gai / trần gai / tường / cổng (cùng cách vượt), chuyển động theo beat. Tool đặt màn tự xen
       kẽ; sinh lại mọi chart: nhịp chạm và dung sai không đổi. Test trong `test_obstacles.gd`. Thiết kế:
       `docs/design/gameplay_v3.md` mục 10. Dùng lại SFX vào sân có sẵn (`hazard.rise/drop/unfold`).
-- [~] **GD3-105** Hiệu năng. Không có điện thoại cắm lúc làm → đo trên PC (Mobile renderer, không vsync, A-B-B-A, Pulse
-      Drive): LOW trong mức nhiễu (−1.6 % / +16 % theo đoạn), HIGH chậm ~0.06 ms/frame (texture chi tiết). Draw call đo
-      tất định tại 34 thời điểm: trước phiên 51.6, bản đầu tiên của phiên cao hơn 12–35 ở đoạn xoắn ốc → tối ưu: model 1
-      draw call (vai trò mặt trong vertex color, shader `neon_model`), lưới/hàng rào laser là một mesh, mặt đường giữa các
-      hố và bệ gộp theo đoạn 48 đơn vị → **54.1** (+5 %). **Còn lại:** đo trên Note10 Lite:
-      `bash tools/device/perf_ab.sh build/ab_base.apk build/ab_new.apk "--start-beat=128 --chart=res://assets/music/pulse_drive.chart.json"`
-      (`ab_base` = commit 18c21a9 trước phiên). Nếu MEDIUM tụt, tắt texture chi tiết ở MEDIUM (`QualityTier.uses_detail_textures`).
+- [x] **GD3-105** Hiệu năng.
+      - PC (Mobile renderer, A-B-B-A): draw call đo tất định tại 34 thời điểm của Pulse Drive. Trước phiên: 51.6. Bản đầu
+        của phiên cao hơn 12–35 ở đoạn xoắn ốc. Sau tối ưu (model 1 draw call nhờ vai trò mặt trong vertex color + shader
+        `neon_model`, lưới/hàng rào laser một mesh, mặt đường giữa các hố và bệ gộp theo đoạn 48 đơn vị): **54.1**.
+      - Note10 Lite (máy nguội, `perf_ab.sh`, Pulse Drive từ beat 128, A-B-B-A): bản đầu tụt ở LOW 57.6 → 52.5 FPS, chỉ
+        trong xoắn ốc (49.5 so với 56.5). Đo bằng cờ: trời (+4 FPS so với bản cũ — camera xoay liên tục làm mất transaction
+        elimination) và đường (+4, thấy nhiều vòng xoắn). Vật cản, vòng co dần, hạt: không đáng kể.
+        → Ở LOW `TrackPath.build(..., flatten)` duỗi xoắn ốc (giữ độ cao), vòng lộn, cuộn, bỏ nghiêng cua
+        (`QualityTier.uses_spectacle_track`). Kết quả: **LOW 57.05 → 56.8 FPS, MEDIUM 40.4 → 40.05 FPS** (trong nhiễu),
+        frame tệ nhất tốt hơn (33–38 ms so với 33–50 ms). Cờ `--perf=nodetail` để đo riêng texture chi tiết.
 
 ## Phase 5 — Mobile
 - [x] **GD3-050** Export Android (`export_presets.cfg`, arm64, debug keystore), cài và đo trên Galaxy Note10 Lite

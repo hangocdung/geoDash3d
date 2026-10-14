@@ -108,3 +108,20 @@ func test_shipped_tracks_never_run_into_themselves() -> void:
 		var overlap: float = TrackClearance.new(path).find_self_overlap(config.track_width * 0.5)
 		assert_true(is_nan(overlap), "%s: track runs into itself at beat %.1f" % [file_name,
 				chart.beat_at_distance(overlap) if not is_nan(overlap) else 0.0])
+
+
+func test_low_tier_flattens_camera_turning_shapes() -> void:
+	var chart: LevelChart = _chart_with_track([{"beat": 0, "shape": "straight"},
+			{"beat": 4, "shape": "helix", "angle_deg": 360, "rise": 18}, {"beat": 20, "shape": "loop", "lateral": 7},
+			{"beat": 32, "shape": "roll"}, {"beat": 40, "shape": "turn", "angle_deg": 90, "bank_deg": 25},
+			{"beat": 44, "shape": "straight"}])
+	var flat: TrackPath = TrackPath.build(chart, -INF, true)
+	var distance: float = 0.0
+	while distance < SPEED * 48.0:
+		assert_true(flat.is_upright_at(distance, 0.9), "road stays upright at %.1f" % distance)
+		distance += 2.0
+	assert_almost_eq(flat.transform_at(SPEED * 20.0).origin.y, 18.0, 0.1, "the helix still climbs")
+	assert_vec3_almost_eq(flat.transform_at(SPEED * 12.0).basis.x.normalized() * Vector3(1, 0, 1),
+			Vector3.RIGHT * flat.transform_at(SPEED * 12.0).basis.x.normalized().x, 0.01, "no yaw during the helix")
+	assert_vec3_almost_eq(flat.transform_at(SPEED * 46.0).basis.x, Vector3.FORWARD, 0.01, "turns keep their heading")
+	assert_eq(chart.track_segments[1].shape, ChartItems.TrackSegment.Shape.HELIX, "the chart itself is untouched")

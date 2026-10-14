@@ -72,7 +72,8 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   Y = lên, Z = bên phải (phía camera side). Ngoài hai đầu thì ngoại suy thẳng. `upright_transform_at` chỉ theo hướng
   (cho cảnh nền), `is_upright_at` (cột đỡ, cầu gai). `TrackClearance`: lưới ô 8 đơn vị để tìm chỗ đường tự cắt
   (test) và kiểm tra cột đỡ không xuyên qua đoạn đường bên dưới. Camera bám frame (xoay theo vòng lộn/cuộn, người
-  dùng chọn 2026-10-14).
+  dùng chọn 2026-10-14). Ở LOW `LevelRunner` dựng đường với `flatten` (`TrackPath.flattened_segments`, theo
+  `QualityTier.uses_spectacle_track`): đo trên Mali-G72, xoắn ốc tốn 5–7 FPS ở LOW.
 - **Terrain** (`track/terrain.gd`, gameplay v3): độ cao mặt đất theo quãng đường, dạng bậc, có `GAP`. Xây trong
   `LevelChart.finalize()` từ mục `terrain` của chart. Truy vấn: `support_height`, `surface_height_at` (cho hình ảnh),
   `smoothed_height_at` (trung bình chính xác, liên tục, cho camera). Chi tiết: `docs/design/gameplay_v3.md`.

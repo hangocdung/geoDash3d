@@ -30,7 +30,8 @@ var _yaws: PackedFloat32Array = []
 
 
 ## `min_end_beat`: build at least this far (the end of the song, so a short chart's outro still has road).
-static func build(chart: LevelChart, min_end_beat: float = -INF) -> TrackPath:
+## `flatten`: no shape that keeps the camera turning (low quality tier): see flattened_segments().
+static func build(chart: LevelChart, min_end_beat: float = -INF, flatten: bool = false) -> TrackPath:
 	var path := TrackPath.new()
 	var last_beat: float = maxf(chart.end_beat + LEAD_OUT_BEATS, min_end_beat)
 	path.start_distance = chart.distance_at(-LEAD_IN_BEATS)
@@ -41,8 +42,28 @@ static func build(chart: LevelChart, min_end_beat: float = -INF) -> TrackPath:
 		var next_beat: float = chart.track_segments[index + 1].beat if index + 1 < chart.track_segments.size() \
 				else last_beat
 		ranges.append(Vector2(segment_start, chart.distance_at(next_beat)))
-	path._integrate(chart.track_segments, ranges)
+	path._integrate(flattened_segments(chart.track_segments) if flatten else chart.track_segments, ranges)
 	return path
+
+
+## Copies of `segments` without the shapes that keep the camera turning: a helix keeps its climb but only its
+## heading change beyond whole turns, loops and rolls run straight, turns lose their bank. Measured on a Mali-G72
+## phone at LOW: a helix cost 5-7 FPS (more road on screen, and a rotating sky defeats transaction elimination).
+static func flattened_segments(segments: Array[ChartItems.TrackSegment]) -> Array[ChartItems.TrackSegment]:
+	var result: Array[ChartItems.TrackSegment] = []
+	for segment: ChartItems.TrackSegment in segments:
+		var copy := ChartItems.TrackSegment.new(segment.beat, segment.shape)
+		copy.angle_deg = segment.angle_deg
+		copy.rise = segment.rise
+		copy.amplitude = segment.amplitude
+		copy.count = segment.count
+		match segment.shape:
+			ChartItems.TrackSegment.Shape.HELIX:
+				copy.angle_deg = fmod(segment.angle_deg, 360.0)
+			ChartItems.TrackSegment.Shape.LOOP, ChartItems.TrackSegment.Shape.ROLL:
+				copy.shape = ChartItems.TrackSegment.Shape.STRAIGHT
+		result.append(copy)
+	return result
 
 
 func sample_count() -> int:

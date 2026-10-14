@@ -79,6 +79,12 @@ static func uses_detail_textures(tier: Tier) -> bool:
 	return tier != Tier.LOW
 
 
+## Helices, loops, rolls and banked turns. Off on LOW (TrackPath.build flattens them): measured on a Mali-G72
+## phone, a helix cost 5-7 FPS there; gameplay is unchanged (collision lives in track space).
+static func uses_spectacle_track(tier: Tier) -> bool:
+	return tier != Tier.LOW
+
+
 ## Phase palette changes blend over a beat; on LOW they switch on one frame (a sky that changes every frame
 ## costs ~3 FPS there, see uses_sky_pulse), hidden under the phase flash.
 static func blends_phase_changes(tier: Tier) -> bool:

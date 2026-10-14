@@ -38,3 +38,5 @@ static func apply(runner: LevelRunner, flags: PackedStringArray) -> void:
 				runner.obstacle_view.visible = false
 			"notrack":
 				runner.track_view.visible = false
+			"nodetail":
+				RenderingServer.global_shader_parameter_set(&"detail_textures", 0.0)
