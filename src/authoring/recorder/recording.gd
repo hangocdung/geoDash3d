@@ -12,6 +12,8 @@ const BUILT_CHART_SUFFIX: String = ".rec"
 var tap_times: PackedFloat64Array = []
 var tap_lanes: PackedInt32Array = []
 var song_path: String = ""
+## Grid the notes were placed on in the recorder; recording_level.py quantizes with it (what you see is what you get).
+var grid_beats: float = 0.5
 
 
 static func path_for_chart(chart_path: String) -> String:
@@ -28,6 +30,8 @@ static func load_file(path: String) -> Recording:
 		return recording
 	var root: Dictionary = data as Dictionary
 	recording.song_path = str(root.get("song", ""))
+	# Older recordings have no grid: they were quantized at 1/4 beat.
+	recording.grid_beats = float(root.get("grid", 0.25))
 	for entry: Variant in root.get("taps", []) as Array:
 		if typeof(entry) != TYPE_DICTIONARY:
 			continue
@@ -44,7 +48,7 @@ func save_file(path: String) -> Error:
 	if file == null:
 		push_error("Recording: cannot write '%s' (%s)" % [path, error_string(FileAccess.get_open_error())])
 		return FileAccess.get_open_error()
-	file.store_string(JSON.stringify({"version": VERSION, "song": song_path, "taps": taps}, "\t") + "\n")
+	file.store_string(JSON.stringify({"version": VERSION, "song": song_path, "grid": grid_beats, "taps": taps}, "\t") + "\n")
 	return OK
 
 

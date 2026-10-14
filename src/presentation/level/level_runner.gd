@@ -229,7 +229,7 @@ func _connect_hud() -> void:
 	hud.run_menu.menu_pressed.connect(func() -> void:
 		song_clock.stop()
 		_learn_sync()
-		Scenes.go_to(get_tree(), Scenes.MAIN_MENU))
+		Scenes.go_to(get_tree(), options.return_scene))
 
 
 func _apply_volume() -> void:

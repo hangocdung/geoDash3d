@@ -103,18 +103,26 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
    chi tiết cuối cùng. Bài mới tự xuất hiện trong menu chọn bài (PLAY / PRACTICE).
 
 ## Đặt hành động bằng tay: record mode, `.sm`, `fixed`
-- **Record mode** (menu RECORD (DEV) → chọn bài, chỉ có ở bản debug): bật nhạc rồi gõ theo.
-  - Phím: Space/J = làn 0 (AUTO), K = làn 1 (WALL, tường 2 làn), L = làn 2 (GATE, cổng lộn).
-  - `-`/`=` chỉnh tốc độ 25/50/75/100%. Khi chậm, nhạc vẫn giữ cao độ (`PitchKeeper`: hiệu ứng pitch shift trên bus
-    `Music`, độ trễ của hiệu ứng được cộng vào calibration).
-  - Backspace để undo, X để xóa từ vị trí hiện tại trở đi, G để đổi lưới, ←/→ tua 2 ô nhịp, `,`/`.` tua 1 beat.
-  - Lặp A–B: A đặt đầu, B đặt cuối, C bỏ lặp, R xóa note trong vùng lặp để gõ lại.
-  - Khi tạm dừng (P): click để tua tới đó và chọn note gần nhất, chuột phải để xóa note, lăn chuột để tua theo lưới,
-    Tab/Shift+Tab để chọn note kế tiếp/trước, Shift+←/→ để dời note theo lưới, J/K/L để đổi làn, Del để xóa.
-  - Kết quả lưu raw (giây + làn) vào `assets/music/<id>.recording.json`.
+- **Record mode** (menu RECORD (DEV) → chọn bài, chỉ có ở bản debug), mọi chức năng đều có nút trên màn hình:
+  - Bài được chia thành **đoạn** (mỗi section cắt thành khúc 16 beat, khúc lẻ < 6 beat gộp vào khúc trước), chọn
+    trên dải đoạn ở trên. Timeline hiển thị trọn đoạn đang soạn; LOOP lặp đoạn, PRE-ROLL phát trước 1 ô nhịp.
+  - Tốc độ 25/50/75/100% (mặc định 50%). Khi chậm, nhạc vẫn giữ cao độ (`PitchKeeper`: hiệu ứng pitch shift trên
+    bus `Music`, độ trễ của hiệu ứng được cộng vào calibration).
+  - Đang phát: J/Space = AUTO, K = WALL (tường 2 làn), L = GATE (cổng lộn), hoặc bấm 3 pad lớn. REC tắt thì chỉ nghe.
+    Đang dừng: pad/phím thêm note tại đầu phát (đã snap lưới).
+  - Timeline: click hoặc kéo chỗ trống để tua (phát tiếp từ đó nếu đang phát), kéo note để dời (theo lưới và làn),
+    double-click để thêm note, chuột phải để xóa.
+  - Sửa: UNDO/REDO (Ctrl+Z/Y), DELETE, SET LANE, CLEAR SEGMENT, **ALIGN TIMING** (dời các note trong đoạn sao cho
+    lệch trung bình so với lưới bằng 0; dùng khi gõ trễ/sớm đều, nên chọn lưới 1/1 hoặc 1/2).
+  - Phím tắt: P/Enter phát/dừng, ←/→ 1 beat, Shift+←/→ dời note, PgUp/PgDn đổi đoạn, Home về đầu đoạn, Tab chọn note,
+    G lưới, `-`/`=` tốc độ, S lưu, Esc lưu và thoát.
+  - **BUILD & PLAY SEGMENT** (desktop, cần `python` trong PATH): lưu, chạy `recording_level.py`, rồi chơi thử
+    `<id>.rec.chart.json` từ đầu đoạn. Nút MENU của level quay lại màn RECORD (`LaunchOptions.return_scene`).
+  - Kết quả lưu raw (giây + làn + lưới đang chọn) vào `assets/music/<id>.recording.json`.
 - **Dựng level địa hình từ recording (cách nhanh nhất để có level theo ý mình):**
   `python tools/charting/recording_level.py cyber_rush` (id bài; chạy không tham số để xem danh sách) → `assets/music/<id>.rec.chart.json`
   (tên bài thêm "(Rec)", tự hiện trong menu chọn bài). Lần gõ quyết định *khi nào* nhảy, tool chọn *vật cản gì*:
+  - Lượng tử hóa theo lưới đã lưu trong recording (`"grid"`; file cũ không có thì dùng 1/4), giống hình thoi trên timeline.
   - 3 lần gõ cách nhau 0.5 beat thành `trip`, cách nhau 0.75 beat thành `stairs` (`fstairs` ở đoạn mạnh); 2 lần
     cách nhau 0.5 beat thành `orb`. Các lần còn lại: làn AUTO xoay vòng spike/gap/step theo `energy` của đoạn,
     WALL thành `dl`/`dr` xen kẽ, GATE thành `flip`.

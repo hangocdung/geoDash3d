@@ -1,5 +1,6 @@
-# Recorder note editing: picking, nudging on the grid, lanes, loop re-record, and the shared recording path
-# of levels built from a recording. Related: src/authoring/recorder/recording_editor.gd, recording.gd
+# Recorder note editing: picking, nudging/adding/moving on the grid, lanes, clearing a segment, undo/redo,
+# and the shared recording path of levels built from a recording.
+# Related: src/authoring/recorder/recording_editor.gd, recording.gd
 extends TestCase
 
 
@@ -55,25 +56,57 @@ func test_lane_and_delete() -> void:
 	assert_eq(editor.selected, 0)
 
 
-func test_loop_clears_only_its_taps() -> void:
+func test_clear_range_only_touches_its_taps() -> void:
 	var editor: RecordingEditor = _make_editor([1.0, 2.0, 3.0, 4.0])
-	editor.set_loop_start(2.0)
-	assert_false(editor.has_loop())
-	assert_eq(editor.clear_loop_taps(), 0)
-	editor.set_loop_end(4.0)
-	assert_true(editor.has_loop())
-	assert_eq(editor.clear_loop_taps(), 2)
+	assert_eq(editor.clear_range(5.0, 6.0), 0)
+	assert_false(editor.can_undo(), "nothing removed, no undo step")
+	assert_eq(editor.clear_range(2.0, 4.0), 2)
 	assert_eq(editor.recording.tap_times, PackedFloat64Array([1.0, 4.0]))
 
 
-func test_loop_end_before_start_is_rejected() -> void:
-	var editor: RecordingEditor = _make_editor([])
-	editor.set_loop_start(3.0)
-	expect_errors(1)
-	editor.set_loop_end(2.0)
-	assert_false(editor.has_loop())
+func test_add_and_move_snap_to_the_grid() -> void:
+	var editor: RecordingEditor = _make_editor([1.0])
+	editor.add_tap(1.6, 2, 0.5)
+	assert_almost_eq(editor.selected_time(), 1.5, 0.000001, "beat 3.2 snaps to 3")
+	assert_eq(editor.recording.tap_lanes[editor.selected], 2)
+	assert_true(editor.move_selected(0.3, 1, 0.5))
+	assert_eq(editor.selected, 0, "moved before the tap at 1.0 s")
+	assert_almost_eq(editor.selected_time(), 0.25)
+	assert_eq(editor.recording.tap_lanes[0], 1)
+
+
+func test_undo_redo_restores_taps_and_selection() -> void:
+	var editor: RecordingEditor = _make_editor([1.0, 2.0])
+	editor.record_tap(1.5, 0)
+	editor.selected = 2
+	editor.delete_selected()
+	assert_eq(editor.recording.count(), 2)
+	assert_true(editor.undo())
+	assert_eq(editor.recording.count(), 3)
+	assert_eq(editor.selected, 2, "selection comes back with the deleted tap")
+	assert_true(editor.undo())
+	assert_eq(editor.recording.tap_times, PackedFloat64Array([1.0, 2.0]))
+	assert_false(editor.undo())
+	assert_true(editor.redo())
+	assert_true(editor.redo())
+	assert_eq(editor.recording.tap_times, PackedFloat64Array([1.0, 1.5]))
+	editor.record_tap(3.0, 0)
+	assert_false(editor.can_redo(), "a new edit drops the redo history")
 
 
 func test_built_level_shares_the_source_recording() -> void:
 	assert_eq(Recording.path_for_chart("res://assets/music/song.chart.json"), "res://assets/music/song.recording.json")
 	assert_eq(Recording.path_for_chart("res://assets/music/song.rec.chart.json"), "res://assets/music/song.recording.json")
+
+
+func test_align_removes_a_steady_delay() -> void:
+	# Taps 0.1 s (0.2 beat) late around beats 2, 4 and 6, plus one tap outside the range.
+	var editor: RecordingEditor = _make_editor([1.1, 2.08, 3.12, 9.1])
+	var shift: float = editor.align_range(0.0, 5.0, 1.0)
+	assert_almost_eq(shift, -0.1, 0.005)
+	assert_almost_eq(editor.recording.tap_times[0], 1.0, 0.005)
+	assert_almost_eq(editor.recording.tap_times[2], 3.02, 0.005)
+	assert_almost_eq(editor.recording.tap_times[3], 9.1, 0.000001, "outside the range")
+	assert_true(editor.undo())
+	assert_almost_eq(editor.recording.tap_times[0], 1.1)
+	assert_almost_eq(editor.align_range(20.0, 30.0, 1.0), 0.0, 0.000001, "no taps, no shift")

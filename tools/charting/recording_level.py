@@ -5,7 +5,7 @@ two taps 0.5 apart -> orb; any other tap is one obstacle: lane 0 (Space/J) = aut
 two-lane wall, lane 2 (L) = gate. Ledges are left with a drop where there is room (always before walls/gates).
 Every choice goes through handmade.Checker (the rules of hand-written levels); a tap that fits nothing is
 skipped with a warning. Tempo, speed, sections, track, cameras and vfx are copied from the source chart.
-Usage: python tools/charting/recording_level.py [<id> or chart path] [--grid=0.25] [--out=<path>] (no id: list songs)
+Usage: python tools/charting/recording_level.py [<id> or chart path] [--grid=0.5] [--out=<path>] (no id: list songs)
 Writes assets/music/<id>.rec.chart.json (listed in the song menu). Related: handmade.py, src/authoring/recorder/
 """
 import argparse
@@ -50,9 +50,7 @@ class Tempo:
         return 0.0
 
 
-def load_taps(path, tempo, grid, end_beat, warnings):
-    with open(path, encoding="utf-8") as handle:
-        recording = json.load(handle)
+def load_taps(recording, tempo, grid, end_beat, warnings):
     taps = {}
     for tap in recording.get("taps", []):
         beat = round(tempo.beat_at(float(tap["time_sec"])) / grid) * grid
@@ -133,11 +131,13 @@ class Builder:
                 if height < level.ground and self.try_apply(start, name, beat):
                     return
 
-    def place(self, index, options):
+    def place(self, index, options, skip_blocker=False):
         beat = self.taps[index][0]
-        for name, count in options:
-            if self.try_apply(beat, name, self.deadline(index + count)):
-                return name, count
+        if not skip_blocker:
+            for name, count in options:
+                if self.try_apply(beat, name, self.deadline(index + count)):
+                    return name, count
+            return None
         # A stray tap right after this one (double tap, early finger) blocks every pattern: drop that one instead.
         for name, count in options:
             blocker = index + count
@@ -162,6 +162,8 @@ class Builder:
                 # Too high for every pattern: leave the ledge first, then try again.
                 self.drop_before(beat, False, force=True)
                 chosen = self.place(index, options)
+            if chosen is None:
+                chosen = self.place(index, options, skip_blocker=True)
             if chosen is None:
                 busy = self.checker.free > beat + EPSILON
                 self.warnings.append("beat %.2f: tap skipped, %s" % (beat, (
@@ -205,7 +207,8 @@ def main():
     parser.add_argument("chart", nargs="?",
                         help="song id (e.g. cyber_rush) or chart path; no argument lists the songs and their recordings")
     parser.add_argument("--recording", help="default: <id>.recording.json next to the chart")
-    parser.add_argument("--grid", type=float, default=0.25, help="quantization step in beats")
+    parser.add_argument("--grid", type=float,
+                        help="quantization step in beats (default: the grid saved by the recorder, else 0.25)")
     parser.add_argument("--out", help="default: <id>.rec.chart.json next to the chart")
     args = parser.parse_args()
     if args.chart is None:
@@ -226,7 +229,10 @@ def main():
         sys.exit("no recording at %s: open RECORD (DEV), pick this song, tap along and press S (or Esc) to save"
                  % recording_path)
     warnings = []
-    taps = load_taps(recording_path, Tempo(chart), args.grid, float(chart["end_beat"]), warnings)
+    with open(recording_path, encoding="utf-8") as handle:
+        recording = json.load(handle)
+    grid = args.grid or float(recording.get("grid", 0.25))
+    taps = load_taps(recording, Tempo(chart), grid, float(chart["end_beat"]), warnings)
     recorded = len(taps)
     builder = Builder(chart, taps, warnings)
     builder.build()

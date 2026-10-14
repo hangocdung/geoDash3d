@@ -34,6 +34,8 @@ var attract_mode: bool = false
 ## Practice: checkpoints, restart from the last one, optional slower playback.
 var practice: bool = false
 var playback_rate: float = 1.0
+## Scene the level's MENU button returns to (the recorder's play-test comes back to the recorder).
+var return_scene: String = Scenes.MAIN_MENU
 
 ## Options handed from a menu to the next level scene (consumed once).
 static var _next_run: LaunchOptions
@@ -119,6 +121,14 @@ static func practice_run(rate: float, chart: String) -> LaunchOptions:
 static func chart_run(chart: String) -> LaunchOptions:
 	var options := LaunchOptions.new()
 	options.chart_path = chart
+	return options
+
+
+## Play-test from the recorder: starts at `beat`, MENU goes back to the recorder.
+static func recorder_test_run(chart: String, beat: float) -> LaunchOptions:
+	var options := chart_run(chart)
+	options.start_beat = beat
+	options.return_scene = Scenes.RECORDER
 	return options
 
 
