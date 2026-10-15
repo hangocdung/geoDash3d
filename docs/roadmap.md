@@ -170,6 +170,12 @@ Người dùng cho phép **trời tông ấm** ở vài phase; camera trong vòn
       Cùng lần đo, bản trước phiên: LOW 59.75, MEDIUM 47.7 FPS → MEDIUM vẫn thấp hơn ~1.9 FPS khi chưa có LED (đã bỏ
       texture chi tiết ở MEDIUM); **cần tìm tiếp** (đo theo cờ trên cả hai bản).
 
+- [x] **GD3-110** Bài test "Pulse Drive (LED)" (`tools/charting/led_level.py`): chạm đúng lúc dàn LED bật vọt (tổng mức
+      tăng của 16 dải so với ~20–80 ms trước, 100 khung/s, khớp vào onset gần nhất, bài nằm đúng lưới thì đặt vào ô 1/4
+      phách) + đoạn dồn dập: chuỗi 3 lần bật vọt cách đều 1/2, 3/4 hoặc 1 phách ở đoạn mạnh được giữ nguyên (chuỗi vòng
+      nhảy, bậc thang, nhảy liên tiếp), tối đa 1 chuỗi mỗi 8 beat. 252 lần chạm (bản đặt tay 148), 29 chuỗi, dung sai
+      ±90 ms; độ nổi ×1.58 / attack ×2.50 (bản đặt tay ×2.03 / ×3.16). **→ Cần người dùng chơi thử so với bản đặt tay.**
+
 ## Phase 5 — Mobile
 - [x] **GD3-050** Export Android (`export_presets.cfg`, arm64, debug keystore), cài và đo trên Galaxy Note10 Lite
       (Mali-G72, Vulkan Mobile). Đo bằng `PerfProbe` + `tools/device/perf_matrix.sh`. Kết quả, khi máy đang ấm

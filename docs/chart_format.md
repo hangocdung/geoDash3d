@@ -108,6 +108,8 @@ Tạo nhạc bằng các prompt ở `docs/design/music_prompts.md` (tempo cố �
    (`hit_level.DIFFICULTY`), tỉa đầu bài để cuối khó hơn ≥ 1.7 lần, khớp offset trên cú đánh mạnh (`fit_tempo.py` khi
    phân tích báo sai BPM), chia đoạn theo ô nhịp gần lặng và độ to, đặt phase ngay sau ô lặng, tự xếp hình đường /
    camera / vfx; vật cản do `recording_level.Builder` chọn (cùng ràng buộc với level viết tay).
+   Biến thể theo dàn LED: `tools/charting/led_level.py` (vd. `levels/pulse_drive_led.py`) chạm lúc LED bật vọt và thêm
+   đoạn dồn dập; `"audio"` dùng chung mp3 với chart gốc, `"grid": 0.25` khi bài nằm đúng lưới.
 5. **Đặt tay** (cách chính cho bài cần chăm chút, người dùng yêu cầu 2026-10-14 vì bản tự sinh không khớp nhạc): in lưới onset theo dải
    tần (kick / snare / hi-hat) từng ô nhịp, tìm motif của mỗi đoạn, viết `tools/charting/levels/<id>.py` là danh sách
    `beat:mẫu` (khai báo `"phases": [(beat, palette, units_per_beat)]` trong `SONG`, tool tự sinh `speed`; xem `tools/charting/handmade.py`: bộ kiểm tra báo lỗi nếu người chơi chưa tiếp đất, quá cao, hay lách
