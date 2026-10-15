@@ -1,5 +1,6 @@
 # Loads a level's data on a WorkerThreadPool thread so the screen keeps animating: the chart (parse, validation,
-# reference run), the song stream, the TrackPath and the track mesh arrays (TrackView.Geometry). Everything it
+# reference run, flight corridor), the song stream, the TrackPath, the track mesh arrays (TrackView.Geometry) and the
+# corridor's instance buffers (CorridorView.Data). Everything it
 # builds is read-only afterwards, so the menu demo's loader can be handed to the level the player starts.
 # Related: src/presentation/level/level_boot.gd, src/presentation/level/level_runner.gd, src/ui/menu/menu_backdrop.gd
 class_name LevelLoader
@@ -12,6 +13,8 @@ var chart: LevelChart
 var stream: AudioStream
 var context: LevelContext
 var track_geometry: TrackView.Geometry
+## Flight corridor instances (null without a flight).
+var corridor_data: CorridorView.Data
 ## 0..1, written by the worker as it goes (a rough guide for loading bars).
 var progress: float = 0.0
 
@@ -61,7 +64,9 @@ func matches(path: String, quality_tier: QualityTier.Tier) -> bool:
 
 
 func _work() -> void:
+	var started: int = Time.get_ticks_msec()
 	chart = ChartLoader.load_file(chart_path, _config)
+	var chart_ms: int = Time.get_ticks_msec() - started
 	progress = 0.55
 	if chart == null:
 		progress = 1.0
@@ -77,5 +82,8 @@ func _work() -> void:
 	var built := LevelContext.new(chart, _config, TrackPath.build(chart, song_end_beat, flatten), quality)
 	progress = 0.7
 	track_geometry = TrackView.build_geometry(built)
+	corridor_data = CorridorView.build_data(built)
 	context = built
+	if OS.is_debug_build():
+		print("PERF load %s chart_ms=%d total_ms=%d" % [chart_path.get_file(), chart_ms, Time.get_ticks_msec() - started])
 	progress = 1.0

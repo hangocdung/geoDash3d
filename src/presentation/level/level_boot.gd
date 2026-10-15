@@ -69,6 +69,7 @@ func step() -> bool:
 		2:
 			_runner.decor_view.setup(context)
 		3:
+			_runner.obstacle_view.corridor_data = loader.corridor_data
 			_runner.obstacle_view.setup(context)
 		4:
 			for view: Node in [_runner.player_view, _runner.camera_director, _runner.vfx_director]:

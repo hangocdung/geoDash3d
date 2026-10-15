@@ -214,14 +214,23 @@ Thiết kế: `docs/design/gameplay_v4.md`. Branch `feat/gameplay-v4`. Ngân sá
 - [~] **GD3-287** `pulse_drive`: đoạn bay 256–271 (mở đầu drop 2, 13 cú đánh nổi bật/16 phách, qua vòng lộn) + 2 mìn;
       16 flap, trung vị nổi bật ×1.62 (nửa số flap trên cú đánh nổi bật), cả bài ×1.97 OK. Đoạn "build" 128–144 chỉ có
       7 cú nổi bật → không hợp. **Còn lại:** `neon_rhythm_stabs` (bài dùng bộ sinh khác, cần mẫu bay ở đó).
-- [ ] **GD3-288** Đo A-B-B-A trên máy, chỉnh theo tier. Trên PC (Pulse Drive beat 258, HIGH): draw call 41 → 48,
+- [x] **GD3-288** Đo A-B-B-A trên máy, chỉnh theo tier. Trên PC (Pulse Drive beat 258, HIGH): draw call 41 → 48,
       đối tượng 88 → 139 (vòng nhịp flap), primitive 11.7k → 15.0k.
       Đo lần 1 trên Note10 Lite (Mali-G72, 2026-10-16, `perf_ab.sh`, A = main, B = branch, mẫu 5 s):
       - Đoạn bay (Pulse Drive từ beat 254): LOW mẫu giữa 59 → 42–44 FPS (**giảm mạnh**), MEDIUM 40 → 38–40.
       - Đoạn lách (từ beat 66): LOW mẫu giữa 54–55 → 50, MEDIUM ~40 → 40–42.
       - Bản B có khựng tới ~150 ms (10–16 lần/lượt), bản A tối đa 33–57 ms; mẫu đầu của B luôn ~60 FPS (màn chờ nạp
         lâu hơn: dựng hành lang chạy thêm 3 lượt mô phỏng) nên các mẫu lệch thời điểm so với A.
-      **Chưa đạt ngân sách** → cần tìm nguyên nhân (cờ tắt từng phần, `perf_matrix.sh`) trước khi gộp vào main.
+      Đo lại có ghi từng mẫu (`PERF` mỗi 5 s, A-B-B-A, LOW): số "59 → 42" ở trên là **lệch mẫu** — B nạp lâu hơn nên
+      mẫu thứ 2 của B rơi vào lúc khựng khi dựng màn (A cũng có khựng đó ở mẫu đầu). Đã sửa thời gian nạp:
+      - `FlightCorridor` mô phỏng riêng từng đoạn bay (bắt đầu 0.5 beat trước đoạn, trên mặt đường) thay vì 3 lượt
+        toàn bài: nạp Pulse Drive trên PC 1153 → 406 ms (bài không bay 315 ms).
+      - Dữ liệu instance của hành lang tính trên luồng LevelLoader (`CorridorView.build_data`), luồng chính chỉ gán
+        `MultiMesh.buffer` một lần.
+      Kết quả trên máy sau sửa (đoạn bay, LOW, các mẫu sau khi vào màn): A 58.4/56.7/57.5/57.2 và 59.2/58.4/56.0/55.5,
+      B 57.4/58.2/57.2 và 56.9/56.9/55.8/58.5 → **ngang nhau trong mức nhiễu**; MEDIUM ~40 cả hai; đoạn lách LOW
+      54.6 cả hai. Nạp chart trên máy 4.0 s (cả màn 5.1 s, log `PERF load`), phần lớn là `ReferenceRun` toàn bài
+      (có sẵn ở cả A); hành lang thêm ~1 s. Khựng ~150 ms lúc dựng màn có ở cả A và B (việc riêng, chưa xử lý).
 - [ ] **GD3-289** Vật cản đợt 2.
 
 ## Phase 5 — Mobile

@@ -287,6 +287,9 @@ def build(song, steps, variety=True):
     }
     if checker.fly:
         chart["fly"] = [{"beat": start, "end": end} for start, end in checker.fly]
+    if "revision" in song:
+        # Must beat the version of any downloaded package of this song (SongCatalog.merge_remote keeps the higher one).
+        chart["chart_revision"] = song["revision"]
     path = "assets/music/%s.chart.json" % song["id"]
     with open(path, "w", encoding="utf-8", newline="\n") as handle:
         json.dump(chart, handle, indent="\t")

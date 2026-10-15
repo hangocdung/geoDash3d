@@ -49,6 +49,8 @@ var _portrait: bool = false
 ## Beat ranges that use the dodge shot (x = start, y = end).
 var _dodge_zones: PackedVector2Array = []
 var _drifts: bool = true
+## Debug (PerfFlags "noautocam"): chart shots only, no fly / dodge shots.
+var auto_shots: bool = true
 
 
 func setup(context: LevelContext) -> void:
@@ -179,6 +181,8 @@ func _flip_pose(simulation: RunSimulation, beat: float) -> Vector2:
 ## flight sections.
 func auto_shot(shot: CameraShots.Shot, beat: float) -> CameraShots.Shot:
 	var result: CameraShots.Shot = shot
+	if not auto_shots:
+		return result
 	for zone: Vector2 in _dodge_zones:
 		var weight: float = smoothstep(zone.x - DODGE_BLEND, zone.x, beat) * (1.0 - smoothstep(zone.y, zone.y + DODGE_BLEND,
 				beat))

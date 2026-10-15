@@ -38,5 +38,14 @@ static func apply(runner: LevelRunner, flags: PackedStringArray) -> void:
 				runner.obstacle_view.visible = false
 			"notrack":
 				runner.track_view.visible = false
+			# Gameplay v4 parts (GD3-288).
+			"nocorridor":
+				var corridor: Node3D = runner.obstacle_view.get_node_or_null("Corridor") as Node3D
+				if corridor != null:
+					corridor.visible = false
+			"nocues":
+				runner.obstacle_view.set_cue_markers_visible(false)
+			"noautocam":
+				runner.camera_director.auto_shots = false
 			"nodetail":
 				RenderingServer.global_shader_parameter_set(&"detail_textures", 0.0)

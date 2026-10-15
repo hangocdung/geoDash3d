@@ -81,7 +81,8 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   `config.fly_entry`, không có mặt đất (`support_at` = GAP), mỗi lần chạm là `flap` (JUMP `air_allowed`, đặt lại vận
   tốc — chạm mỗi 0.75 beat giữ độ cao, mỗi nửa beat lên, mỗi beat xuống); hết đoạn thì cùng cung bay tiếp với trọng
   lực rơi tới khi đáp. Chạm ngoài cue khi bay = flap không chấm điểm. `FlightCorridor` (dựng lúc nạp, sau
-  `ReferenceRun`): sàn/trần theo ô 1 đơn vị từ đường bay chuẩn chạy 3 lần (đúng giờ, sớm, muộn 0.1 s), làm mượt ±2 ô,
+  `ReferenceRun`): sàn/trần theo ô 1 đơn vị từ đường bay chuẩn chạy 3 lần cho từng đoạn bay (đúng giờ, sớm, muộn
+  0.1 s; mỗi lượt bắt đầu 0.5 beat trước đoạn, nên đoạn bay phải cất cánh từ mặt đường), làm mượt ±2 ô,
   chừa `fly_clearance`, nới tới `gap`; beat đầu không có sàn (lúc cất cánh). Va chạm hành lang = một lần tra mỗi bước,
   tính như địa hình (`TERRAIN_HIT`, lá chắn đưa về đường bay chuẩn). Luật chart: `FlightSections`. Signal
   `flight_changed`. Chấm điểm/combo/lá chắn tách sang `RunScoring` (RunSimulation chuyển tiếp signal).
@@ -187,7 +188,8 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
 - **Vòng dưới chân** (`PlayerView`, glyph 10): nằm trên mặt đất dưới người chơi (không bay theo cú nhảy, ẩn trên hố và
   khi lộn xuống mặt dưới), mỗi beat phát một sóng vòng, đổi dần sang màu hành động của cue kế tiếp trong 2 beat trước nó.
 - **Gameplay v4 (trình bày)**: `CorridorView` (con của ObstacleView) vẽ hành lang bay bằng 3 MultiMesh (gai sàn,
-  gai trần, tấm), gai dựng lên theo sóng trong `corridor_spike.gdshader` (INSTANCE_CUSTOM.x = beat dựng, so với global
+  gai trần, tấm; buffer instance tính sẵn trên luồng `LevelLoader` bằng `CorridorView.build_data`, luồng chính chỉ gán
+  `MultiMesh.buffer`), gai dựng lên theo sóng trong `corridor_spike.gdshader` (INSTANCE_CUSTOM.x = beat dựng, so với global
   `run_beat`; LOW 1 gai/ô, không nảy xoắn — `QualityTier.uses_rich_hazards`). `PlayerView`: khối dẹt thành tàu lượn có cánh
   vàng, ngóc mũi theo tốc độ lên/xuống, không lăn khi bay. `DecorView`: cổng vàng hai đầu đoạn bay. `CameraDirector.auto_shot`:
   shot `fly` trong đoạn bay; quanh cue lách (vùng −2.5..+1.5 beat, gộp nếu gần) shot `top_tilt` (từ trên xuống, hơi nghiêng)

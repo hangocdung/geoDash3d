@@ -27,6 +27,8 @@ class Obstacle:
 	var broken: bool = false
 
 
+## Corridor instances prepared on the loader thread (LevelBoot sets it; null = computed in setup).
+var corridor_data: CorridorView.Data
 var _obstacles: Array[Obstacle] = []
 ## Per cue (same index as chart.cues): its marker nodes.
 var _cue_markers: Array[Array] = []
@@ -38,7 +40,7 @@ func setup(context: LevelContext) -> void:
 	var corridor := CorridorView.new()
 	corridor.name = "Corridor"
 	add_child(corridor)
-	corridor.build(context)
+	corridor.build(context, corridor_data)
 	var factory := ObstacleFactory.new()
 	for placement: ChartItems.HazardPlacement in context.chart.hazards:
 		var obstacle := Obstacle.new()
@@ -69,6 +71,13 @@ func setup(context: LevelContext) -> void:
 		_cue_markers.append(markers)
 	_cue_flash.resize(_cue_markers.size())
 	_cue_flash.fill(0.0)
+
+
+## Debug (PerfFlags "nocues"): hides every cue marker.
+func set_cue_markers_visible(shown: bool) -> void:
+	for markers: Array in _cue_markers:
+		for marker: GeometryInstance3D in markers:
+			marker.visible = shown
 
 
 ## Call when a run (re)starts: entrances before `beat` count as already landed (no VFX/SFX burst).

@@ -17,6 +17,8 @@ from handmade import build  # noqa: E402
 SONG = {
     "id": "pulse_drive", "title": "Pulse Drive", "artist": "hdgstudio86", "bpm": 122.0, "offset": 0.5025,
     "end_beat": 356,
+    # 3: the flight in drop 2 (gameplay v4); staging packages are still version 2 without it.
+    "revision": 3,
     "phases": [(0, "ocean", 7.0), (96, "indigo", 7.75), (160, "sunset", 8.5), (256, "ultraviolet", 9.25), (324, "void", 10.0)],
     "sections": [(-16, "intro", 0.25), (32, "groove", 0.5), (64, "verse", 0.45), (96, "verse2", 0.55),
                  (128, "build", 0.7), (156, "riser", 0.75), (160, "drop", 0.9), (224, "break", 0.6),

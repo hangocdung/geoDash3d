@@ -9,6 +9,8 @@ extends RefCounted
 
 ## Above this the path counts as high: floating hazards go under it instead of over it.
 const HIGH_PATH: float = 6.0
+## Corridor runs start this long before their section, on the road.
+const SAMPLE_LEAD_BEATS: float = 0.5
 ## Floor value meaning "no floor spikes here" (the lift-off at a section's start).
 const NO_FLOOR: float = -1000.0
 ## Buckets on each side merged into one (min floor / max ceiling) so the walls do not zigzag.
@@ -73,6 +75,13 @@ func _measure(chart: LevelChart, config: GameplayConfig) -> PackedStringArray:
 		for index: int in count:
 			low.append(INF)
 			high.append(-INF)
+	for section: Vector2 in chart.fly_ranges:
+		for air: Vector2 in chart.airborne_ranges:
+			if air.x < section.x and air.y > section.x - SAMPLE_LEAD_BEATS:
+				errors.append("fly section %.3f..%.3f must lift off from the road (the player is in the air at %.3f)"
+						% [section.x, section.y, section.x - SAMPLE_LEAD_BEATS])
+	if not errors.is_empty():
+		return errors
 	var margin: float = config.fly_timing_margin_sec
 	for shift: float in [0.0, -margin, margin]:
 		_sample(chart, config, _taps(chart, config, shift), low, high)
@@ -94,14 +103,16 @@ static func _taps(chart: LevelChart, config: GameplayConfig, shift_sec: float) -
 	return taps
 
 
-## Runs the taps (invincible) and records the player's lowest bottom / highest top per bucket while flying.
+## Runs the taps (invincible) through each section and records the player's lowest bottom / highest top per bucket.
+## Each run starts on the road just before its section (sections lift off from the road, _measure checks it), so
+## loading costs a few hundred steps per section instead of a whole-chart run.
 func _sample(chart: LevelChart, config: GameplayConfig, taps: PackedFloat64Array, low: PackedFloat32Array,
 		high: PackedFloat32Array) -> void:
-	var simulation := RunSimulation.new(chart, config, ReferenceRun.START_BEAT)
-	simulation.invincible = true
-	var next_tap: int = 0
 	var step: float = config.simulation_step_beats * 2.0
 	for section: Vector2 in chart.fly_ranges:
+		var simulation := RunSimulation.new(chart, config, section.x - SAMPLE_LEAD_BEATS)
+		simulation.invincible = true
+		var next_tap: int = taps.bsearch(section.x - SAMPLE_LEAD_BEATS)
 		var beat: float = section.x
 		while beat < section.y:
 			while next_tap < taps.size() and taps[next_tap] <= beat:

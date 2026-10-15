@@ -247,6 +247,10 @@ chưa bị ảnh hưởng; GD3-300 phải xong **trước khi đưa bất kỳ b
       - Hướng: dồn I/O và parse sang worker (như `LevelLoader`), cache revision/trạng thái cài, chỉ cập nhật row bị đổi.
         Đo A/B bằng `tools/device/perf_ab.sh` và logcat PERF trước/sau.
 - [ ] **GD3-302** Dọn dẹp sau review nội dung online (Claude, S):
+      - Bài có sẵn trong APK chỉ thắng bản đã tải khi `chart_revision` của nó **lớn hơn** `version` của gói
+        (`SongCatalog.merge_remote`). Kiểm tra 2026-10-16 trên máy dev (staging): `pulse_drive` gói v2 (không có đoạn
+        bay) đè lên bản APK → đã đặt `chart_revision` 3 cho bản có đoạn bay (`levels/pulse_drive.py`, `revision`). Quy
+        tắc: mỗi lần sửa chart có sẵn phải tăng `revision`, và gói đẩy lên phải lấy chart mới nhất với version cao hơn.
       - Chuỗi UI mới chưa có trong `assets/i18n/vi.json` (Refresh songs, Delete downloads, FAVORITES, ★ Favorite, Rate
         this song, Your rating…, FEATURED, thông báo tải); chuỗi ghép `%s · Download %.1f MB` cần `Locale.t`. Viết hoa
         thống nhất với phần UI còn lại.
