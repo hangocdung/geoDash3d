@@ -348,6 +348,11 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
       màn chơi ở 19.5:9, 16:9, 4:3 và dọc 9:19.5 (kích thước cửa sổ qua `override.cfg` tạm; `scene_shot.gd` tự đặt
       canvas theo hướng). Lần chụp đầu phát hiện danh sách bài tràn ở màn dọc (dòng điều kiện mở khóa quá dài) → chữ
       trong nút bài tự xuống dòng, danh sách cao hơn khi dọc. Đã xem lại cả 24 ảnh.
+- [x] **GD3-259** Thiết kế lại toàn bộ giao diện theo ảnh mẫu người dùng gửi (2026-10-15): theme neon kính tối,
+      icon vector cho mọi nút, header BACK + tiêu đề + phụ đề; trang chủ cột trái; cài đặt chia tab (+ GIỚI THIỆU,
+      nút hiệu chỉnh trong ÂM THANH); danh sách bài có ảnh bìa Codex, badge độ khó, điểm cao nhất, lọc độ khó; cửa
+      hàng dạng thẻ; hộp thoại luyện tập / đề nghị hiệu chỉnh / tạm dừng / kết quả; SYNC TEST có header và nút cảm ứng.
+      Đã chụp mọi màn ngang (en) và dọc (vi). Không có đánh giá sao / yêu thích như ảnh mẫu (chưa có dữ liệu thật).
 - [~] **GD3-232 / 234** Phân tích độ khó và dashboard: truy vấn BigQuery mẫu cho tỉ lệ qua màn, chỗ chết / điểm nghẽn,
       lệch nhạc, so với `ChartDifficulty`, phễu bài, FPS theo máy (`docs/release/analytics_queries.md`), cách dựng
       Looker Studio. **Còn lại:** bật BigQuery export, có dữ liệu thật; lệch theo từng cue chưa gửi (cần duyệt).

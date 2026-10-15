@@ -1,6 +1,6 @@
 # Sync test tool: plays a chart's song with a sample-locked click track (AudioStreamSynchronized)
 # and flashes on every beat, so timing can be checked by ear and eye. Live calibration nudging.
-# Keys: M music, C clicks, ←/→ calibration ±5 ms, S save, R restart, Esc menu.
+# Keys: M music, C clicks, ←/→ calibration ±5 ms, S save, R restart, Esc menu; the same actions as touch buttons.
 # Related: src/core/audio/click_track.gd, src/core/song_clock.gd
 class_name Metronome
 extends Control
@@ -62,23 +62,33 @@ func _process(delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventKey and event.is_pressed() and not event.is_echo()):
 		return
-	match (event as InputEventKey).physical_keycode:
-		KEY_M:
+	var keys: Dictionary[Key, StringName] = {KEY_M: &"music", KEY_C: &"clicks", KEY_LEFT: &"earlier",
+			KEY_RIGHT: &"later", KEY_S: &"save", KEY_R: &"restart", KEY_ESCAPE: &"menu"}
+	var key: Key = (event as InputEventKey).physical_keycode
+	if keys.has(key):
+		_do(keys[key])
+
+
+func _do(action: StringName) -> void:
+	if _clock == null and action != &"menu":
+		return
+	match action:
+		&"music":
 			_music_on = not _music_on
 			_apply_volumes()
-		KEY_C:
+		&"clicks":
 			_clicks_on = not _clicks_on
 			_apply_volumes()
-		KEY_LEFT:
+		&"earlier":
 			_nudge_calibration(-CALIBRATION_STEP_SEC)
-		KEY_RIGHT:
+		&"later":
 			_nudge_calibration(CALIBRATION_STEP_SEC)
-		KEY_S:
+		&"save":
 			UserSettings.audio_offset_sec = _clock.calibration_offset_sec
 			UserSettings.save_settings()
-		KEY_R:
+		&"restart":
 			_restart()
-		KEY_ESCAPE:
+		&"menu":
 			Scenes.go_to(get_tree(), Scenes.MAIN_MENU)
 
 
@@ -132,8 +142,33 @@ func _build_layout() -> void:
 	_info_label.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 	_info_label.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	_info_label.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	_info_label.position.y -= 80
+	_info_label.position.y -= 150
+	_info_label.add_theme_color_override("font_color", UiTheme.MUTED)
 	add_child(_info_label)
+	var margins: Vector4 = UiKit.safe_margins(self)
+	var header: HBoxContainer = UiKit.header("SYNC TEST", "CHECK THE BEAT BY EAR AND EYE", &"wave", _do.bind(&"menu"))
+	header.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	header.offset_left = margins.x
+	header.offset_top = margins.y
+	header.offset_right = -margins.z
+	add_child(header)
+	var toolbar := HFlowContainer.new()
+	toolbar.alignment = FlowContainer.ALIGNMENT_CENTER
+	toolbar.add_theme_constant_override("h_separation", 14)
+	toolbar.add_theme_constant_override("v_separation", 14)
+	toolbar.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+	toolbar.offset_left = margins.x
+	toolbar.offset_right = -margins.z
+	toolbar.offset_top = -margins.w - 64.0
+	toolbar.offset_bottom = -margins.w
+	toolbar.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	add_child(toolbar)
+	for spec: Array in [["MUSIC", &"music", &"music"], ["CLICKS", &"wave", &"clicks"], ["−5 ms", &"back", &"earlier"],
+			["+5 ms", &"chevron", &"later"], ["SAVE", &"check", &"save"], ["RESTART", &"restart", &"restart"]]:
+		var button: Button = UiKit.button(spec[0], spec[1], "SmallButton", false, Vector2(0, 60))
+		button.focus_mode = Control.FOCUS_NONE
+		button.pressed.connect(_do.bind(spec[2]))
+		toolbar.add_child(button)
 
 
 static func _on_off(value: bool) -> String:

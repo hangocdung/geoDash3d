@@ -43,6 +43,7 @@ var _root: Control
 
 func _ready() -> void:
 	var root := Control.new()
+	root.theme = UiTheme.get_theme()
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
@@ -61,8 +62,11 @@ func _ready() -> void:
 	_hint_label.offset_bottom = -140.0
 	_hint_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
 	_hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_pause_button = UiTheme.make_button("II", 84.0)
+	_pause_button = UiTheme.make_button("", 84.0, 76.0)
 	_pause_button.theme = UiTheme.get_theme()
+	_pause_button.theme_type_variation = "IconButton"
+	_pause_button.icon = UiIcons.get_icon(&"pause", 34, Color.WHITE)
+	_pause_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_pause_button.focus_mode = Control.FOCUS_NONE
 	_pause_button.position = Vector2(28, 22)
 	_pause_button.pressed.connect(func() -> void: pause_pressed.emit())
@@ -163,16 +167,12 @@ func _build_progress(root: Control) -> void:
 	frame.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	frame.position = Vector2(-BAR_WIDTH * 0.5, 36.0)
 	frame.size = Vector2(BAR_WIDTH, BAR_HEIGHT)
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.05, 0.03, 0.12, 0.7)
-	style.border_color = Color(0.85, 0.9, 1.0, 0.9)
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(8)
-	frame.add_theme_stylebox_override("panel", style)
+	frame.add_theme_stylebox_override("panel",
+			UiTheme.box(Color(0.03, 0.02, 0.1, 0.75), Color(UiTheme.ACCENT, 0.8), 2, 6, 8))
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(frame)
 	_bar_fill = ColorRect.new()
-	_bar_fill.color = Color(0.3, 0.9, 1.0)
+	_bar_fill.color = UiTheme.ACCENT
 	_bar_fill.position = Vector2(3, 3)
 	_bar_fill.size = Vector2(0, BAR_HEIGHT - 6.0)
 	_bar_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE

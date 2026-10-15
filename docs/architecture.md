@@ -187,11 +187,21 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   `*.classic.chart.json`, xếp từ dễ đến khó theo `ChartDifficulty`) / CALIBRATE AUDIO / SYNC TEST / SETTINGS / QUIT
   (ẩn trên mobile). Bản debug có thêm một hàng RECORD (DEV) | AUTOPLAY (DEV): AUTOPLAY chọn bài rồi để bot chơi trọn
   màn với HUD, SFX và menu kết thúc như lượt thường (`LaunchOptions.autoplay_run`, HUD ghi "AUTOPLAY").
-  Theme chung: `UiTheme`.
+  Trang chủ là `HomePage` (logo, thẻ bài đang phát, nút icon + mũi tên; ngang: cột trái trên nền tối dần, dọc: giữa).
+- Giao diện (GD3-259, 2026-10-15): `src/ui/theme/` — `UiTheme` (theme dựng bằng code: panel kính tối viền cyan có
+  glow, vai trò qua `theme_type_variation`: PrimaryButton hồng, TabButton, RowButton, IconButton, SmallButton, Card,
+  Dialog, Row, Pill, Badge, HeaderTitle…), `UiIcons` (icon vector SVG trong code, vẽ ra `ImageTexture` theo cỡ/màu,
+  có cache; công tắc + núm thanh trượt), `UiKit` (nút có icon, header BACK + icon + tiêu đề + phụ đề, badge, lề safe
+  area), `UiScreen` (khung trang toàn màn: header + body, gọi `_layout(portrait)` khi xoay), `UiDialog` (hộp thoại).
+  `SettingsPanel` / `SongListPanel` / `ShopPanel` kế thừa `UiScreen`; cài đặt chia tab CHUNG / ÂM THANH / HÌNH ẢNH /
+  GIỚI THIỆU (`SettingsRows`), danh sách bài là các `SongRow` (ảnh bìa `assets/covers/<id>.jpg` — bản LED dùng chung
+  ảnh — badge độ khó, điểm cao nhất) lọc theo độ khó; tab nằm dọc bên trái khi ngang, thành hàng ngang khi dọc.
+  Ảnh bìa/logo/icon sinh bằng Codex: `tools/branding/generate_sources.sh` → `build_brand.py`.
 - `CalibrationScreen`: click 100 BPM (`ClickTrack` sinh WAV trong code), đo lệch so với beat gần nhất,
   `CalibrationMath.estimate` (median + MAD loại outlier, cần ≥ 8 lần gõ hợp lệ) → lưu `audio_offset_sec`.
-- `Metronome` (SYNC TEST): `AudioStreamSynchronized` [nhạc, click] khóa mẫu, nháy theo beat, ←/→ chỉnh offset.
-- Trong level: nút "II" (cảm ứng), `RunMenu` (RESUME / RESTART / MENU) khi tạm dừng hoặc hoàn thành.
+- `Metronome` (SYNC TEST): `AudioStreamSynchronized` [nhạc, click] khóa mẫu, nháy theo beat, ←/→ chỉnh offset;
+  cùng các thao tác dưới dạng nút cảm ứng.
+- Trong level: nút tạm dừng (icon, cảm ứng), `RunMenu` (thẻ hộp thoại RESUME / RESTART / MENU) khi tạm dừng hoặc hoàn thành.
   Nút HUD không nhận focus để Space luôn là "tap". `PresentationRouter` chuyển signal simulation → hiệu ứng.
 
 ## 4c. Telemetry và phản hồi rung

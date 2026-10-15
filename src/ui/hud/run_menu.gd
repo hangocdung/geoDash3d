@@ -1,7 +1,7 @@
-# Overlay shown when the run is paused or complete: title/stats plus RESUME, RESTART and MENU; results also show the
-# rank (S/A/B/C) and NEXT SONG when another song is open (GD3-251).
+# Overlay shown when the run is paused or complete: a glowing card with the title, stats and RESUME, RESTART and MENU;
+# results also show the rank (S/A/B/C) and NEXT SONG when another song is open (GD3-251).
 # Buttons never take keyboard focus, so Space keeps meaning "tap" in the level.
-# Related: src/ui/hud/hud.gd, src/presentation/level/level_runner.gd
+# Related: src/ui/hud/hud.gd, src/presentation/level/level_runner.gd, src/ui/theme/ui_kit.gd
 class_name RunMenu
 extends Control
 
@@ -12,8 +12,11 @@ signal next_pressed
 
 const RANK_COLORS: Dictionary[String, Color] = {"S": Color(1.0, 0.85, 0.3), "A": Color(0.4, 1.0, 0.7),
 		"B": Color(0.5, 0.8, 1.0), "C": Color(0.75, 0.75, 0.85)}
+const CARD_WIDTH: float = 640.0
 
+var _icon: TextureRect
 var _title: Label
+var _details: Label
 var _resume_button: Button
 var _next_button: Button
 var _rank: Label
@@ -23,33 +26,56 @@ func _ready() -> void:
 	theme = UiTheme.get_theme()
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var shade := ColorRect.new()
-	shade.color = Color(0.02, 0.0, 0.06, 0.55)
+	shade.color = Color(0.01, 0.0, 0.05, 0.62)
 	shade.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(shade)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(center)
+	var card := PanelContainer.new()
+	card.theme_type_variation = "Dialog"
+	center.add_child(card)
 	var column := VBoxContainer.new()
-	column.set_anchors_preset(Control.PRESET_CENTER)
-	column.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	column.grow_vertical = Control.GROW_DIRECTION_BOTH
-	column.alignment = BoxContainer.ALIGNMENT_CENTER
-	column.add_theme_constant_override("separation", 18)
-	add_child(column)
-	_rank = UiTheme.make_label("", 132, Color.WHITE)
+	column.custom_minimum_size = Vector2(CARD_WIDTH, 0)
+	column.add_theme_constant_override("separation", 16)
+	card.add_child(column)
+	_rank = UiKit.label("", "", HORIZONTAL_ALIGNMENT_CENTER)
+	_rank.add_theme_font_override("font", UiTheme.heading_font())
+	_rank.add_theme_font_size_override("font_size", 132)
+	_rank.add_theme_constant_override("outline_size", 14)
 	column.add_child(_rank)
-	_title = UiTheme.make_label("", 56, UiTheme.ACCENT)
+	var heading := HBoxContainer.new()
+	heading.alignment = BoxContainer.ALIGNMENT_CENTER
+	heading.add_theme_constant_override("separation", 18)
+	_icon = UiKit.icon_rect(&"pause", 52, UiTheme.HOT)
+	heading.add_child(_icon)
+	_title = UiKit.label("", "SectionTitle", HORIZONTAL_ALIGNMENT_CENTER)
+	_title.add_theme_font_size_override("font_size", 52)
+	heading.add_child(_title)
+	column.add_child(heading)
 	# Wraps on narrow (portrait) screens instead of running off the edges.
-	_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_title.custom_minimum_size = Vector2(960, 0)
-	column.add_child(_title)
-	_next_button = _add_button(column, "NEXT SONG", next_pressed)
-	_resume_button = _add_button(column, "RESUME", resume_pressed)
-	_add_button(column, "RESTART", restart_pressed)
-	_add_button(column, "MENU", menu_pressed)
+	_details = UiKit.label("", "", HORIZONTAL_ALIGNMENT_CENTER)
+	_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_details.add_theme_font_size_override("font_size", 28)
+	_details.add_theme_color_override("font_color", UiTheme.MUTED)
+	column.add_child(_details)
+	var spacer := Control.new()
+	spacer.custom_minimum_size = Vector2(0, 6)
+	column.add_child(spacer)
+	_next_button = _add_button(column, "NEXT SONG", &"next", true, next_pressed)
+	_resume_button = _add_button(column, "RESUME", &"play", true, resume_pressed)
+	_add_button(column, "RESTART", &"restart", false, restart_pressed)
+	_add_button(column, "MENU", &"home", false, menu_pressed)
 	visible = false
 
 
+## `title`: first line is the heading, the rest the details.
 func open(title: String, can_resume: bool) -> void:
-	_title.text = title
-	_title.add_theme_font_size_override("font_size", 56)
+	var lines: PackedStringArray = title.split("\n", true, 1)
+	_title.text = lines[0]
+	_details.text = lines[1] if lines.size() > 1 else ""
+	_details.visible = not _details.text.is_empty()
+	_icon.texture = UiIcons.get_icon(&"pause", 52, UiTheme.HOT)
 	_rank.visible = false
 	_next_button.visible = false
 	_resume_button.visible = can_resume
@@ -59,9 +85,10 @@ func open(title: String, can_resume: bool) -> void:
 ## Level complete: big rank, the stats, NEXT SONG when `has_next`.
 func open_results(text: String, rank: String, has_next: bool) -> void:
 	open(text, false)
-	_title.add_theme_font_size_override("font_size", 44)
+	_icon.texture = UiIcons.get_icon(&"trophy", 52, UiTheme.HOT)
 	_rank.text = rank
 	_rank.add_theme_color_override("font_color", RANK_COLORS.get(rank, Color.WHITE))
+	_rank.add_theme_color_override("font_outline_color", Color(RANK_COLORS.get(rank, Color.WHITE), 0.25))
 	_rank.visible = true
 	_next_button.visible = has_next
 
@@ -70,8 +97,8 @@ func close() -> void:
 	visible = false
 
 
-func _add_button(parent: Control, text: String, emitted: Signal) -> Button:
-	var button: Button = UiTheme.make_button(text, 360.0)
+func _add_button(parent: Control, text: String, icon: StringName, primary: bool, emitted: Signal) -> Button:
+	var button: Button = UiKit.button(text, icon, "PrimaryButton" if primary else "", false, Vector2(0, 72))
 	button.focus_mode = Control.FOCUS_NONE
 	button.pressed.connect(func() -> void: emitted.emit())
 	parent.add_child(button)

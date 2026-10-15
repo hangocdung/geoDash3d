@@ -19,6 +19,7 @@ const MAX_ACCEPTED_ERROR_SEC: float = 0.25
 const MAX_GOOD_SPREAD_SEC: float = 0.04
 ## If nothing was tapped by this click, the instructions are highlighted.
 const NO_TAP_HINT_CLICKS: int = 8
+const CARD_WIDTH: float = 900.0
 
 var _phase: Phase = Phase.INTRO
 var _tempo: TempoMap
@@ -99,7 +100,7 @@ func _start() -> void:
 	_headline.text = "Tap on every click"
 	_counter.text = "0 / %d" % (WARMUP_TAPS + MEASURED_TAPS)
 	_status.text = "Tap anywhere on the screen, in time with the sound."
-	_status.remove_theme_color_override("font_color")
+	_status.add_theme_color_override("font_color", UiTheme.MUTED)
 	_clock.start(_clicks, 0.0, 0.3)
 
 
@@ -170,36 +171,63 @@ func _build_layout() -> void:
 	# Let screen taps fall through to _unhandled_input (mouse/touch calibration).
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(background)
+	var margins: Vector4 = UiKit.safe_margins(self)
+	var frame := VBoxContainer.new()
+	frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	frame.offset_left = margins.x
+	frame.offset_top = margins.y
+	frame.offset_right = -margins.z
+	frame.offset_bottom = -margins.w
+	frame.add_theme_constant_override("separation", 20)
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(frame)
+	var header: HBoxContainer = UiKit.header("AUDIO SYNC", "MATCH THE GAME TO YOUR SPEAKERS", &"headphones",
+			func() -> void: Scenes.go_to(get_tree(), Scenes.MAIN_MENU))
+	header.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.add_child(header)
+	var center := CenterContainer.new()
+	center.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.add_child(center)
+	var card := PanelContainer.new()
+	card.theme_type_variation = "Card"
+	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	center.add_child(card)
 	var column := VBoxContainer.new()
-	column.set_anchors_preset(Control.PRESET_CENTER)
-	column.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	column.grow_vertical = Control.GROW_DIRECTION_BOTH
+	column.custom_minimum_size = Vector2(CARD_WIDTH, 0)
 	column.alignment = BoxContainer.ALIGNMENT_CENTER
 	column.add_theme_constant_override("separation", 18)
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(column)
-	column.add_child(UiTheme.make_label("AUDIO SYNC", 44, UiTheme.ACCENT))
-	_headline = UiTheme.make_label("", 52, Color.WHITE)
+	card.add_child(column)
+	_headline = UiKit.label("", "SectionTitle", HORIZONTAL_ALIGNMENT_CENTER)
+	_headline.add_theme_font_size_override("font_size", 48)
+	_headline.add_theme_color_override("font_color", Color.WHITE)
 	column.add_child(_headline)
 	_ring = PulseRing.new()
 	_ring.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	column.add_child(_ring)
-	_counter = UiTheme.make_label("", 40, UiTheme.HOT)
+	_counter = UiKit.label("", "BigNumber", HORIZONTAL_ALIGNMENT_CENTER)
+	_counter.add_theme_font_size_override("font_size", 40)
+	_counter.add_theme_color_override("font_color", UiTheme.HOT)
 	column.add_child(_counter)
-	_status = UiTheme.make_label("", 28)
+	_status = UiKit.label("", "", HORIZONTAL_ALIGNMENT_CENTER)
+	_status.add_theme_font_size_override("font_size", 26)
+	_status.add_theme_color_override("font_color", UiTheme.MUTED)
+	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	column.add_child(_status)
 	var buttons := HBoxContainer.new()
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 	buttons.add_theme_constant_override("separation", 20)
+	buttons.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(buttons)
-	_start_button = _add_button(buttons, "START", _start, &"ui.confirm")
-	_use_button = _add_button(buttons, "USE THIS", _use_result, &"ui.confirm")
-	_retry_button = _add_button(buttons, "TRY AGAIN", _start, &"ui.tap")
-	_add_button(buttons, "BACK", func() -> void: Scenes.go_to(get_tree(), Scenes.MAIN_MENU), &"ui.back")
+	_start_button = _add_button(buttons, "START", &"play", true, _start, &"ui.confirm")
+	_use_button = _add_button(buttons, "USE THIS", &"check", true, _use_result, &"ui.confirm")
+	_retry_button = _add_button(buttons, "TRY AGAIN", &"restart", false, _start, &"ui.tap")
 
 
-func _add_button(parent: Control, text: String, action: Callable, sound_id: StringName) -> Button:
-	var button: Button = UiTheme.make_button(text, 240.0, 72.0, sound_id)
+func _add_button(parent: Control, text: String, icon: StringName, primary: bool, action: Callable,
+		sound_id: StringName) -> Button:
+	var button: Button = UiKit.button(text, icon, "PrimaryButton" if primary else "", false, Vector2(280, 72), sound_id)
 	button.pressed.connect(action)
 	parent.add_child(button)
 	return button

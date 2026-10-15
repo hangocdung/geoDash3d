@@ -1,18 +1,17 @@
-# Song picker: the SongCatalog songs (title, difficulty, BPM, length, best result), easiest first; emits the chosen
-# chart. With `apply_locks` (PLAY, PRACTICE) locked songs (SongUnlocks, GD3-242) show what opens them, a TRY (AD)
-# button (PLAY, main-chain songs: a rewarded ad opens the song until the player leaves the level) and UNLOCK ALL,
-# which asks for the shop. Dev tools list every song. Related: src/core/song_unlocks.gd, src/ui/menu/main_menu.gd
+# Song picker: the SongCatalog songs easiest first as SongRow rows, filtered by difficulty (side tabs in landscape, a
+# tab row in portrait); emits the chosen chart. With `apply_locks` (PLAY, PRACTICE) locked songs (SongUnlocks,
+# GD3-242) show what opens them, a TRY (AD) button (PLAY, main-chain songs: a rewarded ad opens the song until the
+# player leaves the level) and UNLOCK ALL, which asks for the shop. Dev tools list every song.
+# Related: src/ui/menu/song_row.gd, src/core/song_unlocks.gd, src/ui/menu/main_menu.gd
 class_name SongListPanel
-extends PanelContainer
+extends UiScreen
 
 signal chosen(chart_path: String)
-signal closed
 signal shop_requested
 
-const LIST_HEIGHT: float = 430.0
-## Portrait screens are tall: show more songs at once.
-const LIST_HEIGHT_PORTRAIT: float = 1150.0
-const ENTRY_WIDTH: float = 540.0
+const HEADING_ICONS: Dictionary[String, StringName] = {"PLAY": &"play", "PRACTICE": &"target", "RECORD": &"record",
+		"AUTOPLAY": &"play"}
+const ALL: String = "ALL SONGS"
 
 var heading: String = "PLAY"
 ## False for the dev tools (RECORD / AUTOPLAY): every song is playable.
@@ -21,90 +20,132 @@ var apply_locks: bool = true
 var allow_trials: bool = true
 
 var _status: Label
+var _split: BoxContainer
+var _filters: BoxContainer
+var _filter_buttons: Array[Button] = []
+var _songs: VBoxContainer
+var _filter: String = ALL
+var _entries: Array[SongCatalog.Entry] = []
+var _titles: Dictionary[String, String] = {}
+var _ordered: PackedStringArray = []
+var _open: Dictionary[String, bool] = {}
 
 
-func _ready() -> void:
-	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 16)
-	add_child(column)
-	column.add_child(UiTheme.make_label(heading, 48, UiTheme.ACCENT))
+func _title() -> String:
+	return heading
+
+
+func _subtitle() -> String:
+	return "CHOOSE A TRACK AND FEEL THE RHYTHM"
+
+
+func _icon() -> StringName:
+	return HEADING_ICONS.get(heading, &"play")
+
+
+func _build_body() -> void:
+	_entries = SongCatalog.list_songs()
+	for entry: SongCatalog.Entry in _entries:
+		_titles[entry.path] = entry.title
+		_ordered.append(entry.path)
+	_open = SongUnlocks.unlocked(_ordered)
+	_split = BoxContainer.new()
+	_split.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_split.add_theme_constant_override("separation", 28)
+	body.add_child(_split)
+	_filters = BoxContainer.new()
+	_filters.add_theme_constant_override("separation", 12)
+	_split.add_child(_filters)
+	var group := ButtonGroup.new()
+	var tiers: PackedStringArray = [ALL]
+	for entry: SongCatalog.Entry in _entries:
+		var tier: String = ChartDifficulty.tier_name(entry.difficulty)
+		if not tiers.has(tier):
+			tiers.append(tier)
+	for tier: String in tiers:
+		var button: Button = UiKit.button(tier, &"music" if tier == ALL else &"star", "TabButton", false, Vector2(280, 68))
+		button.toggle_mode = true
+		button.button_group = group
+		button.button_pressed = tier == _filter
+		button.pressed.connect(func() -> void:
+			_filter = tier
+			_fill(UiKit.is_portrait(self)))
+		_filters.add_child(button)
+		_filter_buttons.append(button)
 	var scroll := ScrollContainer.new()
-	scroll.custom_minimum_size = Vector2(ENTRY_WIDTH + 20.0,
-			LIST_HEIGHT_PORTRAIT if DisplayOrientation.is_portrait(get_viewport()) else LIST_HEIGHT)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	column.add_child(scroll)
-	var songs := VBoxContainer.new()
-	songs.add_theme_constant_override("separation", 12)
-	songs.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.add_child(songs)
-	var entries: Array[SongCatalog.Entry] = SongCatalog.list_songs()
-	var titles: Dictionary[String, String] = {}
-	var ordered: PackedStringArray = []
-	for entry: SongCatalog.Entry in entries:
-		titles[entry.path] = entry.title
-		ordered.append(entry.path)
-	var open: Dictionary[String, bool] = SongUnlocks.unlocked(ordered)
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_split.add_child(scroll)
+	_songs = VBoxContainer.new()
+	_songs.add_theme_constant_override("separation", 14)
+	_songs.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(_songs)
+	_status = UiKit.label("", "", HORIZONTAL_ALIGNMENT_CENTER)
+	_status.add_theme_font_size_override("font_size", 24)
+	_status.add_theme_color_override("font_color", UiTheme.HOT)
+	body.add_child(_status)
+
+
+func _layout(is_portrait: bool) -> void:
+	_split.vertical = is_portrait
+	_filters.vertical = not is_portrait
+	for button: Button in _filter_buttons:
+		button.custom_minimum_size = Vector2(0, 64) if is_portrait else Vector2(280, 68)
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL if is_portrait else Control.SIZE_FILL
+		button.alignment = HORIZONTAL_ALIGNMENT_CENTER if is_portrait else HORIZONTAL_ALIGNMENT_LEFT
+		button.icon = null if is_portrait else UiIcons.get_icon(&"music" if button.text == ALL else &"star", 26,
+				UiTheme.ACCENT)
+	_fill(is_portrait)
+
+
+## Rebuilds the rows for the current filter and orientation.
+func _fill(portrait: bool) -> void:
+	for child: Node in _songs.get_children():
+		child.queue_free()
 	var first: Button = null
 	var any_locked: bool = false
-	for entry: SongCatalog.Entry in entries:
-		if not apply_locks or open.has(entry.path):
-			var button: Button = _song_button(entry)
-			songs.add_child(button)
+	for entry: SongCatalog.Entry in _entries:
+		if _filter != ALL and ChartDifficulty.tier_name(entry.difficulty) != _filter:
+			continue
+		if not apply_locks or _open.has(entry.path):
+			var row: Button = SongRow.playable(entry, portrait)
+			row.pressed.connect(func() -> void:
+				Telemetry.log_event("song_select", {"song_id": entry.id})
+				chosen.emit(entry.path))
+			_songs.add_child(row)
 			if first == null:
-				first = button
+				first = row
 		else:
 			any_locked = true
-			songs.add_child(_locked_entry(entry, titles.get(SongUnlocks.requirement(entry.path, ordered), "")))
-	_status = UiTheme.make_label("", 24, UiTheme.HOT)
-	column.add_child(_status)
-	var back: Button = UiTheme.make_button("BACK", 360.0, 72.0, &"ui.back")
-	back.pressed.connect(func() -> void: closed.emit())
-	column.add_child(back)
-	(first if first != null else back).grab_focus()
+			_songs.add_child(SongRow.locked(entry, _requirement(entry), _locked_actions(entry), portrait))
+	if first != null:
+		first.grab_focus()
 	if any_locked and allow_trials:
 		Ads.preload_rewarded()
 
 
-func _song_button(entry: SongCatalog.Entry) -> Button:
-	var label: String = _details(entry)
-	var record: HighScores.Record = HighScores.best(entry.path)
-	if record.has_any():
-		label += "\n" + Locale.t("BEST %s  ·  %s") % [RunRecords.grouped(record.score),
-				Locale.t("CLEARED") if record.completed else "%d%%" % int(floorf(record.progress * 100.0))]
-	var button: Button = UiTheme.make_button(label, ENTRY_WIDTH, 126.0 if record.has_any() else 92.0, &"ui.confirm")
-	_wrap(button)
-	button.pressed.connect(func() -> void:
-		Telemetry.log_event("song_select", {"song_id": entry.id})
-		chosen.emit(entry.path))
-	return button
+func _requirement(entry: SongCatalog.Entry) -> String:
+	var title: String = _titles.get(SongUnlocks.requirement(entry.path, _ordered), "").to_upper()
+	if SongUnlocks.needs_clear(entry.path):
+		return Locale.t("Clear %s to unlock") % title
+	return Locale.t("Clear %s or reach %d%% to unlock") % [title,
+			roundi(RemoteSettings.get_float("unlock_progress") * 100.0)]
 
 
-## A locked song: its details and what opens it, then TRY (AD) / UNLOCK ALL.
-func _locked_entry(entry: SongCatalog.Entry, requirement_title: String) -> VBoxContainer:
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 6)
-	var how: String = Locale.t("Clear %s to unlock") % requirement_title.to_upper() \
-			if SongUnlocks.needs_clear(entry.path) else Locale.t("Clear %s or reach %d%% to unlock") % [
-				requirement_title.to_upper(), roundi(RemoteSettings.get_float("unlock_progress") * 100.0)]
-	var info: Button = UiTheme.make_button("%s\n%s · %s" % [_details(entry), Locale.t("LOCKED"), how],
-			ENTRY_WIDTH, 126.0)
-	info.disabled = true
-	_wrap(info)
-	box.add_child(info)
-	var actions := HBoxContainer.new()
-	actions.add_theme_constant_override("separation", 12)
-	box.add_child(actions)
+func _locked_actions(entry: SongCatalog.Entry) -> Array[Button]:
+	var actions: Array[Button] = []
 	if allow_trials and RemoteSettings.get_bool("rewarded_trials") and not SongUnlocks.needs_clear(entry.path) \
 			and (Ads.is_supported() or OS.is_debug_build()):
-		var trial: Button = UiTheme.make_button("TRY (AD)", (ENTRY_WIDTH - 12.0) * 0.5, 60.0, &"ui.confirm")
+		var trial: Button = UiKit.button("TRY (AD)", &"ad", "PrimaryButton", false, Vector2(230, 52), &"ui.confirm")
+		trial.add_theme_font_size_override("font_size", 22)
 		trial.pressed.connect(_start_trial.bind(entry))
-		trial.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		actions.add_child(trial)
-	var unlock_all: Button = UiTheme.make_button("UNLOCK ALL", (ENTRY_WIDTH - 12.0) * 0.5, 60.0)
+		actions.append(trial)
+	var unlock_all: Button = UiKit.button("UNLOCK ALL", &"unlock", "", false, Vector2(230, 52))
+	unlock_all.add_theme_font_size_override("font_size", 22)
 	unlock_all.pressed.connect(func() -> void: shop_requested.emit())
-	unlock_all.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	actions.add_child(unlock_all)
-	return box
+	actions.append(unlock_all)
+	return actions
 
 
 ## Rewarded trial: the ad, then the song (debug builds without ads, e.g. on PC, skip the ad).
@@ -118,16 +159,3 @@ func _start_trial(entry: SongCatalog.Entry) -> void:
 	elif not Ads.show_rewarded("song_trial", play):
 		Ads.preload_rewarded()
 		_status.text = Locale.t("The ad is not ready yet, try again in a moment.")
-
-
-func _details(entry: SongCatalog.Entry) -> String:
-	var minutes: int = int(entry.length_sec) / 60
-	return "%s\n%s  ·  %d BPM  ·  %d:%02d" % [entry.title.to_upper(), ChartDifficulty.tier_name(entry.difficulty),
-			roundi(entry.bpm), minutes, int(entry.length_sec) % 60]
-
-
-## Long titles and unlock lines wrap inside the entry width instead of widening the whole list (portrait screens).
-static func _wrap(button: Button) -> void:
-	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-

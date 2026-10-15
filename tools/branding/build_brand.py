@@ -1,5 +1,6 @@
 """Build the BeatGlide brand assets in assets/brand/ from the Codex sources (art_source/brand, not committed) and the
-company logo: boot splash, title logo with alpha, project/store icons and Android launcher icons.
+company logo: boot splash, company logo with alpha (About page), title logo with alpha, project/store icons, Android
+launcher icons and the song covers (assets/covers/<song id>.jpg, shown in the song list).
 Usage: python tools/branding/build_brand.py [--logo logo_a] [--icon icon_a] [--company D:/sntgames/docs/logo.webp]
 Related: tools/branding/generate_sources.sh, project.godot (boot_splash, config/icon), export_presets.cfg (launcher_icons)
 """
@@ -12,6 +13,8 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[2]
 SOURCES = ROOT / "art_source" / "brand"
 OUT = ROOT / "assets" / "brand"
+COVERS = ROOT / "assets" / "covers"
+COVER_SIZE = 320
 SPLASH_SIZE = 1600          # square canvas: "Keep" stretch shows the logo at the same size in landscape and portrait
 SPLASH_LOGO_WIDTH = 0.55    # company logo width as a fraction of the splash canvas
 ADAPTIVE_SIZE = 432
@@ -35,6 +38,9 @@ def build_splash(company: Path) -> None:
     canvas = Image.new("RGBA", (SPLASH_SIZE, SPLASH_SIZE), (0, 0, 0, 255))
     canvas.alpha_composite(logo, ((SPLASH_SIZE - logo.width) // 2, (SPLASH_SIZE - logo.height) // 2))
     canvas.convert("RGB").save(OUT / "splash.png", optimize=True)
+    small = crop_to_content(Image.open(company).convert("RGBA"))
+    small.thumbnail((640, 640), Image.LANCZOS)
+    small.save(OUT / "company.png", optimize=True)
 
 
 def black_to_alpha(image: Image.Image) -> Image.Image:
@@ -70,6 +76,13 @@ def build_icons(source: Path) -> None:
     Image.new("RGBA", (ADAPTIVE_SIZE, ADAPTIVE_SIZE), (0, 0, 0, 0)).save(OUT / "icon_adaptive_fg.png", optimize=True)
 
 
+def build_covers() -> None:
+    COVERS.mkdir(parents=True, exist_ok=True)
+    for source in sorted(SOURCES.glob("cover_*.png")):
+        cover = square_center(Image.open(source)).resize((COVER_SIZE, COVER_SIZE), Image.LANCZOS)
+        cover.save(COVERS / (source.stem.removeprefix("cover_") + ".jpg"), quality=88, optimize=True)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--logo", default="logo_a")
@@ -80,6 +93,7 @@ def main() -> None:
     build_splash(Path(args.company))
     build_logo(SOURCES / f"{args.logo}.png")
     build_icons(SOURCES / f"{args.icon}.png")
+    build_covers()
     print("wrote", ", ".join(sorted(p.name for p in OUT.glob("*.png"))))
 
 
