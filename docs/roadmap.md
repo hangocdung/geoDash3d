@@ -215,7 +215,13 @@ Thiết kế: `docs/design/gameplay_v4.md`. Branch `feat/gameplay-v4`. Ngân sá
       16 flap, trung vị nổi bật ×1.62 (nửa số flap trên cú đánh nổi bật), cả bài ×1.97 OK. Đoạn "build" 128–144 chỉ có
       7 cú nổi bật → không hợp. **Còn lại:** `neon_rhythm_stabs` (bài dùng bộ sinh khác, cần mẫu bay ở đó).
 - [ ] **GD3-288** Đo A-B-B-A trên máy, chỉnh theo tier. Trên PC (Pulse Drive beat 258, HIGH): draw call 41 → 48,
-      đối tượng 88 → 139 (vòng nhịp flap), primitive 11.7k → 15.0k. **Cần người dùng đo trên điện thoại.**
+      đối tượng 88 → 139 (vòng nhịp flap), primitive 11.7k → 15.0k.
+      Đo lần 1 trên Note10 Lite (Mali-G72, 2026-10-16, `perf_ab.sh`, A = main, B = branch, mẫu 5 s):
+      - Đoạn bay (Pulse Drive từ beat 254): LOW mẫu giữa 59 → 42–44 FPS (**giảm mạnh**), MEDIUM 40 → 38–40.
+      - Đoạn lách (từ beat 66): LOW mẫu giữa 54–55 → 50, MEDIUM ~40 → 40–42.
+      - Bản B có khựng tới ~150 ms (10–16 lần/lượt), bản A tối đa 33–57 ms; mẫu đầu của B luôn ~60 FPS (màn chờ nạp
+        lâu hơn: dựng hành lang chạy thêm 3 lượt mô phỏng) nên các mẫu lệch thời điểm so với A.
+      **Chưa đạt ngân sách** → cần tìm nguyên nhân (cờ tắt từng phần, `perf_matrix.sh`) trước khi gộp vào main.
 - [ ] **GD3-289** Vật cản đợt 2.
 
 ## Phase 5 — Mobile
