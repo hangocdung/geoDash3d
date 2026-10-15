@@ -18,6 +18,7 @@ var _split: BoxContainer
 var _tab_bar: BoxContainer
 var _tab_buttons: Dictionary[StringName, Button] = {}
 var _content: VBoxContainer
+var _scroll: TouchScroll
 var _current: StringName = &"general"
 
 
@@ -56,8 +57,8 @@ func _build_body() -> void:
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	card.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_split.add_child(card)
-	var scroll := ScrollContainer.new()
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_scroll = TouchScroll.new()
+	var scroll: TouchScroll = _scroll
 	card.add_child(scroll)
 	_content = VBoxContainer.new()
 	_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -102,6 +103,7 @@ func _show_tab(id: StringName) -> void:
 			_visual(portrait)
 		&"about":
 			_about()
+	_scroll.make_draggable(_content)
 
 
 func _general(portrait: bool) -> void:

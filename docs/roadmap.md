@@ -348,6 +348,10 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
       màn chơi ở 19.5:9, 16:9, 4:3 và dọc 9:19.5 (kích thước cửa sổ qua `override.cfg` tạm; `scene_shot.gd` tự đặt
       canvas theo hướng). Lần chụp đầu phát hiện danh sách bài tràn ở màn dọc (dòng điều kiện mở khóa quá dài) → chữ
       trong nút bài tự xuống dòng, danh sách cao hơn khi dọc. Đã xem lại cả 24 ảnh.
+- [x] **GD3-268** UX cảm ứng (người dùng báo 2026-10-15: khó cuộn danh sách bài, không vuốt trên bài được, nút quá
+      nhỏ): `TouchScroll` vuốt trên nội dung + quán tính (danh sách bài, cài đặt), thanh cuộn dày hơn, nút tối thiểu
+      96 đơn vị canvas trên màn cảm ứng, nút tạm dừng HUD lớn hơn. Làm ở branch `feat/gameplay-v4` (worktree
+      `D:\godot\GeoDash3d-gameplay`). Đã kiểm bằng mô phỏng vuốt/chạm và ảnh `--touch-ui` ngang/dọc; **chưa thử trên máy thật**.
 - [x] **GD3-259** Thiết kế lại toàn bộ giao diện theo ảnh mẫu người dùng gửi (2026-10-15): theme neon kính tối,
       icon vector cho mọi nút, header BACK + tiêu đề + phụ đề; trang chủ cột trái; cài đặt chia tab (+ GIỚI THIỆU,
       nút hiệu chỉnh trong ÂM THANH); danh sách bài có ảnh bìa Codex, badge độ khó, điểm cao nhất, lọc độ khó; cửa

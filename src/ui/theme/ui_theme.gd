@@ -19,8 +19,13 @@ const SUCCESS: Color = Color(0.55, 0.95, 0.35)
 const TIER_COLORS: Dictionary[String, Color] = {"EASY": Color(0.5, 0.85, 0.2), "NORMAL": Color(0.15, 0.6, 1.0),
 		"HARD": Color(0.95, 0.25, 0.35), "HARDER": Color(0.95, 0.45, 0.15), "EXPERT": Color(0.7, 0.3, 1.0)}
 const RADIUS: int = 12
+## Touch screens: interactive controls are at least this tall (canvas units; about 7 mm on a 1080p-tall phone).
+const TOUCH_MIN_HEIGHT: float = 96.0
+## `-- --touch-ui` forces touch sizes on PC (screenshots of the phone layout).
+const TOUCH_ARGUMENT: String = "--touch-ui"
 
 static var _cached: Theme
+static var _touch: int = -1
 
 
 static func get_theme() -> Theme:
@@ -42,11 +47,31 @@ static func heading_font() -> Font:
 	return _font(0.95)
 
 
+## True on phones / tablets and touch-screen PCs: controls get finger-sized (touch_height).
+static func touch_ui() -> bool:
+	if _touch < 0:
+		_touch = 1 if OS.has_feature("mobile") or DisplayServer.is_touchscreen_available() 				or OS.get_cmdline_user_args().has(TOUCH_ARGUMENT) else 0
+	return _touch == 1
+
+
+## `height` raised to a finger-sized `minimum` on touch screens (unchanged with a mouse).
+static func touch_height(height: float, minimum: float = TOUCH_MIN_HEIGHT) -> float:
+	return maxf(height, minimum) if touch_ui() and height > 0.0 else height
+
+
+## `pixels` scaled up on touch screens (icons, knobs, gaps).
+static func touch_scaled(pixels: int, scale: float = 1.35) -> int:
+	return roundi(pixels * scale) if touch_ui() else pixels
+
+
 static func make_button(text: String, minimum_width: float = 420.0, height: float = 72.0,
 		sound_id: StringName = &"ui.tap") -> Button:
 	var button := Button.new()
 	button.text = text
-	button.custom_minimum_size = Vector2(minimum_width, height)
+	var tall: float = touch_height(height)
+	# Narrow icon buttons (− / +, pause) grow into squares so they stay hittable.
+	var wide: float = maxf(minimum_width, tall) if touch_ui() and minimum_width > 0.0 and minimum_width < tall 			else minimum_width
+	button.custom_minimum_size = Vector2(wide, tall)
 	if not sound_id.is_empty():
 		button.pressed.connect(func() -> void: Sfx.play(sound_id))
 	return button
@@ -165,9 +190,10 @@ static func _panels(theme: Theme) -> void:
 	badge.content_margin_bottom = 2
 	theme.set_stylebox("panel", "Badge", badge)
 	var scroll_grabber: StyleBoxFlat = box(Color(ACCENT, 0.6), Color(ACCENT, 0.6), 0, 0, 4)
-	scroll_grabber.set_content_margin_all(3)
+	# Thick enough to grab with a finger; the list also scrolls by dragging its rows (TouchScroll).
+	scroll_grabber.set_content_margin_all(touch_scaled(7, 1.8))
 	var scroll_track: StyleBoxFlat = box(Color(1, 1, 1, 0.05), Color(0, 0, 0, 0), 0, 0, 4)
-	scroll_track.set_content_margin_all(3)
+	scroll_track.set_content_margin_all(touch_scaled(7, 1.8))
 	theme.set_stylebox("grabber", "VScrollBar", scroll_grabber)
 	theme.set_stylebox("grabber_highlight", "VScrollBar", scroll_grabber)
 	theme.set_stylebox("grabber_pressed", "VScrollBar", scroll_grabber)
@@ -204,10 +230,10 @@ static func _inputs(theme: Theme) -> void:
 	popup.set_content_margin_all(10)
 	theme.set_stylebox("panel", "PopupMenu", popup)
 	theme.set_stylebox("hover", "PopupMenu", box(Color(PRIMARY, 0.85), Color(0, 0, 0, 0), 0, 0, 8))
-	theme.set_font_size("font_size", "PopupMenu", 28)
+	theme.set_font_size("font_size", "PopupMenu", touch_scaled(28, 1.15))
 	theme.set_color("font_color", "PopupMenu", TEXT)
 	theme.set_color("font_hover_color", "PopupMenu", Color.WHITE)
-	theme.set_constant("v_separation", "PopupMenu", 14)
+	theme.set_constant("v_separation", "PopupMenu", touch_scaled(14, 2.2))
 	theme.set_icon("radio_checked", "PopupMenu", UiIcons.get_icon(&"check", 24, ACCENT))
 	theme.set_icon("radio_unchecked", "PopupMenu", PlaceholderTexture2D.new())
 
@@ -222,13 +248,13 @@ static func _inputs(theme: Theme) -> void:
 	fill.shadow_size = 6
 	theme.set_stylebox("grabber_area", "HSlider", fill)
 	theme.set_stylebox("grabber_area_highlight", "HSlider", fill)
-	theme.set_icon("grabber", "HSlider", UiIcons.knob(30, Color.WHITE, HOT))
-	theme.set_icon("grabber_highlight", "HSlider", UiIcons.knob(34, Color.WHITE, HOT))
+	theme.set_icon("grabber", "HSlider", UiIcons.knob(touch_scaled(30, 1.6), Color.WHITE, HOT))
+	theme.set_icon("grabber_highlight", "HSlider", UiIcons.knob(touch_scaled(34, 1.6), Color.WHITE, HOT))
 
 	# The *_mirrored icons are used right-to-left (settings rows put the switch before its description).
 	for suffix: String in ["", "_disabled", "_mirrored", "_disabled_mirrored"]:
-		theme.set_icon("checked" + suffix, "CheckButton", UiIcons.switch(true, 40))
-		theme.set_icon("unchecked" + suffix, "CheckButton", UiIcons.switch(false, 40))
+		theme.set_icon("checked" + suffix, "CheckButton", UiIcons.switch(true, touch_scaled(40)))
+		theme.set_icon("unchecked" + suffix, "CheckButton", UiIcons.switch(false, touch_scaled(40)))
 	var clear := StyleBoxEmpty.new()
 	for state: String in ["normal", "hover", "pressed", "hover_pressed", "focus"]:
 		theme.set_stylebox(state, "CheckButton", clear)

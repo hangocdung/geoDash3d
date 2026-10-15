@@ -11,7 +11,7 @@ const MIN_DB: float = -30.0
 
 static func row(icon: StringName, caption: String, control: Control, portrait: bool) -> HBoxContainer:
 	var result := HBoxContainer.new()
-	result.custom_minimum_size = Vector2(0, ROW_HEIGHT)
+	result.custom_minimum_size = Vector2(0, UiTheme.touch_height(ROW_HEIGHT))
 	result.add_theme_constant_override("separation", 22)
 	result.add_child(UiKit.icon_rect(icon, 34, UiTheme.ACCENT))
 	var text: Label = UiKit.label(caption)
@@ -31,7 +31,7 @@ static func dropdown(items: PackedStringArray, selected: int, on_selected: Calla
 	for item: String in items:
 		option.add_item(item)
 	option.select(selected)
-	option.custom_minimum_size = Vector2(0, 60)
+	option.custom_minimum_size = Vector2(0, UiTheme.touch_height(60.0, 84.0))
 	option.item_selected.connect(on_selected)
 	return option
 
@@ -45,7 +45,8 @@ static func volume(value_db: float, on_changed: Callable) -> HBoxContainer:
 	slider.max_value = 0.0
 	slider.step = 1.0
 	slider.value = clampf(value_db, MIN_DB, 0.0)
-	slider.custom_minimum_size = Vector2(240, 44)
+	# A tall rect is the slider's hit area: a finger can grab anywhere along it.
+	slider.custom_minimum_size = Vector2(240, UiTheme.touch_height(44.0, 84.0))
 	slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	slider.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	box.add_child(slider)
@@ -81,6 +82,7 @@ static func stepper(text: String, on_step: Callable) -> HBoxContainer:
 
 static func switch(description: String, enabled: bool, on_toggled: Callable) -> CheckButton:
 	var toggle := CheckButton.new()
+	toggle.custom_minimum_size = Vector2(0, UiTheme.touch_height(56.0, 84.0))
 	toggle.text = description
 	toggle.button_pressed = enabled
 	toggle.toggled.connect(on_toggled)

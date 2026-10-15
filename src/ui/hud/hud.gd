@@ -13,6 +13,7 @@ const POPUP_LIFETIME: float = 0.55
 ## The combo shows from this many hits on.
 const COMBO_MIN_SHOWN: int = 2
 const SHIELD_BAR_WIDTH: float = 170.0
+const PAUSE_POSITION: Vector2 = Vector2(28, 22)
 const SHIELD_COLOR: Color = Color(0.6, 0.75, 1.0)
 const SHIELD_DIM: Color = Color(0.45, 0.5, 0.7, 0.75)
 const GRADE_COLORS: Dictionary[int, Color] = {
@@ -68,15 +69,17 @@ func _ready() -> void:
 	_pause_button.icon = UiIcons.get_icon(&"pause", 34, Color.WHITE)
 	_pause_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_pause_button.focus_mode = Control.FOCUS_NONE
-	_pause_button.position = Vector2(28, 22)
+	_pause_button.position = PAUSE_POSITION
 	_pause_button.pressed.connect(func() -> void: pause_pressed.emit())
 	root.add_child(_pause_button)
-	_mode_label = _make_label(root, 28, Control.PRESET_TOP_LEFT, Vector2(130, 34))
+	# The pause button is finger-sized on touch screens; the mode tag and shield meter sit beside / below it.
+	var pause_end: Vector2 = PAUSE_POSITION + _pause_button.custom_minimum_size
+	_mode_label = _make_label(root, 28, Control.PRESET_TOP_LEFT, Vector2(pause_end.x + 18.0, 34))
 	_mode_label.add_theme_color_override("font_color", Color(0.55, 1.0, 0.45))
 	# Starts right of the pause button and grows rightward (centred text would spill over the button).
 	_mode_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	_mode_label.grow_horizontal = Control.GROW_DIRECTION_END
-	_build_shield_meter(root)
+	_build_shield_meter(root, pause_end.y + 14.0)
 	_score_label = _make_label(root, 36, Control.PRESET_TOP_RIGHT, Vector2(-32, 62))
 	_score_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_score_label.grow_horizontal = Control.GROW_DIRECTION_BEGIN
@@ -190,13 +193,13 @@ func _build_progress(root: Control) -> void:
 
 
 ## Small meter under the pause button: fills with the combo, glows when a shield is ready.
-func _build_shield_meter(root: Control) -> void:
-	_shield_label = _make_label(root, 22, Control.PRESET_TOP_LEFT, Vector2(30, 112))
+func _build_shield_meter(root: Control, top: float) -> void:
+	_shield_label = _make_label(root, 22, Control.PRESET_TOP_LEFT, Vector2(30, top))
 	_shield_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	_shield_label.grow_horizontal = Control.GROW_DIRECTION_END
 	var frame := ColorRect.new()
 	frame.color = Color(0.05, 0.03, 0.12, 0.7)
-	frame.position = Vector2(30, 146)
+	frame.position = Vector2(30, top + 34.0)
 	frame.size = Vector2(SHIELD_BAR_WIDTH, 10)
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(frame)

@@ -57,7 +57,7 @@ static func locked(entry: SongCatalog.Entry, requirement: String, actions: Array
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 	buttons.add_theme_constant_override("separation", 10)
 	for button: Button in actions:
-		button.custom_minimum_size = Vector2(200 if portrait else 230, 52)
+		button.custom_minimum_size = Vector2(200 if portrait else 230, UiTheme.touch_height(52.0, 80.0))
 		buttons.add_child(button)
 	layout.add_child(buttons)
 	return row

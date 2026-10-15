@@ -33,6 +33,7 @@ var _list_column: VBoxContainer
 var _card: SongDetailCard
 var _backdrop: TextureRect
 var _songs: VBoxContainer
+var _scroll: TouchScroll
 var _rows: ButtonGroup
 var _filter: String = ALL
 var _entries: Array[SongCatalog.Entry] = []
@@ -71,8 +72,9 @@ func _build_body() -> void:
 	_list_column.add_theme_constant_override("separation", 16)
 	_split.add_child(_list_column)
 	_list_column.add_child(_build_filters())
-	var scroll := ScrollContainer.new()
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	# Drag the rows themselves to scroll (phones); dragging never selects a row.
+	_scroll = TouchScroll.new()
+	var scroll: TouchScroll = _scroll
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_list_column.add_child(scroll)
@@ -116,6 +118,8 @@ func _build_filters() -> HBoxContainer:
 	for tier: String in tiers:
 		var button: Button = UiKit.button(tier, &"", "TabButton", false, Vector2(0, 58))
 		button.add_theme_font_size_override("font_size", 22)
+		# Chips sit above the list: finger-sized but a little lower than the main buttons.
+		button.custom_minimum_size.y = UiTheme.touch_height(58.0, 80.0)
 		button.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.toggle_mode = true
@@ -177,6 +181,7 @@ func _fill(portrait: bool) -> void:
 		else:
 			any_locked = true
 			_songs.add_child(SongRow.locked(entry, _requirement(entry), _locked_actions(entry), portrait))
+	_scroll.make_draggable(_songs)
 	if focus != null:
 		focus.grab_focus()
 	if any_locked and allow_trials:

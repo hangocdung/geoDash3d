@@ -119,7 +119,9 @@ func _layout() -> void:
 	var portrait: bool = UiKit.is_portrait(self)
 	var margins: Vector4 = UiKit.safe_margins(self)
 	var width: float = MENU_WIDTH_PORTRAIT if portrait else MENU_WIDTH
-	_logo.custom_minimum_size = Vector2(width, width * LOGO.get_height() / LOGO.get_width())
+	# Touch landscape: finger-sized entries take the height, the logo gives some back.
+	var logo_width: float = width * 0.82 if UiTheme.touch_ui() and not portrait else width
+	_logo.custom_minimum_size = Vector2(logo_width, logo_width * LOGO.get_height() / LOGO.get_width())
 	_now_playing_pill.size_flags_horizontal = Control.SIZE_SHRINK_CENTER if portrait else Control.SIZE_SHRINK_BEGIN
 	for child: Node in _menu_column.get_children():
 		if child is Button:
@@ -160,6 +162,7 @@ func _add_button(text: String, icon: StringName, action: StringName, sound_id: S
 
 func _add_small_button(text: String, icon: StringName, action: StringName, row: HBoxContainer) -> void:
 	var button: Button = UiKit.button(text, icon, "SmallButton", false, Vector2(0, 54))
+	button.custom_minimum_size.y = UiTheme.touch_height(54.0, 76.0)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.pressed.connect(func() -> void: action_pressed.emit(action))
 	row.add_child(button)

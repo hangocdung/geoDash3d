@@ -208,6 +208,12 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   ảnh — badge độ khó, điểm cao nhất) lọc theo độ khó (hàng tab phía trên); ngang: danh sách bên trái, demo + thẻ bài
   đã chọn bên phải; dọc: thẻ bài ở dưới.
   Ảnh bìa/logo/icon sinh bằng Codex: `tools/branding/generate_sources.sh` → `build_brand.py`.
+- Cảm ứng (GD3-268): `UiTheme.touch_ui()` (mobile, màn cảm ứng, hoặc `-- --touch-ui` để chụp bố cục điện thoại trên
+  PC) → `touch_height()` nâng mọi nút tạo bằng `make_button` lên tối thiểu 96 đơn vị canvas (chip/nút phụ 76–84),
+  nút icon hẹp thành ô vuông; thanh cuộn, núm thanh trượt, công tắc, mục dropdown to hơn. `TouchScroll`
+  (`src/ui/theme/touch_scroll.gd`) là ScrollContainer kéo được bằng cách vuốt ngay trên nội dung, có quán tính; vuốt
+  quá 18 đơn vị thì hủy lần bấm của nút dưới ngón tay (không chọn nhầm bài). `make_draggable()` đổi STOP → PASS cho
+  nội dung (trừ thanh trượt). Kiểm tra: `tools/capture/touch_scroll_check.gd`.
 - `CalibrationScreen`: click 100 BPM (`ClickTrack` sinh WAV trong code), đo lệch so với beat gần nhất,
   `CalibrationMath.estimate` (median + MAD loại outlier, cần ≥ 8 lần gõ hợp lệ) → lưu `audio_offset_sec`.
 - `Metronome` (SYNC TEST): `AudioStreamSynchronized` [nhạc, click] khóa mẫu, nháy theo beat, ←/→ chỉnh offset;
