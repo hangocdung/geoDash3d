@@ -9,17 +9,17 @@ Danh sách việc **để lên kế hoạch**, chưa bắt đầu (lập 2026-10
   và phải đo FPS/bộ nhớ trên máy thật sau khi thêm (ưu tiên tối thượng: giữ FPS).
 
 ## 0. Việc chặn phát hành — quyết định sớm
-- [ ] **GD3-200** Giấy phép nhạc (Người dùng). Mọi bài trong `assets/music/` đang **chưa xác nhận dùng thương mại**
+- [~] **GD3-200** (→ roadmap Phase 7) Giấy phép nhạc (Người dùng). Mọi bài trong `assets/music/` đang **chưa xác nhận dùng thương mại**
       (Google Flow Music, hdgstudio86 — CLAUDE.md §8). Phải có xác nhận quyền dùng trong game bán/quảng cáo, hoặc
       thay bài. Không lên store khi chưa xong.
-- [ ] **GD3-201** Tên game, icon, thương hiệu (Người dùng quyết, Claude gợi ý). "GeoDash" dễ bị coi là gần
+- [~] **GD3-201** (→ roadmap Phase 7) Tên game, icon, thương hiệu (Người dùng quyết, Claude gợi ý). "GeoDash" dễ bị coi là gần
       "Geometry Dash" (RobTop) → rủi ro bị gỡ/khiếu nại; nên chọn tên riêng, kiểm tra trùng tên trên cả hai store.
-- [ ] **GD3-202** Chính sách quyền riêng tư + điều khoản sử dụng, có URL công khai (Cả hai, S). Bắt buộc khi có
+- [~] **GD3-202** (→ roadmap Phase 7) Chính sách quyền riêng tư + điều khoản sử dụng, có URL công khai (Cả hai, S). Bắt buộc khi có
       Firebase/quảng cáo/IAP; nội dung phải khớp với form Data safety (Play) và Privacy labels (Apple).
-- [ ] **GD3-203** Đối tượng người chơi: đặt 13+ (không nhắm trẻ em) để tránh ràng buộc Families/COPPA với quảng cáo.
+- [~] **GD3-203** (→ roadmap Phase 7) Đối tượng người chơi: đặt 13+ (không nhắm trẻ em) để tránh ràng buộc Families/COPPA với quảng cáo.
 
 ## 1. Thử màn hình dọc (dễ làm video marketing)
-- [ ] **GD3-210** Prototype dọc (Claude, M): tùy chọn hướng màn hình theo build, bộ shot camera cho 9:16 (góc nhìn
+- [~] **GD3-210** (→ roadmap Phase 7) Prototype dọc (Claude, M): tùy chọn hướng màn hình theo build, bộ shot camera cho 9:16 (góc nhìn
       ngang hiện tại quá hẹp khi dọc → thử nhìn từ sau/trên cao), HUD và safe area dọc, chụp ảnh 720×1280, đo FPS trên máy.
 - [ ] **GD3-211** Tiêu chí quyết định (Cả hai): thấy trước được ≥ 1.5 s đường phía trước; người chơi thử chết không
       nhiều hơn bản ngang ở cùng màn; FPS không kém bản ngang; dàn LED và vật cản dưới đường vẫn đọc được.
@@ -27,7 +27,7 @@ Danh sách việc **để lên kế hoạch**, chưa bắt đầu (lập 2026-10
       (camera dọc + xuất chuỗi ảnh/clip) chỉ để làm TikTok/Shorts/Reels.
 
 ## 2. Công cụ làm level
-- [ ] **GD3-220** Một lệnh sinh level (Claude, M): `python tools/charting/auto_level.py <bài.mp3>` tự đo BPM/offset,
+- [x] **GD3-220** (→ roadmap Phase 7) Một lệnh sinh level (Claude, M): `python tools/charting/auto_level.py <bài.mp3>` tự đo BPM/offset,
       kiểm tra bài có hợp game (`hit_grid` ≥ 50 % ô nhịp) và có nằm trên lưới nhịp, tạo dữ liệu LED, chọn độ khó theo
       mật độ cú đánh và bảng màu, sinh level LED, tự kiểm tra (nạp chart, autoplay qua màn, dung sai) và in báo cáo;
       chỉ dừng hỏi khi không chắc (2 ứng viên BPM sát nhau, bài không đạt).

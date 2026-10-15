@@ -26,6 +26,7 @@ var _root: Control
 
 
 func _ready() -> void:
+	DisplayOrientation.apply(get_window())
 	if LaunchOptions.has_level_arguments():
 		Scenes.go_to.call_deferred(get_tree(), Scenes.LEVEL)
 		return

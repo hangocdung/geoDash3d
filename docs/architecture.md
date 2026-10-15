@@ -102,6 +102,10 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   của người chơi (`CameraShots`). Riêng phần xoay của frame được làm mượt khi qua khúc cua. Frame được nâng theo
   độ cao địa hình đã làm mượt (±9 đơn vị, nhìn trước 4) cộng 35% độ cao người chơi so với mặt đất.
   Có thêm rung (trauma) và FOV kick.
+  Màn dọc (GD3-210, prototype): `DisplayOrientation` (build có feature `portrait` = preset "Android Portrait", hoặc
+  tham số `--portrait`, kể cả qua `user://debug_args.txt`) đặt canvas UI 1080×1920 và hướng dọc; khi viewport cao hơn
+  rộng, `CameraShots.get_shot(name, true)` thay mọi shot của chart bằng biến thể nhìn từ sau/trên (đường chạy dọc màn
+  hình). Chart không đổi.
 - **EnvironmentDirector**:
   - Trời là shader (gradient, sao, hành tinh có vành), dùng `AT_CUBEMAP_PASS` để radiance không cập nhật mỗi frame.
     Phần nền nhìn thấy (pass nửa độ phân giải) sáng lên theo `beat_pulse`, mạnh nhất ở chân trời (~6–8% ở đầu phách);
@@ -187,6 +191,11 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   main scene qua API `ProjectSettings`. Không sửa tay các object này trong `project.godot`.
 - `tools/audio/analyze_song.py`: chạy bằng Python của Blender (`aud` giải mã MP3, `numpy`), không cần cài gì thêm.
 - `tools/audio/draft_chart.py`: plan + phân tích → chart.
+- `tools/charting/auto_level.py` (GD3-220): mp3 → level LED một lệnh. `song_tempo.py` đo BPM (tự tương quan của độ
+  tăng âm lượng × prior quanh 125 BPM, tinh chỉnh trên cú đánh mạnh) và offset (`hit_level.fit_offset`); dừng hỏi khi
+  hai ứng viên BPM sát nhau. Kiểm tra `hit_grid.standout_share` ≥ 50 %, đo lưới, sinh LED, chọn độ khó/bảng màu, ghi
+  `tools/charting/levels/<id>.py`, dựng bằng `led_level.build`, rồi `tap_salience`, `check_chart.gd` (autoplay một
+  chart) và `tolerance_report.gd`.
 - Chụp ảnh: `LaunchOptions` + `CaptureController`.
 - Test runner riêng (`tests/framework/`): bắt cả `push_error` qua `Logger` (Godot 4.5+), dùng `expect_errors(n)`.
 

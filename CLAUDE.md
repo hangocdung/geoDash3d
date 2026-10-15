@@ -46,6 +46,8 @@ GODOT="D:/Godot_v4.6.1-stable_win64.exe/Godot_v4.6.1-stable_win64_console.exe"
 "$GODOT" --path . -- --capture=5 --capture-manual
 # Một lượt chơi liên tục cho mọi thời điểm chụp, autoplay cố tình bỏ cue ở beat 44 (xem lá chắn / MISS / chết)
 "$GODOT" --path . -- --capture=21.4,22.36 --capture-continuous --autoplay-miss=44
+# Màn dọc 9:16 (prototype GD3-210): thêm --portrait (cửa sổ 720×1280); APK dọc: preset "Android Portrait"
+"$GODOT" --path . -- --portrait --capture=8.1,49
 # Chụp ảnh một scene bất kỳ (menu, calibration…) sau N frame
 "$GODOT" --path . -s res://tools/capture/scene_shot.gd -- --scene=res://src/ui/menu/main_menu.tscn --frames=240 --out=res://tools/capture/out/menu.png
 # Cấu hình project (input map, autoload, shader globals, main scene) — sửa trong script rồi chạy lại
@@ -56,6 +58,8 @@ GODOT="D:/Godot_v4.6.1-stable_win64.exe/Godot_v4.6.1-stable_win64_console.exe"
 "D:/Programs/Blender/blender.exe" -b --factory-startup -P assets/blender/generate_models.py -- --out assets/models
 # Sinh chart từ phân tích + plan (Python hệ thống); plan có thể dùng recording / fixed
 python tools/audio/draft_chart.py <analysis.json> <plan.json> <out.chart.json>
+# Một lệnh: mp3 → level LED (đo BPM/offset, kiểm tra độ hợp, LED, độ khó, tự kiểm tra); thoát 2 = BPM không chắc → --bpm
+python tools/charting/auto_level.py <song.mp3> --title "Tên bài" --artist "Nguồn"
 # Level đặt tay theo câu nhạc (cách chính): mỗi bài một danh sách beat:mẫu, có bộ kiểm tra ràng buộc
 python tools/charting/levels/pulse_drive.py
 # Bài mới có hợp game không (≥ 50 % ô nhịp có cú đánh "X"), lưới cú đánh nổi bật để đặt chạm, kiểm tra chart đã đặt

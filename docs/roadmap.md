@@ -216,7 +216,28 @@ Người dùng cho phép **trời tông ấm** ở vài phase; camera trong vòn
       Đã gộp vào GD3-260 trong `docs/todo.md`.
 
 Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá app, UI, store, chỉ số): `docs/todo.md`
-(GD3-200 … GD3-265, chưa bắt đầu).
+(GD3-200 … GD3-265). Các mục đã bắt đầu nằm ở Phase 7 bên dưới.
 
 ## Phase 6 — Vertical slice
 - [ ] **GD3-060** Hoàn thiện màn `the_dawn_assembly` sau playtest (nếu giấy phép nhạc cho phép phát hành).
+
+## Phase 7 — Phát hành (giai đoạn A của `docs/todo.md`)
+- [~] **GD3-200** Giấy phép nhạc: đã đọc Google Terms (2026-10-15), tóm tắt và việc cần làm ở
+      `docs/release/legal_and_brand.md` (quyền thương mại của Flow Music gắn với gói trả phí; bài hdgstudio86 cần văn
+      bản cho phép). **→ Người dùng: gom bằng chứng gói/ngày tạo cho từng bài, hoặc thay bài.**
+- [~] **GD3-201** Tên game: đề xuất "Pulse Rail" (+ Beat Rail, Rhythm Rail) trong `docs/release/legal_and_brand.md`.
+      **→ Người dùng chốt tên sau khi tra store + nhãn hiệu**; sau đó Claude đổi tên app, package, icon.
+- [~] **GD3-202** Bản nháp chính sách quyền riêng tư vi/en: `docs/release/privacy_policy.md`. **→ Người dùng điền tên,
+      email, đăng ở URL công khai** (khi có Firebase/AdMob).
+- [~] **GD3-203** Đề xuất 13+, không nhắm trẻ em, cấu hình AdMob/Play tương ứng (`legal_and_brand.md`). **→ Người dùng duyệt.**
+- [~] **GD3-210** Prototype dọc: `DisplayOrientation` (feature `portrait` / `--portrait`), preset "Android Portrait"
+      (package riêng `com.dunghn.geodash3d.portrait`, cài song song), canvas UI 1080×1920, bộ shot sau/trên cho 9:16
+      (`CameraShots._portrait_shot`). Ảnh 720×1280: đường phía trước thấy rõ, HUD vừa; ở khúc cua gắt/lộn camera sau
+      lưng bị lệch nhân vật sang mép. **Còn lại:** đo FPS trên máy (máy bị khóa lúc làm:
+      `EXTRA_ARGS="--portrait --start-beat=64" bash tools/device/perf_matrix.sh baseline` so với không `--portrait`),
+      người chơi thử theo tiêu chí GD3-211, sửa camera ở khúc cua.
+- [x] **GD3-220** Một lệnh sinh level: `tools/charting/auto_level.py` (+ `song_tempo.py`, `check_chart.gd`). Đo BPM đúng
+      9/9 bài đang có (sai số ≤ 0.05 BPM; Tribal 100/150 và Temple Alt 120/160 bị báo "không chắc" → hỏi). Chạy thử trên
+      Pulse Drive: 122 BPM, 66 % ô nhịp có X, 77 % cú bật LED trên lưới → snap, độ khó 4, 253 chạm, autoplay qua, dung
+      sai ±90 ms, độ nổi ×1.60 / ×2.41 (WEAK như mọi bản LED). Ghi chú: theo `hit_grid` ở offset hiện tại, 6 bài
+      hdgstudio86 thêm ngày 2026-10-15 chỉ đạt 3–30 % ô nhịp có X (ngưỡng 50 %).

@@ -26,6 +26,8 @@ var _noise := FastNoiseLite.new()
 var _noise_time: float = 0.0
 var _smoothed_frame: Transform3D
 var _has_frame: bool = false
+## 9:16 view (DisplayOrientation): chart shots are swapped for their portrait variants.
+var _portrait: bool = false
 
 
 func setup(context: LevelContext) -> void:
@@ -56,12 +58,13 @@ func add_fov_kick(degrees: float) -> void:
 
 func update_camera(beat: float, simulation: RunSimulation, delta: float) -> void:
 	var player_height: float = simulation.player_height_at(beat)
+	_portrait = DisplayOrientation.is_portrait(get_viewport())
 	var flip_pose: Vector2 = _flip_pose(simulation, beat)
 	var underside_amount: float = flip_pose.x
 	var roll: float = flip_pose.y
 	var shot: CameraShots.Shot = shot_at(beat)
 	if underside_amount > 0.0:
-		shot = shot.blended(CameraShots.get_shot(CameraShots.UNDERSIDE_SHOT), underside_amount)
+		shot = shot.blended(CameraShots.get_shot(CameraShots.UNDERSIDE_SHOT, _portrait), underside_amount)
 	var target_frame: Transform3D = _context.frame_at_beat(beat)
 	if not _has_frame:
 		_smoothed_frame = target_frame
@@ -128,9 +131,9 @@ func shot_at(beat: float) -> CameraShots.Shot:
 			break
 		current_index = index
 	if current_index < 0:
-		return CameraShots.get_shot(_cues[0].shot if not _cues.is_empty() else CameraShots.DEFAULT_SHOT)
+		return CameraShots.get_shot(_cues[0].shot if not _cues.is_empty() else CameraShots.DEFAULT_SHOT, _portrait)
 	var cue: ChartItems.CameraCue = _cues[current_index]
-	var target: CameraShots.Shot = CameraShots.get_shot(cue.shot)
+	var target: CameraShots.Shot = CameraShots.get_shot(cue.shot, _portrait)
 	if cue.blend_beats <= 0.0 or current_index == 0:
 		return target
 	var weight: float = clampf((beat - cue.beat) / cue.blend_beats, 0.0, 1.0)
@@ -143,7 +146,7 @@ func shot_at(beat: float) -> CameraShots.Shot:
 ## Shot reached by cue `index` at `beat` (handles a cue that started before its blend finished).
 func _settled_shot(index: int, beat: float) -> CameraShots.Shot:
 	var cue: ChartItems.CameraCue = _cues[index]
-	var target: CameraShots.Shot = CameraShots.get_shot(cue.shot)
+	var target: CameraShots.Shot = CameraShots.get_shot(cue.shot, _portrait)
 	if index == 0 or cue.blend_beats <= 0.0 or beat >= cue.beat + cue.blend_beats:
 		return target
 	var weight: float = clampf((beat - cue.beat) / cue.blend_beats, 0.0, 1.0)
