@@ -26,7 +26,7 @@ static func create(color: Color, amount_scale: float, cube_size: float = 0.14) -
 	process.scale_curve = _shrink_curve()
 	process.color_ramp = _fade_ramp(color)
 	particles.process_material = process
-	particles.draw_pass_1 = _cube_mesh(cube_size, 2.5)
+	particles.draw_pass_1 = _cube_mesh(cube_size, 1.6)
 	return particles
 
 
@@ -62,7 +62,7 @@ static func create_burst(color: Color, amount: int, speed: float, size: float, l
 	return particles
 
 
-## Thin streaks flying back past the player (emitter local -X); place the emitter in the track frame.
+## Thin streaks flying back from beside the player (emitter local -X); place the emitter in the track frame.
 static func create_speed_lines(color: Color, amount: int) -> GPUParticles3D:
 	var particles := GPUParticles3D.new()
 	particles.name = "SpeedLines"
@@ -73,7 +73,7 @@ static func create_speed_lines(color: Color, amount: int) -> GPUParticles3D:
 	particles.visibility_aabb = AABB(Vector3(-60, -30, -60), Vector3(120, 60, 120))
 	var process := ParticleProcessMaterial.new()
 	process.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
-	process.emission_box_extents = Vector3(14.0, 4.5, 3.0)
+	process.emission_box_extents = Vector3(2.5, 4.5, 3.0)
 	process.direction = Vector3(-1, 0, 0)
 	process.spread = 0.0
 	process.initial_velocity_min = 45.0

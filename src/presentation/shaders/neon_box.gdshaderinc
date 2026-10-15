@@ -83,10 +83,13 @@ void fragment() {
 	}
 #endif
 	if (draw_face && local_position.z > 0.49) {
-		vec2 face_uv = local_position.xy;
-		float eyes = box_rect(face_uv, vec2(-0.06, 0.08), vec2(0.07, 0.1))
-				+ box_rect(face_uv, vec2(0.2, 0.08), vec2(0.07, 0.1));
-		float mouth = box_rect(face_uv, vec2(0.07, -0.18), vec2(0.16, 0.025));
+		// The face stays upright while the cube rolls: rotate it so its up follows world up projected on the face.
+		vec2 up = (transpose(mat3(MODEL_MATRIX)) * vec3(0.0, 1.0, 0.0)).xy;
+		up = length(up) > 0.001 ? normalize(up) : vec2(0.0, 1.0);
+		vec2 face_uv = vec2(dot(local_position.xy, vec2(up.y, -up.x)), dot(local_position.xy, up));
+		// Centered on the face: two eyes mirrored about the middle, the mouth under them.
+		float eyes = box_rect(vec2(abs(face_uv.x), face_uv.y), vec2(0.15, 0.08), vec2(0.065, 0.1));
+		float mouth = box_rect(face_uv, vec2(0.0, -0.17), vec2(0.13, 0.025));
 		emission += face_color * (eyes + mouth * 0.6) * edge_energy;
 	}
 	ROUGHNESS = 0.3;

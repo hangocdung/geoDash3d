@@ -48,9 +48,9 @@ func setup(context: LevelContext) -> void:
 	var material := ShaderMaterial.new()
 	material.shader = BOX_SHADER
 	material.set_shader_parameter("edge_color", PLAYER_COLOR)
-	material.set_shader_parameter("edge_energy", 6.0)
+	material.set_shader_parameter("edge_energy", 4.0)
 	material.set_shader_parameter("edge_width", 0.07)
-	material.set_shader_parameter("face_energy", 0.35)
+	material.set_shader_parameter("face_energy", 0.22)
 	material.set_shader_parameter("draw_face", true)
 	body.material_override = material
 	add_child(body)

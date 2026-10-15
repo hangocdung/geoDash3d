@@ -11,9 +11,10 @@ const GHOST_LIFETIME: float = 0.28
 const PERFECT_COLOR: Color = Color(1.0, 0.95, 0.55)
 const DEATH_COLOR: Color = Color(0.35, 0.95, 1.0)
 const SPEED_LINE_COLOR: Color = Color(0.7, 0.85, 1.0)
-## Speed-line emitter in the player's track frame: ahead, a little up, on the background side (-Z), so the
-## streaks never cross the road between the camera and the player.
-const SPEED_LINES_OFFSET: Transform3D = Transform3D(Basis(), Vector3(12.0, 3.0, -8.0))
+## Speed-line emitter in the player's track frame: level with the player, a little up, on the background side
+## (-Z). Streaks start beside the player and fly back, so none appear ahead of it or cross the road between the
+## camera and the player.
+const SPEED_LINES_OFFSET: Transform3D = Transform3D(Basis(), Vector3(-1.0, 3.0, -8.0))
 
 var _bursts_small: EffectPools.ParticlePool
 var _bursts_sparkle: EffectPools.ParticlePool
