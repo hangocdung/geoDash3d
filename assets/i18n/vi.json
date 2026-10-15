@@ -69,5 +69,17 @@
 	"You will hear a steady click. Tap the screen each time you hear it.": "Bạn sẽ nghe tiếng click đều đặn. Chạm vào màn hình mỗi khi nghe thấy.",
 	"Use the speakers or headphones you play with.   Current delay: %+d ms": "Dùng loa hoặc tai nghe bạn hay chơi.   Độ trễ hiện tại: %+d ms",
 	"Ads": "Quảng cáo",
-	"AD PRIVACY": "QUYỀN RIÊNG TƯ"
+	"AD PRIVACY": "QUYỀN RIÊNG TƯ",
+	"SHOP": "CỬA HÀNG",
+	"REMOVE ADS": "BỎ QUẢNG CÁO",
+	"UNLOCK ALL SONGS": "MỞ KHÓA MỌI BÀI",
+	"RESTORE PURCHASES": "KHÔI PHỤC GIAO DỊCH",
+	"OWNED": "ĐÃ MUA",
+	"BUY %s": "MUA %s",
+	"The store is only available in the Google Play version.": "Cửa hàng chỉ có ở bản cài từ Google Play.",
+	"Store unavailable": "Không kết nối được cửa hàng",
+	"Store not ready": "Cửa hàng chưa sẵn sàng",
+	"Purchase failed": "Mua không thành công",
+	"Prices unavailable": "Chưa lấy được giá",
+	"Store error": "Lỗi cửa hàng"
 }

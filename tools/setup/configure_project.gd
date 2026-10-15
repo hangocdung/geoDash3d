@@ -13,8 +13,9 @@ const AUTOLOADS: Dictionary[String, String] = {
 }
 
 const MAIN_SCENE: String = "res://src/ui/menu/main_menu.tscn"
-## Editor plugins (export-time only): the Firebase Android plugin (GD3-230), AdMob (GD3-240).
-const EDITOR_PLUGINS: PackedStringArray = ["res://addons/geodash_firebase/plugin.cfg", "res://addons/admob/plugin.cfg"]
+## Editor plugins (export-time only): the Firebase Android plugin (GD3-230), AdMob (GD3-240), Play Billing (GD3-241).
+const EDITOR_PLUGINS: PackedStringArray = ["res://addons/geodash_firebase/plugin.cfg", "res://addons/admob/plugin.cfg",
+		"res://addons/GodotGooglePlayBilling/plugin.cfg"]
 ## Phones start in any orientation; DisplayOrientation locks it while a level runs (GD3-210).
 const HANDHELD_ORIENTATION: DisplayServer.ScreenOrientation = DisplayServer.SCREEN_SENSOR
 

@@ -2,7 +2,8 @@
 # build's RECORD (DEV) / AUTOPLAY (DEV) first pick a song (SongListPanel); practice then picks a playback speed;
 # autoplay plays the whole level by itself with the HUD on (checking a level, filming it).
 # If level arguments were passed on the command line (--autoplay, --capture, …) it jumps straight
-# into the level so tooling keeps working. Related: src/ui/scenes.gd, src/presentation/level/level_runner.gd
+# into the level so tooling keeps working. SHOP opens the in-app purchases (ShopPanel).
+# Related: src/ui/scenes.gd, src/presentation/level/level_runner.gd
 class_name MainMenu
 extends Node
 
@@ -14,6 +15,8 @@ enum SongMode { PLAY, PRACTICE, RECORD, AUTOPLAY }
 var _menu_column: VBoxContainer
 var _settings_button: Button
 var _settings: SettingsPanel
+var _shop: ShopPanel
+var _shop_button: Button
 var _practice_panel: PanelContainer
 var _play_button: Button
 var _practice_button: Button
@@ -28,7 +31,10 @@ var _root: Control
 func _ready() -> void:
 	DisplayOrientation.setup(get_window())
 	DisplayOrientation.allow_rotation()
-	# Before any shortcut into a level: consent and the SDK start here, ads keep preloading during play.
+	# Before any shortcut into a level: purchases (remove_ads) first, then consent and the ad SDK; ads keep
+	# preloading during play.
+	Entitlements.apply()
+	Store.start(get_tree())
 	Ads.start()
 	if LaunchOptions.has_level_arguments():
 		Scenes.go_to.call_deferred(get_tree(), Scenes.LEVEL)
@@ -81,6 +87,7 @@ func _build_menu() -> void:
 	_add_button("CALIBRATE AUDIO", func() -> void: Scenes.go_to(get_tree(), Scenes.CALIBRATION))
 	_add_button("SYNC TEST", func() -> void: Scenes.go_to(get_tree(), Scenes.METRONOME))
 	_settings_button = _add_button("SETTINGS", _open_settings)
+	_shop_button = _add_button("SHOP", _open_shop)
 	if OS.is_debug_build():
 		# Two dev tools share a row so the menu keeps its height.
 		var dev_row := HBoxContainer.new()
@@ -114,6 +121,18 @@ func _open_settings() -> void:
 	_settings.grow_vertical = Control.GROW_DIRECTION_BOTH
 	_settings.closed.connect(_close_settings)
 	_root.add_child(_settings)
+
+
+func _open_shop() -> void:
+	_menu_column.visible = false
+	_shop = ShopPanel.new()
+	_center(_shop)
+	_shop.closed.connect(func() -> void:
+		_shop.queue_free()
+		_shop = null
+		_menu_column.visible = true
+		_shop_button.grab_focus())
+	_root.add_child(_shop)
 
 
 func _close_settings() -> void:
