@@ -23,8 +23,13 @@ func _init(level_chart: LevelChart, gameplay_config: GameplayConfig, start_beat:
 
 ## Highest ground under the player's box at `beat` (Terrain.GAP if there is none).
 func support_at(beat: float) -> float:
-	var distance: float = _chart.distance_at(beat)
-	return _chart.terrain.support_height(distance - _config.player_half_length, distance + _config.player_half_length)
+	return support_under(_chart, _config, beat)
+
+
+## Same as support_at, for read-only code without a PlayerBody (LandingPredictor).
+static func support_under(chart: LevelChart, config: GameplayConfig, beat: float) -> float:
+	var distance: float = chart.distance_at(beat)
+	return chart.terrain.support_height(distance - config.player_half_length, distance + config.player_half_length)
 
 
 func launch(action: ActionDefinition, beat: float) -> void:

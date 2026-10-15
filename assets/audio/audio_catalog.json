@@ -30,7 +30,7 @@
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
-			"pitch_random": 0.06,
+			"pitch_random": 0.04,
 			"max_polyphony": 4,
 			"status": "placeholder"
 		},
@@ -41,7 +41,7 @@
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
-			"pitch_random": 0.06,
+			"pitch_random": 0.04,
 			"max_polyphony": 4,
 			"status": "placeholder"
 		},
@@ -52,7 +52,7 @@
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
-			"pitch_random": 0.06,
+			"pitch_random": 0.04,
 			"max_polyphony": 4,
 			"status": "placeholder"
 		},
@@ -63,7 +63,7 @@
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
-			"pitch_random": 0.03,
+			"pitch_random": 0.02,
 			"max_polyphony": 3,
 			"status": "placeholder"
 		},
@@ -74,7 +74,7 @@
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
-			"pitch_random": 0.03,
+			"pitch_random": 0.02,
 			"max_polyphony": 3,
 			"status": "placeholder"
 		},
@@ -85,18 +85,19 @@
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
-			"pitch_random": 0.04,
+			"pitch_random": 0.03,
 			"max_polyphony": 2,
 			"status": "placeholder"
 		},
 		"player.dodge": {
 			"files": [
 				"res://assets/audio/sfx/placeholder/player.dodge_1.wav",
-				"res://assets/audio/sfx/placeholder/player.dodge_2.wav"
+				"res://assets/audio/sfx/placeholder/player.dodge_2.wav",
+				"res://assets/audio/sfx/placeholder/player.dodge_3.wav"
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
-			"pitch_random": 0.05,
+			"pitch_random": 0.03,
 			"max_polyphony": 2,
 			"status": "placeholder"
 		},
@@ -107,29 +108,31 @@
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
-			"pitch_random": 0.05,
+			"pitch_random": 0.03,
 			"max_polyphony": 2,
 			"status": "placeholder"
 		},
 		"player.jump": {
 			"files": [
 				"res://assets/audio/sfx/placeholder/player.jump_1.wav",
-				"res://assets/audio/sfx/placeholder/player.jump_2.wav"
+				"res://assets/audio/sfx/placeholder/player.jump_2.wav",
+				"res://assets/audio/sfx/placeholder/player.jump_3.wav"
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
-			"pitch_random": 0.05,
+			"pitch_random": 0.03,
 			"max_polyphony": 2,
 			"status": "placeholder"
 		},
 		"player.land": {
 			"files": [
 				"res://assets/audio/sfx/placeholder/player.land_1.wav",
-				"res://assets/audio/sfx/placeholder/player.land_2.wav"
+				"res://assets/audio/sfx/placeholder/player.land_2.wav",
+				"res://assets/audio/sfx/placeholder/player.land_3.wav"
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
-			"pitch_random": 0.05,
+			"pitch_random": 0.03,
 			"max_polyphony": 2,
 			"status": "placeholder"
 		},
@@ -140,7 +143,7 @@
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
-			"pitch_random": 0.03,
+			"pitch_random": 0.02,
 			"max_polyphony": 3,
 			"status": "placeholder"
 		},
@@ -151,7 +154,7 @@
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
-			"pitch_random": 0.04,
+			"pitch_random": 0.03,
 			"max_polyphony": 2,
 			"status": "placeholder"
 		},
@@ -162,7 +165,7 @@
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
-			"pitch_random": 0.03,
+			"pitch_random": 0.02,
 			"max_polyphony": 3,
 			"status": "placeholder"
 		},
@@ -173,7 +176,7 @@
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
-			"pitch_random": 0.03,
+			"pitch_random": 0.02,
 			"max_polyphony": 3,
 			"status": "placeholder"
 		},

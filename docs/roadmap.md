@@ -276,3 +276,15 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
         và thành phố hơn), MEDIUM không đổi (40). Chưa đạt tiêu chí "FPS dọc không kém ngang" → cần giảm tầm nhìn /
         mật độ cảnh ở chế độ dọc trước khi chốt.
       - Còn đo: khi có google-services.json (Firebase chạy thật).
+- [x] **GD3-255** Bộ âm kiểu trống (người dùng thấy âm cũ không hợp, 2026-10-15): một bộ trống phòng thu gọn, khô; nhảy =
+      rimshot, tiếp đất = kick, lách = clap, lộn = 2 tom, PERFECT = clave, GREAT = mõ gỗ, chết / sóng đổi phase = taiko,
+      vật cản = hi-hat / floor tom / snare roll, lá chắn = chuông ride / crash bị chặn. Giữ nguyên các ID âm.
+- [x] **GD3-256** Prompt Flow mới trong `docs/design/sfx/sfx_video_prompts.md`: text-to-video cận cảnh đúng chiếc trống
+      được đánh (model tạo âm khớp với cú đánh nhìn thấy), từng cú riêng lẻ, khô, không vang.
+- [ ] **GD3-257** **→ Người dùng:** tạo video Flow theo prompt (2–3 take mỗi ID), đặt ở `art_source/sfx/<ID>_take<N>.mp4`.
+- [~] **GD3-258** Đưa vào game: mức to mới theo nhạc (nhạc đỉnh −15…−11 LUFS; chạm −18, tiếp đất −21, chấm điểm −23,
+      vật cản −22; `sfx_spec.target_lufs`), cắt đuôi vang cho tiếng chạm/tiếp đất trong `build_sfx.py`; âm tạm đổi sang
+      trống tổng hợp cùng vai trò (3 biến thể cho nhảy/tiếp đất/lách) để chơi thử ngay; tiếng tiếp đất phát sớm đúng độ
+      trễ âm thanh nên nghe trùng beat (`LandingPredictor`, test `test_landing_predictor.gd`). Không thêm nút tắt riêng
+      tiếng chạm: thanh âm lượng SFX đã có. **Còn lại:** chạy `build_sfx.py` khi có video, nghe thử, chơi thử trên máy
+      (kiểm tra tiếng tiếp đất có trùng beat với độ trễ đã hiệu chỉnh).

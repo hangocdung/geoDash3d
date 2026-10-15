@@ -1,201 +1,189 @@
-# Âm thanh hiệu ứng (SFX): danh sách và prompt tạo video để tách âm
+# Âm thanh hiệu ứng (SFX): bộ trống và prompt tạo video để tách âm
 
-Quy trình giống dự án zoombieDay: **ảnh đầu vào → Google Flow (image-to-video, có âm thanh) → tải video →
-đặt tên theo ID → `tools/audio/build_sfx.py` tự tách âm, cắt, chuẩn hóa, ghi vào game.**
-Trong lúc chờ, game dùng âm tạm sinh bằng code (`status: placeholder` trong catalog). Âm thật sẽ tự thay thế khi build.
+Phong cách (GD3-255, 2026-10-15): **một bộ trống thống nhất**: trống phòng thu gọn, khô, đánh mạnh, hợp nhạc
+synthwave/EDM. Các cú lớn dùng trống taiko để bắc cầu sang các bài tribal. Âm arcade tương lai của bộ prompt cũ
+không hợp game nên đã bỏ.
 
-Ảnh đầu vào nằm trong [`inputs/`](inputs/), được chụp từ chính game bằng tool capture (16:9).
+Quy trình: **prompt → Google Flow (text-to-video, có âm thanh) → tải video → đặt tên theo ID →
+`tools/audio/build_sfx.py` tự tách âm, cắt, chuẩn hóa, ghi vào game.** Trong lúc chờ, game dùng bộ trống tạm tổng hợp
+bằng code (`tools/audio/synth_placeholder_sfx.py`, cùng vai trò như bảng dưới, `status: placeholder` trong catalog).
+Âm thật tự thay thế khi build.
 
 ## 0. Quy tắc chung (đọc trước)
 
-**Ưu tiên:** **P1** là bộ cốt lõi cho cảm giác chơi, nên làm trước. **P2** làm sau, gồm các âm cho Phase 4.5
-(lách làn, lộn, vật cản vào sân). **P3** là phần trau chuốt.
+**Vì sao cho thấy cảnh đánh trống:** model video tạo âm khớp với hành động nhìn thấy. Cảnh cận một cú dùi đập vào
+đúng chiếc trống cho ra tiếng trống sạch, đúng lúc chạm. Cảnh khối nhảy trong game (cách cũ) kéo âm về tiếng "vút"
+khó đoán. Vì vậy **dùng text-to-video, không cần ảnh đầu vào**; ảnh trong `inputs/` là của bộ prompt cũ.
 
-**Thiết lập video:** 8 giây, **16:9**, chất lượng cao nhất. Mỗi prompt tạo **2–3 take** rồi giữ take có âm sạch nhất,
-hoặc giữ cả nếu đều tốt: script sẽ gom biến thể từ mọi take.
+**Thiết lập video:** 8 giây, 16:9, chất lượng cao nhất. Mỗi prompt tạo **2–3 take**; script gom biến thể từ mọi
+take (tối đa 4 cú đánh to và sạch nhất mỗi ID).
 
 **Mẹo lấy âm sạch:**
-- Mỗi clip chỉ chứa **một loại âm**, lặp 3–4 lần, cách nhau khoảng 1,5–2 giây. Một clip cho ra 3–4 biến thể để random trong game.
-- Luôn có câu **"no music, no speech"**. Model video rất hay tự chèn nhạc nền.
-- Camera đứng yên, không cắt cảnh. Mô tả âm đặt **sau** mô tả hình.
-- **Âm nên ngắn và ít cao độ** (không thành giai điệu), để không lệch tông với nhạc nền.
-  Riêng `run.complete` và `ui.confirm` được phép có cao độ.
+- Mỗi clip chỉ **một loại âm**, đánh **từng cú riêng lẻ** 3–4 lần, nghỉ 1,5–2 giây giữa các cú (không thành điệu trống).
+- Luôn có "no music, no melody, no speech". Model rất hay tự chèn nhạc nền hoặc đánh thành nhịp.
+- Âm **khô, ngắn, không vang phòng**: tiếng chạm phát ngay khi chạm màn hình nên phải tắt nhanh, tiếng vang làm
+  rối nhịp nhạc.
+- Take có tiếng nhạc, giọng nói, vang dài hoặc dùi đánh thành chuỗi: bỏ, tạo lại.
 
-**Đuôi gắn vào mọi prompt SFX** (các prompt bên dưới đã ghép sẵn, chỉ cần copy cả khối):
-`Static locked-off camera, no cuts, no text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.`
+**Đuôi gắn vào mọi prompt** (các prompt bên dưới đã ghép sẵn, chỉ cần copy cả khối):
+`Static locked-off close-up camera, no cuts, no text, dark studio lit by cyan and magenta neon. Audio: only the drum hits shown, close-miked dry studio recording, tight and punchy, short natural decay, no reverb, no music, no melody, no speech, no voice, no ambience, clean silence between hits.`
 
 **Negative prompt** (nếu công cụ hỗ trợ):
-`music, background music, soundtrack, melody, singing, speech, dialogue, narration, voice-over, crowd, camera shake, scene cut, text, subtitles, watermark, distorted audio`
+`music, drum beat, groove, rhythm pattern, melody, bass line, singing, speech, dialogue, crowd, reverb, echo, room ambience, camera shake, scene cut, text, subtitles, watermark, distorted audio`
 
-**Đặt tên file tải về:** `art_source/sfx/<ID>_take<N>.mp4`, ví dụ `art_source/sfx/player.jump_take1.mp4`.
-Sau đó chạy:
+**Đặt tên file tải về:** `art_source/sfx/<ID>_take<N>.mp4`, ví dụ `art_source/sfx/player.jump_take1.mp4`
+(`art_source/` không commit). Sau đó chạy:
 ```bash
 python tools/audio/build_sfx.py
 ```
-Script in ra những ID đã xử lý và ID còn thiếu, đồng thời tạo trang nghe thử `tools/audio/out/sfx_review.html`.
+Script in ra ID đã xử lý, ID còn là âm tạm, và tạo trang nghe thử `tools/audio/out/sfx_review.html`. Một cú đánh dính
+tạp âm: cắt tay bằng `art_source/sfx/cuts.json` (xem đầu file `build_sfx.py`).
 
-**License:** chỉ dùng gói có quyền thương mại. Ghi lại tên công cụ, gói và ngày tạo; script lưu sha256 nguồn vào `assets/audio/sfx_manifest.json`.
+**Mức to** (tự chuẩn hóa, `tools/audio/sfx_spec.py`): nhạc của game đỉnh khoảng −15…−11 LUFS. Tiếng chạm −18,
+chạm đất −21 (nằm dưới tiếng kick của nhạc), chấm điểm −23, vật cản −22, chết/vỡ lá chắn −15. Game phát tiếng chạm
+đất **sớm đúng bằng độ trễ âm thanh** (độ trễ máy + hiệu chỉnh) nên nghe trùng beat tiếp đất. Tiếng chạm thì phát
+ngay lúc chạm.
+
+**License:** chỉ dùng gói Flow có quyền thương mại. Ghi lại gói và ngày tạo; script lưu sha256 nguồn vào
+`assets/audio/sfx_manifest.json`.
 
 ## 1. Bảng tổng hợp
 
-| # | ID (tên file) | Ưu tiên | Ảnh đầu vào | Dùng khi |
+| # | ID (tên file) | Ưu tiên | Trống | Dùng khi |
 |---|---|---|---|---|
-| A1 | `player.jump` | P1 | `in_jump` | nhảy |
-| A2 | `player.land` | P1 | `in_jump` | tiếp đất |
-| A3 | `player.death` | P1 | `in_death` | khối vỡ |
-| A4 | `judge.perfect` | P1 | `in_jump` | chạm PERFECT |
-| A5 | `run.checkpoint` | P1 | `in_chase` | qua checkpoint (luyện tập) |
-| A6 | `run.complete` | P1 | `in_complete` | hoàn thành màn |
-| A7 | `ui.tap` | P1 | `in_menu` | bấm nút |
-| A8 | `ui.confirm` | P1 | `in_menu` | bấm PLAY / START |
-| B1 | `ui.back` | P2 | `in_menu` | quay lại / đóng |
-| B2 | `fx.shockwave` | P2 | `in_chase` | sóng xung kích lúc nhạc drop |
-| B3 | `fx.flash` | P2 | `in_chase` | lóe sáng đổi đoạn |
-| B4 | `player.dodge` | P2 | `in_dodge` | lách làn |
-| B5 | `player.flip` | P2 | `in_flip` | lộn xuống mặt dưới đường |
-| B6 | `hazard.rise` | P2 | `in_jump` | gai trồi lên |
-| B7 | `hazard.drop` | P2 | `in_drop` | tường rơi xuống |
-| B8 | `hazard.unfold` | P2 | `in_gate` | cổng năng lượng bật |
-| C1 | `judge.great` | P3 | `in_jump` | chạm GREAT |
-| C2 | `run.attempt` | P3 | `in_chase` | bắt đầu lượt chơi |
-| C3 | `ui.pause` | P3 | `in_menu` | tạm dừng |
-| D1 | `player.shield` | P2 | `in_chase` | combo nạp đầy một lá chắn |
-| D2 | `player.shield_break` | P2 | `in_death` | lá chắn đỡ một cú va chạm |
-
-> Ảnh của B4–B8 đã được chụp lại sau Phase 4.5, đúng cảnh tường cam, cổng lime và lúc lộn xuống mặt dưới.
+| A1 | `player.jump` | P1 | snare rimshot | chạm để nhảy (cả vòng nhảy, bệ bật) |
+| A2 | `player.land` | P1 | kick | tiếp đất |
+| A3 | `player.death` | P1 | taiko + crash | va chạm chết |
+| A4 | `judge.perfect` | P1 | clave | chạm PERFECT |
+| A5 | `run.checkpoint` | P1 | snare flam + crash nhẹ | qua checkpoint (luyện tập) |
+| A6 | `run.complete` | P1 | fill tom + kick + crash | hoàn thành màn |
+| A7 | `ui.tap` | P1 | gõ hai dùi | bấm nút |
+| A8 | `ui.confirm` | P1 | 2 tom thấp → cao | bấm PLAY / START |
+| B1 | `ui.back` | P2 | 2 tom cao → thấp | quay lại / đóng |
+| B2 | `fx.shockwave` | P2 | trống lớn (taiko) | sóng xung kích lúc đổi phase |
+| B3 | `fx.flash` | P2 | cymbal swell + chặn | lóe sáng đổi đoạn |
+| B4 | `player.dodge` | P2 | vỗ tay (clap) | lách làn (cả vòng lao xuống) |
+| B5 | `player.flip` | P2 | 2 tom nhanh | lộn, lộn tròn, chạy mặt dưới |
+| B6 | `hazard.rise` | P2 | hi-hat đóng | gai/cưa/mìn trồi lên |
+| B7 | `hazard.drop` | P2 | floor tom | vật cản rơi xuống |
+| B8 | `hazard.unfold` | P2 | snare roll ngắn | cổng bung ra |
+| C1 | `judge.great` | P3 | mõ gỗ (woodblock) | chạm GREAT |
+| C2 | `run.attempt` | P3 | 2 tiếng gõ dùi | bắt đầu lượt chơi |
+| C3 | `ui.pause` | P3 | hi-hat mở rồi đóng | tạm dừng |
+| D1 | `player.shield` | P2 | chuông ride cymbal | combo nạp đầy một lá chắn |
+| D2 | `player.shield_break` | P2 | crash + snare, chặn cymbal | lá chắn đỡ một cú va chạm |
 
 ---
 
 ## A. Bộ cốt lõi (P1)
 
 ### A1 · `player.jump` · P1
-<img src="inputs/in_jump.jpg" width="240"> `inputs/in_jump.jpg`
 ```
-The glowing cyan cube on the neon track hops up into the air four times, about 1.5 seconds apart, each hop leaving a short trail of glowing pixel squares. Sound of each hop: a short, airy synth "whoop" with a quick upward pitch sweep and a soft electronic pop at the start, very short and punchy. Static locked-off camera, no cuts, no text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
+Close-up of a drumstick striking the rim and the head of a snare drum at the same moment (a rimshot), one single hit at a time, four hits in total with about two seconds of stillness between hits. Sound of each hit: a crisp, tight, dry snare rimshot crack, very short. Static locked-off close-up camera, no cuts, no text, dark studio lit by cyan and magenta neon. Audio: only the drum hits shown, close-miked dry studio recording, tight and punchy, short natural decay, no reverb, no music, no melody, no speech, no voice, no ambience, clean silence between hits.
 ```
 
 ### A2 · `player.land` · P1
-<img src="inputs/in_jump.jpg" width="240"> `inputs/in_jump.jpg`
 ```
-The glowing cyan cube drops and lands firmly on the glass-and-metal neon track four times, about 1.5 seconds apart; each landing sends a small ring of light across the floor. Sound of each landing: a soft, tight electronic thump with a tiny glassy tick on top, dry and short. Static locked-off camera, no cuts, no text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
+Close-up of a bass drum pedal: the felt beater hits the kick drum head, one single hit at a time, four hits in total with about two seconds of stillness between hits. Sound of each hit: a deep, tight, punchy kick drum thump, short and dry, no boom tail. Static locked-off close-up camera, no cuts, no text, dark studio lit by cyan and magenta neon. Audio: only the drum hits shown, close-miked dry studio recording, tight and punchy, short natural decay, no reverb, no music, no melody, no speech, no voice, no ambience, clean silence between hits.
 ```
 
 ### A3 · `player.death` · P1
-<img src="inputs/in_death.jpg" width="240"> `inputs/in_death.jpg`
 ```
-The glowing cyan cube crashes into a pink crystal spike and shatters into dozens of small glowing pixel shards with a bright flash; this happens three times, about 2 seconds apart, the cube reappearing each time. Sound of each crash: a crisp crystal-glass shatter layered with a short electric zap and digital glitch crackle, ending quickly. Static locked-off camera, no cuts, no text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
+A drummer strikes a large taiko drum hard with a thick wooden stick while hitting a crash cymbal at the same moment, three times in total with about three seconds of stillness between hits. Sound of each hit: a massive deep drum boom together with a bright crash cymbal splash, fading out within about one second. Static locked-off close-up camera, no cuts, no text, dark studio lit by cyan and magenta neon. Audio: only the drum hits shown, close-miked dry studio recording, tight and punchy, short natural decay, no reverb, no music, no melody, no speech, no voice, no ambience, clean silence between hits.
 ```
 
 ### A4 · `judge.perfect` · P1
-<img src="inputs/in_jump.jpg" width="240"> `inputs/in_jump.jpg`
 ```
-As the glowing cube jumps over the pink spike, a burst of golden sparkles flashes around it; this repeats four times, about 1.5 seconds apart. Sound of each burst: a very short, bright magical shimmer sparkle, airy and high, like tiny glass chimes brushed once, no melody. Static locked-off camera, no cuts, no text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
+Close-up of two wooden claves clicked together, one single click at a time, four clicks in total with about two seconds of stillness between clicks. Sound of each click: a bright, high, dry wooden clave click, very short. Static locked-off close-up camera, no cuts, no text, dark studio lit by cyan and magenta neon. Audio: only the drum hits shown, close-miked dry studio recording, tight and punchy, short natural decay, no reverb, no music, no melody, no speech, no voice, no ambience, clean silence between hits.
 ```
 
 ### A5 · `run.checkpoint` · P1
-<img src="inputs/in_chase.jpg" width="240"> `inputs/in_chase.jpg`
 ```
-The glowing cube races along the neon track and passes through a glowing green checkpoint light three times, about 2 seconds apart; each time a soft green glow pulses outward. Sound of each pass: a smooth rising airy whoosh ending in a single clean crystalline ping. Static locked-off camera, no cuts, no text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
+A drummer plays a quick snare drum flam followed immediately by a light crash cymbal hit, three times in total with about three seconds of stillness in between. Sound of each: a short snare flam into a soft crash cymbal that fades quickly. Static locked-off close-up camera, no cuts, no text, dark studio lit by cyan and magenta neon. Audio: only the drum hits shown, close-miked dry studio recording, tight and punchy, short natural decay, no reverb, no music, no melody, no speech, no voice, no ambience, clean silence between hits.
 ```
 
 ### A6 · `run.complete` · P1
-<img src="inputs/in_complete.jpg" width="240"> `inputs/in_complete.jpg`
 ```
-The words LEVEL COMPLETE glow brighter and a wave of cyan and pink light sweeps across the neon track, then everything settles. Sound: one short triumphant retro-futuristic synth fanfare stinger lasting about two seconds, bright and celebratory, with a shimmering tail, followed by complete silence. Static locked-off camera, no cuts, no new text, same neon synthwave game style as the image. Audio: only the described stinger, crisp close-miked game audio, no background music bed, no speech, no voice, no ambience, silence after the stinger.
+A drummer plays one short energetic drum fill down the toms, four quick hits from the high tom to the floor tom, and ends on a big kick drum and crash cymbal hit together, then stops completely and holds still while the cymbal rings out. This happens only once. Sound: a two-second triumphant drum fill ending on a big crash cymbal that rings and fades, then silence. Static locked-off camera, no cuts, no text, dark studio lit by cyan and magenta neon. Audio: only the drums shown, close-miked studio recording, punchy, no music, no melody, no speech, no voice, no ambience, silence after the cymbal fades.
 ```
 
 ### A7 · `ui.tap` · P1
-<img src="inputs/in_menu.jpg" width="240"> `inputs/in_menu.jpg`
 ```
-A finger-press highlight lands on the menu buttons one after another, four times, about 1.5 seconds apart; each button glows briefly when pressed. Sound of each press: a soft, clean, short digital UI click with a gentle glassy bleep, very subtle. Static locked-off camera, no cuts, no new text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
+Close-up of two drumsticks tapped together lightly, one single tap at a time, four taps in total with about two seconds of stillness between taps. Sound of each tap: a soft, light, dry wooden stick click, subtle. Static locked-off close-up camera, no cuts, no text, dark studio lit by cyan and magenta neon. Audio: only the drum hits shown, close-miked dry studio recording, tight and punchy, short natural decay, no reverb, no music, no melody, no speech, no voice, no ambience, clean silence between hits.
 ```
 
 ### A8 · `ui.confirm` · P1
-<img src="inputs/in_menu.jpg" width="240"> `inputs/in_menu.jpg`
 ```
-The PLAY button is pressed four times, about 1.5 seconds apart; each press makes it flash bright pink and pulse outward. Sound of each press: a confident two-tone upward digital bleep, short and bright, like a futuristic confirm sound. Static locked-off camera, no cuts, no new text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
+A drummer hits a low tom and then a high tom in quick succession ("ba-dum", low then high), four times in total with about two seconds of stillness in between. Sound of each: two quick bright tom hits rising in pitch, short and confident. Static locked-off close-up camera, no cuts, no text, dark studio lit by cyan and magenta neon. Audio: only the drum hits shown, close-miked dry studio recording, tight and punchy, short natural decay, no reverb, no music, no melody, no speech, no voice, no ambience, clean silence between hits.
 ```
 
 ## B. Bổ sung (P2)
 
 ### B1 · `ui.back` · P2
-<img src="inputs/in_menu.jpg" width="240"> `inputs/in_menu.jpg`
 ```
-A highlight slides back off the menu buttons four times, about 1.5 seconds apart, each time the glow dimming. Sound of each: a soft short downward digital bleep, gentle and muted. Static locked-off camera, no cuts, no new text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
+A drummer softly hits a high tom and then a low tom in quick succession (high then low), four times in total with about two seconds of stillness in between. Sound of each: two quick soft tom hits falling in pitch, short. Static locked-off close-up camera, no cuts, no text, dark studio lit by cyan and magenta neon. Audio: only the drum hits shown, close-miked dry studio recording, tight and punchy, short natural decay, no reverb, no music, no melody, no speech, no voice, no ambience, clean silence between hits.
 ```
 
 ### B2 · `fx.shockwave` · P2
-<img src="inputs/in_chase.jpg" width="240"> `inputs/in_chase.jpg`
 ```
-Three times, about 2.5 seconds apart, a huge ring of cyan light bursts outward from the racing cube and sweeps across the whole neon city. Sound of each burst: a deep, punchy sub-bass boom with a wide airy whoosh tail, cinematic but short. Static locked-off camera, no cuts, no text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
+A drummer strikes a huge taiko drum once with both heavy sticks, three times in total with about three seconds of stillness between hits. Sound of each hit: a deep, powerful, booming drum hit with a short low rumble that fades within about one second. Static locked-off camera, no cuts, no text, dark studio lit by cyan and magenta neon. Audio: only the drum hits shown, close-miked studio recording, punchy, short natural decay, no music, no melody, no speech, no voice, no ambience, clean silence between hits.
 ```
 
 ### B3 · `fx.flash` · P2
-<img src="inputs/in_chase.jpg" width="240"> `inputs/in_chase.jpg`
 ```
-Three times, about 2.5 seconds apart, the whole scene flashes bright white-pink for an instant and the neon colors intensify. Sound of each flash: a short bright swell that rises quickly into a soft airy impact, like a reversed shimmer cut off at the peak. Static locked-off camera, no cuts, no text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
+A percussionist rolls soft mallets on a suspended cymbal, the sound swelling louder for about one second, then grabs the cymbal with one hand to stop it dead; this happens three times with about two seconds of stillness in between. Sound of each: a rising shimmering cymbal swell that cuts off abruptly. Static locked-off close-up camera, no cuts, no text, dark studio lit by cyan and magenta neon. Audio: only the cymbal shown, close-miked dry studio recording, no music, no melody, no speech, no voice, no ambience, clean silence in between.
 ```
 
 ### B4 · `player.dodge` · P2
-<img src="inputs/in_dodge.jpg" width="240"> `inputs/in_dodge.jpg`
 ```
-The glowing cube quickly rolls sideways into the next lane of the neon track and back, four times, about 1.5 seconds apart, leaving a brief smear of light. Sound of each sidestep: a quick, tight sideways swoosh with a tiny electronic tick as the cube rolls, short and snappy. Static locked-off camera, no cuts, no text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
+Close-up of two hands clapping once sharply, one single clap at a time, four claps in total with about two seconds of stillness between claps. Sound of each clap: a tight, crisp, dry hand clap, like a drum machine clap, very short. Static locked-off close-up camera, no cuts, no text, dark studio lit by cyan and magenta neon. Audio: only the claps shown, close-miked dry studio recording, tight and punchy, short natural decay, no reverb, no music, no melody, no speech, no voice, no ambience, clean silence between claps.
 ```
 
 ### B5 · `player.flip` · P2
-<img src="inputs/in_flip.jpg" width="240"> `inputs/in_flip.jpg`
 ```
-The glowing cube swings over the edge of the neon track and flips underneath it, then flips back on top, three times, about 2.5 seconds apart. Sound of each flip: a smooth circular whoosh that sweeps around, ending in a soft mechanical magnetic clunk as the cube locks onto the underside. Static locked-off camera, no cuts, no text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
+A drumstick hits a high tom and then a mid tom very quickly (two fast hits), four times in total with about two seconds of stillness in between. Sound of each: two fast punchy tom hits, high then lower, short and dry. Static locked-off close-up camera, no cuts, no text, dark studio lit by cyan and magenta neon. Audio: only the drum hits shown, close-miked dry studio recording, tight and punchy, short natural decay, no reverb, no music, no melody, no speech, no voice, no ambience, clean silence between hits.
 ```
 
 ### B6 · `hazard.rise` · P2
-<img src="inputs/in_jump.jpg" width="240"> `inputs/in_jump.jpg`
 ```
-Four times, about 1.5 seconds apart, a sharp pink crystal spike shoots up out of the neon track floor and locks in place with a small flash. Sound of each spike: a quick crystalline scraping "shing" rising in pitch, ending in a tiny glassy click. Static locked-off camera, no cuts, no text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
+Close-up of a closed hi-hat cymbal tapped once with the tip of a drumstick, one single tap at a time, four taps in total with about two seconds of stillness between taps. Sound of each tap: a short, tight closed hi-hat tick. Static locked-off close-up camera, no cuts, no text, dark studio lit by cyan and magenta neon. Audio: only the drum hits shown, close-miked dry studio recording, tight and punchy, short natural decay, no reverb, no music, no melody, no speech, no voice, no ambience, clean silence between hits.
 ```
 
 ### B7 · `hazard.drop` · P2
-<img src="inputs/in_drop.jpg" width="240"> `inputs/in_drop.jpg`
 ```
-Three times, about 2 seconds apart, a heavy dark block with glowing orange edges falls from the sky and slams onto the neon track, kicking up a ring of glowing dust. Sound of each slam: a deep heavy thud with a metallic clank and a short low rumble, powerful but brief. Static locked-off camera, no cuts, no text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
+Close-up of a floor tom struck hard once with a drumstick, one single hit at a time, four hits in total with about two seconds of stillness between hits. Sound of each hit: a deep, heavy floor tom thud, short. Static locked-off close-up camera, no cuts, no text, dark studio lit by cyan and magenta neon. Audio: only the drum hits shown, close-miked dry studio recording, tight and punchy, short natural decay, no reverb, no music, no melody, no speech, no voice, no ambience, clean silence between hits.
 ```
 
 ### B8 · `hazard.unfold` · P2
-<img src="inputs/in_gate.jpg" width="240"> `inputs/in_gate.jpg`
 ```
-Three times, about 2 seconds apart, a tall lime-green energy gate unfolds sideways across the neon track and its force field switches on with a flicker. Sound of each gate: a fast electric power-up hum that swells for half a second and ends with a crisp zap. Static locked-off camera, no cuts, no text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
+A drummer plays a short snare drum buzz roll that swells for half a second and ends with one sharp rimshot, three times in total with about two seconds of stillness in between. Sound of each: a quick rising snare roll ending in a crisp crack. Static locked-off close-up camera, no cuts, no text, dark studio lit by cyan and magenta neon. Audio: only the drum hits shown, close-miked dry studio recording, tight and punchy, short natural decay, no reverb, no music, no melody, no speech, no voice, no ambience, clean silence between hits.
 ```
 
 ## C. Trau chuốt (P3)
 
 ### C1 · `judge.great` · P3
-<img src="inputs/in_jump.jpg" width="240"> `inputs/in_jump.jpg`
 ```
-As the glowing cube jumps over the spike, a small burst of cyan sparkles appears around it, four times, about 1.5 seconds apart. Sound of each: a soft, short, airy sparkle tick, gentler and lower than a bright chime, no melody. Static locked-off camera, no cuts, no text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
+Close-up of a wooden woodblock struck once with a drumstick, one single hit at a time, four hits in total with about two seconds of stillness between hits. Sound of each hit: a soft, hollow woodblock knock, short. Static locked-off close-up camera, no cuts, no text, dark studio lit by cyan and magenta neon. Audio: only the drum hits shown, close-miked dry studio recording, tight and punchy, short natural decay, no reverb, no music, no melody, no speech, no voice, no ambience, clean silence between hits.
 ```
 
 ### C2 · `run.attempt` · P3
-<img src="inputs/in_chase.jpg" width="240"> `inputs/in_chase.jpg`
 ```
-Three times, about 2.5 seconds apart, the glowing cube materializes on the neon track in a quick swirl of pixels. Sound of each appearance: a short soft digital materialize sound, a quick rising shimmer of tiny blips. Static locked-off camera, no cuts, no text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
+A drummer clicks two drumsticks together twice, like a quick count-in ("click-click"), three times in total with about three seconds of stillness in between. Sound of each: two quick light wooden stick clicks. Static locked-off close-up camera, no cuts, no text, dark studio lit by cyan and magenta neon. Audio: only the drum hits shown, close-miked dry studio recording, tight and punchy, short natural decay, no reverb, no music, no melody, no speech, no voice, no ambience, clean silence between hits.
 ```
 
 ### C3 · `ui.pause` · P3
-<img src="inputs/in_menu.jpg" width="240"> `inputs/in_menu.jpg`
 ```
-Four times, about 1.5 seconds apart, the screen dims slightly as if the game is paused, then brightens again. Sound of each dim: a soft muffled downward whoosh, short and gentle. Static locked-off camera, no cuts, no new text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
+Close-up of an open hi-hat struck once and immediately closed with the foot pedal, four times in total with about two seconds of stillness in between. Sound of each: a short open hi-hat "tsss" cut off quickly. Static locked-off close-up camera, no cuts, no text, dark studio lit by cyan and magenta neon. Audio: only the drum hits shown, close-miked dry studio recording, tight and punchy, short natural decay, no reverb, no music, no melody, no speech, no voice, no ambience, clean silence between hits.
 ```
 
-## D. Lá chắn (P2, thêm 2026-10-14)
+## D. Lá chắn (P2)
 
 ### D1 · `player.shield` · P2
-<img src="inputs/in_chase.jpg" width="240"> `inputs/in_chase.jpg`
 ```
-Three times, about 2 seconds apart, a pale blue ring of light snaps into place around the glowing cyan cube as it runs along the neon track. Sound of each: a bright two-step rising crystal chime with a soft shimmer tail, short and positive. Static locked-off camera, no cuts, no text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
+Close-up of the bell of a ride cymbal struck with the shoulder of a drumstick, one single hit at a time, four hits in total with about two seconds of stillness between hits. Sound of each hit: a clear, bright ride cymbal bell ping with a short ring. Static locked-off close-up camera, no cuts, no text, dark studio lit by cyan and magenta neon. Audio: only the drum hits shown, close-miked dry studio recording, tight and punchy, short natural decay, no reverb, no music, no melody, no speech, no voice, no ambience, clean silence between hits.
 ```
 
 ### D2 · `player.shield_break` · P2
-<img src="inputs/in_death.jpg" width="240"> `inputs/in_death.jpg`
 ```
-Three times, about 2 seconds apart, the glowing cube hits a pink crystal spike, but a pale blue ring of light around it bursts like glass and the spike shatters while the cube keeps running. Sound of each: a bright glassy shatter with a ringing metallic shimmer and a soft low thump, lighter and shorter than a crash. Static locked-off camera, no cuts, no text, same neon synthwave game style as the image. Audio: only the described sound effects, crisp close-miked futuristic arcade game SFX, no music, no speech, no voice, no ambience, clean silence between sounds.
+A drummer hits a crash cymbal hard together with the snare drum, then immediately grabs the cymbal with one hand to choke it, three times in total with about two seconds of stillness in between. Sound of each: a loud crash cymbal and snare hit that is cut off abruptly (cymbal choke). Static locked-off close-up camera, no cuts, no text, dark studio lit by cyan and magenta neon. Audio: only the drum hits shown, close-miked dry studio recording, tight and punchy, short natural decay, no reverb, no music, no melody, no speech, no voice, no ambience, clean silence between hits.
 ```

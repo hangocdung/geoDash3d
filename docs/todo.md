@@ -106,7 +106,7 @@ Android (Godot Android plugin v2 bọc Firebase Android SDK), iOS làm sau (GD3-
 Mọi âm trong game vẫn là âm tạm sinh bằng code (`status: placeholder` trong `assets/audio/audio_catalog.json`) và
 không hợp game. Quy trình tạo âm thật đã có sẵn (prompt → Google Flow tạo video có tiếng → tải về → tách âm bằng
 `tools/audio/build_sfx.py`); chỉ cần đổi phong cách sang **tiếng trống**, nhất là tiếng chạm và tiếng chạm đất.
-- [ ] **GD3-255** Chốt bộ âm (Claude đề xuất, Người dùng duyệt, S): một bộ trống thống nhất hợp nhạc synthwave/EDM và
+- [x] **GD3-255** (→ roadmap Phase 7) Chốt bộ âm (Claude đề xuất, Người dùng duyệt, S): một bộ trống thống nhất hợp nhạc synthwave/EDM và
       tribal. Đề xuất bộ trống điện tử kiểu 808/909, kèm vài take trống taiko để so. Âm ngắn, khô, không thành giai điệu:
       - Lần chạm: `player.jump` rimshot hoặc snare ngắn; `player.dodge` clap hoặc tom nhỏ; `player.flip` (cả lộn tròn và
         chạy mặt dưới) 2 nhát tom nhanh.
@@ -115,12 +115,12 @@ không hợp game. Quy trình tạo âm thật đã có sẵn (prompt → Google
       - `player.death` trống lớn + crash; `player.shield_break` cymbal choke; vật cản vào sân: tom/taiko nhẹ;
         `run.complete` fill trống + crash.
       - Rà lại danh sách ID trong `tools/audio/sfx_spec.py`: thêm ID nếu cần âm riêng cho vòng nhảy, bệ bật, chạy mặt dưới.
-- [ ] **GD3-256** Viết lại prompt (Claude, S): sửa `docs/design/sfx/sfx_video_prompts.md` theo phong cách trống (đuôi prompt
+- [x] **GD3-256** (→ roadmap Phase 7) Viết lại prompt (Claude, S): sửa `docs/design/sfx/sfx_video_prompts.md` theo phong cách trống (đuôi prompt
       kiểu "single close-miked drum hit, dry, short decay, no melody, no music, no speech"). Giữ quy tắc cũ: mỗi clip một
       loại âm lặp 3–4 lần cách nhau 1,5–2 giây, camera đứng yên; chụp lại ảnh đầu vào từ game hiện tại nếu cần.
 - [ ] **GD3-257** Tạo video (Người dùng): Google Flow, 2–3 take mỗi ID, tải về `art_source/sfx/<ID>_take<N>.mp4`
       (không commit). Ghi lại gói/ngày tạo để chứng minh quyền dùng thương mại.
-- [ ] **GD3-258** Tách âm và đưa vào game (Claude, S–M):
+- [~] **GD3-258** (→ roadmap Phase 7) Tách âm và đưa vào game (Claude, S–M):
       - Chạy `python tools/audio/build_sfx.py` (tách âm, cắt, chuẩn hóa), nghe thử ở `tools/audio/out/sfx_review.html`.
       - Chỉnh mức to theo nhóm trong `sfx_spec.py` so với nhạc; thêm tùy chọn tắt riêng tiếng chạm nếu người chơi thấy rối.
       - Cân nhắc phát tiếng chạm đất **đúng beat tiếp đất**: thời điểm này biết trước nhờ parabol, nên có thể phát sớm

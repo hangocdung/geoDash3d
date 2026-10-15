@@ -1,5 +1,6 @@
 # Routes RunSimulation signals and chart VFX cues to presentation nodes (player, camera, vfx,
 # obstacles, environment, HUD) and sound effects. Owns no gameplay state; rebinds to each simulation.
+# The landing drum is played ahead by the audio delay so it is heard on the landing beat (GD3-258).
 # Related: src/presentation/level/level_runner.gd, src/gameplay/simulation/run_simulation.gd
 class_name PresentationRouter
 extends RefCounted
@@ -9,6 +10,8 @@ const GHOST_INTERVAL_SEC: float = 0.045
 const PHASE_FLASH: float = 1.0
 const PHASE_FOV_KICK_DEG: float = 9.0
 const PHASE_SHAKE: float = 0.25
+## A landing this close to the one whose drum was played ahead is that landing (no second drum).
+const LANDING_MATCH_BEATS: float = 0.03
 
 var _runner: LevelRunner
 var _context: LevelContext
@@ -19,6 +22,10 @@ var _shields_shown: int = 0
 var _ghost_timer: float = 0.0
 ## Off for the menu attract mode, so the backdrop stays quiet (sounds and vibrations).
 var sfx_enabled: bool = true
+## Audio output delay + calibration, in song seconds: sounds started now are heard this much later.
+var _audio_delay_sec: float = 0.0
+## Landing whose drum was already played ahead (NAN: none pending).
+var _landing_sound_beat: float = NAN
 
 
 func _init(runner: LevelRunner, context: LevelContext) -> void:
@@ -37,6 +44,9 @@ func bind(simulation: RunSimulation, start_beat: float) -> void:
 	simulation.shield_changed.connect(_on_shield_changed)
 	simulation.shield_used.connect(_on_shield_used)
 	_shields_shown = 0
+	_landing_sound_beat = NAN
+	_audio_delay_sec = maxf((AudioServer.get_output_latency() + _runner.song_clock.calibration_offset_sec)
+			* _runner.song_clock.playback_rate, 0.0)
 	_runner.hud.set_combo(0)
 	_runner.hud.set_score(0)
 	_runner.hud.set_shield(false, 0.0)
@@ -51,7 +61,9 @@ func bind(simulation: RunSimulation, start_beat: float) -> void:
 		_next_phase += 1
 
 
+## Every running frame: phase changes, chart VFX cues and the landing drum played ahead.
 func fire_vfx_cues(beat: float) -> void:
+	_play_landing_ahead()
 	var phases: Array[ChartItems.Phase] = _context.chart.phases
 	while _next_phase < phases.size() and phases[_next_phase].beat <= beat:
 		_on_phase_started(_next_phase, phases[_next_phase])
@@ -119,9 +131,25 @@ func _on_action_finished(action: ActionDefinition, _end_beat: float) -> void:
 
 func _on_player_landed(beat: float, airtime_beats: float) -> void:
 	_runner.player_view.on_landed(airtime_beats)
-	_play(&"player.land")
+	if is_nan(_landing_sound_beat) or absf(beat - _landing_sound_beat) > LANDING_MATCH_BEATS:
+		_play(&"player.land")
+	_landing_sound_beat = NAN
 	_runner.vfx_director.on_landed(_feet_at(beat), PlayerView.PLAYER_COLOR)
 	_runner.camera_director.add_shake(0.12)
+
+
+## Starts the landing drum once the predicted landing is within the audio delay, so it is heard on that beat;
+## the landing itself then stays silent (a tap that changes the arc lands elsewhere and gets its own drum).
+func _play_landing_ahead() -> void:
+	var now: float = _simulation.current_beat
+	if not sfx_enabled or _audio_delay_sec <= 0.0 or (not is_nan(_landing_sound_beat) and _landing_sound_beat >= now):
+		return
+	var chart: LevelChart = _context.chart
+	var reach: float = chart.beat_at_time(chart.time_at(now) + _audio_delay_sec) - now
+	var landing: float = LandingPredictor.landing_beat(_simulation, reach)
+	if not is_nan(landing):
+		_landing_sound_beat = landing
+		_play(&"player.land")
 
 
 ## Track frame at the player's feet (terrain and jump height included; upside down under the track).

@@ -24,6 +24,9 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
     gian bài hơn; trước GD3-034 phần này không nhân `rate` nên luyện tập/ghi ở tốc độ chậm bị bù lố.
   - Lệch dưới 50 ms thì kéo dần về 12% mỗi frame; lệch hơn thì nhảy thẳng. Thời gian không bao giờ chạy lùi.
   - Audio được phát *sớm* đúng bằng latency + calibration để âm thanh khớp với hình.
+  - SFX tiếp đất cũng phát sớm đúng độ trễ đó (GD3-258): `PresentationRouter` hỏi `LandingPredictor` (bước thử một
+    bản sao `VerticalMotion` trên lưới mô phỏng, chỉ đọc) xem có tiếp đất trong khoảng độ trễ tới không, phát tiếng
+    kick ngay, rồi bỏ qua tiếng của chính lần tiếp đất đó. Tiếng chạm phát ngay lúc chạm (không đoán trước được).
   - Đếm ngược trước nhạc: thời gian bắt đầu âm và chạy theo đồng hồ hệ thống cho tới 0.
   - Đã đo thực tế: lệch ±7 ms trên PC (`--debug-clock`).
 - **TempoMap**: beat ⇄ giây, hỗ trợ đổi BPM. Xây trên `PiecewiseLinearMap`, cấu trúc này cũng dùng cho beat → khoảng cách.

@@ -23,7 +23,7 @@ import numpy as np
 from scipy import signal
 from scipy.io import wavfile
 
-from sfx_spec import CATEGORIES, ROOT, SAMPLE_RATE, SFX_DIR, SOUNDS, catalog_entry, load_catalog, save_catalog
+from sfx_spec import ROOT, SAMPLE_RATE, SFX_DIR, SOUNDS, catalog_entry, load_catalog, save_catalog, target_lufs
 
 SR = SAMPLE_RATE
 DEFAULT_FFMPEG = Path("D:/ffmpeg-8.1-essentials_build/bin/ffmpeg.exe")
@@ -33,6 +33,8 @@ CEILING_DB = -1.0
 MAX_GAIN_DB = 30.0
 # Per-category event shaping: max event length, merge gap (s) and fade-out (s).
 SHAPES = {
+    # Drum hits for taps and landings: keep the hit, cut long room tails (GD3-258).
+    "player": dict(max_len=0.45, merge=0.06, fade_out=0.05),
     "stinger": dict(max_len=3.5, merge=0.6, fade_out=0.25),
     "fx": dict(max_len=1.6, merge=0.25, fade_out=0.12),
     "impact": dict(max_len=1.2, merge=0.15, fade_out=0.08),
@@ -169,7 +171,7 @@ def build_sound(sound_id, sources, overrides, ffmpeg, out_dir, tmp_dir):
     files, records = [], []
     for index, candidate in enumerate(chosen):
         shaped = shape_event(candidate["audio"], shape["fade_out"])
-        normalized, before, gain, after = normalize(shaped, CATEGORIES[category]["target"])
+        normalized, before, gain, after = normalize(shaped, target_lufs(sound_id))
         path = out_dir / ("%s_%d.wav" % (sound_id, index + 1))
         wavfile.write(path, SR, (np.clip(normalized, -1, 1) * 32767).astype(np.int16))
         files.append(path)
@@ -243,4 +245,5 @@ def main():
     print("STILL PLACEHOLDER (%d): %s" % (len(missing), ", ".join(missing)))
 
 
-main()
+if __name__ == "__main__":
+    main()
