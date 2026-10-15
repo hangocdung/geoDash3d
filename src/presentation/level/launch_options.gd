@@ -5,6 +5,7 @@
 #   --capture-continuous (one run from the start for all capture times, instead of a restart per time)
 #   --practice --rate=0.75 (practice mode with checkpoints, slower playback)
 #   --autoplay-miss=34,66.5 (autoplay skips the cues on these beats: shows misses, shields, deaths)
+#   --video (clip for social media: autoplay, frame clock, clean HUD; tools/capture/record_clip.sh)
 #   --portrait (9:16; read by DisplayOrientation) --lang=vi (UI language; read by Locale), both skipped here
 # Related: src/presentation/level/level_runner.gd, tools/capture/README.md
 class_name LaunchOptions
@@ -13,7 +14,7 @@ extends RefCounted
 const DEBUG_ARGS_PATH: String = "user://debug_args.txt"
 const LEVEL_ARGUMENT_KEYS: PackedStringArray = ["chart", "start-beat", "autoplay", "invincible", "clock", "capture",
 		"capture-out", "capture-manual", "skip-start", "debug-clock", "practice", "rate", "perf", "autoplay-miss",
-		"capture-continuous"]
+		"capture-continuous", "video"]
 
 var chart_path: String = ""
 var start_beat: float = NAN
@@ -30,6 +31,8 @@ var capture_continuous: bool = false
 var debug_clock: bool = false
 ## Debug performance experiments, e.g. --perf=noglow,nosky,scale=0.5 (see LevelRunner._apply_perf_flags).
 var perf_flags: PackedStringArray = []
+## Marketing clip (`--video`, GD3-212): autoplay with sounds, no pause button / mode label / attempt toast.
+var video: bool = false
 ## Menu background: autoplay, no HUD, no input, loops forever.
 var attract_mode: bool = false
 ## Practice: checkpoints, restart from the last one, optional slower playback.
@@ -89,6 +92,10 @@ static func from_command_line() -> LaunchOptions:
 				options.practice = true
 			"rate":
 				options.playback_rate = clampf(value.to_float(), 0.25, 1.0)
+			"video":
+				options.video = true
+				options.autoplay = true
+				options.frame_delta_clock = true
 			"autoplay-miss":
 				for item: String in value.split(",", false):
 					options.autoplay_missed_beats.append(item.to_float())

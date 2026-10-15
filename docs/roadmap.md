@@ -254,3 +254,7 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
       `Locale.t("ATTEMPT %d") % n`; tên điểm chấm (PERFECT…), COMBO, nhãn độ khó và công cụ DEV giữ tiếng Anh. Test
       `tests/core/test_locale.gd` (mọi `Locale.t` có bản dịch, placeholder khớp). Thêm ngôn ngữ: thêm mã vào
       `Locale.LANGUAGES` + file json.
+- [x] **GD3-212** Quay clip quảng cáo: `--video` (autoplay, đồng hồ theo frame, có SFX, ẩn nút tạm dừng / nhãn AUTOPLAY /
+      toast lần thử) + `tools/capture/record_clip.sh` (Movie Maker 60 FPS → ffmpeg H.264 1080×1920 hoặc 1920×1080;
+      khung hình đặt bằng `override.cfg` tạm vì `--resolution` không đổi được kích thước của Movie Maker). Thử: Pulse
+      Drive (LED) từ beat 64, 8 s, dọc → mp4 1080×1920 có tiếng, ~29 s để quay.

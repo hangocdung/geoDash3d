@@ -79,9 +79,10 @@ func enable_music_meter(chart: LevelChart, clock: SongClock) -> void:
 	_root.add_child(meter)
 
 
-## Hides everything (menu attract mode).
-func set_overlay_enabled(enabled: bool) -> void:
+## Hides everything (menu attract mode); `controls` false hides the pause button (video clips).
+func set_overlay_enabled(enabled: bool, controls: bool = true) -> void:
 	visible = enabled
+	_pause_button.visible = controls
 
 
 func _process(delta: float) -> void:

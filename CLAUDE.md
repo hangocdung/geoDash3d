@@ -48,6 +48,8 @@ GODOT="D:/Godot_v4.6.1-stable_win64.exe/Godot_v4.6.1-stable_win64_console.exe"
 "$GODOT" --path . -- --capture=21.4,22.36 --capture-continuous --autoplay-miss=44
 # Màn dọc 9:16 (GD3-210): thêm --portrait (cửa sổ 720×1280). Trên điện thoại game xoay theo máy ở menu, khóa khi chơi
 "$GODOT" --path . -- --portrait --capture=8.1,49
+# Clip quảng cáo TikTok/Shorts (mp4 1080×1920, tự chơi, HUD gọn): <chart id> [beat bắt đầu] [giây] [portrait|landscape] [--lang=vi]
+bash tools/capture/record_clip.sh pulse_drive_led 64 20
 # Chụp ảnh một scene bất kỳ (menu, calibration…) sau N frame
 "$GODOT" --path . -s res://tools/capture/scene_shot.gd -- --scene=res://src/ui/menu/main_menu.tscn --frames=240 --out=res://tools/capture/out/menu.png
 # Cấu hình project (input map, autoload, shader globals, main scene) — sửa trong script rồi chạy lại

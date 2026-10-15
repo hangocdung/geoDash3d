@@ -23,7 +23,7 @@ Danh sách việc **để lên kế hoạch**, chưa bắt đầu (lập 2026-10
       ngang hiện tại quá hẹp khi dọc → thử nhìn từ sau/trên cao), HUD và safe area dọc, chụp ảnh 720×1280, đo FPS trên máy.
 - [ ] **GD3-211** Tiêu chí quyết định (Cả hai): thấy trước được ≥ 1.5 s đường phía trước; người chơi thử chết không
       nhiều hơn bản ngang ở cùng màn; FPS không kém bản ngang; dàn LED và vật cản dưới đường vẫn đọc được.
-- [ ] **GD3-212** Phương án rẻ nếu dọc không hợp (Claude, S–M): giữ gameplay ngang, thêm chế độ quay video dọc
+- [x] **GD3-212** (→ roadmap Phase 7) Phương án rẻ nếu dọc không hợp (Claude, S–M): giữ gameplay ngang, thêm chế độ quay video dọc
       (camera dọc + xuất chuỗi ảnh/clip) chỉ để làm TikTok/Shorts/Reels.
 
 ## 2. Công cụ làm level

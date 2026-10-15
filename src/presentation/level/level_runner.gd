@@ -89,7 +89,7 @@ func _ready() -> void:
 	if options.practice:
 		_practice = PracticeTracker.new(chart)
 		hud.show_mode(Locale.t("PRACTICE  %d%%") % roundi(options.playback_rate * 100.0))
-	elif options.autoplay and not options.attract_mode:
+	elif options.autoplay and not options.attract_mode and not options.video:
 		hud.show_mode("AUTOPLAY")
 	song_clock.song_finished.connect(_on_song_finished)
 	UserSettings.changed.connect(_apply_volume)
@@ -145,7 +145,7 @@ func begin_run() -> void:
 	if _attempt == 1 and not options.is_capture_run():
 		vfx_director.prewarm(camera_director.camera)
 	song_clock.calibration_offset_sec = UserSettings.audio_offset_sec
-	if not options.attract_mode:
+	if not options.attract_mode and not options.video:
 		var notes: PackedStringArray = [Locale.t("ATTEMPT %d") % _attempt]
 		for note: String in [_pending_best_note, _pending_sync_note]:
 			if not note.is_empty():
@@ -237,7 +237,7 @@ func _toggle_pause() -> void:
 
 
 func _connect_hud() -> void:
-	hud.set_overlay_enabled(not options.attract_mode)
+	hud.set_overlay_enabled(not options.attract_mode, not options.video)
 	hud.pause_pressed.connect(_toggle_pause)
 	hud.run_menu.resume_pressed.connect(_toggle_pause)
 	hud.run_menu.restart_pressed.connect(restart)
