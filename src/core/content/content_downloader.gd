@@ -9,6 +9,13 @@ const CACHE_LIMIT: int = 512 * 1024 * 1024
 var busy: bool = false
 var cache_limit: int = CACHE_LIMIT
 var _http: HTTPRequest
+var _validation_task: int = -1
+
+class ChartCheck extends RefCounted:
+	var valid: bool = false
+
+	func run(path: String, config: GameplayConfig) -> void:
+		valid = ChartLoader.load_file(path, config) != null
 
 
 func _ready() -> void:
@@ -75,8 +82,14 @@ func download(song: Dictionary) -> void:
 		if DirAccess.rename_absolute(path + ".part", path) != OK:
 			_finish("Cannot save download")
 			return
-	var chart: LevelChart = ChartLoader.load_file(ContentCatalog.chart_path(song), GameplayConfig.create_default())
-	if chart == null:
+	var check := ChartCheck.new()
+	_validation_task = WorkerThreadPool.add_task(check.run.bind(
+			ContentCatalog.chart_path(song), GameplayConfig.create_default()), false, "Validate download")
+	while not WorkerThreadPool.is_task_completed(_validation_task):
+		await get_tree().process_frame
+	WorkerThreadPool.wait_for_task_completion(_validation_task)
+	_validation_task = -1
+	if not check.valid:
 		_finish("Invalid chart")
 		return
 	var marker := FileAccess.open(directory.path_join("installed.json"), FileAccess.WRITE)
@@ -135,3 +148,9 @@ func _finish(message: String) -> void:
 	busy = false
 	progress.emit(message)
 	changed.emit()
+
+
+func _exit_tree() -> void:
+	if _validation_task >= 0:
+		WorkerThreadPool.wait_for_task_completion(_validation_task)
+		_validation_task = -1

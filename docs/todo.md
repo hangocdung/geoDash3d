@@ -219,7 +219,7 @@ thấy nội dung). Các bài còn lại tải khi cần, sau đó chơi offline
       - Thử trên máy thật: tắt mạng giữa lúc tải, đầy bộ nhớ, đổi manifest giữa phiên.
 
 Đã kiểm tra 161 test game và 6 test backend; desktop tải 4 chart, sửa file hỏng, chấm sao và khôi phục backup đạt.
-Android còn chờ mở khóa điện thoại để thử mất mạng/dung lượng/FPS. Chi tiết: `D:/sntgames-api/docs/verification.md`.
+Android đã tải/chấm sao/chơi offline và thử ngắt mạng; menu LOW đo ngắn 41,7 → 41,2 FPS trước/sau cache. Hạn mức cache 0 từ chối an toàn; chưa lấp đầy ổ để thử ENOSPC thực tế. Chi tiết: `D:/sntgames-api/docs/verification.md`.
 
 ## 8. Lộ trình đề xuất
 Thứ tự theo phụ thuộc: đo lường có trước khi có người chơi bên ngoài; quyết định màn dọc trước khi làm UI; 14 ngày thử

@@ -380,4 +380,4 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
   thêm chart_revision, đường dẫn tương đối an toàn; tách kỷ lục theo revision.
 - [x] **GD3-276 / 277 / 278** Gói nhạc/chart/spectrum/cover, kiểm tra trước publish, staging mã hóa có token;
   tải menu/hash từng frame/kích hoạt nguyên gói, catalog remote; gameplay vẫn Firebase RemoteSettings.
-- [~] **GD3-279** Test parser/hash/merge/version, backend concurrency; 161 test game và 6 test backend đạt; staging tải 4 chart thành công. Android còn chờ mở khóa máy để đo FPS và thử lỗi mạng/dung lượng.
+- [~] **GD3-279** Test parser/hash/merge/version, backend concurrency; 161 test game và 6 test backend đạt; staging tải 4 chart thành công. Android tải 4 chart/chấm sao/offline đạt; đã ngắt mạng và đo menu trước/sau cache. ENOSPC thực tế chưa thử; hạn mức cache 0 từ chối an toàn.
