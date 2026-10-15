@@ -28,6 +28,8 @@ var _root: Control
 func _ready() -> void:
 	DisplayOrientation.setup(get_window())
 	DisplayOrientation.allow_rotation()
+	# Before any shortcut into a level: consent and the SDK start here, ads keep preloading during play.
+	Ads.start()
 	if LaunchOptions.has_level_arguments():
 		Scenes.go_to.call_deferred(get_tree(), Scenes.LEVEL)
 		return
@@ -189,7 +191,7 @@ func _close_practice() -> void:
 	_song_list.visible = true
 
 
-## Consent + SDK on first launch, the menu banner, and an interstitial on coming back from a run (Ads decides
+## The menu banner and an interstitial on coming back from a run (Ads decides
 ## whether enough play has passed). The attract level's music pauses while a full-screen ad is open.
 func _start_ads(level: LevelRunner) -> void:
 	Ads.on_fullscreen = func(shown: bool) -> void:
@@ -199,7 +201,6 @@ func _start_ads(level: LevelRunner) -> void:
 			level.song_clock.pause()
 		else:
 			level.song_clock.resume(0.0)
-	Ads.start()
 	Ads.show_banner()
 	Ads.maybe_show_interstitial()
 
