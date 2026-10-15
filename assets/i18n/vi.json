@@ -81,5 +81,12 @@
 	"Store not ready": "Cửa hàng chưa sẵn sàng",
 	"Purchase failed": "Mua không thành công",
 	"Prices unavailable": "Chưa lấy được giá",
-	"Store error": "Lỗi cửa hàng"
+	"Store error": "Lỗi cửa hàng",
+	"LOCKED": "KHÓA",
+	"Clear %s to unlock": "Qua màn %s để mở",
+	"Clear %s or reach 80%% to unlock": "Qua màn %s hoặc đạt 80%% để mở",
+	"TRY (AD)": "CHƠI THỬ (QC)",
+	"UNLOCK ALL": "MỞ TẤT CẢ",
+	"The ad is not ready yet, try again in a moment.": "Quảng cáo chưa sẵn sàng, thử lại sau giây lát.",
+	"UNLOCKED: %s": "ĐÃ MỞ: %s"
 }

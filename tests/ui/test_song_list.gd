@@ -1,5 +1,5 @@
 # Song menu: easiest chart first by ChartDifficulty (weighted taps per minute x speed); AUTOPLAY (DEV) run options.
-# Related: src/ui/menu/song_list_panel.gd, src/gameplay/chart/chart_difficulty.gd
+# Related: src/core/song_catalog.gd, src/gameplay/chart/chart_difficulty.gd
 extends TestCase
 
 
@@ -20,7 +20,7 @@ func test_score_weights_actions_and_speed() -> void:
 
 
 func test_song_list_is_sorted_easiest_first() -> void:
-	var entries: Array[SongListPanel.Entry] = SongListPanel.list_songs()
+	var entries: Array[SongCatalog.Entry] = SongCatalog.list_songs()
 	assert_true(entries.size() >= 2, "several songs listed")
 	for index: int in range(1, entries.size()):
 		assert_true(entries[index - 1].difficulty <= entries[index].difficulty, "%s before %s" % [

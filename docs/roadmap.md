@@ -312,3 +312,10 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
       LOW 53.5 → 53.5 FPS, MEDIUM 39.9 → 40.0 FPS → không tốn FPS.
       **Còn lại:** tạo sản phẩm + giá trên Play Console, mua thử qua internal testing, kiểm tra giao dịch phía server
       (chưa có), iOS StoreKit (GD3-262).
+- [x] **GD3-242** Khóa / mở bài (người dùng duyệt 2026-10-15, `docs/design/song_unlocks.md`): 3 bài miễn phí, bài kế mở
+      khi qua màn hoặc ≥ 80 % bài trước, bản (LED) và bài thưởng The Dawn Assembly mở khi qua màn bài gốc
+      (`SongUnlocks`, tính từ `HighScores`, không lưu gì thêm); CHƠI THỬ bằng quảng cáo thưởng (mở 1 bài tới khi rời
+      màn; `Ads.preload_rewarded / show_rewarded`); MỞ TẤT CẢ dẫn tới cửa hàng; `unlock_all_songs` mở hết; màn kết quả
+      / lần thử sau báo "ĐÃ MỞ: …"; event `song_unlock`, `rewarded_trial`. Danh sách bài chuyển sang `SongCatalog`.
+      Test `tests/core/test_song_unlocks.gd`. Công cụ DEV thấy mọi bài; `-- --unlock-all`.
+      **Còn lại:** thử quảng cáo thưởng trên máy, Remote Config cho ngưỡng (GD3-233).

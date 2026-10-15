@@ -84,7 +84,7 @@ Android (Godot Android plugin v2 bọc Firebase Android SDK), iOS làm sau (GD3-
       - `unlock_all_songs` (non-consumable), có thể gộp gói `remove_ads + unlock_all` giá ưu đãi.
       - `creator_mode` (non-consumable): tự tạo level bằng nhạc riêng (GD3-243).
       - Nút **Restore purchases** (Apple bắt buộc), quyền lợi lưu cục bộ + kiểm tra lại với store khi mở app.
-- [ ] **GD3-242** Chính sách khóa bài (Người dùng quyết, Claude làm S–M): bao nhiêu bài miễn phí, bài khóa mở bằng
+- [x] **GD3-242** (→ roadmap Phase 7) Chính sách khóa bài (Người dùng quyết, Claude làm S–M): bao nhiêu bài miễn phí, bài khóa mở bằng
       tiến độ / xem quảng cáo / IAP; hiển thị khóa và giá trong danh sách bài.
 - [ ] **GD3-243** Chế độ tự tạo level (Claude, L, cần GD3-221): chọn file nhạc trên máy → phân tích → chơi, lưu
       kỷ lục riêng. Nhạc người chơi chỉ dùng cục bộ, không có chia sẻ (tránh vấn đề bản quyền và kiểm duyệt).

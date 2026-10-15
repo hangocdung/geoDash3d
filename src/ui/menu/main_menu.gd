@@ -34,6 +34,8 @@ func _ready() -> void:
 	# Before any shortcut into a level: purchases (remove_ads) first, then consent and the ad SDK; ads keep
 	# preloading during play.
 	Entitlements.apply()
+	# A rewarded trial lasts until the player leaves the level (GD3-242).
+	SongUnlocks.trial_path = ""
 	Store.start(get_tree())
 	Ads.start()
 	if LaunchOptions.has_level_arguments():
@@ -147,6 +149,11 @@ func _open_songs(mode: SongMode) -> void:
 	_menu_column.visible = false
 	_song_list = SongListPanel.new()
 	_song_list.heading = ["PLAY", "PRACTICE", "RECORD", "AUTOPLAY"][mode]
+	_song_list.apply_locks = mode == SongMode.PLAY or mode == SongMode.PRACTICE
+	_song_list.allow_trials = mode == SongMode.PLAY
+	_song_list.shop_requested.connect(func() -> void:
+		_close_songs()
+		_open_shop())
 	_center(_song_list)
 	_song_list.closed.connect(_close_songs)
 	_song_list.chosen.connect(func(chart: String) -> void:

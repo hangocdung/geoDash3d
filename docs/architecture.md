@@ -215,6 +215,11 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
 - `Locale` (`src/core/locale.gd`): ngôn ngữ giao diện; khóa là chữ tiếng Anh, bản dịch ở `assets/i18n/<mã>.json`
   nạp lúc chạy vào `TranslationServer`. Control tự dịch chữ tĩnh; chuỗi có định dạng gọi `Locale.t(...)` trước khi `%`.
 
+- Khóa bài (GD3-242): `SongCatalog` (danh sách chart, dễ → khó) + `SongUnlocks` (luật mở, tính từ `HighScores` và
+  `Entitlements`, chơi thử qua `trial_path`) ở `src/core`. Chỉ menu bị ảnh hưởng; chart và gameplay không đổi.
+- Kiếm tiền: `Ads` (AdMob: UMP, interstitial giữa các lượt, banner menu, rewarded cho chơi thử), `Store` +
+  `Entitlements` (Play Billing: remove_ads, unlock_all_songs, khôi phục). Chỉ chạy trên Android; PC/test là no-op.
+
 ## 5. Công cụ
 - `tools/setup/configure_project.gd` ghi input map (`tap`, `pause`, `restart`), autoload, shader global và
   main scene qua API `ProjectSettings`. Không sửa tay các object này trong `project.godot`.

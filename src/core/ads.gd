@@ -2,7 +2,8 @@
 # consent with Google UMP, then initializes the SDK (teen content rating, not child-directed: GD3-203) and preloads an
 # interstitial. Interstitials only between runs, when the player is back in the main menu after at least
 # MIN_PLAY_BETWEEN_INTERSTITIALS_SEC of play; never after a death retry (the game restarts by itself) and never during
-# a run. The banner lives in the main menu only. Ad unit IDs: project settings geodash/ads/*_unit (release builds);
+# a run. The banner lives in the main menu only. Rewarded ads (song trials, GD3-242) load when the song list shows a
+# locked song and play only when the player asks; they stay available after remove_ads. Ad unit IDs: project settings geodash/ads/*_unit (release builds);
 # debug builds always use Google's test units.
 # Related: src/ui/menu/main_menu.gd, src/presentation/level/run_telemetry.gd (play time), docs/release/admob_setup.md
 class_name Ads
@@ -16,6 +17,7 @@ const UNIT_SETTING: String = "geodash/ads/%s_unit"
 const TEST_UNITS: Dictionary[String, String] = {
 	"interstitial": "ca-app-pub-3940256099942544/1033173712",
 	"banner": "ca-app-pub-3940256099942544/6300978111",
+	"rewarded": "ca-app-pub-3940256099942544/5224354917",
 }
 
 ## False after the remove_ads purchase (GD3-241): no interstitials, no banner.
@@ -27,6 +29,10 @@ static var _play_since_interstitial: float = 0.0
 static var _interstitial: InterstitialAd
 static var _loading_interstitial: bool = false
 static var _banner: AdView
+static var _rewarded: RewardedAd
+static var _loading_rewarded: bool = false
+static var _earned_reward: bool = false
+static var _on_reward: Callable
 static var _banner_wanted: bool = false
 
 
@@ -76,6 +82,43 @@ static func hide_banner() -> void:
 	if _banner != null:
 		_banner.destroy()
 		_banner = null
+
+
+## Starts loading a rewarded ad if none is ready (the song list calls it when it shows a locked song).
+static func preload_rewarded() -> void:
+	if _state != State.READY or _loading_rewarded or _rewarded != null:
+		return
+	_loading_rewarded = true
+	var callback := RewardedAdLoadCallback.new()
+	callback.on_ad_loaded = func(ad: RewardedAd) -> void:
+		_loading_rewarded = false
+		_rewarded = ad
+		var content := FullScreenContentCallback.new()
+		content.on_ad_showed_full_screen_content = func() -> void: _notify_fullscreen(true)
+		content.on_ad_dismissed_full_screen_content = func() -> void: _rewarded_closed()
+		content.on_ad_failed_to_show_full_screen_content = func(_error: AdError) -> void: _rewarded_closed()
+		ad.full_screen_content_callback = content
+	callback.on_ad_failed_to_load = func(error: LoadAdError) -> void:
+		_loading_rewarded = false
+		push_warning("Ads: rewarded failed to load (%d %s)" % [error.code, error.message])
+	RewardedAdLoader.new().load(_unit("rewarded"), AdRequest.new(), callback)
+
+
+static func rewarded_ready() -> bool:
+	return _rewarded != null
+
+
+## Shows the rewarded ad; `on_reward` runs after it closes, only if the player earned the reward.
+static func show_rewarded(placement: String, on_reward: Callable) -> bool:
+	if _rewarded == null:
+		return false
+	_earned_reward = false
+	_on_reward = on_reward
+	Telemetry.log_event("ad_shown", {"format": "rewarded", "placement": placement})
+	var listener := OnUserEarnedRewardListener.new()
+	listener.on_user_earned_reward = func(_item: RewardedItem) -> void: _earned_reward = true
+	_rewarded.show(listener)
+	return true
 
 
 ## True when the player must be able to reopen the consent form (EEA/UK): Settings shows a button.
@@ -143,6 +186,19 @@ static func _interstitial_closed() -> void:
 		_interstitial = null
 	_notify_fullscreen(false)
 	_load_interstitial()
+
+
+static func _rewarded_closed() -> void:
+	if _rewarded != null:
+		_rewarded.destroy()
+		_rewarded = null
+	_notify_fullscreen(false)
+	var reward: Callable = _on_reward
+	_on_reward = Callable()
+	if _earned_reward and reward.is_valid():
+		reward.call()
+	_earned_reward = false
+	preload_rewarded()
 
 
 static func _notify_fullscreen(shown: bool) -> void:

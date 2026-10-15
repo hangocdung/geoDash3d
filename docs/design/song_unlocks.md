@@ -1,4 +1,4 @@
-# Đề xuất: khóa / mở bài (GD3-242) — CHỜ DUYỆT
+# Khóa / mở bài (GD3-242) — ĐÃ DUYỆT 2026-10-15, đã làm
 
 Lập 2026-10-15. Mục tiêu: lần chơi đầu có đủ bài để thấy vui (không gặp tường trả tiền), người chơi luôn có một bài
 mới "sắp mở" để quay lại, quảng cáo thưởng có chỗ dùng tự nhiên, và `unlock_all_songs` (GD3-241) có giá trị rõ.
@@ -32,7 +32,7 @@ Bài (LED) là bản khó của cùng bài nhạc → đề xuất coi là **"b�
 6. **Luyện tập** (PRACTICE) chỉ cho bài đã mở hoặc đang chơi thử.
 7. **Bài mới thêm sau ra mắt** (GD3-265) xếp vào chuỗi theo độ khó; người đã mở bài kề trước nó thì mở luôn (không bắt
    chơi lại).
-8. Bản debug mở tất cả (để thử); Remote Config (GD3-233) chỉnh được: số bài miễn phí, ngưỡng % (80), bật/tắt chơi thử.
+8. Remote Config (GD3-233) sau này chỉnh được: số bài miễn phí, ngưỡng % (80), bật/tắt chơi thử.
 
 ## Hiển thị trong danh sách bài
 - Bài khóa: biểu tượng ổ khóa + dòng "Qua <bài trước> hoặc đạt 80 % để mở" + nút **CHƠI THỬ (QC)** + nút
@@ -53,8 +53,11 @@ Bài (LED) là bản khó của cùng bài nhạc → đề xuất coi là **"b�
 - Event: `unlock` (song_id, cách mở: progress / iap / trial), `rewarded_trial` (song_id); phễu mở bài cho GD3-232.
 - Test: luật mở theo tiến độ, ngưỡng 80 %, IAP mở tất cả, chơi thử hết hạn khi về menu.
 
-## Câu hỏi cần chốt
-1. 3 bài miễn phí có đủ không (hay 4)?
-2. Ngưỡng 80 % hay chỉ "qua màn"?
-3. Bản (Alt Take) để như bài riêng (như bảng trên) hay gộp làm "bản 2" của bài gốc như (LED)?
-4. The Dawn Assembly chỉ dài 0:58 (và giấy phép nhạc khác nguồn) — giữ trong chuỗi, làm bài thưởng, hay bỏ?
+## Người dùng chốt (2026-10-15)
+1. **3 bài miễn phí.** 2. **Qua màn hoặc ≥ 80 %.** 3. **Alt Take là bài riêng trong chuỗi.**
+4. **The Dawn Assembly là bài thưởng**, mở khi qua màn Fault Line; bản (LED) của nó mở khi qua màn nó.
+
+## Khác với bản đề xuất khi làm
+- Luật 8: bản debug **không** mở tất cả (để thử được khóa trên máy); công cụ DEV (RECORD / AUTOPLAY) luôn thấy mọi bài,
+  `-- --unlock-all` mở tất cả. Remote Config cho các ngưỡng chưa làm (GD3-233).
+- Kỷ lục của lượt chơi thử vẫn lưu, nhưng không giúp nhảy cóc: bài kế chỉ mở khi bài trước đã mở *và* qua màn / 80 %.
