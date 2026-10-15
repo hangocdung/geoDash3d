@@ -213,6 +213,10 @@ Người dùng cho phép **trời tông ấm** ở vài phase; camera trong vòn
       - Ba mức chỉnh: ≥100 ms (3 mẫu, 90%), ≥30 ms (8 mẫu, 70%), ≥12 ms (20 mẫu, 50%).
       - Không học khi autoplay, attract, capture hoặc luyện tập chậm. HUD báo "ATTEMPT n · SYNC +x ms".
 - [ ] **GD3-053** Bản release: keystore release, icon, tên app, AAB cho Google Play (cần quyết định của người dùng).
+      Đã gộp vào GD3-260 trong `docs/todo.md`.
+
+Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá app, UI, store, chỉ số): `docs/todo.md`
+(GD3-200 … GD3-265, chưa bắt đầu).
 
 ## Phase 6 — Vertical slice
 - [ ] **GD3-060** Hoàn thiện màn `the_dawn_assembly` sau playtest (nếu giấy phép nhạc cho phép phát hành).

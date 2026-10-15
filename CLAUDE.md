@@ -9,6 +9,7 @@ Tài liệu chi tiết (chỉ đọc khi task liên quan):
 - `docs/chart_format.md` — định dạng `*.chart.json` và quy trình làm chart cho một bài nhạc
 - `docs/design/` — thiết kế đã chốt cho các phase sắp làm (vd. `gameplay_v2.md`)
 - `docs/roadmap.md` — danh sách task `GD3-xxx` và trạng thái
+- `docs/todo.md` — kế hoạch phát hành chưa bắt đầu (`GD3-2xx`: màn dọc, Firebase, quảng cáo, IAP, store, chỉ số)
 
 ---
 
