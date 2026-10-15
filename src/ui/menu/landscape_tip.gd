@@ -35,6 +35,7 @@ func _refresh() -> void:
 	if visible:
 		# Below the notch / camera cutout: the safe area is in screen pixels, the label in canvas units.
 		var window_height: float = maxf(get_window().size.y, 1.0)
-		var safe_top: float = DisplayServer.get_display_safe_area().position.y 				* get_viewport().get_visible_rect().size.y / window_height
+		var canvas_per_pixel: float = get_viewport().get_visible_rect().size.y / window_height
+		var safe_top: float = DisplayServer.get_display_safe_area().position.y * canvas_per_pixel
 		offset_top = maxf(110.0, safe_top + 40.0)
 		offset_bottom = offset_top + 90.0
