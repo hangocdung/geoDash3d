@@ -85,6 +85,11 @@ static func uses_spectacle_track(tier: Tier) -> bool:
 	return tier != Tier.LOW
 
 
+## LED equalizer on the road's camera-side face (one texel fetch per pixel of that face).
+static func uses_led_wall(_tier: Tier) -> bool:
+	return true
+
+
 ## Phase palette changes blend over a beat; on LOW they switch on one frame (a sky that changes every frame
 ## costs ~3 FPS there, see uses_sky_pulse), hidden under the phase flash.
 static func blends_phase_changes(tier: Tier) -> bool:

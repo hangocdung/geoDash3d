@@ -17,6 +17,7 @@ const DETAIL_TEXTURES_PARAMETER: StringName = &"detail_textures"
 const RUN_BEAT_PARAMETER: StringName = &"run_beat"
 const PLAYER_DISTANCE_PARAMETER: StringName = &"player_distance"
 const PLAYER_POSITION_PARAMETER: StringName = &"player_position"
+const SONG_SECONDS_PARAMETER: StringName = &"song_seconds"
 const PULSE_SHARPNESS: float = 7.0
 const ENERGY_EASE_PER_SEC: float = 1.5
 ## Sky horizon brightening per unit of beat pulse, and the pulse/flash scale under "reduce flashing".
@@ -106,6 +107,7 @@ func update_environment(beat: float, delta: float) -> void:
 	RenderingServer.global_shader_parameter_set(BEAT_PULSE_PARAMETER, (_beat_pulse(beat) + _flash) * flash_scale)
 	# Track position of the player (road level): rail streaks and the hazards' approach glow use it.
 	RenderingServer.global_shader_parameter_set(RUN_BEAT_PARAMETER, beat)
+	RenderingServer.global_shader_parameter_set(SONG_SECONDS_PARAMETER, _context.chart.time_at(beat))
 	RenderingServer.global_shader_parameter_set(PLAYER_DISTANCE_PARAMETER, _context.chart.distance_at(beat))
 	RenderingServer.global_shader_parameter_set(PLAYER_POSITION_PARAMETER, _context.frame_at_beat(beat).origin)
 	environment.background_energy_multiplier = lerpf(0.85, 1.15, _energy) * (1.0 + _flash * 0.6 * flash_scale)

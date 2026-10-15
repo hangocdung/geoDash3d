@@ -10,6 +10,8 @@ const BARY_B: Color = Color(0, 1, 0)
 const BARY_C: Color = Color(0, 0, 1)
 const TOP_FACE: Color = Color(1, 0, 0)
 const SIDE_FACE: Color = Color(0, 0, 0)
+## The +Z side (the side camera's side): the road shader draws its LED equalizer there.
+const CAMERA_SIDE_FACE: Color = Color(0, 0, 1)
 const CAP_FACE: Color = Color(0, 1, 0)
 
 
@@ -96,7 +98,7 @@ static func track_chunk(track: TrackPath, from_distance: float, to_distance: flo
 				TOP_FACE, up)
 		_add_quad(tool, [near_right, far_right, far_right + drop_far, near_right + drop_near],
 				[Vector2(0, previous_distance), Vector2(0, distance), Vector2(1, distance), Vector2(1, previous_distance)],
-				SIDE_FACE, side)
+				CAMERA_SIDE_FACE, side)
 		_add_quad(tool, [far_left, near_left, near_left + drop_near, far_left + drop_far],
 				[Vector2(0, distance), Vector2(0, previous_distance), Vector2(1, previous_distance), Vector2(1, distance)],
 				SIDE_FACE, -side)

@@ -69,6 +69,8 @@ python tools/charting/the_dawn_assembly_level.py
 python tools/charting/recording_level.py pulse_drive   # không tham số: liệt kê bài + số note đã ghi
 # .sm (ArrowVortex/StepMania) → recording
 python tools/charting/sm_to_recording.py <song.sm> <out.recording.json>
+# Dữ liệu equalizer cho dàn LED mặt hông đường (chạy lại khi thêm/đổi nhạc)
+python tools/audio/build_spectrum.py            # mọi bài; hoặc: python tools/audio/build_spectrum.py <id>
 # Texture chi tiết: Codex tạo ảnh nguồn (art_source/textures, không commit) → gộp kênh vào assets/textures
 bash tools/textures/generate_sources.sh    # bỏ qua ảnh đã có; xóa file để tạo lại
 python tools/textures/build_textures.py

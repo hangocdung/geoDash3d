@@ -37,6 +37,13 @@ func setup(context: LevelContext) -> void:
 	block_material = ShaderMaterial.new()
 	block_material.shader = TRACK_DETAIL_SHADER if detailed else TRACK_SHADER
 	block_material.set_shader_parameter("palette_role", 2)
+	# LED equalizer on the camera-side face, from the song's precomputed spectrum (none: plain side panels).
+	var spectrum: SpectrumTexture = SpectrumTexture.load_for_song(context.chart.song_path)
+	if spectrum != null and QualityTier.uses_led_wall(context.quality):
+		track_material.set_shader_parameter("spectrum", spectrum.texture)
+		track_material.set_shader_parameter("spectrum_frames", spectrum.frames)
+		track_material.set_shader_parameter("spectrum_row", spectrum.row)
+		track_material.set_shader_parameter("spectrum_fps", spectrum.fps)
 	if detailed:
 		track_material.set_shader_parameter("detail_map", TRACK_DETAIL)
 		block_material.set_shader_parameter("detail_map", TRACK_DETAIL)

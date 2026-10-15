@@ -163,3 +163,7 @@ detail_textures={
 "type": "float",
 "value": 1.0
 }
+song_seconds={
+"type": "float",
+"value": 0.0
+}

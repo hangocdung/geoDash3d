@@ -32,6 +32,7 @@ const SHADER_GLOBALS: Dictionary[String, Variant] = {
 	"run_beat": 0.0,
 	"player_distance": 0.0,
 	"player_position": Vector3.ZERO,
+	"song_seconds": 0.0,
 	"pal_sky_zenith": Color(0.02, 0.01, 0.07),
 	"pal_sky_mid": Color(0.12, 0.04, 0.28),
 	"pal_sky_horizon": Color(0.55, 0.16, 0.6),

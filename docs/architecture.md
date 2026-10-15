@@ -124,6 +124,12 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   là độ sáng/mặt nạ), mạch trên đường đập theo `beat_pulse`.
 - **Mesh** sinh bằng code (`meshes/procedural_meshes.gd`): đoạn đường (chia chunk 48 đơn vị để culling, có thể nâng
   lên và đóng nắp hai đầu) và kim tự tháp. Thứ tự đỉnh được tự sửa sang chiều kim đồng hồ.
+- **Dàn LED equalizer** (GD3-109): mặt hông đường phía camera (`ProceduralMeshes.CAMERA_SIDE_FACE`, `COLOR.b` = 1)
+  vẽ các cột LED theo 16 dải tần, đoạn sáng tới mức VU, chấm peak trắng, màu từ màu lưới tới màu cảnh nền thứ hai của
+  palette. Dữ liệu tính trước theo bài (`tools/audio/build_spectrum.py` → `<id>.spectrum.json`, RG8 base64, 30 khung/s,
+  khối 2048 khung mỗi dòng), nạp bởi `SpectrumTexture`; shader đọc bằng `texelFetch` theo global `song_seconds`
+  (EnvironmentDirector, `chart.time_at(beat)`) nên là hàm của thời gian bài, đúng cả khi tua/chụp. Ở xa (cột < ~2 px)
+  LED mờ thành dải sáng đều. Không áp lên bệ (địa hình gameplay). Bài không có file phổ: mặt hông như cũ.
 - **TrackView**: đường bị cắt ở hố (mép hố đóng nắp), bệ là đoạn đường nâng lên (vật liệu riêng); nắp mặt đứng
   có viền sáng (`COLOR.g` = 1 trong `neon_track`). Cột đỡ tránh mép hố.
 - **ObstacleView**: vật cản và bệ bật đặt trên mặt đất; vòng cue ở độ cao `cue_heights` (GD3-101: quad to gấp

@@ -94,7 +94,7 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
 
 ## Quy trình làm chart cho một bài mới
 Tạo nhạc bằng các prompt ở `docs/design/music_prompts.md` (tempo cố định, cú đánh rời rạc, motif 1 / 2-và / 3).
-1. Đặt nhạc vào `assets/music/<id>.mp3`. Kiểm tra bài bằng `python tools/charting/hit_grid.py assets/music/<id>.mp3
+1. Đặt nhạc vào `assets/music/<id>.mp3`, chạy `python tools/audio/build_spectrum.py <id>` (dữ liệu dàn LED mặt hông). Kiểm tra bài bằng `python tools/charting/hit_grid.py assets/music/<id>.mp3
    <bpm> <offset>`: dòng cuối phải ≥ 50 % ô nhịp có "X" (cú đánh vừa nổi so với ±1 beat vừa có attack mạnh); lưới in
    ra chính là chỗ đặt chạm. Sau khi dựng chart, `python tools/charting/tap_salience.py assets/music/<id>.chart.json`
    phải ra OK.

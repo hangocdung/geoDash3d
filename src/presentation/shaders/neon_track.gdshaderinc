@@ -12,6 +12,9 @@ global uniform vec4 pal_track_rail;
 global uniform vec4 pal_track_streak;
 global uniform vec4 pal_block_base;
 global uniform vec4 pal_block_rail;
+global uniform vec4 pal_scenery_b;
+// Song position in seconds (SongClock): drives the LED equalizer.
+global uniform float song_seconds;
 #ifdef DETAIL_TEXTURES
 global uniform float detail_textures;
 #endif
@@ -39,6 +42,17 @@ uniform float detail_side_length = 2.4;
 uniform float detail_gain = 1.0;
 #endif
 
+// LED equalizer on the road's camera-side face (COLOR.b = 1, road only): precomputed per song
+// (tools/audio/build_spectrum.py), R = VU level, G = peak dot, `spectrum_row` frames per row block.
+const int SPECTRUM_BANDS = 16;
+uniform sampler2D spectrum : filter_nearest;
+uniform int spectrum_frames = 0;
+uniform int spectrum_row = 2048;
+uniform float spectrum_fps = 30.0;
+uniform float led_column_length = 0.55;
+uniform float led_segments = 7.0;
+uniform float led_energy = 2.2;
+
 float grid_line(float coordinate, float half_width) {
 	float distance_to_line = abs(fract(coordinate + 0.5) - 0.5);
 	float aa = fwidth(coordinate) * 1.5;
@@ -54,6 +68,30 @@ vec2 beat_streak(float distance_along) {
 	float front = exp(-abs(behind_head) / 0.5);
 	float tail = step(0.0, behind_head) * exp(-behind_head / streak_length);
 	return vec2(front, tail) * alive;
+}
+
+// Columns along the road cycle through the bands mirrored (0..15..1) so neighbours flow; segments light up to
+// the band level, low to high from the palette's grid color to its second scenery color, white peak dot. Far
+// away, where a column gets thinner than ~2 px, the lamps fade into an even glow (no shimmer).
+vec3 led_wall(vec2 uv, vec3 low_tint, vec3 high_tint) {
+	float along = uv.y / led_column_length;
+	float cycle = mod(floor(along), float(2 * SPECTRUM_BANDS - 2));
+	int band = int(cycle < float(SPECTRUM_BANDS) ? cycle : float(2 * SPECTRUM_BANDS - 2) - cycle);
+	int frame = clamp(int(song_seconds * spectrum_fps), 0, spectrum_frames - 1);
+	int block = frame / spectrum_row;
+	vec2 meter = texelFetch(spectrum, ivec2(frame - block * spectrum_row, block * SPECTRUM_BANDS + band), 0).rg;
+	// UV.x runs 0 (road edge) .. 1 (bottom); the top tenth is the rail band.
+	float height = clamp((1.0 - uv.x) / 0.9, 0.0, 1.0) * led_segments;
+	float segment = floor(height);
+	vec2 cell = vec2(fract(along), fract(height));
+	float lamp = step(0.14, cell.x) * step(cell.x, 0.86) * step(0.18, cell.y) * step(cell.y, 0.82)
+			* step(0.1, uv.x);
+	float lit = step(segment + 0.5, meter.r * led_segments);
+	float peak = step(abs(segment - floor(meter.g * led_segments - 0.001)), 0.5) * step(0.05, meter.g);
+	vec3 color = mix(low_tint, high_tint, segment / led_segments);
+	vec3 sharp = lamp * (color * (lit * led_energy + 0.05) + vec3(1.0) * peak * led_energy);
+	vec3 glow = mix(low_tint, high_tint, 0.5) * meter.r * led_energy * 0.35;
+	return mix(glow, sharp, 1.0 - smoothstep(0.25, 0.6, fwidth(along)));
 }
 
 void fragment() {
@@ -116,6 +154,9 @@ void fragment() {
 		} else {
 			float panel = grid_line(UV.y / (tile_length * 2.0), 0.006) * 0.35;
 			emission = rail_tint * band * rail_energy * 0.45 * pulse + grid_tint * panel * grid_energy;
+			if (palette_role == 1 && COLOR.b > 0.5 && spectrum_frames > 0) {
+				emission += led_wall(UV, grid_tint, pal_scenery_b.rgb);
+			}
 #ifdef DETAIL_TEXTURES
 			if (detailed) {
 				ALBEDO *= 0.5 + detail.b;

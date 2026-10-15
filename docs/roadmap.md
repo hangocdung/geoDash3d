@@ -163,6 +163,13 @@ Người dùng cho phép **trời tông ấm** ở vài phase; camera trong vòn
 - [x] **GD3-108** AUTOPLAY (DEV) trong menu bản debug (cùng hàng với RECORD (DEV)): bot chơi trọn màn đã chọn, HUD ghi
       "AUTOPLAY". Sửa kèm: nhãn chế độ HUD (PRACTICE / AUTOPLAY) bị tràn đè lên nút tạm dừng.
 
+- [x] **GD3-109** Dàn LED equalizer trên mặt hông đường phía camera (16 dải tần tính trước theo bài, VU + chấm peak, màu
+      theo palette, mờ thành dải sáng ở xa); `tools/audio/build_spectrum.py`, `SpectrumTexture`, global `song_seconds`.
+      Đo Note10 Lite (Pulse Drive từ beat 72, A-B-C-C-B-A, máy nguội): LOW 59.65 → 59.15 FPS, MEDIUM 45.85 → 45.0 FPS.
+      Bật ở mọi tier (`QualityTier.uses_led_wall`) chờ người dùng quyết định.
+      Cùng lần đo, bản trước phiên: LOW 59.75, MEDIUM 47.7 FPS → MEDIUM vẫn thấp hơn ~1.9 FPS khi chưa có LED (đã bỏ
+      texture chi tiết ở MEDIUM); **cần tìm tiếp** (đo theo cờ trên cả hai bản).
+
 ## Phase 5 — Mobile
 - [x] **GD3-050** Export Android (`export_presets.cfg`, arm64, debug keystore), cài và đo trên Galaxy Note10 Lite
       (Mali-G72, Vulkan Mobile). Đo bằng `PerfProbe` + `tools/device/perf_matrix.sh`. Kết quả, khi máy đang ấm
