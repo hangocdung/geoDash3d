@@ -17,6 +17,8 @@ func _initialize() -> void:
 		elif argument.begins_with("--out="):
 			_out_path = argument.trim_prefix("--out=")
 	AudioServer.set_bus_mute(0, true)
+	# UI canvas matching the window shape (portrait windows get the 1080x1920 canvas, as in the game).
+	DisplayOrientation.setup(root)
 	var error: Error = change_scene_to_file(scene_path)
 	if error != OK:
 		push_error("scene_shot: cannot open '%s' (%s)" % [scene_path, error_string(error)])

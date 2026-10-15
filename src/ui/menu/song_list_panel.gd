@@ -10,6 +10,8 @@ signal closed
 signal shop_requested
 
 const LIST_HEIGHT: float = 430.0
+## Portrait screens are tall: show more songs at once.
+const LIST_HEIGHT_PORTRAIT: float = 1150.0
 const ENTRY_WIDTH: float = 540.0
 
 var heading: String = "PLAY"
@@ -27,7 +29,8 @@ func _ready() -> void:
 	add_child(column)
 	column.add_child(UiTheme.make_label(heading, 48, UiTheme.ACCENT))
 	var scroll := ScrollContainer.new()
-	scroll.custom_minimum_size = Vector2(ENTRY_WIDTH + 20.0, LIST_HEIGHT)
+	scroll.custom_minimum_size = Vector2(ENTRY_WIDTH + 20.0,
+			LIST_HEIGHT_PORTRAIT if DisplayOrientation.is_portrait(get_viewport()) else LIST_HEIGHT)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	column.add_child(scroll)
 	var songs := VBoxContainer.new()
@@ -69,6 +72,7 @@ func _song_button(entry: SongCatalog.Entry) -> Button:
 		label += "\n" + Locale.t("BEST %s  ·  %s") % [RunRecords.grouped(record.score),
 				Locale.t("CLEARED") if record.completed else "%d%%" % int(floorf(record.progress * 100.0))]
 	var button: Button = UiTheme.make_button(label, ENTRY_WIDTH, 126.0 if record.has_any() else 92.0, &"ui.confirm")
+	_wrap(button)
 	button.pressed.connect(func() -> void:
 		Telemetry.log_event("song_select", {"song_id": entry.id})
 		chosen.emit(entry.path))
@@ -85,6 +89,7 @@ func _locked_entry(entry: SongCatalog.Entry, requirement_title: String) -> VBoxC
 	var info: Button = UiTheme.make_button("%s\n%s · %s" % [_details(entry), Locale.t("LOCKED"), how],
 			ENTRY_WIDTH, 126.0)
 	info.disabled = true
+	_wrap(info)
 	box.add_child(info)
 	var actions := HBoxContainer.new()
 	actions.add_theme_constant_override("separation", 12)
@@ -119,3 +124,10 @@ func _details(entry: SongCatalog.Entry) -> String:
 	var minutes: int = int(entry.length_sec) / 60
 	return "%s\n%s  ·  %d BPM  ·  %d:%02d" % [entry.title.to_upper(), ChartDifficulty.tier_name(entry.difficulty),
 			roundi(entry.bpm), minutes, int(entry.length_sec) % 60]
+
+
+## Long titles and unlock lines wrap inside the entry width instead of widening the whole list (portrait screens).
+static func _wrap(button: Button) -> void:
+	button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+

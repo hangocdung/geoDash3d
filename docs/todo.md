@@ -100,7 +100,7 @@ Android (Godot Android plugin v2 bọc Firebase Android SDK), iOS làm sau (GD3-
       chơi lại/bài tiếp), cửa hàng (IAP + restore), cài đặt, tạm dừng; nút đủ lớn cho ngón tay, safe area.
 - [x] **GD3-252** (→ roadmap Phase 7) Ngôn ngữ vi/en (Claude, S–M), chuẩn bị chỗ cho ngôn ngữ khác.
 - [x] **GD3-253** (→ roadmap Phase 7) Rung phản hồi (haptics) khi PERFECT/chết, tùy chọn tắt; tùy chọn giảm nhấp nháy đã có.
-- [ ] **GD3-254** Chụp ảnh mọi màn hình ở 19.5:9, 16:9 và 4:3 (tablet), dọc nếu chọn GD3-210; tự xem trước khi xong.
+- [x] **GD3-254** (→ roadmap Phase 7) Chụp ảnh mọi màn hình ở 19.5:9, 16:9 và 4:3 (tablet), dọc nếu chọn GD3-210; tự xem trước khi xong.
 
 ## 5b. Làm lại âm thanh hiệu ứng (SFX) theo kiểu trống (thêm 2026-10-15)
 Mọi âm trong game vẫn là âm tạm sinh bằng code (`status: placeholder` trong `assets/audio/audio_catalog.json`) và

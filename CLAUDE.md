@@ -50,6 +50,8 @@ GODOT="D:/Godot_v4.6.1-stable_win64.exe/Godot_v4.6.1-stable_win64_console.exe"
 "$GODOT" --path . -- --portrait --capture=8.1,49
 # Clip quảng cáo TikTok/Shorts (mp4 1080×1920, tự chơi, HUD gọn): <chart id> [beat bắt đầu] [giây] [portrait|landscape] [--lang=vi]
 bash tools/capture/record_clip.sh pulse_drive_led 64 20
+# Chụp mọi màn hình ở 19.5:9 / 16:9 / 4:3 / dọc → tools/capture/out/screens/<tỉ lệ>/
+bash tools/capture/screens.sh vi
 # Chụp ảnh một scene bất kỳ (menu, calibration…) sau N frame
 "$GODOT" --path . -s res://tools/capture/scene_shot.gd -- --scene=res://src/ui/menu/main_menu.tscn --frames=240 --out=res://tools/capture/out/menu.png
 # Cấu hình project (input map, autoload, shader globals, main scene) — sửa trong script rồi chạy lại

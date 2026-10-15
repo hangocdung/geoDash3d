@@ -341,3 +341,7 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
       31/08/2026; `setup_gradle_build.sh` nâng compileSdk 36), `tools/android/build_release.sh <version>` (version code =
       số commit). Đã thử APK target 36 trên máy và xuất AAB bằng keystore debug. Hướng dẫn: `docs/release/android_release.md`.
       **Còn lại (người dùng):** upload key + Play App Signing, tải lên internal testing; icon adaptive sau khi chốt tên.
+- [x] **GD3-254** `bash tools/capture/screens.sh [vi|en]`: chụp menu, danh sách bài, cài đặt, cửa hàng, chỉnh độ trễ và
+      màn chơi ở 19.5:9, 16:9, 4:3 và dọc 9:19.5 (kích thước cửa sổ qua `override.cfg` tạm; `scene_shot.gd` tự đặt
+      canvas theo hướng). Lần chụp đầu phát hiện danh sách bài tràn ở màn dọc (dòng điều kiện mở khóa quá dài) → chữ
+      trong nút bài tự xuống dòng, danh sách cao hơn khi dọc. Đã xem lại cả 24 ảnh.
