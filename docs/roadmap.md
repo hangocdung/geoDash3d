@@ -191,6 +191,19 @@ Người dùng cho phép **trời tông ấm** ở vài phase; camera trong vòn
 - [x] **GD3-113** Thêm 2 màn test theo LED: "The Dawn Assembly (LED)" (121 lần chạm, 4 đoạn chạy mặt dưới) và "Fault
       Line (LED)" (191 lần chạm, 3 đoạn), `tools/charting/levels/*_led.py`. **→ Cần người dùng chơi thử.**
 
+## Phase 4.10 — Gameplay v4: dạng bay, vật cản mới (đề xuất 2026-10-15, chờ duyệt)
+Thiết kế: `docs/design/gameplay_v4.md`. Branch `feat/gameplay-v4`. Ngân sách: LOW −0,5 FPS, MEDIUM −1 FPS tối đa.
+- [ ] **GD3-280** Người dùng chốt: màu dạng bay, trường `fly` + cue `flap` trong chart, luật chấm điểm khi bay, độ khó.
+- [ ] **GD3-281** Mô phỏng bay (parabol theo lần chạm, hành lang `floor`/`ceiling` O(1), lá chắn, autoplay, test).
+- [ ] **GD3-282** Trình bày bay: tàu lượn, cổng biến hình, camera, vệt bay, vạch nhịp, gợi ý lần đầu.
+- [ ] **GD3-283** Hành lang gai bằng MultiMesh + vertex shader.
+- [ ] **GD3-284** Kiểu vào sân mới trong shader (ASSEMBLE / MATERIALIZE / BEAT_POP / SPIRAL / WAVE), phân tier.
+- [ ] **GD3-285** Vật cản đợt 1: `air_mine`, `piston_spikes`, `rolling_ball`, `sliding_wall`.
+- [ ] **GD3-286** Công cụ soạn màn cho đoạn bay + trọng số độ khó.
+- [ ] **GD3-287** Áp vào 2 bài (đề xuất `pulse_drive`, `neon_rhythm_stabs`).
+- [ ] **GD3-288** Đo A-B-B-A trên máy, chỉnh theo tier.
+- [ ] **GD3-289** Vật cản đợt 2.
+
 ## Phase 5 — Mobile
 - [x] **GD3-050** Export Android (`export_presets.cfg`, arm64, debug keystore), cài và đo trên Galaxy Note10 Lite
       (Mali-G72, Vulkan Mobile). Đo bằng `PerfProbe` + `tools/device/perf_matrix.sh`. Kết quả, khi máy đang ấm
