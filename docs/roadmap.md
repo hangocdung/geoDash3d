@@ -176,6 +176,10 @@ Người dùng cho phép **trời tông ấm** ở vài phase; camera trong vòn
       nhảy, bậc thang, nhảy liên tiếp), tối đa 1 chuỗi mỗi 8 beat. 252 lần chạm (bản đặt tay 148), 29 chuỗi, dung sai
       ±90 ms; độ nổi ×1.58 / attack ×2.50 (bản đặt tay ×2.03 / ×3.16). **→ Cần người dùng chơi thử so với bản đặt tay.**
 
+- [x] **GD3-111** Điểm số + kỷ lục từng bài (điểm, % xa nhất, max combo, CLEARED) trong menu chọn bài, HUD, màn kết thúc
+      (NEW BEST) và lần thử sau khi chết (BEST %). Combo chỉ đếm PERFECT (GREAT/GOOD không cộng, không làm đứt; đổi bằng
+      `GameplayConfig.perfect_only_combo`). Lá chắn vẫn nạp theo combo (giờ là chuỗi PERFECT). Test `test_score.gd`.
+
 ## Phase 5 — Mobile
 - [x] **GD3-050** Export Android (`export_presets.cfg`, arm64, debug keystore), cài và đo trên Galaxy Note10 Lite
       (Mali-G72, Vulkan Mobile). Đo bằng `PerfProbe` + `tools/device/perf_matrix.sh`. Kết quả, khi máy đang ấm

@@ -36,6 +36,9 @@ var _practice: PracticeTracker
 var _sync: SyncLearning
 ## Shown with the next attempt when the audio offset was auto-corrected (GD3-054).
 var _pending_sync_note: String = ""
+## Best progress of this chart, shown with the next attempt after a death (normal runs only).
+var _pending_best_note: String = ""
+var _records: RunRecords
 ## Where a run starts when no practice checkpoint has been earned.
 var _base_start_beat: float = -COUNT_IN_BEATS
 
@@ -63,6 +66,7 @@ func _ready() -> void:
 	if _stream == null:
 		hud.show_message("Cannot load chart or song:\n%s" % path)
 		return
+	_records = RunRecords.new(path, options, chart, config)
 	var song_end_beat: float = chart.beat_at_time(_stream.get_length())
 	var flatten: bool = not QualityTier.uses_spectacle_track(UserSettings.quality_tier)
 	_context = LevelContext.new(chart, config, TrackPath.build(chart, song_end_beat, flatten), UserSettings.quality_tier)
@@ -139,8 +143,13 @@ func begin_run() -> void:
 		vfx_director.prewarm(camera_director.camera)
 	song_clock.calibration_offset_sec = UserSettings.audio_offset_sec
 	if not options.attract_mode:
-		hud.show_toast("ATTEMPT %d" % _attempt + ("  ·  " + _pending_sync_note if not _pending_sync_note.is_empty() else ""))
+		var notes: PackedStringArray = ["ATTEMPT %d" % _attempt]
+		for note: String in [_pending_best_note, _pending_sync_note]:
+			if not note.is_empty():
+				notes.append(note)
+		hud.show_toast("  ·  ".join(notes))
 		_pending_sync_note = ""
+		_pending_best_note = ""
 		Sfx.play(&"run.attempt", -6.0)
 	var start_time: float = chart.time_at(start_beat)
 	var audio_start: float = maxf(start_time, 0.0)
@@ -258,6 +267,7 @@ func _on_player_died(_hazard_index: int, beat: float) -> void:
 	_restart_timer = RESTART_DELAY_SEC
 	song_clock.stop()
 	_router.on_player_died(beat)
+	_pending_best_note = _records.on_died(simulation, chart.progress_at(beat))
 	_learn_sync()
 	if _practice != null:
 		start_beat = _practice.restart_beat(_base_start_beat)
@@ -273,8 +283,9 @@ func _on_run_completed(_beat: float) -> void:
 	_learn_sync()
 	var counts: PackedInt32Array = simulation.grade_counts
 	var title: String = "PRACTICE COMPLETE" if _practice != null else "LEVEL COMPLETE"
-	hud.run_menu.open("%s\nPERFECT %d   GREAT %d   GOOD %d   MISS %d\nMAX COMBO %d" % [title, counts[0],
-			counts[1], counts[2], counts[3], simulation.streak.max_combo], false)
+	hud.run_menu.open("%s\n%s\nPERFECT %d   GREAT %d   GOOD %d   MISS %d\nMAX COMBO %d" % [title,
+			_records.on_completed(simulation), counts[0], counts[1], counts[2], counts[3], simulation.streak.max_combo],
+			false)
 
 
 ## Folds learned audio-offset corrections in between runs; the note appears with the next attempt.

@@ -16,6 +16,7 @@ signal run_completed(beat: float)
 ## Every tap near a cue (±TAP_TIMING_RANGE_SEC), hit or not: tap − cue in seconds (positive = late).
 signal tap_timed(error_sec: float)
 signal combo_changed(combo: int)
+signal score_changed(score: int)
 signal shield_changed(shields: int)
 ## A shield absorbed a fatal hit: the hazard (index) shatters, or the terrain (TERRAIN_HIT) puts the player
 ## back onto the perfect run's path.
@@ -41,6 +42,8 @@ var hit_hazards: PackedInt32Array = []
 var grade_counts: PackedInt32Array = [0, 0, 0, 0]
 ## Combo and shields (read-only outside the simulation).
 var streak: ComboShield
+## Points so far (read-only outside the simulation).
+var score: ScoreKeeper
 
 var _resolver: ActionResolver
 var _checker: HazardChecker
@@ -63,6 +66,7 @@ func _init(level_chart: LevelChart, gameplay_config: GameplayConfig, start_beat:
 	_resolver.skip_before(start_beat)
 	_checker = HazardChecker.new(chart.hazards)
 	streak = ComboShield.new(config.shield_combo, config.max_shields)
+	score = ScoreKeeper.new(config)
 	_body = PlayerBody.new(chart, config, start_beat)
 	_motion = _body.motion
 	_motion.changed.connect(_on_motion_changed)
@@ -164,9 +168,13 @@ func _perform_tap(tap_beat: float, start_beat: float) -> void:
 		var grade: Judgement.Grade = Judgement.grade_for_error(error_sec, config)
 		grade_counts[grade] += 1
 		cue_judged.emit(cue_index, grade, error_sec)
-		if streak.register_hit():
-			shield_changed.emit(streak.shields)
-		combo_changed.emit(streak.combo)
+		# Combo (and the shields it charges) counts PERFECT hits only unless the config says otherwise.
+		if grade == Judgement.Grade.PERFECT or not config.perfect_only_combo:
+			if streak.register_hit():
+				shield_changed.emit(streak.shields)
+			combo_changed.emit(streak.combo)
+		score.add(grade, streak.combo)
+		score_changed.emit(score.score)
 	else:
 		action = config.find_action(config.default_action)
 		if action == null:

@@ -1,4 +1,4 @@
-# In-run overlay: progress bar with percentage, judgement popups, combo counter, shield charge meter,
+# In-run overlay: progress bar with percentage, score, judgement popups, combo counter, shield charge meter,
 # attempt counter, centered message, a touch-friendly pause button and the pause/complete RunMenu.
 # Respects the mobile safe area.
 # Related: src/presentation/level/level_runner.gd, src/ui/hud/run_menu.gd
@@ -32,6 +32,7 @@ var _attempt_fade: float = 0.0
 var run_menu: RunMenu
 var _pause_button: Button
 var _mode_label: Label
+var _score_label: Label
 var _combo_label: Label
 var _combo_age: float = INF
 var _shield_label: Label
@@ -63,6 +64,10 @@ func _ready() -> void:
 	_mode_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	_mode_label.grow_horizontal = Control.GROW_DIRECTION_END
 	_build_shield_meter(root)
+	_score_label = _make_label(root, 36, Control.PRESET_TOP_RIGHT, Vector2(-32, 62))
+	_score_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_score_label.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	set_score(0)
 	run_menu = RunMenu.new()
 	add_child(run_menu)
 
@@ -107,6 +112,10 @@ func set_combo(combo: int) -> void:
 	_combo_label.text = "%d COMBO" % combo
 	_combo_label.pivot_offset = _combo_label.size * 0.5
 	_combo_age = 0.0 if combo > 0 else INF
+
+
+func set_score(score: int) -> void:
+	_score_label.text = RunRecords.grouped(score)
 
 
 ## `charge` = 0..1 progress toward the next shield; `ready` = a shield is held.

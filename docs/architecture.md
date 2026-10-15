@@ -54,6 +54,12 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
     `TERRAIN_HIT` (−2). Chạy khỏi mép → rơi tự do. Bệ bật (`chart.pads`) tự phóng khi đang đứng chạm vào.
   - Signal `player_landed(beat, airtime)` cho mọi lần tiếp đất; `action_finished` chỉ còn cho dodge/flip.
   - `PlayerBody` gói chuyển động lên xuống (`VerticalMotion`), đất dưới chân, rơi khỏi mép và bệ bật.
+  - Điểm (`ScoreKeeper`, GD3-111): mỗi cue được điểm theo bậc (`GameplayConfig.grade_points` 300/150/50/0) × (1 + 0.01 ×
+    min(combo, 100)); `max_score` = tổng khi mọi cue PERFECT (độ chính xác). Combo **chỉ đếm PERFECT**
+    (`perfect_only_combo`): GREAT/GOOD không cộng cũng không làm đứt; MISS hoặc va chạm được lá chắn đỡ thì về 0.
+    Kỷ lục từng chart: `HighScores` (`user://scores.cfg`: điểm, % xa nhất, max combo, đã hoàn thành), ghi bởi
+    `RunRecords` chỉ cho lượt thường (không luyện tập/autoplay/attract/chụp/bất tử); HUD hiện điểm, màn kết thúc hiện
+    điểm + độ chính xác + NEW BEST / BEST, lần thử sau khi chết hiện BEST %, danh sách bài hiện BEST.
   - Combo và lá chắn (`ComboShield`, đọc qua `simulation.streak`): mọi cú va chạm chết người đi qua
     `_survive_hit` — bất tử thì ghi lại, có lá chắn thì vật cản vỡ (thêm vào `hit_hazards`) hoặc, với địa hình,
     `VerticalMotion.restore()` về trạng thái của lượt hoàn hảo (`chart.reference_motion_at`). Signal

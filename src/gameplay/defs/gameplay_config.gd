@@ -32,6 +32,13 @@ extends Resource
 ## Every this many consecutive cue hits charge one shield; a shield absorbs one fatal hit.
 @export var shield_combo: int = 16
 @export var max_shields: int = 1
+## Combo counts PERFECT hits only: GREAT and GOOD neither add to it nor break it (a miss or a hit absorbed by a
+## shield resets it). False: every hit counts, as before GD3-111.
+@export var perfect_only_combo: bool = true
+## Points per grade (PERFECT, GREAT, GOOD, MISS), times 1 + combo_bonus x min(combo, combo_bonus_cap).
+@export var grade_points: PackedInt32Array = [300, 150, 50, 0]
+@export var combo_bonus: float = 0.01
+@export var combo_bonus_cap: int = 100
 @export var actions: Array[ActionDefinition] = []
 @export var hazards: Array[HazardDefinition] = []
 

@@ -1,4 +1,4 @@
-# Song picker: every *.chart.json in assets/music (title, difficulty, BPM, length), easiest first, scrollable;
+# Song picker: every *.chart.json in assets/music (title, difficulty, BPM, length, best result), easiest first;
 # emits the chosen chart. Charts named *.classic.chart.json are kept for comparisons and not listed.
 # Related: src/ui/menu/main_menu.gd, src/gameplay/chart/chart_difficulty.gd
 class_name SongListPanel
@@ -40,7 +40,11 @@ func _ready() -> void:
 		var minutes: int = int(entry.length_sec) / 60
 		var label: String = "%s\n%s  ·  %d BPM  ·  %d:%02d" % [entry.title.to_upper(),
 				ChartDifficulty.tier_name(entry.difficulty), roundi(entry.bpm), minutes, int(entry.length_sec) % 60]
-		var button: Button = UiTheme.make_button(label, 540.0, 92.0, &"ui.confirm")
+		var record: HighScores.Record = HighScores.best(entry.path)
+		if record.has_any():
+			label += "\nBEST %s  ·  %s" % [RunRecords.grouped(record.score),
+					"CLEARED" if record.completed else "%d%%" % int(floorf(record.progress * 100.0))]
+		var button: Button = UiTheme.make_button(label, 540.0, 126.0 if record.has_any() else 92.0, &"ui.confirm")
 		button.pressed.connect(func() -> void: chosen.emit(entry.path))
 		songs.add_child(button)
 		if first == null:

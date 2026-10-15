@@ -33,10 +33,12 @@ func bind(simulation: RunSimulation, start_beat: float) -> void:
 	simulation.player_landed.connect(_on_player_landed)
 	simulation.cue_judged.connect(_on_cue_judged)
 	simulation.combo_changed.connect(_on_combo_changed)
+	simulation.score_changed.connect(_runner.hud.set_score)
 	simulation.shield_changed.connect(_on_shield_changed)
 	simulation.shield_used.connect(_on_shield_used)
 	_shields_shown = 0
 	_runner.hud.set_combo(0)
+	_runner.hud.set_score(0)
 	_runner.hud.set_shield(false, 0.0)
 	_runner.player_view.set_shield(false)
 	_next_vfx_cue = 0
