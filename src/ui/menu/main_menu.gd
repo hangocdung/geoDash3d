@@ -167,7 +167,7 @@ func _open_practice(chart: String) -> void:
 Dying restarts from the last one.", 26))
 	var first: Button = null
 	for rate: float in PRACTICE_RATES:
-		var button: Button = UiTheme.make_button("SPEED %d%%" % roundi(rate * 100.0), 360.0, 72.0, &"ui.confirm")
+		var button: Button = UiTheme.make_button(Locale.t("SPEED %d%%") % roundi(rate * 100.0), 360.0, 72.0, &"ui.confirm")
 		button.pressed.connect(func() -> void:
 			LaunchOptions.set_next_run(LaunchOptions.practice_run(rate, chart))
 			Scenes.go_to(get_tree(), Scenes.LEVEL))

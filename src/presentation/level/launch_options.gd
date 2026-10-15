@@ -5,7 +5,7 @@
 #   --capture-continuous (one run from the start for all capture times, instead of a restart per time)
 #   --practice --rate=0.75 (practice mode with checkpoints, slower playback)
 #   --autoplay-miss=34,66.5 (autoplay skips the cues on these beats: shows misses, shields, deaths)
-#   --portrait (9:16 prototype; read by DisplayOrientation, skipped here)
+#   --portrait (9:16; read by DisplayOrientation) --lang=vi (UI language; read by Locale), both skipped here
 # Related: src/presentation/level/level_runner.gd, tools/capture/README.md
 class_name LaunchOptions
 extends RefCounted
@@ -54,7 +54,7 @@ static func user_args() -> PackedStringArray:
 static func from_command_line() -> LaunchOptions:
 	var options := LaunchOptions.new()
 	for argument: String in user_args():
-		if argument == DisplayOrientation.ARGUMENT:
+		if argument == DisplayOrientation.ARGUMENT or argument.begins_with(Locale.ARGUMENT_PREFIX):
 			continue
 		var parts: PackedStringArray = argument.trim_prefix("--").split("=", true, 1)
 		var key: String = parts[0]

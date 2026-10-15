@@ -1,4 +1,4 @@
-# Settings panel: quality tier, volumes, manual audio offset (±5 ms), auto sync, reduce flashing, vibration,
+# Settings panel: quality tier, volumes, manual audio offset (±5 ms), auto sync, reduce flashing, vibration, language,
 # saved to UserSettings.
 # Related: src/core/user_settings.gd, src/ui/menu/main_menu.gd
 class_name SettingsPanel
@@ -22,12 +22,21 @@ func _ready() -> void:
 	column.add_child(UiTheme.make_label("SETTINGS", 48, UiTheme.ACCENT))
 
 	_quality = OptionButton.new()
-	_quality.add_item("AUTO (%s)" % QUALITY_NAMES[int(UserSettings.quality_tier)], AUTO_ITEM_ID)
+	_quality.add_item(Locale.t("AUTO (%s)") % Locale.t(QUALITY_NAMES[int(UserSettings.quality_tier)]), AUTO_ITEM_ID)
 	for index: int in QUALITY_NAMES.size():
 		_quality.add_item(QUALITY_NAMES[index], index)
 	_quality.select(0 if UserSettings.quality_auto else int(UserSettings.quality_tier) + 1)
 	_quality.item_selected.connect(_on_quality_selected)
 	column.add_child(_row("Graphics", _quality))
+
+	var language := OptionButton.new()
+	language.add_item("AUTO")
+	for code: String in Locale.LANGUAGES:
+		language.add_item(Locale.NATIVE_NAMES[code])
+	language.select(Locale.LANGUAGES.find(UserSettings.language) + 1)
+	language.item_selected.connect(func(index: int) -> void:
+		UserSettings.language = Locale.AUTO if index == 0 else Locale.LANGUAGES[index - 1])
+	column.add_child(_row("Language", language))
 
 	_volume = HSlider.new()
 	_volume.min_value = -30.0

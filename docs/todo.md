@@ -98,7 +98,7 @@ Android (Godot Android plugin v2 bọc Firebase Android SDK), iOS làm sau (GD3-
       gộp bước hiệu chỉnh độ trễ vào luồng này.
 - [ ] **GD3-251** Màn hình (Claude, M–L): danh sách bài (khóa/giá/BEST/độ khó), kết quả (điểm, sao/hạng, NEW BEST, nút
       chơi lại/bài tiếp), cửa hàng (IAP + restore), cài đặt, tạm dừng; nút đủ lớn cho ngón tay, safe area.
-- [ ] **GD3-252** Ngôn ngữ vi/en (Claude, S–M), chuẩn bị chỗ cho ngôn ngữ khác.
+- [x] **GD3-252** (→ roadmap Phase 7) Ngôn ngữ vi/en (Claude, S–M), chuẩn bị chỗ cho ngôn ngữ khác.
 - [x] **GD3-253** (→ roadmap Phase 7) Rung phản hồi (haptics) khi PERFECT/chết, tùy chọn tắt; tùy chọn giảm nhấp nháy đã có.
 - [ ] **GD3-254** Chụp ảnh mọi màn hình ở 19.5:9, 16:9 và 4:3 (tablet), dọc nếu chọn GD3-210; tự xem trước khi xong.
 

@@ -27,22 +27,22 @@ func best() -> HighScores.Record:
 ## The level-complete menu: title, score lines (on_completed), grade counts and max combo.
 func completed_text(simulation: RunSimulation, practice: bool) -> String:
 	var counts: PackedInt32Array = simulation.grade_counts
-	return "%s\n%s\nPERFECT %d   GREAT %d   GOOD %d   MISS %d\nMAX COMBO %d" % [
-			"PRACTICE COMPLETE" if practice else "LEVEL COMPLETE", on_completed(simulation), counts[0], counts[1],
-			counts[2], counts[3], simulation.streak.max_combo]
+	return "%s\n%s\nPERFECT %d   GREAT %d   GOOD %d   MISS %d\n%s" % [
+			Locale.t("PRACTICE COMPLETE" if practice else "LEVEL COMPLETE"), on_completed(simulation), counts[0],
+			counts[1], counts[2], counts[3], Locale.t("MAX COMBO %d") % simulation.streak.max_combo]
 
 
 ## Lines for the level-complete menu (score, accuracy, best); submits the run when it counts.
 func on_completed(simulation: RunSimulation) -> String:
 	var score: int = simulation.score.score
 	var accuracy: float = 100.0 * float(score) / float(maxi(_max_score, 1))
-	var lines: String = "SCORE %s  ·  %.1f%%" % [grouped(score), accuracy]
+	var lines: String = Locale.t("SCORE %s  ·  %.1f%%") % [grouped(score), accuracy]
 	if not _counts:
 		return lines
 	var previous: HighScores.Record = HighScores.submit(_chart_path, score, 1.0, simulation.streak.max_combo, true)
 	if score > previous.score:
-		return lines + "\nNEW BEST!"
-	return lines + "\nBEST %s" % grouped(previous.score)
+		return "%s\n%s" % [lines, Locale.t("NEW BEST!")]
+	return "%s\n%s" % [lines, Locale.t("BEST %s") % grouped(previous.score)]
 
 
 ## Submits a run that died at `progress` (0..1); returns a note for the next attempt ("" if nothing to say).
@@ -52,8 +52,8 @@ func on_died(simulation: RunSimulation, progress: float) -> String:
 	var previous: HighScores.Record = HighScores.submit(_chart_path, simulation.score.score, progress,
 			simulation.streak.max_combo, false)
 	if progress > previous.progress + 0.005:
-		return "NEW BEST %d%%" % int(floorf(progress * 100.0))
-	return "BEST %d%%" % int(floorf(maxf(previous.progress, progress) * 100.0))
+		return Locale.t("NEW BEST %d%%") % int(floorf(progress * 100.0))
+	return Locale.t("BEST %d%%") % int(floorf(maxf(previous.progress, progress) * 100.0))
 
 
 ## 1234567 → "1,234,567".

@@ -249,3 +249,8 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
       event cửa hàng/đánh giá (theo GD3-241/244), user property.
 - [x] **GD3-253** Rung phản hồi: `Haptics` (PERFECT 12 ms, vỡ lá chắn 35 ms, chết 70 ms), tùy chọn Settings →
       Vibration, quyền `vibrate` trong preset Android. **→ Cần thử cảm giác trên máy.**
+- [x] **GD3-252** Ngôn ngữ vi/en: `Locale` nạp `assets/i18n/<mã>.json` lúc chạy (khóa = chữ tiếng Anh, không cần import),
+      Settings → Language (AUTO theo máy / English / Tiếng Việt), `-- --lang=vi` để chụp ảnh. Chuỗi có định dạng dùng
+      `Locale.t("ATTEMPT %d") % n`; tên điểm chấm (PERFECT…), COMBO, nhãn độ khó và công cụ DEV giữ tiếng Anh. Test
+      `tests/core/test_locale.gd` (mọi `Locale.t` có bản dịch, placeholder khớp). Thêm ngôn ngữ: thêm mã vào
+      `Locale.LANGUAGES` + file json.

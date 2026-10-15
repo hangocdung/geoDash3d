@@ -42,8 +42,8 @@ func _ready() -> void:
 				ChartDifficulty.tier_name(entry.difficulty), roundi(entry.bpm), minutes, int(entry.length_sec) % 60]
 		var record: HighScores.Record = HighScores.best(entry.path)
 		if record.has_any():
-			label += "\nBEST %s  ·  %s" % [RunRecords.grouped(record.score),
-					"CLEARED" if record.completed else "%d%%" % int(floorf(record.progress * 100.0))]
+			label += "\n" + Locale.t("BEST %s  ·  %s") % [RunRecords.grouped(record.score),
+					Locale.t("CLEARED") if record.completed else "%d%%" % int(floorf(record.progress * 100.0))]
 		var button: Button = UiTheme.make_button(label, 540.0, 126.0 if record.has_any() else 92.0, &"ui.confirm")
 		button.pressed.connect(func() -> void:
 			Telemetry.log_event("song_select", {"song_id": entry.path.get_file().trim_suffix(".chart.json")})

@@ -202,6 +202,9 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
 - `Haptics` (`src/core/haptics.gd`): rung ngắn khi PERFECT, vỡ lá chắn, chết; tắt trong Settings (`UserSettings.haptics`),
   không rung trong attract. Android cần quyền `vibrate` (đã bật trong preset).
 
+- `Locale` (`src/core/locale.gd`): ngôn ngữ giao diện; khóa là chữ tiếng Anh, bản dịch ở `assets/i18n/<mã>.json`
+  nạp lúc chạy vào `TranslationServer`. Control tự dịch chữ tĩnh; chuỗi có định dạng gọi `Locale.t(...)` trước khi `%`.
+
 ## 5. Công cụ
 - `tools/setup/configure_project.gd` ghi input map (`tap`, `pause`, `restart`), autoload, shader global và
   main scene qua API `ProjectSettings`. Không sửa tay các object này trong `project.godot`.

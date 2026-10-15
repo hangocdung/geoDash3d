@@ -65,7 +65,7 @@ func _ready() -> void:
 	chart = ChartLoader.load_file(path, config)
 	_stream = load(chart.song_path) as AudioStream if chart != null else null
 	if _stream == null:
-		hud.show_message("Cannot load chart or song:\n%s" % path)
+		hud.show_message(Locale.t("Cannot load chart or song:\n%s") % path)
 		return
 	_records = RunRecords.new(path, options, chart, config)
 	_telemetry = RunTelemetry.new(path, chart, options, _records.counts())
@@ -88,7 +88,7 @@ func _ready() -> void:
 			and is_equal_approx(options.playback_rate, 1.0))
 	if options.practice:
 		_practice = PracticeTracker.new(chart)
-		hud.show_mode("PRACTICE  %d%%" % roundi(options.playback_rate * 100.0))
+		hud.show_mode(Locale.t("PRACTICE  %d%%") % roundi(options.playback_rate * 100.0))
 	elif options.autoplay and not options.attract_mode:
 		hud.show_mode("AUTOPLAY")
 	song_clock.song_finished.connect(_on_song_finished)
@@ -110,7 +110,7 @@ func _ready() -> void:
 		begin_run()
 	else:
 		state = RunState.WAITING
-		hud.show_message("%s\nTAP TO START" % chart.title.to_upper())
+		hud.show_message("%s\n%s" % [chart.title.to_upper(), Locale.t("TAP TO START")])
 
 
 ## Re-applies graphics quality live (used by the menu's automatic quality tuner).
@@ -146,7 +146,7 @@ func begin_run() -> void:
 		vfx_director.prewarm(camera_director.camera)
 	song_clock.calibration_offset_sec = UserSettings.audio_offset_sec
 	if not options.attract_mode:
-		var notes: PackedStringArray = ["ATTEMPT %d" % _attempt]
+		var notes: PackedStringArray = [Locale.t("ATTEMPT %d") % _attempt]
 		for note: String in [_pending_best_note, _pending_sync_note]:
 			if not note.is_empty():
 				notes.append(note)
@@ -187,7 +187,7 @@ func _process(delta: float) -> void:
 				simulation.advance_to(beat)
 			_router.fire_vfx_cues(beat)
 			if _practice != null and not simulation.is_dead and _practice.update(simulation.current_beat):
-				hud.show_toast("CHECKPOINT %d" % _practice.reached_count())
+				hud.show_toast(Locale.t("CHECKPOINT %d") % _practice.reached_count())
 				Sfx.play(&"run.checkpoint")
 			if options.debug_clock and Engine.get_process_frames() % 30 == 0:
 				print("CLOCK t=%.3f drift_ms=%.2f latency_ms=%.1f fps=%d" % [song_clock.frame_time(),

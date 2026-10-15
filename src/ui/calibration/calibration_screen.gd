@@ -117,9 +117,10 @@ func _finish() -> void:
 	var steady: bool = _estimate.spread_sec <= MAX_GOOD_SPREAD_SEC
 	print("CALIBRATION offset_ms=%d spread_ms=%d taps=%d engine_latency_ms=%.1f" % [offset_ms,
 			roundi(_estimate.spread_sec * 1000.0), _estimate.accepted_count, AudioServer.get_output_latency() * 1000.0])
-	_headline.text = "Audio delay: %+d ms" % offset_ms
-	_status.text = "%s\nThe game will shift its timing by this amount so notes match what you hear." % (
-			"Your taps were nice and steady." if steady else "Your taps were a bit uneven — trying again may be more accurate.")
+	_headline.text = Locale.t("Audio delay: %+d ms") % offset_ms
+	_status.text = "%s\n%s" % [Locale.t("Your taps were nice and steady." if steady
+			else "Your taps were a bit uneven — trying again may be more accurate."),
+			Locale.t("The game will shift its timing by this amount so notes match what you hear.")]
 	_set_buttons(false, true, true)
 	_use_button.grab_focus()
 
@@ -137,9 +138,9 @@ func _show_intro() -> void:
 	_phase = Phase.INTRO
 	_headline.text = "Tap on every click"
 	_counter.text = ""
-	_status.text = "You will hear a steady click. Tap the screen each time you hear it.\n" \
-			+ "Use the speakers or headphones you play with.   Current delay: %+d ms" % roundi(
-			UserSettings.audio_offset_sec * 1000.0)
+	_status.text = "%s\n%s" % [Locale.t("You will hear a steady click. Tap the screen each time you hear it."),
+			Locale.t("Use the speakers or headphones you play with.   Current delay: %+d ms")
+			% roundi(UserSettings.audio_offset_sec * 1000.0)]
 	_set_buttons(true, false, false)
 	_start_button.grab_focus()
 

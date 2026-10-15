@@ -78,8 +78,8 @@ func _on_phase_started(index: int, phase: ChartItems.Phase) -> void:
 			_context.frame_at_beat(phase.beat), palette.track_rail)
 	var first_speed: float = _context.chart.speed_at(_context.chart.phases[0].beat)
 	var speed_ratio: float = _context.chart.speed_at(phase.beat) / maxf(first_speed, 0.001)
-	var speed_note: String = "  ·  SPEED ×%.2f" % speed_ratio if speed_ratio > 1.001 else ""
-	_runner.hud.show_toast("PHASE %d%s" % [index + 1, speed_note])
+	var speed_note: String = Locale.t("  ·  SPEED ×%.2f") % speed_ratio if speed_ratio > 1.001 else ""
+	_runner.hud.show_toast(Locale.t("PHASE %d") % (index + 1) + speed_note)
 
 
 ## Afterimages while a dodge or flip is active.

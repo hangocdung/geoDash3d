@@ -34,4 +34,4 @@ func apply_between_runs() -> String:
 	_learner.shift(applied)
 	print("SYNC auto offset %+d ms (now %+d ms, %d taps)" % [roundi(applied * 1000.0),
 			roundi(UserSettings.audio_offset_sec * 1000.0), _learner.sample_count()])
-	return "SYNC %+d ms" % roundi(applied * 1000.0)
+	return Locale.t("SYNC %+d ms") % roundi(applied * 1000.0)

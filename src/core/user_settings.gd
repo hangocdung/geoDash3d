@@ -1,5 +1,5 @@
 # Autoload "UserSettings": per-player preferences persisted to user://settings.cfg
-# (audio calibration offset, quality tier, bus volumes, reduce flashing, haptics). Applies volumes to the buses.
+# (audio calibration offset, quality tier, bus volumes, reduce flashing, haptics, language). Applies volumes to the buses.
 # Related: src/core/song_clock.gd, src/core/quality_tier.gd, src/core/audio/audio_buses.gd
 extends Node
 
@@ -39,6 +39,13 @@ var reduce_flashing: bool = false:
 		reduce_flashing = value
 		changed.emit()
 
+## GD3-252: UI language, "auto" (follow the phone) or a code from Locale.LANGUAGES.
+var language: String = Locale.AUTO:
+	set(value):
+		language = value
+		Locale.apply(language)
+		changed.emit()
+
 ## GD3-253: short vibrations on PERFECT, shield breaks and deaths (phones only).
 var haptics: bool = true:
 	set(value):
@@ -67,6 +74,7 @@ var sfx_volume_db: float = -2.0:
 func _ready() -> void:
 	AudioBuses.ensure_layout()
 	load_settings()
+	Locale.apply(language)
 	_apply_bus_volumes()
 
 
@@ -85,6 +93,7 @@ func load_settings() -> void:
 	reduce_flashing = bool(config.get_value(SECTION, "reduce_flashing", false))
 	show_music_meter = bool(config.get_value(SECTION, "show_music_meter", false))
 	haptics = bool(config.get_value(SECTION, "haptics", true))
+	language = str(config.get_value(SECTION, "language", Locale.AUTO))
 	music_volume_db = float(config.get_value(SECTION, "music_volume_db", 0.0))
 	sfx_volume_db = float(config.get_value(SECTION, "sfx_volume_db", -2.0))
 
@@ -98,6 +107,7 @@ func save_settings() -> void:
 	config.set_value(SECTION, "reduce_flashing", reduce_flashing)
 	config.set_value(SECTION, "show_music_meter", show_music_meter)
 	config.set_value(SECTION, "haptics", haptics)
+	config.set_value(SECTION, "language", language)
 	config.set_value(SECTION, "music_volume_db", music_volume_db)
 	config.set_value(SECTION, "sfx_volume_db", sfx_volume_db)
 	var error: Error = config.save(SETTINGS_PATH)
