@@ -221,9 +221,10 @@ thấy nội dung). Các bài còn lại tải khi cần, sau đó chơi offline
 Đã kiểm tra 161 test game và 6 test backend; desktop tải 4 chart, sửa file hỏng, chấm sao và khôi phục backup đạt.
 Android đã tải/chấm sao/chơi offline và thử ngắt mạng; menu LOW đo ngắn 41,7 → 41,2 FPS trước/sau cache. Hạn mức cache 0 từ chối an toàn; chưa lấp đầy ổ để thử ENOSPC thực tế. Chi tiết: `D:/sntgames-api/docs/verification.md`.
 
-**Việc phát sinh sau review nhánh `codex/beatglide-online` (2026-10-16).** Manifest prod hiện rỗng nên người chơi
-chưa bị ảnh hưởng; GD3-280 phải xong **trước khi đưa bất kỳ bài nào lên manifest prod**.
-- [ ] **GD3-280** Bug chặn: bài remote chưa tải phá chuỗi mở khóa (Claude, S):
+**Việc phát sinh sau review nhánh `codex/beatglide-online` (2026-10-16).** (Đánh số lại 2026-10-16: lúc đầu ghi
+GD3-280–282, trùng mã gameplay v4 ở roadmap Phase 4.10; commit `4448dfe` còn ghi số cũ.) Manifest prod hiện rỗng nên người chơi
+chưa bị ảnh hưởng; GD3-300 phải xong **trước khi đưa bất kỳ bài nào lên manifest prod**.
+- [ ] **GD3-300** Bug chặn: bài remote chưa tải phá chuỗi mở khóa (Claude, S):
       - Đã tái hiện: người chơi qua cả 12 bài, manifest thêm 1 bài chưa tải (độ khó 45) → `SongUnlocks.unlocked` chỉ
         còn 3/13 bài mở; NEXT SONG sau Temple Battle Taiko trỏ tới `user://content/new_song/…` chưa có file.
       - Nguyên nhân: `SongCatalog.list_songs()` trả cả bài chưa tải; `SongUnlocks` / `RunRecords` dùng danh sách đó làm
@@ -232,7 +233,7 @@ chưa bị ảnh hưởng; GD3-280 phải xong **trước khi đưa bất kỳ b
       - Bản revision mới thay bài có sẵn (kỷ lục chuyển sang khóa `@r2`) cũng làm mất tiến độ mở khóa: mở khóa phải tính
         kỷ lục tốt nhất qua mọi revision, còn kỷ lục hiển thị vẫn tách theo revision.
       - Test trong `tests/core/test_content.gd` (manifest giả + `HighScores.path` tạm).
-- [ ] **GD3-281** Lag ở home khi tải nhạc; chỉ tải khi người chơi chọn, có giao diện loading (Claude, M; đo trên máy thật):
+- [ ] **GD3-301** Lag ở home khi tải nhạc; chỉ tải khi người chơi chọn, có giao diện loading (Claude, M; đo trên máy thật):
       - Hiện tượng: menu home giật trong lúc tải bài (người dùng báo 2026-10-16).
       - Khi nạp config (manifest), bài chưa có trên máy chỉ hiện trong danh sách kèm nút TẢI (dung lượng MB);
         **không tự tải** gì ngoài manifest nhỏ.
@@ -245,7 +246,7 @@ chưa bị ảnh hưởng; GD3-280 phải xong **trước khi đưa bất kỳ b
         thread; băm SHA256 64 KB mỗi frame trong khi nền menu đang chạy level 3D.
       - Hướng: dồn I/O và parse sang worker (như `LevelLoader`), cache revision/trạng thái cài, chỉ cập nhật row bị đổi.
         Đo A/B bằng `tools/device/perf_ab.sh` và logcat PERF trước/sau.
-- [ ] **GD3-282** Dọn dẹp sau review nội dung online (Claude, S):
+- [ ] **GD3-302** Dọn dẹp sau review nội dung online (Claude, S):
       - Chuỗi UI mới chưa có trong `assets/i18n/vi.json` (Refresh songs, Delete downloads, FAVORITES, ★ Favorite, Rate
         this song, Your rating…, FEATURED, thông báo tải); chuỗi ghép `%s · Download %.1f MB` cần `Locale.t`. Viết hoa
         thống nhất với phần UI còn lại.
@@ -271,5 +272,6 @@ kín chạy song song với phần kiếm tiền.
 | C. UI + âm thanh + bản release | tuần 4–6 | GD3-250–254, GD3-255–258 (tạo video Flow song song), GD3-260 | Bản AAB ký release có SFX trống, thử nội bộ |
 | D. Kiếm tiền + store | tuần 6–8 | GD3-240, 241, 242, 244, GD3-261; bắt đầu GD3-263 (14 ngày) | Quảng cáo/IAP chạy ở thử kín, trang store xong |
 | E. Soft launch | tuần 9–12 | GD3-264, GD3-232–234 với dữ liệu thật, GD3-233 A/B; GD3-262 nếu có Mac | Chỉ số mục 7 đạt mốc → ra toàn cầu |
-| E2. Nội dung online | song song E | GD3-270 (quyết định), GD3-275–279 (tải bài), GD3-271–273 (đánh giá sao), GD3-280–282 (sửa sau review; GD3-280 trước bài prod đầu tiên) | Thêm bài mới không cần phát hành bản mới; điểm sao hiện trong danh sách bài |
+| E2. Nội dung online | song song E | GD3-270 (quyết định), GD3-275–279 (tải bài), GD3-271–273 (đánh giá sao), GD3-300–302 (sửa sau review; GD3-300 trước bài prod đầu tiên) | Thêm bài mới không cần phát hành bản mới; điểm sao hiện trong danh sách bài |
+| E3. Gameplay v4 | song song D–E | GD3-280–289 (roadmap Phase 4.10, `docs/design/gameplay_v4.md`): dạng bay, vật cản mới, camera lách; còn GD3-288 đo trên máy, GD3-289 vật cản đợt 2 | Gameplay đa dạng hơn, FPS không giảm quá ngân sách (LOW −0,5, MEDIUM −1) |
 | F. Sau ra mắt | từ tháng 4 | GD3-221 + GD3-243 (tự tạo level, IAP), GD3-265 | Gói creator, bài mới đều đặn |
