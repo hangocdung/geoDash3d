@@ -243,3 +243,9 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
       Pulse Drive: 122 BPM, 66 % ô nhịp có X, 77 % cú bật LED trên lưới → snap, độ khó 4, 253 chạm, autoplay qua, dung
       sai ±90 ms, độ nổi ×1.60 / ×2.41 (WEAK như mọi bản LED). Ghi chú: theo `hit_grid` ở offset hiện tại, 6 bài
       hdgstudio86 thêm ngày 2026-10-15 chỉ đạt 3–30 % ô nhịp có X (ngưỡng 50 %).
+- [~] **GD3-231** Bộ event: lớp `Telemetry` (kiểm tra luật Firebase, log ở bản debug) + `RunTelemetry` (level_start,
+      level_end đủ tham số trong `docs/todo.md`, new_best, first_clear), `calibration_done`, `song_select`. Test
+      `tests/core/test_telemetry.gd`. **Còn lại:** plugin Firebase thật (GD3-230, cần duyệt), `perf_sample` (GD3-235),
+      event cửa hàng/đánh giá (theo GD3-241/244), user property.
+- [x] **GD3-253** Rung phản hồi: `Haptics` (PERFECT 12 ms, vỡ lá chắn 35 ms, chết 70 ms), tùy chọn Settings →
+      Vibration, quyền `vibrate` trong preset Android. **→ Cần thử cảm giác trên máy.**

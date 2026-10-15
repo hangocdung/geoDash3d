@@ -45,7 +45,9 @@ func _ready() -> void:
 			label += "\nBEST %s  ·  %s" % [RunRecords.grouped(record.score),
 					"CLEARED" if record.completed else "%d%%" % int(floorf(record.progress * 100.0))]
 		var button: Button = UiTheme.make_button(label, 540.0, 126.0 if record.has_any() else 92.0, &"ui.confirm")
-		button.pressed.connect(func() -> void: chosen.emit(entry.path))
+		button.pressed.connect(func() -> void:
+			Telemetry.log_event("song_select", {"song_id": entry.path.get_file().trim_suffix(".chart.json")})
+			chosen.emit(entry.path))
 		songs.add_child(button)
 		if first == null:
 			first = button

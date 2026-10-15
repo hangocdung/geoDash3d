@@ -29,6 +29,8 @@ func apply_between_runs() -> String:
 	UserSettings.audio_offset_sec = before + adjustment
 	UserSettings.save_settings()
 	var applied: float = UserSettings.audio_offset_sec - before
+	Telemetry.log_event("calibration_done", {"offset_ms": roundi(UserSettings.audio_offset_sec * 1000.0),
+			"method": "auto"})
 	_learner.shift(applied)
 	print("SYNC auto offset %+d ms (now %+d ms, %d taps)" % [roundi(applied * 1000.0),
 			roundi(UserSettings.audio_offset_sec * 1000.0), _learner.sample_count()])

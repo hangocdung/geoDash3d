@@ -24,6 +24,14 @@ func best() -> HighScores.Record:
 	return HighScores.best(_chart_path)
 
 
+## The level-complete menu: title, score lines (on_completed), grade counts and max combo.
+func completed_text(simulation: RunSimulation, practice: bool) -> String:
+	var counts: PackedInt32Array = simulation.grade_counts
+	return "%s\n%s\nPERFECT %d   GREAT %d   GOOD %d   MISS %d\nMAX COMBO %d" % [
+			"PRACTICE COMPLETE" if practice else "LEVEL COMPLETE", on_completed(simulation), counts[0], counts[1],
+			counts[2], counts[3], simulation.streak.max_combo]
+
+
 ## Lines for the level-complete menu (score, accuracy, best); submits the run when it counts.
 func on_completed(simulation: RunSimulation) -> String:
 	var score: int = simulation.score.score

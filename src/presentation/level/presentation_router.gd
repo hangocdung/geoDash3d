@@ -17,7 +17,7 @@ var _next_vfx_cue: int = 0
 var _next_phase: int = 0
 var _shields_shown: int = 0
 var _ghost_timer: float = 0.0
-## Off for the menu attract mode, so the backdrop stays quiet.
+## Off for the menu attract mode, so the backdrop stays quiet (sounds and vibrations).
 var sfx_enabled: bool = true
 
 
@@ -94,6 +94,7 @@ func update_trails(action: ActionDefinition, delta: float) -> void:
 
 func on_player_died(beat: float) -> void:
 	_play(&"player.death")
+	_vibrate(Haptics.Kind.DEATH)
 	_runner.vfx_director.on_died(_runner.player_view.center_position(), _context.frame_at_beat(beat))
 	_runner.player_view.on_died()
 	_runner.camera_director.add_shake(0.75)
@@ -138,6 +139,7 @@ func _on_cue_judged(cue_index: int, grade: Judgement.Grade, _error_sec: float) -
 	_runner.player_view.on_cue_hit(grade)
 	if grade == Judgement.Grade.PERFECT:
 		_play(&"judge.perfect")
+		_vibrate(Haptics.Kind.PERFECT)
 		_runner.vfx_director.on_perfect(_runner.player_view.center_position())
 	elif grade == Judgement.Grade.GREAT:
 		_play(&"judge.great")
@@ -159,6 +161,7 @@ func _on_shield_changed(shields: int) -> void:
 
 func _on_shield_used(hazard_index: int, beat: float) -> void:
 	_play(&"player.shield_break")
+	_vibrate(Haptics.Kind.SHIELD_BREAK)
 	_runner.vfx_director.on_shield_broken(_runner.player_view.center_position(), _context.frame_at_beat(beat),
 			PlayerView.SHIELD_COLOR)
 	if hazard_index >= 0:
@@ -178,3 +181,8 @@ func on_hazard_landed(world_position: Vector3, hazard: HazardDefinition) -> void
 func _play(sound_id: StringName, volume_offset_db: float = 0.0) -> void:
 	if sfx_enabled and not sound_id.is_empty():
 		Sfx.play(sound_id, volume_offset_db)
+
+
+func _vibrate(kind: Haptics.Kind) -> void:
+	if sfx_enabled:
+		Haptics.pulse(kind)

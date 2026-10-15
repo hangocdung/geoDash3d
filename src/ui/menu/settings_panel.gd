@@ -1,4 +1,4 @@
-# Settings panel: quality tier, volumes, manual audio offset (±5 ms), auto sync and reduce flashing,
+# Settings panel: quality tier, volumes, manual audio offset (±5 ms), auto sync, reduce flashing, vibration,
 # saved to UserSettings.
 # Related: src/core/user_settings.gd, src/ui/menu/main_menu.gd
 class_name SettingsPanel
@@ -67,6 +67,13 @@ func _ready() -> void:
 	calm.add_theme_font_size_override("font_size", 26)
 	calm.toggled.connect(func(enabled: bool) -> void: UserSettings.reduce_flashing = enabled)
 	column.add_child(_row("Reduce flashing", calm))
+
+	var vibration := CheckButton.new()
+	vibration.text = "on PERFECT and crashes"
+	vibration.button_pressed = UserSettings.haptics
+	vibration.add_theme_font_size_override("font_size", 26)
+	vibration.toggled.connect(func(enabled: bool) -> void: UserSettings.haptics = enabled)
+	column.add_child(_row("Vibration", vibration))
 
 	var meter := CheckButton.new()
 	meter.text = "spectrum + tap lane"

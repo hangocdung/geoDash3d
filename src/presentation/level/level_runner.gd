@@ -39,6 +39,7 @@ var _pending_sync_note: String = ""
 ## Best progress of this chart, shown with the next attempt after a death (normal runs only).
 var _pending_best_note: String = ""
 var _records: RunRecords
+var _telemetry: RunTelemetry
 ## Where a run starts when no practice checkpoint has been earned.
 var _base_start_beat: float = -COUNT_IN_BEATS
 
@@ -67,6 +68,7 @@ func _ready() -> void:
 		hud.show_message("Cannot load chart or song:\n%s" % path)
 		return
 	_records = RunRecords.new(path, options, chart, config)
+	_telemetry = RunTelemetry.new(path, chart, options, _records.counts())
 	var song_end_beat: float = chart.beat_at_time(_stream.get_length())
 	var flatten: bool = not QualityTier.uses_spectacle_track(UserSettings.quality_tier)
 	_context = LevelContext.new(chart, config, TrackPath.build(chart, song_end_beat, flatten), UserSettings.quality_tier)
@@ -125,6 +127,7 @@ func prepare_run() -> void:
 	simulation.run_completed.connect(_on_run_completed)
 	_router.bind(simulation, start_beat)
 	_sync.bind(simulation)
+	_telemetry.bind(simulation, start_beat)
 	if _practice != null:
 		_practice.begin(start_beat)
 	_autoplay = Autoplay.new(chart, start_beat, options.autoplay_missed_beats) if options.autoplay else null
@@ -241,6 +244,7 @@ func _connect_hud() -> void:
 	hud.run_menu.menu_pressed.connect(func() -> void:
 		song_clock.stop()
 		_learn_sync()
+		_telemetry.leave()
 		Scenes.go_to(get_tree(), options.return_scene))
 
 
@@ -281,11 +285,7 @@ func _on_run_completed(_beat: float) -> void:
 		return
 	Sfx.play(&"run.complete")
 	_learn_sync()
-	var counts: PackedInt32Array = simulation.grade_counts
-	var title: String = "PRACTICE COMPLETE" if _practice != null else "LEVEL COMPLETE"
-	hud.run_menu.open("%s\n%s\nPERFECT %d   GREAT %d   GOOD %d   MISS %d\nMAX COMBO %d" % [title,
-			_records.on_completed(simulation), counts[0], counts[1], counts[2], counts[3], simulation.streak.max_combo],
-			false)
+	hud.run_menu.open(_records.completed_text(simulation, _practice != null), false)
 
 
 ## Folds learned audio-offset corrections in between runs; the note appears with the next attempt.

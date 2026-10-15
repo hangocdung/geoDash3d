@@ -129,6 +129,7 @@ func _use_result() -> void:
 		return
 	UserSettings.audio_offset_sec = _estimate.offset_sec
 	UserSettings.save_settings()
+	Telemetry.log_event("calibration_done", {"offset_ms": roundi(_estimate.offset_sec * 1000.0), "method": "manual"})
 	Scenes.go_to(get_tree(), Scenes.MAIN_MENU)
 
 

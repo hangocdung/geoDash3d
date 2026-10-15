@@ -191,6 +191,17 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
 - Trong level: nút "II" (cảm ứng), `RunMenu` (RESUME / RESTART / MENU) khi tạm dừng hoặc hoàn thành.
   Nút HUD không nhận focus để Space luôn là "tap". `PresentationRouter` chuyển signal simulation → hiệu ứng.
 
+## 4c. Telemetry và phản hồi rung
+- `Telemetry` (`src/core/telemetry.gd`): mọi event analytics đi qua đây; kiểm tra luật Firebase (tên ≤ 40 ký tự,
+  ≤ 25 tham số, chuỗi ≤ 100 ký tự, không tiền tố `firebase_`/`google_`/`ga_`), giữ 32 event gần nhất (`history`),
+  gửi cho singleton `GeoDashFirebase` của plugin Android (GD3-230, chưa có) hoặc in `TELEMETRY ...` ở bản debug.
+- `RunTelemetry` (`src/presentation/level/`): một `level_start` khi chuẩn bị lượt, một `level_end` khi chết/qua màn/bỏ
+  (restart, MENU), kèm `new_best`/`first_clear` cho lượt tính kỷ lục. Không gửi trong attract, autoplay, capture.
+  Khác: `calibration_done` (thủ công/tự học), `song_select`. Chưa có: `perf_sample`, `shop_view`, `iap_click`,
+  `rate_prompt_shown` (chờ GD3-235/241/244).
+- `Haptics` (`src/core/haptics.gd`): rung ngắn khi PERFECT, vỡ lá chắn, chết; tắt trong Settings (`UserSettings.haptics`),
+  không rung trong attract. Android cần quyền `vibrate` (đã bật trong preset).
+
 ## 5. Công cụ
 - `tools/setup/configure_project.gd` ghi input map (`tap`, `pause`, `restart`), autoload, shader global và
   main scene qua API `ProjectSettings`. Không sửa tay các object này trong `project.godot`.
