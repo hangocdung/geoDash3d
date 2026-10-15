@@ -221,6 +221,45 @@ thấy nội dung). Các bài còn lại tải khi cần, sau đó chơi offline
 Đã kiểm tra 161 test game và 6 test backend; desktop tải 4 chart, sửa file hỏng, chấm sao và khôi phục backup đạt.
 Android đã tải/chấm sao/chơi offline và thử ngắt mạng; menu LOW đo ngắn 41,7 → 41,2 FPS trước/sau cache. Hạn mức cache 0 từ chối an toàn; chưa lấp đầy ổ để thử ENOSPC thực tế. Chi tiết: `D:/sntgames-api/docs/verification.md`.
 
+**Việc phát sinh sau review nhánh `codex/beatglide-online` (2026-10-16).** Manifest prod hiện rỗng nên người chơi
+chưa bị ảnh hưởng; GD3-280 phải xong **trước khi đưa bất kỳ bài nào lên manifest prod**.
+- [ ] **GD3-280** Bug chặn: bài remote chưa tải phá chuỗi mở khóa (Claude, S):
+      - Đã tái hiện: người chơi qua cả 12 bài, manifest thêm 1 bài chưa tải (độ khó 45) → `SongUnlocks.unlocked` chỉ
+        còn 3/13 bài mở; NEXT SONG sau Temple Battle Taiko trỏ tới `user://content/new_song/…` chưa có file.
+      - Nguyên nhân: `SongCatalog.list_songs()` trả cả bài chưa tải; `SongUnlocks` / `RunRecords` dùng danh sách đó làm
+        chuỗi mở khóa và tra `HighScores.best` của bài chưa chơi bao giờ.
+      - Sửa: bài chưa tải không được chặn chuỗi (không tính là "chưa qua"); NEXT SONG bỏ qua bài chưa tải.
+      - Bản revision mới thay bài có sẵn (kỷ lục chuyển sang khóa `@r2`) cũng làm mất tiến độ mở khóa: mở khóa phải tính
+        kỷ lục tốt nhất qua mọi revision, còn kỷ lục hiển thị vẫn tách theo revision.
+      - Test trong `tests/core/test_content.gd` (manifest giả + `HighScores.path` tạm).
+- [ ] **GD3-281** Lag ở home khi tải nhạc; chỉ tải khi người chơi chọn, có giao diện loading (Claude, M; đo trên máy thật):
+      - Hiện tượng: menu home giật trong lúc tải bài (người dùng báo 2026-10-16).
+      - Khi nạp config (manifest), bài chưa có trên máy chỉ hiện trong danh sách kèm nút TẢI (dung lượng MB);
+        **không tự tải** gì ngoài manifest nhỏ.
+      - Chỉ tải khi người chơi chọn tải bài đó (bấm PLAY một bài chưa có → hỏi xác nhận tải, không tải ngầm).
+      - Trong lúc tải: giao diện loading riêng (thanh tiến độ MB, hủy được), chặn PLAY bài đó tới khi cài xong; xong thì
+        chọn sẵn bài và cho chơi ngay.
+      - Nghi vấn cần đo (chưa xác nhận): `changed` → `SongListPanel._reload_content` dựng lại toàn bộ danh sách và
+        `SongCatalog.list_songs()` đọc/parse mọi chart trên main thread; `HighScores.best` parse cả chart để lấy
+        `chart_revision`; `ContentCatalog.installed` mở mọi file mỗi lần dựng row/cover; giải mã JPG cover trên main
+        thread; băm SHA256 64 KB mỗi frame trong khi nền menu đang chạy level 3D.
+      - Hướng: dồn I/O và parse sang worker (như `LevelLoader`), cache revision/trạng thái cài, chỉ cập nhật row bị đổi.
+        Đo A/B bằng `tools/device/perf_ab.sh` và logcat PERF trước/sau.
+- [ ] **GD3-282** Dọn dẹp sau review nội dung online (Claude, S):
+      - Chuỗi UI mới chưa có trong `assets/i18n/vi.json` (Refresh songs, Delete downloads, FAVORITES, ★ Favorite, Rate
+        this song, Your rating…, FEATURED, thông báo tải); chuỗi ghép `%s · Download %.1f MB` cần `Locale.t`. Viết hoa
+        thống nhất với phần UI còn lại.
+      - Nút "Refresh songs" / "Delete downloads" luôn hiện ở danh sách bài kể cả khi manifest prod rỗng; "Delete
+        downloads" xóa hết không hỏi lại → ẩn khi không có bài tải về hoặc chuyển vào Settings, thêm hộp xác nhận.
+      - `SongRatings.suspend()`: `HTTPRequest.cancel_request()` không phát `request_completed`, coroutine cũ treo rồi chạy
+        tiếp khi request kế tiếp xong → đọc nhầm phản hồi, gửi lại phiếu trùng.
+      - Telemetry `chart_version` đổi từ md5 sang `chart_revision`: chart có sẵn luôn báo "1" kể cả khi sửa giữa các bản
+        app → tăng `chart_revision` khi sửa chart có sẵn, hoặc gửi kèm md5.
+      - Gói version cũ không bị xóa khi đã cài bản mới; chạm 512 MB thì phải xóa hết → dọn version cũ sau khi cài xong.
+      - `main_menu.gd` / `SongOnlinePanel` đọc thành viên private (`_song_list._online.downloader`, `downloader._http`)
+        → thêm API công khai (đang tải, tiến độ).
+      - `chart_loader.gd`, `level_runner.gd` bị xóa dòng trống giữa các hàm (đổi định dạng ngoài phạm vi) → trả lại.
+
 ## 8. Lộ trình đề xuất
 Thứ tự theo phụ thuộc: đo lường có trước khi có người chơi bên ngoài; quyết định màn dọc trước khi làm UI; 14 ngày thử
 kín chạy song song với phần kiếm tiền.
@@ -232,5 +271,5 @@ kín chạy song song với phần kiếm tiền.
 | C. UI + âm thanh + bản release | tuần 4–6 | GD3-250–254, GD3-255–258 (tạo video Flow song song), GD3-260 | Bản AAB ký release có SFX trống, thử nội bộ |
 | D. Kiếm tiền + store | tuần 6–8 | GD3-240, 241, 242, 244, GD3-261; bắt đầu GD3-263 (14 ngày) | Quảng cáo/IAP chạy ở thử kín, trang store xong |
 | E. Soft launch | tuần 9–12 | GD3-264, GD3-232–234 với dữ liệu thật, GD3-233 A/B; GD3-262 nếu có Mac | Chỉ số mục 7 đạt mốc → ra toàn cầu |
-| E2. Nội dung online | song song E | GD3-270 (quyết định), GD3-275–279 (tải bài), GD3-271–273 (đánh giá sao) | Thêm bài mới không cần phát hành bản mới; điểm sao hiện trong danh sách bài |
+| E2. Nội dung online | song song E | GD3-270 (quyết định), GD3-275–279 (tải bài), GD3-271–273 (đánh giá sao), GD3-280–282 (sửa sau review; GD3-280 trước bài prod đầu tiên) | Thêm bài mới không cần phát hành bản mới; điểm sao hiện trong danh sách bài |
 | F. Sau ra mắt | từ tháng 4 | GD3-221 + GD3-243 (tự tạo level, IAP), GD3-265 | Gói creator, bài mới đều đặn |
