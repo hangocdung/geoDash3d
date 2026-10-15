@@ -345,3 +345,8 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
       màn chơi ở 19.5:9, 16:9, 4:3 và dọc 9:19.5 (kích thước cửa sổ qua `override.cfg` tạm; `scene_shot.gd` tự đặt
       canvas theo hướng). Lần chụp đầu phát hiện danh sách bài tràn ở màn dọc (dòng điều kiện mở khóa quá dài) → chữ
       trong nút bài tự xuống dòng, danh sách cao hơn khi dọc. Đã xem lại cả 24 ảnh.
+- [~] **GD3-232 / 234** Phân tích độ khó và dashboard: truy vấn BigQuery mẫu cho tỉ lệ qua màn, chỗ chết / điểm nghẽn,
+      lệch nhạc, so với `ChartDifficulty`, phễu bài, FPS theo máy (`docs/release/analytics_queries.md`), cách dựng
+      Looker Studio. **Còn lại:** bật BigQuery export, có dữ liệu thật; lệch theo từng cue chưa gửi (cần duyệt).
+- [~] **GD3-261** Trang store: bản nháp vi/en (tên, mô tả ngắn / đầy đủ), danh sách hình ảnh, khai báo Data safety /
+      IARC (`docs/release/store_listing.md`). **Còn lại:** chốt tên, icon, feature graphic, người dùng điền Play Console.

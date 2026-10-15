@@ -55,7 +55,7 @@ Android (Godot Android plugin v2 bọc Firebase Android SDK), iOS làm sau (GD3-
 
   User property: quality_tier, no_ads, songs_unlocked, songs_cleared. Quảng cáo và mua hàng: dùng event tự động
   khi liên kết AdMob/Play (`ad_impression` có doanh thu, `in_app_purchase`).
-- [ ] **GD3-232** Phân tích độ khó level (Cả hai, M) — phương pháp:
+- [~] **GD3-232** (→ roadmap Phase 7) Phân tích độ khó level (Cả hai, M) — phương pháp:
       1. Mỗi chart: tỉ lệ qua màn (complete/start), số lần thử tới lần qua đầu (trung vị), phân bố % xa nhất, tỉ lệ
          bỏ chơi sau khi chết, biểu đồ chỗ chết theo ô 4 beat và theo cue/vật cản.
       2. **Điểm nghẽn:** cue có tỉ lệ chết cao bất thường trong số lượt tới được nó → xem lại (vật cản hiện muộn,
@@ -66,7 +66,7 @@ Android (Godot Android plugin v2 bọc Firebase Android SDK), iOS làm sau (GD3-
       5. Phễu: % người chơi tới bài 2, 3, … → thứ tự bài và nhịp mở khóa.
 - [~] **GD3-233** (→ roadmap Phase 7) Remote Config + A/B (Claude, M): cửa sổ timing, số PERFECT để nạp lá chắn, bậc tốc độ, tần suất
       quảng cáo, thứ tự bài — đổi không cần cập nhật app. Giữ tất định: giá trị chốt lúc bắt đầu lượt.
-- [ ] **GD3-234** Dashboard (Cả hai, S–M): Firebase console + xuất BigQuery (phân tích theo cue; gói miễn phí có
+- [~] **GD3-234** (→ roadmap Phase 7) Dashboard (Cả hai, S–M): Firebase console + xuất BigQuery (phân tích theo cue; gói miễn phí có
       giới hạn) + Looker Studio cho các bảng ở mục 7.
 - [~] **GD3-235** (→ roadmap Phase 7) Hiệu năng ngoài thực tế (Claude, S): FPS p50/p10 theo model máy và tier từ `PerfProbe`, thời gian
       tải màn; chỉnh ngưỡng tự chọn tier (`QualityAutoTuner`) theo dữ liệu thật.
@@ -131,7 +131,7 @@ không hợp game. Quy trình tạo âm thật đã có sẵn (prompt → Google
 ## 6. Xuất bản store
 - [~] **GD3-260** (→ roadmap Phase 7) Bản release Android (Claude + Người dùng, M; thay cho GD3-053): keystore release + Play App Signing,
       AAB, target API theo mốc yêu cầu hiện hành của Google Play, version code tự tăng, icon adaptive.
-- [ ] **GD3-261** Trang store (Người dùng, Claude hỗ trợ): ảnh chụp, feature graphic, video, mô tả vi/en, xếp hạng nội
+- [~] **GD3-261** (→ roadmap Phase 7) Trang store (Người dùng, Claude hỗ trợ): ảnh chụp, feature graphic, video, mô tả vi/en, xếp hạng nội
       dung, form Data safety (Firebase + AdMob), khai báo có quảng cáo.
 - [ ] **GD3-262** iOS (Cả hai, L): **cần máy Mac + Xcode** (Windows không build/upload được), Apple Developer
       99 USD/năm; plugin iOS cho Firebase/AdMob/StoreKit/review; Privacy labels; ATT; TestFlight.
