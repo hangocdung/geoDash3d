@@ -264,9 +264,9 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
 - [~] **GD3-230** Plugin Firebase Android (người dùng duyệt 2026-10-15): `android_plugins/geodash_firebase` + addon
       `geodash_firebase` + Gradle build (`tools/android/setup_gradle_build.sh` vá google-services / Crashlytics, tắt
       Gradle daemon vì daemon giữ tiến trình export của Godot). APK debug có `libcrashlytics*.so`, export ~1 phút.
-      Lỗi script → non-fatal (`TelemetryLogger`). **Còn lại:** người dùng tạo project Firebase và đặt
-      `android_plugins/google-services.json` (`docs/release/firebase_setup.md`); đo FPS A-B-B-A trên máy (đã có
-      `build/fb_a.apk` không Gradle/Firebase và `build/fb_b.apk` có, máy bị khóa lúc làm); kiểm tra DebugView.
+      Lỗi script → non-fatal (`TelemetryLogger`). Đã tạo Firebase `beatglide-b6e3f`, cấu hình JSON và cài APK trên
+      Note10 Lite; log xác nhận Analytics/Crashlytics khởi tạo (2026-10-15), console Crashlytics đã nhận app.
+      **Còn lại:** kiểm tra DebugView/retention và FPS khi Firebase hoạt động. Chi tiết: `docs/release/firebase_setup.md`.
       **Đo Note10 Lite 2026-10-15** (Dawn Assembly từ beat 64, A-B-B-A):
       - Có/không thư viện Firebase (chưa có google-services.json nên Firebase chưa chạy): LOW 50.4 → 51.05,
         MEDIUM 39.95 → 39.95 (lượt này máy nằm phẳng nên game chạy dọc — xem dưới) → thư viện không tốn FPS.
@@ -304,7 +304,7 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
       **Đo A-B-B-A** (ép ngang, Dawn Assembly từ beat 64, SDK khởi tạo + interstitial tải nền khi đang chơi, build sạch
       trong worktree): LOW 53.2 → 53.25 FPS, MEDIUM 40.1 → 40.15 FPS; số lần giật (> 33 ms) ở LOW 1/1 → 3/4 mỗi lượt
       15 s, worst 61.7 ms một lần — có thể do tải quảng cáo nền, cần theo dõi khi chơi thật.
-      **Còn lại:** rewarded (chờ GD3-242), App ID / ad unit thật (người dùng), liên kết AdMob–Firebase, thử
+      **Đã tạo app và 3 ad unit thật, cấu hình SDK test cho Note10 Lite riêng bản debug (2026-10-15). Còn lại:** UMP (trang GDPR đang treo), liên kết AdMob–Firebase, thử
       interstitial thật sau 3 phút chơi.
 - [~] **GD3-241** Mua trong ứng dụng (plugin chính thức godot-google-play-billing 3.3.0, Billing Library 9.1.0, người
       dùng duyệt 2026-10-15): `Store` + `Entitlements` + menu → SHOP (`ShopPanel`): `remove_ads` (tắt interstitial và

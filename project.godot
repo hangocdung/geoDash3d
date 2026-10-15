@@ -8,6 +8,10 @@
 
 config_version=5
 
+[admob]
+
+general/android/app_id="ca-app-pub-6644877038986171~4548473801"
+
 [application]
 
 config/name="BeatGlide"
@@ -46,6 +50,12 @@ window/handheld/orientation=6
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/geodash_firebase/plugin.cfg", "res://addons/admob/plugin.cfg", "res://addons/GodotGooglePlayBilling/plugin.cfg")
+
+[geodash]
+
+ads/banner_unit="ca-app-pub-6644877038986171/2613409759"
+ads/interstitial_unit="ca-app-pub-6644877038986171/4010251908"
+ads/rewarded_unit="ca-app-pub-6644877038986171/1732492794"
 
 [importer_defaults]
 

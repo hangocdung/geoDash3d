@@ -4,7 +4,15 @@ Plugin tự viết `GeoDashFirebase` (Godot Android plugin v2) bọc Firebase An
 engine qua `firebase-crashlytics-ndk`) và Remote Config. Code game chỉ gọi `Telemetry` (`src/core/telemetry.gd`).
 Không có file cấu hình Firebase thì bản Android vẫn chạy bình thường, chỉ là không gửi gì.
 
-## Việc người dùng làm một lần
+## Cấu hình hiện tại (2026-10-15)
+
+Đã tạo project **BeatGlide** (`beatglide-b6e3f`), gói Spark, bật Analytics trong tài khoản `sntgames`.
+Đã đăng ký Android `com.sntgames.beatglide`, tải cấu hình đúng project vào
+`android_plugins/google-services.json` (gitignored), chạy chuẩn bị Gradle và cài APK debug trên Note10 Lite.
+Log máy xác nhận FirebaseApp, Analytics và Crashlytics 20.0.0 khởi tạo; bật DebugView cho package này.
+Chưa xác nhận event trên dashboard, chưa kiểm tra retention 14 tháng và chưa gửi crash thử.
+
+## Quy trình cấu hình lại
 1. Vào <https://console.firebase.google.com> → **Add project** (tắt/bật Google Analytics: **bật**, chọn tài khoản
    Analytics).
 2. Trong project → **Add app → Android**, package name `com.sntgames.beatglide` (tên game BeatGlide, chốt 2026-10-15 — GD3-201).

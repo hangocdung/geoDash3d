@@ -8,16 +8,31 @@ Mobile Ads SDK thế hệ mới `ads-mobile-sdk` 1.4.0 + UMP), không cài mạn
 - Khởi động (menu chính lần đầu): hỏi đồng ý bằng Google UMP (bắt buộc ở EEA/UK) → khởi tạo SDK với xếp hạng nội dung
   **T** và không nhắm trẻ em (GD3-203) → tải sẵn 1 interstitial.
 - **Interstitial**: chỉ khi về menu chính sau khi chơi, và chỉ khi đã chơi ≥ 180 s từ lần trước
-  (`Ads.MIN_PLAY_BETWEEN_INTERSTITIALS_SEC`; thời gian chơi tính từ `level_end` của `RunTelemetry`, không tính
+  (`RemoteSettings.ads_interstitial_gap_sec`; thời gian chơi tính từ `level_end` của `RunTelemetry`, không tính
   autoplay/attract). Không bao giờ sau mỗi lần chết (game tự chơi lại) và không bao giờ trong lượt chơi. Khi quảng cáo
   mở, nhạc nền menu tạm dừng.
 - **Banner**: chỉ ở menu chính (dưới đáy), hủy khi rời menu.
-- **Rewarded**: chưa làm — chờ quyết định khóa bài (GD3-242: mở thử bài khóa hay bắt đầu với 1 lá chắn).
+- **Rewarded**: người chơi tự chọn xem để chơi thử bài khóa (GD3-242), thưởng một lượt `song_trial`.
 - Settings → Ads → **AD PRIVACY** hiện khi UMP yêu cầu (EEA/UK) để người chơi đổi lựa chọn.
 - Bản debug luôn dùng ad unit thử của Google.
 
-## Việc người dùng làm trước khi phát hành
-1. Tạo tài khoản AdMob, thêm app Android (package `com.sntgames.beatglide`), tạo 2 ad unit: Interstitial, Banner.
+## Cấu hình đã thực hiện ngày 2026-10-15
+
+Đã tạo app **BeatGlide Android** trong AdMob (chưa phát hành trên store). App ID và ba ad unit đã lưu trong
+`project.godot`: banner `beatglide_banner_menu`, interstitial `beatglide_interstitial_menu_return`,
+rewarded `beatglide_rewarded_song_trial` (1 `song_trial`).
+
+Điện thoại Note10 Lite nối USB đã được cấu hình test bằng SDK: hash do log SDK cung cấp nằm trong
+`user://admob_test_device.txt` trên máy thử, không commit và không đóng vào APK. `Ads` chỉ đọc file này ở bản debug,
+kiểm tra 32 ký tự hex và truyền cho cả Mobile Ads lẫn UMP; không ép vùng địa lý. Bản debug luôn dùng mã mẫu Google.
+Cài đè APK giữ file; gỡ app hoặc xóa dữ liệu sẽ cần cấu hình lại. Đây là đăng ký bằng SDK, chưa đăng ký dashboard
+bằng Advertising ID; bản release không đọc file và không được dùng để thử quảng cáo thật trên máy này.
+
+Trang GDPR của AdMob hiện tải mãi ở iframe trống cả sau reload; chưa tạo/publish thông báo cho BeatGlide.
+SDK hiện báo UMP lỗi 3 (publisher misconfiguration). Liên kết AdMob–Firebase và xác minh app/store còn chờ.
+
+## Việc còn lại trước khi phát hành
+1. Liên kết app AdMob với trang Google Play khi phát hành (package `com.sntgames.beatglide`).
 2. Project Settings → `admob/general/android/app_id` = App ID thật (`ca-app-pub-…~…`), và thêm
    `geodash/ads/interstitial_unit`, `geodash/ads/banner_unit` = ad unit ID thật (bản release đọc ở đây; thiếu thì
    không hiện quảng cáo và báo lỗi).

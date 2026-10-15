@@ -44,7 +44,12 @@ static func start() -> void:
 	if _state != State.OFF or not is_supported():
 		return
 	_state = State.STARTING
-	UserMessagingPlatform.consent_information.update(ConsentRequestParameters.new(), _on_consent_info_updated,
+	var parameters := ConsentRequestParameters.new()
+	var device_id: String = _debug_device_id()
+	if not device_id.is_empty():
+		parameters.consent_debug_settings = ConsentDebugSettings.new()
+		parameters.consent_debug_settings.test_device_hashed_ids = [device_id]
+	UserMessagingPlatform.consent_information.update(parameters, _on_consent_info_updated,
 			func(error: FormError) -> void:
 				_warn_form_error(error)
 				_initialize())
@@ -155,6 +160,10 @@ static func _initialize() -> void:
 	var configuration := RequestConfiguration.new()
 	configuration.max_ad_content_rating = RequestConfiguration.MAX_AD_CONTENT_RATING_T
 	configuration.tag_for_child_directed_treatment = RequestConfiguration.TagForChildDirectedTreatment.FALSE
+	var device_id: String = _debug_device_id()
+	if not device_id.is_empty():
+		configuration.test_device_ids = [device_id]
+		print("Ads: debug test device configured (Google demo ad units)")
 	MobileAds.set_request_configuration(configuration)
 	var listener := OnInitializationCompleteListener.new()
 	listener.on_initialization_complete = func(_status: InitializationStatus) -> void:
@@ -223,3 +232,11 @@ static func _unit(format: String) -> String:
 	if unit.is_empty():
 		push_error("Ads: project setting %s is empty, no %s ads" % [UNIT_SETTING % format, format])
 	return unit
+
+
+## Device-local SDK hash; never included in exports or used by release builds.
+static func _debug_device_id() -> String:
+	if not OS.is_debug_build() or not FileAccess.file_exists("user://admob_test_device.txt"):
+		return ""
+	var value: String = FileAccess.get_file_as_string("user://admob_test_device.txt").strip_edges()
+	return value if value.length() == 32 and value.is_valid_hex_number() else ""
