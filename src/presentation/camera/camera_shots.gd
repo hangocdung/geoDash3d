@@ -62,17 +62,17 @@ static func get_shot(shot_name: StringName, portrait: bool = false) -> Shot:
 static func _portrait_shot(shot_name: StringName) -> Shot:
 	match shot_name:
 		&"side", &"side_far", &"chase":
-			return Shot.new(Vector3(-9.5, 7.0, 2.5), Vector3(12.0, -0.5, 0.0), 70.0)
+			return Shot.new(Vector3(-9.5, 7.0, 0.6), Vector3(12.0, -0.5, 0.0), 70.0)
 		&"side_low", &"chase_low":
-			return Shot.new(Vector3(-8.0, 3.6, 2.5), Vector3(12.0, 0.4, 0.0), 74.0, -4.0)
+			return Shot.new(Vector3(-8.0, 3.6, 0.6), Vector3(12.0, 0.4, 0.0), 74.0, -4.0)
 		&"side_high", &"high":
-			return Shot.new(Vector3(-6.0, 12.0, 2.5), Vector3(14.0, 0.0, 0.0), 68.0)
+			return Shot.new(Vector3(-6.0, 12.0, 0.6), Vector3(14.0, 0.0, 0.0), 68.0)
 		&"diagonal":
-			return Shot.new(Vector3(-6.5, 6.5, 6.0), Vector3(12.0, 0.5, -1.0), 70.0, 3.0)
+			return Shot.new(Vector3(-7.5, 6.5, 2.5), Vector3(12.0, 0.5, -1.0), 70.0, 3.0)
 		&"front":
-			return Shot.new(Vector3(14.0, 3.0, 4.0), Vector3(0.0, 1.0, 0.0), 74.0)
+			return Shot.new(Vector3(14.0, 3.0, 1.5), Vector3(0.0, 1.0, 0.0), 74.0)
 		&"underside":
-			return Shot.new(Vector3(-7.0, -3.2, 2.5), Vector3(12.0, -1.6, 0.0), 74.0)
+			return Shot.new(Vector3(-7.0, -3.2, 0.6), Vector3(12.0, -1.6, 0.0), 74.0)
 	push_warning("CameraShots: unknown shot '%s', using '%s'" % [shot_name, DEFAULT_SHOT])
 	return _portrait_shot(DEFAULT_SHOT)
 

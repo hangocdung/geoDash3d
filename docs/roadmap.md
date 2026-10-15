@@ -232,10 +232,12 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
 - [~] **GD3-203** Đề xuất 13+, không nhắm trẻ em, cấu hình AdMob/Play tương ứng (`legal_and_brand.md`). **→ Người dùng duyệt.**
 - [~] **GD3-210** Ngang + dọc trong một bản (người dùng yêu cầu 2026-10-15): menu xoay theo máy, vào màn chơi thì
       khóa hướng tới khi về menu (`DisplayOrientation`, `Scenes.go_to`); canvas UI 1920×1080 / 1080×1920 theo cửa sổ;
-      bộ shot sau/trên cho 9:16 (`CameraShots._portrait_shot`); `--portrait` ép dọc để chụp/đo. Ảnh 720×1280: đường phía trước thấy rõ, HUD vừa; ở khúc cua gắt/lộn camera sau
-      lưng bị lệch nhân vật sang mép. **Còn lại:** đo FPS trên máy (máy bị khóa lúc làm:
-      `EXTRA_ARGS="--portrait --start-beat=64" bash tools/device/perf_matrix.sh baseline` so với không `--portrait`),
-      người chơi thử theo tiêu chí GD3-211, sửa camera ở khúc cua.
+      bộ shot sau/trên cho 9:16 (`CameraShots._portrait_shot`); `--portrait` ép dọc để chụp/đo. Ảnh 720×1280: đường phía trước thấy rõ, HUD vừa. Sửa player sát/mất
+      mép ở màn dọc (phản hồi 2026-10-15): bỏ lệch ngang của camera dọc + `_keep_in_frame` giữ khối player trong vùng an
+      toàn; `tools/capture/portrait_framing.gd` đo 13 chart × tier LOW/MEDIUM/HIGH: trước 1112 khung hình bị cắt (riêng
+      The Dawn Assembly), sau 0; player luôn trong 14–85 % ngang, 22–85 % dọc. **Còn lại:** đo FPS trên máy
+      (`EXTRA_ARGS="--portrait --start-beat=64" bash tools/device/perf_matrix.sh baseline` so với không `--portrait`),
+      người chơi thử theo tiêu chí GD3-211.
 - [x] **GD3-220** Một lệnh sinh level: `tools/charting/auto_level.py` (+ `song_tempo.py`, `check_chart.gd`). Đo BPM đúng
       9/9 bài đang có (sai số ≤ 0.05 BPM; Tribal 100/150 và Temple Alt 120/160 bị báo "không chắc" → hỏi). Chạy thử trên
       Pulse Drive: 122 BPM, 66 % ô nhịp có X, 77 % cú bật LED trên lưới → snap, độ khó 4, 253 chạm, autoplay qua, dung

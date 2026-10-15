@@ -16,6 +16,11 @@ const HEIGHT_FOLLOW: float = 0.35
 const GROUND_RADIUS: float = 9.0
 const GROUND_LOOK_AHEAD: float = 4.0
 const FRAME_SMOOTHING: float = 6.0
+## Portrait: the camera turns just enough to keep the cube inside these shares of the half field of view
+## (sideways; up and down, measured from the centre). Lane changes, rolls and turns would push it off a narrow screen.
+const PORTRAIT_SAFE_SIDE: float = 0.4
+const PORTRAIT_SAFE_UP: float = 0.45
+const PORTRAIT_SAFE_DOWN: float = 0.55
 
 var camera: Camera3D
 var _context: LevelContext
@@ -56,7 +61,8 @@ func add_fov_kick(degrees: float) -> void:
 	_fov_kick = maxf(_fov_kick, degrees)
 
 
-func update_camera(beat: float, simulation: RunSimulation, delta: float) -> void:
+## `player_center`: the cube's world position (portrait keeps it inside the frame).
+func update_camera(beat: float, simulation: RunSimulation, delta: float, player_center: Vector3) -> void:
 	var player_height: float = simulation.player_height_at(beat)
 	_portrait = DisplayOrientation.is_portrait(get_viewport())
 	var flip_pose: Vector2 = _flip_pose(simulation, beat)
@@ -99,8 +105,29 @@ func update_camera(beat: float, simulation: RunSimulation, delta: float) -> void
 	var jitter := Vector3(_noise.get_noise_2d(_noise_time * 60.0, 0.0), _noise.get_noise_2d(0.0, _noise_time * 60.0),
 			_noise.get_noise_2d(_noise_time * 60.0, 50.0)) * shake
 	var up: Vector3 = frame.basis.y.rotated((target - eye).normalized(), deg_to_rad(shot.roll_deg))
-	camera.global_transform = Transform3D(Basis.looking_at(target - eye, up), eye + jitter)
+	var view := Transform3D(Basis.looking_at(target - eye, up), eye)
+	if _portrait:
+		view = _keep_in_frame(view, shot.fov, player_center)
+	camera.global_transform = Transform3D(view.basis, eye + jitter)
 	camera.fov = shot.fov + _fov_kick
+
+
+## Turns `view` (yaw, then pitch) by the least angle that brings `point` inside the portrait safe area.
+func _keep_in_frame(view: Transform3D, fov_deg: float, point: Vector3) -> Transform3D:
+	var local: Vector3 = view.affine_inverse() * point
+	if local.z > -0.5:
+		return view
+	var size: Vector2 = get_viewport().get_visible_rect().size
+	var half_up: float = deg_to_rad(fov_deg) * 0.5
+	var half_side: float = atan(tan(half_up) * size.x / maxf(size.y, 1.0))
+	var yaw: float = atan2(local.x, -local.z)
+	var pitch: float = atan2(local.y, -local.z)
+	var yaw_excess: float = yaw - clampf(yaw, -half_side * PORTRAIT_SAFE_SIDE, half_side * PORTRAIT_SAFE_SIDE)
+	var pitch_excess: float = pitch - clampf(pitch, -half_up * PORTRAIT_SAFE_DOWN, half_up * PORTRAIT_SAFE_UP)
+	if yaw_excess == 0.0 and pitch_excess == 0.0:
+		return view
+	var turned: Basis = view.basis * Basis(Vector3.UP, -yaw_excess) * Basis(Vector3.RIGHT, pitch_excess)
+	return Transform3D(turned, view.origin)
 
 
 ## x = 0..1 blend toward the low underside shot (flips, and rolls and underside runs on LOW), y = camera roll

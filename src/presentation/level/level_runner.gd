@@ -252,7 +252,7 @@ func _apply_volume() -> void:
 
 func _update_presentation(beat: float, delta: float) -> void:
 	player_view.update_pose(beat, simulation, delta)
-	camera_director.update_camera(beat, simulation, delta)
+	camera_director.update_camera(beat, simulation, delta, player_view.center_position())
 	obstacle_view.update_view(beat)
 	environment_director.update_environment(beat, delta)
 	vfx_director.set_palette(environment_director.palette)

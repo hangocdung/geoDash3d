@@ -107,6 +107,9 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   (level, calibration, recorder) khóa hướng hiện tại (`lock_current`, vẫn cho lật 180°) tới khi về menu. Canvas UI
   1920×1080 hoặc 1080×1920 theo cửa sổ (cập nhật khi đổi kích thước). Khi viewport cao hơn rộng,
   `CameraShots.get_shot(name, true)` thay mọi shot của chart bằng biến thể nhìn từ sau/trên. Chart không đổi.
+  Ở màn dọc, `CameraDirector._keep_in_frame` xoay camera (yaw rồi pitch) vừa đủ để khối player nằm trong vùng an toàn
+  (40 % nửa góc nhìn ngang, 45 % lên / 55 % xuống) — lách làn, lộn, cua gắt không đẩy player ra mép.
+  Kiểm tra: `tools/capture/portrait_framing.gd` (autoplay mọi chart ở 720×1280, không render, báo khung hình sát mép).
   `--portrait` (cả qua `user://debug_args.txt`) ép dọc: cửa sổ 720×1280 trên PC, khóa dọc trên điện thoại.
 - **EnvironmentDirector**:
   - Trời là shader (gradient, sao, hành tinh có vành), dùng `AT_CUBEMAP_PASS` để radiance không cập nhật mỗi frame.
