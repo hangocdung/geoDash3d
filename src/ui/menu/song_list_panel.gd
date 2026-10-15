@@ -79,16 +79,18 @@ func _song_button(entry: SongCatalog.Entry) -> Button:
 func _locked_entry(entry: SongCatalog.Entry, requirement_title: String) -> VBoxContainer:
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 6)
-	var how: String = Locale.t("Clear %s to unlock") if SongUnlocks.needs_clear(entry.path) \
-			else Locale.t("Clear %s or reach 80%% to unlock")
-	var info: Button = UiTheme.make_button("%s\n%s · %s" % [_details(entry), Locale.t("LOCKED"),
-			how % requirement_title.to_upper()], ENTRY_WIDTH, 126.0)
+	var how: String = Locale.t("Clear %s to unlock") % requirement_title.to_upper() \
+			if SongUnlocks.needs_clear(entry.path) else Locale.t("Clear %s or reach %d%% to unlock") % [
+				requirement_title.to_upper(), roundi(RemoteSettings.get_float("unlock_progress") * 100.0)]
+	var info: Button = UiTheme.make_button("%s\n%s · %s" % [_details(entry), Locale.t("LOCKED"), how],
+			ENTRY_WIDTH, 126.0)
 	info.disabled = true
 	box.add_child(info)
 	var actions := HBoxContainer.new()
 	actions.add_theme_constant_override("separation", 12)
 	box.add_child(actions)
-	if allow_trials and not SongUnlocks.needs_clear(entry.path) and (Ads.is_supported() or OS.is_debug_build()):
+	if allow_trials and RemoteSettings.get_bool("rewarded_trials") and not SongUnlocks.needs_clear(entry.path) \
+			and (Ads.is_supported() or OS.is_debug_build()):
 		var trial: Button = UiTheme.make_button("TRY (AD)", (ENTRY_WIDTH - 12.0) * 0.5, 60.0, &"ui.confirm")
 		trial.pressed.connect(_start_trial.bind(entry))
 		trial.size_flags_horizontal = Control.SIZE_EXPAND_FILL

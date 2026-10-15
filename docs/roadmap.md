@@ -319,3 +319,11 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
       / lần thử sau báo "ĐÃ MỞ: …"; event `song_unlock`, `rewarded_trial`. Danh sách bài chuyển sang `SongCatalog`.
       Test `tests/core/test_song_unlocks.gd`. Công cụ DEV thấy mọi bài; `-- --unlock-all`.
       **Còn lại:** thử quảng cáo thưởng trên máy, Remote Config cho ngưỡng (GD3-233).
+- [~] **GD3-233** Remote Config: `RemoteSettings` (mặc định trong game, Firebase ghi đè sau khi fetch):
+      `ads_interstitial_gap_sec` 180, `unlock_free_songs` 3, `unlock_progress` 0.8, `rewarded_trials`, `shield_combo` 16,
+      `timing_window_scale` 1.0 (kẹp 0.75–1.5). Gameplay đọc qua `GameplayConfig.create_for_play()` lúc vào màn → mỗi
+      lượt cố định, tất định. Test `tests/core/test_remote_settings.gd`. **Còn lại:** A/B (Firebase A/B Testing trên
+      console, người dùng tạo thí nghiệm), thứ tự bài.
+- [~] **GD3-235** `perf_sample` mỗi phiên (`PerfProbe`, mọi bản build): FPS p50/p10 của 1800 frame đầu một lượt chơi
+      thật (bỏ 120 frame đầu; không tính attract/autoplay/capture), kèm tier và hướng màn hình. **Còn lại:** chỉnh
+      ngưỡng `QualityAutoTuner` khi có dữ liệu thật.

@@ -1,14 +1,12 @@
 # Which songs can be played (GD3-242, approved 2026-10-15, docs/design/song_unlocks.md). Main chain = songs that are
-# neither EXPERT variants (*_led) nor bonus songs, easiest first: the first FREE_SONGS are open, each next one opens
-# when the one before it is open and was cleared or reached PROGRESS_TO_UNLOCK. A variant or bonus song opens when its
+# neither EXPERT variants (*_led) nor bonus songs, easiest first: the first unlock_free_songs (3) are open, each next
+# one opens when the one before it is open and was cleared or reached unlock_progress (0.8) (RemoteSettings). A variant or bonus song opens when its
 # base song is open and cleared. unlock_all_songs (IAP) or `-- --unlock-all` open everything; a rewarded "trial" opens
 # one locked song until the player leaves the level. Computed from HighScores each time, so nothing extra is saved.
 # Related: src/core/song_catalog.gd, src/core/high_scores.gd, src/core/entitlements.gd, src/ui/menu/song_list_panel.gd
 class_name SongUnlocks
 extends RefCounted
 
-const FREE_SONGS: int = 3
-const PROGRESS_TO_UNLOCK: float = 0.8
 const VARIANT_SUFFIX: String = "_led"
 ## Bonus song id → the song whose clear opens it (outside the main chain).
 const BONUS: Dictionary[String, String] = {"the_dawn_assembly": "fault_line"}
@@ -26,16 +24,18 @@ static func unlocked(ordered: PackedStringArray) -> Dictionary[String, bool]:
 	var by_id: Dictionary[String, String] = {}
 	for path: String in ordered:
 		by_id[SongCatalog.song_id(path)] = path
+	var free_songs: int = RemoteSettings.get_int("unlock_free_songs")
+	var progress_needed: float = RemoteSettings.get_float("unlock_progress")
 	var previous_open: bool = true
 	var previous_done: bool = true
 	var index: int = 0
 	for path: String in main_chain(ordered):
-		var open: bool = open_all or index < FREE_SONGS or (previous_open and previous_done)
+		var open: bool = open_all or index < free_songs or (previous_open and previous_done)
 		if open:
 			result[path] = true
 		var record: HighScores.Record = HighScores.best(path)
 		previous_open = open
-		previous_done = record.completed or record.progress >= PROGRESS_TO_UNLOCK
+		previous_done = record.completed or record.progress >= progress_needed
 		index += 1
 	# Variants and bonus songs: open when their base is open and cleared. A base can itself be a bonus song (the bonus
 	# song's EXPERT variant), so repeat until nothing changes.
@@ -75,7 +75,7 @@ static func base_song(id: String) -> String:
 	return ""
 
 
-## The song to clear (or reach PROGRESS_TO_UNLOCK on, for the main chain) to open `path` ("" when open or unknown).
+## The song to clear (or reach unlock_progress on, for the main chain) to open `path` ("" when open or unknown).
 static func requirement(path: String, ordered: PackedStringArray) -> String:
 	var base: String = base_song(SongCatalog.song_id(path))
 	if not base.is_empty():

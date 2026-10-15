@@ -60,7 +60,7 @@ func _ready() -> void:
 	options = preset_options if preset_options != null else LaunchOptions.take_next_run()
 	if options == null:
 		options = LaunchOptions.from_command_line()
-	var config: GameplayConfig = gameplay_config if gameplay_config != null else GameplayConfig.create_default()
+	var config: GameplayConfig = gameplay_config if gameplay_config != null else GameplayConfig.create_for_play()
 	var path: String = options.chart_path if not options.chart_path.is_empty() else chart_path
 	chart = ChartLoader.load_file(path, config)
 	_stream = load(chart.song_path) as AudioStream if chart != null else null

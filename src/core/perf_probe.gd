@@ -1,10 +1,15 @@
 # Autoload "PerfProbe" (debug builds, or release builds exported with the `perf_probe` feature): logs device info once, then every few seconds the FPS,
 # worst frame time (hitches), draw calls and audio latency, prefixed "PERF" so `adb logcat` /
-# console output can be filtered. Related: docs/roadmap.md (GD3-050/051), src/core/song_clock.gd
+# console output can be filtered. Every build also sends one `perf_sample` analytics event per session (GD3-235):
+# FPS p50/p10 over the first SAMPLE_FRAMES frames of a real run (no attract, autoplay or capture).
+# Related: docs/roadmap.md (GD3-050/051), src/core/song_clock.gd, src/core/telemetry.gd
 extends Node
 
 const REPORT_INTERVAL_SEC: float = 5.0
 const HITCH_THRESHOLD_MS: float = 33.4
+## perf_sample: frames skipped after a run starts (loading, warm-up), then frames measured (~30 s at 60 FPS).
+const SAMPLE_SKIP_FRAMES: int = 120
+const SAMPLE_FRAMES: int = 1800
 
 var _elapsed: float = 0.0
 var _frames: int = 0
@@ -12,11 +17,15 @@ var _worst_frame_ms: float = 0.0
 var _hitches: int = 0
 ## Accumulated microseconds per named section (see `measure`), reported as average ms per frame.
 var _sections: Dictionary[StringName, int] = {}
+var _logging: bool = false
+var _sample: PackedFloat32Array = []
+var _sample_skip: int = SAMPLE_SKIP_FRAMES
+var _sample_sent: bool = false
 
 
 func _ready() -> void:
-	if not (OS.is_debug_build() or OS.has_feature("perf_probe")):
-		set_process(false)
+	_logging = OS.is_debug_build() or OS.has_feature("perf_probe")
+	if not _logging:
 		return
 	print("PERF device model=%s os=%s %s renderer=%s adapter=%s screen=%s window=%s quality=%s latency_ms=%.1f" % [
 		OS.get_model_name(), OS.get_name(), OS.get_version(),
@@ -32,6 +41,10 @@ func measure(section: StringName, start_usec: int) -> void:
 
 
 func _process(delta: float) -> void:
+	if not _sample_sent:
+		_collect_sample(delta)
+	if not _logging:
+		return
 	_elapsed += delta
 	_frames += 1
 	var frame_ms: float = delta * 1000.0
@@ -58,3 +71,27 @@ func _process(delta: float) -> void:
 	_frames = 0
 	_worst_frame_ms = 0.0
 	_hitches = 0
+
+
+## Frame times of a real run (the current scene is a LevelRunner playing normally, not paused or dead).
+func _collect_sample(delta: float) -> void:
+	var level: LevelRunner = get_tree().current_scene as LevelRunner
+	if level == null or level.options == null or level.state != LevelRunner.RunState.RUNNING \
+			or level.options.autoplay or level.options.attract_mode or level.options.is_capture_run():
+		return
+	if _sample_skip > 0:
+		_sample_skip -= 1
+		return
+	_sample.append(delta)
+	if _sample.size() < SAMPLE_FRAMES:
+		return
+	_sample_sent = true
+	var sorted: PackedFloat32Array = _sample.duplicate()
+	sorted.sort()
+	# p10 FPS = the frame time slower than 90 % of frames.
+	var p50_ms: float = sorted[sorted.size() / 2] * 1000.0
+	var p90_ms: float = sorted[int(sorted.size() * 0.9)] * 1000.0
+	Telemetry.log_event("perf_sample", {"tier": QualityTier.Tier.keys()[UserSettings.quality_tier].to_lower(),
+			"fps_p50": snappedf(1000.0 / maxf(p50_ms, 0.001), 0.1), "fps_p10": snappedf(1000.0 / maxf(p90_ms, 0.001), 0.1),
+			"scene": "level", "portrait": DisplayOrientation.is_portrait(get_viewport())})
+	_sample.clear()

@@ -76,6 +76,7 @@ func _ready() -> void:
 	load_settings()
 	Locale.apply(language)
 	Telemetry.start()
+	RemoteSettings.start()
 	_apply_bus_volumes()
 
 

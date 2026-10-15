@@ -68,6 +68,19 @@ static func create_default() -> GameplayConfig:
 	return config
 
 
+## The config a level plays with: the defaults plus Remote Config's tuning (RemoteSettings, GD3-233), read once when
+## the level loads so every run keeps the same rules. PC and tests get the plain defaults.
+static func create_for_play() -> GameplayConfig:
+	var config: GameplayConfig = create_default()
+	config.shield_combo = maxi(RemoteSettings.get_int("shield_combo"), 1)
+	var scale: float = clampf(RemoteSettings.get_float("timing_window_scale"), RemoteSettings.WINDOW_SCALE_RANGE.x,
+			RemoteSettings.WINDOW_SCALE_RANGE.y)
+	config.cue_window_sec *= scale
+	config.perfect_window_sec *= scale
+	config.great_window_sec *= scale
+	return config
+
+
 func find_action(action_id: StringName) -> ActionDefinition:
 	for action: ActionDefinition in actions:
 		if action.id == action_id:

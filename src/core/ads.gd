@@ -1,7 +1,7 @@
 # AdMob through the Poing Studios plugin (GD3-240), Android only (no-op elsewhere and in tests). Startup asks for
 # consent with Google UMP, then initializes the SDK (teen content rating, not child-directed: GD3-203) and preloads an
 # interstitial. Interstitials only between runs, when the player is back in the main menu after at least
-# MIN_PLAY_BETWEEN_INTERSTITIALS_SEC of play; never after a death retry (the game restarts by itself) and never during
+# RemoteSettings ads_interstitial_gap_sec (180 s) of play; never after a death retry (the game restarts by itself) and never during
 # a run. The banner lives in the main menu only. Rewarded ads (song trials, GD3-242) load when the song list shows a
 # locked song and play only when the player asks; they stay available after remove_ads. Ad unit IDs: project settings geodash/ads/*_unit (release builds);
 # debug builds always use Google's test units.
@@ -11,7 +11,6 @@ extends RefCounted
 
 enum State { OFF, STARTING, READY }
 
-const MIN_PLAY_BETWEEN_INTERSTITIALS_SEC: float = 180.0
 const UNIT_SETTING: String = "geodash/ads/%s_unit"
 ## Google's public test units (Android).
 const TEST_UNITS: Dictionary[String, String] = {
@@ -60,7 +59,7 @@ static func note_play_time(seconds: float) -> void:
 static func maybe_show_interstitial() -> bool:
 	if not enabled or _state != State.READY or _interstitial == null:
 		return false
-	if _play_since_interstitial < MIN_PLAY_BETWEEN_INTERSTITIALS_SEC:
+	if _play_since_interstitial < RemoteSettings.get_float("ads_interstitial_gap_sec"):
 		return false
 	_play_since_interstitial = 0.0
 	Telemetry.log_event("ad_shown", {"format": "interstitial", "placement": "menu_return"})

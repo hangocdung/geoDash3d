@@ -64,11 +64,11 @@ Android (Godot Android plugin v2 bọc Firebase Android SDK), iOS làm sau (GD3-
          (vd. +40 ms) trong khi tổng thể ~0 → cue đặt lệch tiếng, đặt lại (phản hồi cho tool làm level).
       4. So độ khó thật với công thức `ChartDifficulty` → chỉnh trọng số, sắp lại danh sách bài và nhãn EASY…EXPERT.
       5. Phễu: % người chơi tới bài 2, 3, … → thứ tự bài và nhịp mở khóa.
-- [ ] **GD3-233** Remote Config + A/B (Claude, M): cửa sổ timing, số PERFECT để nạp lá chắn, bậc tốc độ, tần suất
+- [~] **GD3-233** (→ roadmap Phase 7) Remote Config + A/B (Claude, M): cửa sổ timing, số PERFECT để nạp lá chắn, bậc tốc độ, tần suất
       quảng cáo, thứ tự bài — đổi không cần cập nhật app. Giữ tất định: giá trị chốt lúc bắt đầu lượt.
 - [ ] **GD3-234** Dashboard (Cả hai, S–M): Firebase console + xuất BigQuery (phân tích theo cue; gói miễn phí có
       giới hạn) + Looker Studio cho các bảng ở mục 7.
-- [ ] **GD3-235** Hiệu năng ngoài thực tế (Claude, S): FPS p50/p10 theo model máy và tier từ `PerfProbe`, thời gian
+- [~] **GD3-235** (→ roadmap Phase 7) Hiệu năng ngoài thực tế (Claude, S): FPS p50/p10 theo model máy và tier từ `PerfProbe`, thời gian
       tải màn; chỉnh ngưỡng tự chọn tier (`QualityAutoTuner`) theo dữ liệu thật.
 
 ## 4. Kiếm tiền
