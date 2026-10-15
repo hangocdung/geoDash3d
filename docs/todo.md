@@ -265,6 +265,54 @@ chưa bị ảnh hưởng; GD3-300 phải xong **trước khi đưa bất kỳ b
         → thêm API công khai (đang tải, tiến độ).
       - `chart_loader.gd`, `level_runner.gd` bị xóa dòng trống giữa các hàm (đổi định dạng ngoài phạm vi) → trả lại.
 
+## 7c. Playable ad (thêm 2026-10-16)
+Quảng cáo chơi được ~20–30 giây từ một đoạn màn thật, chạy trong WebView của mạng quảng cáo. Hướng dẫn chi tiết:
+`docs/design/playable_ad.md`. **Không xuất từ Godot**: `godot.wasm` bản web đã 37,7 MB, trong khi mạng quảng cáo chỉ nhận
+một file HTML ~2–5 MB. Thay vào đó viết bản TypeScript + Three.js nhỏ trong `playable/`, đọc dữ liệu do Godot bake từ
+chart thật. Nộp lên mạng thì **chờ GD3-200**; làm prototype thì không bị chặn.
+- [ ] **GD3-310** Quyết định (Người dùng, S):
+      - Duyệt thư viện ngoài `three`, `esbuild`, `typescript`. Chỉ dùng trong `playable/`, game Godot không đổi.
+      - Chọn mạng đầu tiên (đề xuất AppLovin + Unity: chung MRAID, một bản dùng cho cả hai).
+      - Chọn bài và đoạn (đề xuất `pulse_drive_led` từ beat 64, 20 s, giống clip của `record_clip.sh`).
+      - Giấy phép nhạc dùng cho quảng cáo đi cùng GD3-200.
+- [ ] **GD3-311** Tool bake (Claude, M; cần GD3-310):
+      - `SegmentBaker` (`src/authoring/playable/`) và lệnh `tools/playable/bake_segment.gd --chart= --start-beat= --seconds= --out=`.
+      - Xuất `segment.json`: tempo, `s` theo beat, frame đường ray, địa hình, chuyển động chuẩn mỗi 1/48 beat, cue,
+        vật cản, config, palette, nhịp.
+      - Với từng cue: chạy lại `Autoplay` bỏ đúng cue đó để lấy beat chết và `miss_trace`. Cảnh báo cue lỡ mà không có
+        hậu quả.
+      - Xuất `golden.json` (vài chuỗi chạm mẫu) và cắt clip mp3 bằng ffmpeg.
+      - Test `tests/authoring/test_segment_baker.gd`.
+- [ ] **GD3-312** Khung `playable/` và luật theo cue (Claude, M; cần GD3-311):
+      - TypeScript, esbuild, phiên bản ghim cứng.
+      - `AudioClock` từ `AudioContext` là đồng hồ duy nhất, không cộng dồn delta.
+      - `run.ts` thuần logic: chấm điểm theo cửa sổ của `GameplayConfig` × `ad_window_scale`, combo, lá chắn, phát
+        `miss_trace` khi lỡ cue.
+      - `npm test` khớp `golden.json`.
+- [ ] **GD3-313** Hình ảnh Three.js (Claude, M–L):
+      - Đường ray neon có sóng theo beat, khối người chơi lăn, vật cản `InstancedMesh` đúng màu dành riêng, vòng cue khép
+        đúng vạch, trời theo palette.
+      - Camera ngang (shot `side`) và dọc (từ sau/trên).
+      - Glow giả bằng emissive + halo. Bloom chỉ bật khi máy dư sức.
+      - < 30 draw call, `pixelRatio` ≤ 2.
+- [ ] **GD3-314** Luồng quảng cáo (Claude, S–M):
+      - Màn mở chạy sẵn kiểu attract, chạm để chơi (mở khóa âm thanh).
+      - Đóng băng hướng dẫn bằng `ctx.suspend()` đúng thời điểm cue.
+      - HUD gọn; chết thì chơi lại; chết 2 lần hoặc hết đoạn thì sang màn kết có nút CÀI ĐẶT.
+      - Nút tắt tiếng, chữ vi/en, tạm dừng khi bị ẩn, xoay màn hình không vỡ khung.
+- [ ] **GD3-315** Adapter mạng và build (Claude, S–M):
+      - `src/networks/`: MRAID chung, Google `ExitApi`, Meta `FbPlayableAd`, Mintegral; đọc lại tài liệu từng mạng lúc làm.
+      - `node build.mjs --network=<tên>|all` ra HTML/zip, in kích thước, báo lỗi khi vượt 2 MB (cứng 5 MB).
+      - URL Play Store `com.sntgames.beatglide`.
+- [ ] **GD3-316** Kiểm tra (Cả hai, S–M):
+      - Claude: ảnh chụp ở 375×812 và ngang (mở, hướng dẫn, chết, lá chắn, màn kết); console không lỗi; không có request
+        mạng nào.
+      - Người dùng: chạy qua công cụ xem thử của mạng; mở trên máy Android thật, đo FPS và độ trễ chạm.
+- [ ] **GD3-317** Sau bản đầu (Cả hai, tùy chọn):
+      - A/B biến thể (bài, đoạn, có/không hướng dẫn, độ dài), xem CTR/IPM trên dashboard của mạng.
+      - Nếu người chơi thử thấy luật theo cue "giả": port bộ mô phỏng thật sang TS (mức 2, L), kiểm bằng golden trace
+        với chuỗi chạm ngẫu nhiên.
+
 ## 8. Lộ trình đề xuất
 Thứ tự theo phụ thuộc: đo lường có trước khi có người chơi bên ngoài; quyết định màn dọc trước khi làm UI; 14 ngày thử
 kín chạy song song với phần kiếm tiền.
@@ -278,4 +326,5 @@ kín chạy song song với phần kiếm tiền.
 | E. Soft launch | tuần 9–12 | GD3-264, GD3-232–234 với dữ liệu thật, GD3-233 A/B; GD3-262 nếu có Mac | Chỉ số mục 7 đạt mốc → ra toàn cầu |
 | E2. Nội dung online | song song E | GD3-270 (quyết định), GD3-275–279 (tải bài), GD3-271–273 (đánh giá sao), GD3-300–302 (sửa sau review; GD3-300 trước bài prod đầu tiên) | Thêm bài mới không cần phát hành bản mới; điểm sao hiện trong danh sách bài |
 | E3. Gameplay v4 | song song D–E | GD3-280–289 (roadmap Phase 4.10, `docs/design/gameplay_v4.md`): dạng bay, vật cản mới, camera lách; còn GD3-288 đo trên máy, GD3-289 vật cản đợt 2 | Gameplay đa dạng hơn, FPS không giảm quá ngân sách (LOW −0,5, MEDIUM −1) |
+| E4. Playable ad | xong trước E (dùng cho quảng cáo cài đặt lúc soft launch) | GD3-310–316 (prototype làm được ngay; nộp mạng sau GD3-200), GD3-317 sau khi có số liệu | Một file HTML ≤ 2 MB mỗi mạng, chơi được trên Android thật, qua công cụ xem thử của mạng |
 | F. Sau ra mắt | từ tháng 4 | GD3-221 + GD3-243 (tự tạo level, IAP), GD3-265 | Gói creator, bài mới đều đặn |
