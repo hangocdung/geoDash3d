@@ -84,12 +84,20 @@ func test_spike_rows_are_cleared_by_one_jump_with_tolerance() -> void:
 
 func test_model_obstacles_load_and_are_jumped_with_tolerance() -> void:
 	# GD3-104: laser fence, swinging axe, spiked mine are jumped like a spike (same or looser window).
-	for hazard_id: String in ["laser_fence", "pendulum", "spike_mine"]:
+	for hazard_id: String in ["laser_fence", "pendulum", "spike_mine", "piston_spikes", "rolling_ball"]:
 		var chart: LevelChart = ChartFixtures.make_chart([{"beat": 4, "type": "jump", "hazard": hazard_id}])
 		assert_not_null(chart, hazard_id)
 		assert_true(_simulate(chart, [], 6.0).is_dead, "%s kills without a jump" % hazard_id)
 		for tap_beat: float in [4.0, 4.0 - 0.15, 4.0 + 0.15]:
 			assert_false(_simulate(chart, [tap_beat], 6.0).is_dead, "%s jump at %.2f" % [hazard_id, tap_beat])
+
+
+func test_sliding_walls_keep_the_dodge_rule() -> void:
+	var chart: LevelChart = ChartFixtures.make_chart([{"beat": 4, "type": "dodge_left", "hazard": "sliding_wall_left"},
+			{"beat": 8, "type": "dodge_right", "hazard": "sliding_wall_right"}], 120.0, 7.0, 16.0)
+	assert_eq(chart.hazards.size(), 2)
+	assert_true(_simulate(chart, [], 14.0).is_dead, "running straight hits the sliding wall")
+	assert_false(_simulate(chart, [4.0, 8.0], 14.0).is_dead, "dodging clears both")
 
 
 func test_crusher_works_like_the_spiked_ceiling() -> void:

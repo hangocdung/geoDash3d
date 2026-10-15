@@ -144,6 +144,13 @@ Godot hỏng. Các bước tay bên dưới dùng khi cần chăm chút.
    chi tiết cuối cùng. Bài mới tự xuất hiện trong menu chọn bài (PLAY / PRACTICE), xếp từ dễ đến khó theo `ChartDifficulty`
    (lần chạm có trọng số × tốc độ mỗi phút; nhãn EASY / NORMAL / HARD / HARDER / EXPERT).
 
+## Đoạn bay trong level đặt tay (gameplay v4)
+Trong `tools/charting/levels/<bài>.py`: `256:fly15` = đoạn bay 15 beat từ beat 256 (cần mặt đường độ cao 0, bước kế
+tiếp ≥ 2 beat sau khi hết). Flap tự đặt bởi `tools/charting/flight_patterns.py`: quy hoạch động trên lưới 1/16, ưu tiên cú
+đánh nổi bật (cùng chỉ số với `tap_salience.py`), giữ đường bay trong 1.8–5.6. `262:amine` = mìn lơ lửng trong đoạn bay
+(loader đặt nó ngay trên/dưới đường bay chuẩn). Chọn đoạn nhạc có ≥ ~12 cú đánh nổi bật mỗi 16 beat
+(`hit_grid.py`/`flight_patterns.standout_curve`); đoạn thưa sẽ buộc phải chạm vào cú đánh yếu.
+
 ## Đặt hành động bằng tay: record mode, `.sm`, `fixed`
 - **Record mode** (menu RECORD (DEV) → chọn bài, chỉ có ở bản debug), mọi chức năng đều có nút trên màn hình:
   - Bài được chia thành **đoạn** (mỗi section cắt thành khúc 16 beat, khúc lẻ < 6 beat gộp vào khúc trước), chọn

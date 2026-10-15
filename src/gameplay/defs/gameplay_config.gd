@@ -82,8 +82,9 @@ static func create_default() -> GameplayConfig:
 	]
 	config.pad_launch = _action(&"pad", ActionDefinition.Kind.JUMP, 1.5, &"", 0.0, JUMP_COLOR, &"player.jump")
 	config.pad_launch.jump_height = 4.5
-	config.fly_entry = _action(&"fly_entry", ActionDefinition.Kind.JUMP, 1.0, &"", 0.0, FLY_COLOR, &"player.jump")
-	config.fly_entry.jump_height = 2.6
+	# A slow lift (still 1.8 up a beat in), so the first flap can wait for the downbeat after the portal.
+	config.fly_entry = _action(&"fly_entry", ActionDefinition.Kind.JUMP, 1.5, &"", 0.0, FLY_COLOR, &"player.jump")
+	config.fly_entry.jump_height = 3.0
 	config.hazards = HazardLibrary.create_all(config)
 	return config
 
@@ -201,12 +202,13 @@ static func _big_orb() -> ActionDefinition:
 	return orb
 
 
-## Flight tap: a short lift that resets the vertical speed (it does not add up). Tapping every 0.75 beat holds the
-## height, every half beat climbs (+0.7 per tap), every beat sinks (−1.4 per tap).
+## Flight tap: a short lift that resets the vertical speed (it does not add up). Tapping on every beat holds the
+## height, every half beat climbs (+1 per tap), every 1.5 beats sinks (−3 per tap): taps can follow the music's
+## strong hits (tools/charting/flight_patterns.py).
 static func _flap() -> ActionDefinition:
-	var flap: ActionDefinition = _action(&"flap", ActionDefinition.Kind.JUMP, 0.75, &"", 0.0, FLY_COLOR,
+	var flap: ActionDefinition = _action(&"flap", ActionDefinition.Kind.JUMP, 1.0, &"", 0.0, FLY_COLOR,
 			&"player.jump")
-	flap.jump_height = 0.8
+	flap.jump_height = 1.0
 	flap.air_allowed = true
 	return flap
 

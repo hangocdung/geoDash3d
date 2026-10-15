@@ -186,6 +186,13 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   hiệu ứng lá chắn, speed lines (chỉ MEDIUM/HIGH: 18/32 vệt, phát ở phía nền sau đường, dày theo energy đoạn nhạc).
 - **Vòng dưới chân** (`PlayerView`, glyph 10): nằm trên mặt đất dưới người chơi (không bay theo cú nhảy, ẩn trên hố và
   khi lộn xuống mặt dưới), mỗi beat phát một sóng vòng, đổi dần sang màu hành động của cue kế tiếp trong 2 beat trước nó.
+- **Gameplay v4 (trình bày)**: `CorridorView` (con của ObstacleView) vẽ hành lang bay bằng 3 MultiMesh (gai sàn,
+  gai trần, tấm), gai dựng lên theo sóng trong `corridor_spike.gdshader` (INSTANCE_CUSTOM.x = beat dựng, so với global
+  `run_beat`; LOW 1 gai/ô, không nảy xoắn — `QualityTier.uses_rich_hazards`). `PlayerView`: khối dẹt thành tàu lượn có cánh
+  vàng, ngóc mũi theo tốc độ lên/xuống, không lăn khi bay. `DecorView`: cổng vàng hai đầu đoạn bay. `CameraDirector.auto_shot`:
+  shot `fly` trong đoạn bay; quanh cue lách (vùng −2.5..+1.5 beat, gộp nếu gần) shot `top_tilt` (từ trên xuống, hơi nghiêng)
+  quay quỹ đạo ±22°/8 beat và nhấp nhô — LOW giữ yên. Kiểu vào sân mới `BEAT_POP` / `SPIRAL` / `SWEEP` (`ObstacleEntrance`),
+  vật cản `PISTON` / `ROLLING_BALL` (`ObstacleModels.pose_moving_part`).
 - **HUD** (`src/ui/hud`): thanh tiến độ, %, chữ chấm điểm, combo, thanh nạp lá chắn, ATTEMPT, thông báo. Có xử lý
   safe area trên mobile.
 

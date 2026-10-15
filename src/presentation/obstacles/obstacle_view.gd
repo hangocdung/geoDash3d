@@ -106,7 +106,7 @@ func update_view(beat: float) -> void:
 			continue
 		obstacle.settled = false
 		obstacle.root.transform = obstacle.rest * ObstacleEntrance.pose(obstacle.hazard.entrance, since_landing,
-				obstacle.hazard.visual_height)
+				obstacle.hazard.visual_height, signf(obstacle.hazard.lateral_center))
 
 
 ## Hides a hazard a shield destroyed (same index as chart.hazards); returns where it stood.

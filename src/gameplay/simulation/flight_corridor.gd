@@ -1,10 +1,14 @@
 # Spike corridor of a chart's flight sections (gameplay v4): a floor and a ceiling height per bucket of track
 # distance, built once at load from the perfect run tapped on time, early and late (fly_timing_margin_sec), padded
 # by fly_clearance and widened to the section's gap. Collision is one lookup per step, however many spikes are drawn.
+# Floating hazards (HazardDefinition.airborne) are lifted just above the path (below it when it flies high) and the
+# corridor is widened around them.
 # Related: run_simulation.gd, player_body.gd, src/gameplay/chart/flight_sections.gd, docs/design/gameplay_v4.md
 class_name FlightCorridor
 extends RefCounted
 
+## Above this the path counts as high: floating hazards go under it instead of over it.
+const HIGH_PATH: float = 6.0
 ## Floor value meaning "no floor spikes here" (the lift-off at a section's start).
 const NO_FLOOR: float = -1000.0
 ## Buckets on each side merged into one (min floor / max ceiling) so the walls do not zigzag.
@@ -23,6 +27,11 @@ var ceilings: PackedFloat32Array = []
 static func build(chart: LevelChart, config: GameplayConfig, source_name: String) -> bool:
 	chart.flight = null
 	if chart.fly_ranges.is_empty():
+		for placement: ChartItems.HazardPlacement in chart.hazards:
+			if placement.hazard.airborne:
+				push_error("ChartLoader: %s: '%s' at beat %.3f must float inside a fly section" % [source_name,
+						placement.hazard.id, placement.beat])
+				return false
 		return true
 	var errors: PackedStringArray = FlightSections.validate(chart, config)
 	var corridor := FlightCorridor.new()
@@ -67,6 +76,7 @@ func _measure(chart: LevelChart, config: GameplayConfig) -> PackedStringArray:
 	var margin: float = config.fly_timing_margin_sec
 	for shift: float in [0.0, -margin, margin]:
 		_sample(chart, config, _taps(chart, config, shift), low, high)
+	_place_floating_hazards(chart, config, low, high, errors)
 	for section: int in starts.size():
 		_shape(chart, config, section, low, high, errors)
 	return errors
@@ -104,6 +114,34 @@ func _sample(chart: LevelChart, config: GameplayConfig, taps: PackedFloat64Array
 				low[index] = minf(low[index], height + config.player_bottom)
 				high[index] = maxf(high[index], height + config.player_top)
 			beat += step
+
+
+## Sets each floating hazard's height clear of the path (tapped on time, early or late) around it, and grows the
+## envelope so the corridor encloses the hazard.
+func _place_floating_hazards(chart: LevelChart, config: GameplayConfig, low: PackedFloat32Array,
+		high: PackedFloat32Array, errors: PackedStringArray) -> void:
+	for placement: ChartItems.HazardPlacement in chart.hazards:
+		var hazard: HazardDefinition = placement.hazard
+		if not hazard.airborne:
+			continue
+		var reach: float = hazard.half_length + config.player_half_length
+		var first: int = bucket_at(placement.distance - reach)
+		var last: int = bucket_at(placement.distance + reach)
+		if first < 0 or last < 0:
+			errors.append("'%s' at beat %.3f must float inside a fly section" % [hazard.id, placement.beat])
+			continue
+		var path_low: float = INF
+		var path_high: float = -INF
+		for index: int in range(first, last + 1):
+			path_low = minf(path_low, low[index])
+			path_high = maxf(path_high, high[index])
+		var base: float = path_high + config.fly_clearance - hazard.bottom
+		if path_high > HIGH_PATH:
+			base = path_low - config.fly_clearance - hazard.top
+		placement.base_height = base
+		for index: int in range(first, last + 1):
+			low[index] = minf(low[index], base + hazard.bottom)
+			high[index] = maxf(high[index], base + hazard.top)
 
 
 ## Smooths, pads and widens one section's walls; the lift-off (first beat) has no floor.

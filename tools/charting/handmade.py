@@ -5,7 +5,8 @@ flat road for dodges and flips), places the patterns (terrain_patterns.py) and w
 Patterns: spike spike2 spike3 saw laser pendulum mine roll gap step step1 chain2 chain3 orb borb dive trip stairs fstairs pad dl dr flip
 drop drop2 drop4 fdown fup (drop/drop2/drop4: run off the ledge down to 0 / 2 / 4; spike2/spike3: spike rows; borb:
 big orb onto +2, lands 2 beats after the jump; dive: jump + dive orb under a spiked ceiling; fdown ... fup: underside
-run, only spike patterns and chains in between, the hazards hang under the track).
+run, only spike patterns and chains in between, the hazards hang under the track; flyN: an N-beat flight section
+from the road, flaps on the standout hits (flight_patterns.py); amine: a floating mine inside a flight).
 build() adds variety by default: plain `spike` steps rotate through spike / saw / spike rows by section energy, and
 every other `orb` with room after it becomes `borb` (same taps, same ground).
 Usage: a song script calls build(SONG, STEPS) (see tools/charting/levels/*.py).
@@ -15,9 +16,12 @@ import json
 import math
 import sys
 
+import flight_patterns
 from terrain_patterns import Level, SpeedMap, fall_beats, PLAYER_HALF_LENGTH
 
 MAX_HEIGHT = 6.0
+# GameplayConfig.fly_exit_beats: the first ground tap after a flight comes this long after it (time to land).
+FLY_EXIT_BEATS = 2.0
 EPSILON = 0.0001
 SPIKE_HAZARDS = {"spike": "spike", "spike2": "spike_double", "spike3": "spike_triple", "saw": "saw",
                  "laser": "laser_fence", "pendulum": "pendulum", "mine": "spike_mine"}
@@ -50,6 +54,8 @@ def parse(steps):
 
 class Checker:
     def __init__(self, level):
+        self.fly = []
+        self.mines = []
         self.level = level
         self.free = -100.0
         self.errors = []
@@ -84,6 +90,10 @@ class Checker:
 
     def _apply(self, beat, name):
         level = self.level
+        if name == "amine":
+            self.need(any(start + 1.0 < beat < end - 0.5 for start, end in self.fly), beat, "amine outside a flight")
+            self.mines.append(beat)
+            return
         ground = level.ground
         speed = level.speed.speed_at(beat)
         if self.under and name not in UNDER_PATTERNS and name != "fup":
@@ -102,7 +112,11 @@ class Checker:
         self.need(ground + rise <= MAX_HEIGHT, beat, "%s from height %.1f goes above %.1f" % (name, ground, MAX_HEIGHT))
         if name in ("dl", "dr", "flip", "roll", "fdown"):
             self.need(ground == 0.0, beat, "%s needs the road (height 0), ground is %.1f" % (name, ground))
-        if name in SPIKE_HAZARDS:
+        if name.startswith("fly"):
+            self.need(ground == 0.0, beat, "fly needs the road (height 0), ground is %.1f" % ground)
+            self.fly.append((beat, beat + float(name[3:])))
+            self.free = beat + float(name[3:]) + FLY_EXIT_BEATS
+        elif name in SPIKE_HAZARDS:
             level.spike(beat, SPIKE_HAZARDS[name])
             self.free = beat + 1.0
         elif name == "gap":
@@ -199,6 +213,22 @@ def add_variety(plan, sections):
     return result
 
 
+def flight_events(song, checker):
+    """Flap cues of every flight section (on the standout hits of the song) and its floating mines."""
+    if not checker.fly:
+        return []
+    audio = "assets/music/%s.mp3" % song.get("audio", song["id"])
+    standout = flight_patterns.standout_curve(audio, song["bpm"], song["offset"])
+    events = []
+    for start, end in checker.fly:
+        try:
+            events += [{"beat": beat, "type": "flap"} for beat in flight_patterns.plan_flaps(start, end, standout)]
+        except ValueError as error:
+            print(error)
+            sys.exit(1)
+    return events + [{"beat": beat, "type": "hazard", "hazard": "air_mine"} for beat in checker.mines]
+
+
 def speed_keys(song):
     """Speed ladder: explicit `speed` keys, else one key per phase (beat, palette, units_per_beat)."""
     if "speed" in song:
@@ -236,7 +266,7 @@ def build(song, steps, variety=True):
     if checker.errors:
         print("\n".join(checker.errors))
         sys.exit(1)
-    events = list(level.events)
+    events = list(level.events) + flight_events(song, checker)
     events += [{"beat": b, "type": "camera", "shot": shot, "blend_beats": blend} for b, shot, blend in song["cameras"]]
     events += [{"beat": b, "type": "vfx", "name": name} for b, name in song.get("vfx", [])]
     events.sort(key=lambda event: (event["beat"], event["type"]))
@@ -255,10 +285,12 @@ def build(song, steps, variety=True):
         "terrain": level.terrain,
         "events": events,
     }
+    if checker.fly:
+        chart["fly"] = [{"beat": start, "end": end} for start, end in checker.fly]
     path = "assets/music/%s.chart.json" % song["id"]
     with open(path, "w", encoding="utf-8", newline="\n") as handle:
         json.dump(chart, handle, indent="\t")
         handle.write("\n")
     taps = sum(1 for e in events if e["type"] in ("jump", "orb", "orb_big", "orb_drop", "dodge_left", "dodge_right", "flip",
-                                                  "roll", "flip_down", "flip_up"))
+                                                  "roll", "flip_down", "flip_up", "flap"))
     print("wrote %s: %d taps, end beat %d" % (path, taps, song["end_beat"]))

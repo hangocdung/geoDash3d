@@ -202,11 +202,20 @@ Thiết kế: `docs/design/gameplay_v4.md`. Branch `feat/gameplay-v4`. Ngân sá
       quanh cue lách, quỹ đạo ±22° mỗi 8 beat + nhấp nhô (LOW đứng yên: camera xoay tốn FPS trên Mali).
 - [x] **GD3-283** Hành lang gai: `CorridorView` 3 MultiMesh (gai sàn, gai trần, tấm) = 3 draw call, gai dựng lên theo sóng
       3 beat trước người chơi (lưới 1/16) trong `corridor_spike.gdshader`; LOW 1 gai/ô, không nảy xoắn. Chưa đo trên máy.
-- [ ] **GD3-284** Kiểu vào sân mới trong shader (ASSEMBLE / MATERIALIZE / BEAT_POP / SPIRAL / WAVE), phân tier.
-- [ ] **GD3-285** Vật cản đợt 1: `air_mine`, `piston_spikes`, `rolling_ball`, `sliding_wall`.
-- [ ] **GD3-286** Công cụ soạn màn cho đoạn bay + trọng số độ khó.
-- [ ] **GD3-287** Áp vào 2 bài (đề xuất `pulse_drive`, `neon_rhythm_stabs`).
-- [ ] **GD3-288** Đo A-B-B-A trên máy, chỉnh theo tier.
+- [~] **GD3-284** Kiểu vào sân mới: WAVE (hành lang, trong shader), BEAT_POP / SPIRAL / SWEEP (`ObstacleEntrance`, biến đổi
+      transform trên CPU cho vài node đang hiện — đo trước đây: vật cản không tốn FPS). Cưa xoáy xuống, mìn nảy lên,
+      tường laser trượt vào. **Còn lại:** ASSEMBLE, MATERIALIZE (cần shader riêng).
+- [x] **GD3-285** Vật cản đợt 1: `air_mine` (lơ lửng trong hành lang, `FlightCorridor` đặt ngay trên/dưới đường bay
+      chuẩn và nới hành lang), `piston_spikes` (bơm theo phách, hộp của `spike_double`), `rolling_ball` (cầu gai lăn tới,
+      gặp người chơi đúng beat), `sliding_wall_left/right` (tường trượt vào, hộp của tường). Có test.
+- [x] **GD3-286** `handmade.py`: mẫu `flyN` + `amine`; `flight_patterns.py` chọn flap bằng quy hoạch động trên lưới 1/16
+      (ưu tiên cú đánh nổi bật, giữ độ cao 1.8–5.6). Vật lý flap chỉnh để chạm mỗi phách giữ độ cao (khoảng 0.5–1.5
+      phách bám được nhịp mạnh), cất cánh chậm hơn để flap đầu rơi vào phách mạnh. Trọng số độ khó `flap` 0.6.
+- [~] **GD3-287** `pulse_drive`: đoạn bay 256–271 (mở đầu drop 2, 13 cú đánh nổi bật/16 phách, qua vòng lộn) + 2 mìn;
+      16 flap, trung vị nổi bật ×1.62 (nửa số flap trên cú đánh nổi bật), cả bài ×1.97 OK. Đoạn "build" 128–144 chỉ có
+      7 cú nổi bật → không hợp. **Còn lại:** `neon_rhythm_stabs` (bài dùng bộ sinh khác, cần mẫu bay ở đó).
+- [ ] **GD3-288** Đo A-B-B-A trên máy, chỉnh theo tier. Trên PC (Pulse Drive beat 258, HIGH): draw call 41 → 48,
+      đối tượng 88 → 139 (vòng nhịp flap), primitive 11.7k → 15.0k. **Cần người dùng đo trên điện thoại.**
 - [ ] **GD3-289** Vật cản đợt 2.
 
 ## Phase 5 — Mobile

@@ -7,6 +7,7 @@ extends RefCounted
 const JUMP_COLOR: Color = GameplayConfig.JUMP_COLOR
 const DODGE_COLOR: Color = GameplayConfig.DODGE_COLOR
 const FLIP_COLOR: Color = GameplayConfig.FLIP_COLOR
+const FLY_COLOR: Color = GameplayConfig.FLY_COLOR
 
 
 static func create_all(config: GameplayConfig) -> Array[HazardDefinition]:
@@ -41,7 +42,66 @@ static func create_all(config: GameplayConfig) -> Array[HazardDefinition]:
 	gate_under.id = &"gate_under"
 	gate_under.face = HazardDefinition.Face.UNDERSIDE
 	hazards.append(gate_under)
+	# Gameplay v4 (GD3-285): new looks on the existing ways through, and the flight's floating mine.
+	hazards.append_array([_piston_spikes(), _rolling_ball(), _sliding_wall(config, &"sliding_wall_left", 1.0),
+			_sliding_wall(config, &"sliding_wall_right", -1.0), _air_mine(config)])
+	_restyle_entrances(hazards)
 	return hazards
+
+
+## Livelier entrances for older hazards (looks only): saws spin down, mines pop up, laser walls slide in.
+static func _restyle_entrances(hazards: Array[HazardDefinition]) -> void:
+	for hazard: HazardDefinition in hazards:
+		match hazard.id:
+			&"saw":
+				hazard.entrance = HazardDefinition.Entrance.SPIRAL
+			&"spike_mine":
+				hazard.entrance = HazardDefinition.Entrance.BEAT_POP
+			&"laser_gap_left", &"laser_gap_right":
+				hazard.entrance = HazardDefinition.Entrance.SWEEP
+
+
+## Two spikes pumping with the beat: spike_double's hitbox (they are fully up whenever the player can reach them).
+static func _piston_spikes() -> HazardDefinition:
+	var piston: HazardDefinition = _spike_row(&"piston_spikes", 2, 0.75, 0.75, 1.8, 1.05)
+	piston.visual = HazardDefinition.Visual.PISTON
+	piston.entrance = HazardDefinition.Entrance.BEAT_POP
+	return piston
+
+
+## Spiked ball rolling at the player; its hitbox waits where they meet (a spike-sized box, a little taller).
+static func _rolling_ball() -> HazardDefinition:
+	var ball: HazardDefinition = _hazard(&"rolling_ball", HazardDefinition.Visual.ROLLING_BALL,
+			HazardDefinition.Entrance.DROP, 2.0, JUMP_COLOR, &"hazard.drop")
+	ball.half_length = 0.4
+	ball.lateral_half_width = 0.45
+	ball.top = 0.9
+	ball.visual_length = 1.1
+	ball.visual_width = 1.1
+	ball.visual_height = 1.1
+	return ball
+
+
+## A wall that slides in to close its lane: the wall's hitbox.
+static func _sliding_wall(config: GameplayConfig, hazard_id: StringName, covered_side: float) -> HazardDefinition:
+	var wall: HazardDefinition = _wall(config, hazard_id, covered_side)
+	wall.entrance = HazardDefinition.Entrance.SWEEP
+	return wall
+
+
+## Mine floating in a flight corridor across the whole width: FlightCorridor lifts it just above (or below) the
+## perfect path and widens the corridor around it.
+static func _air_mine(config: GameplayConfig) -> HazardDefinition:
+	var mine: HazardDefinition = _hazard(&"air_mine", HazardDefinition.Visual.MINE, HazardDefinition.Entrance.BEAT_POP,
+			2.0, FLY_COLOR, &"hazard.rise")
+	mine.airborne = true
+	mine.half_length = 0.35
+	mine.lateral_half_width = config.track_width
+	mine.top = 0.9
+	mine.visual_length = 0.8
+	mine.visual_width = 0.8
+	mine.visual_height = 0.45
+	return mine
 
 
 ## Spiked mace swinging along the track under a tall gantry: it hangs over the road (gate-sized box) exactly

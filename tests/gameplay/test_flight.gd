@@ -4,10 +4,10 @@
 extends TestCase
 
 const FLY_START: float = 8.0
-const FLAP_STEP: float = 0.75
+const FLAP_STEP: float = 1.0
 
 
-## Flaps every 0.75 beat (holds the height) from half a beat into the section, a jump well after it.
+## Flaps every beat (holds the height) from half a beat into the section, a jump well after it.
 func _chart(fly_end: float = 16.0, extra_events: Array[Dictionary] = []) -> LevelChart:
 	var events: Array[Dictionary] = _flaps(fly_end)
 	events.append({"beat": fly_end + 4.0, "type": "jump"})
@@ -48,7 +48,7 @@ func test_chart_builds_a_corridor_around_the_path() -> void:
 	var index: int = flight.bucket_at(chart.distance_at(12.0))
 	assert_true(index >= 0)
 	assert_true(flight.floors[index] > 0.0 and flight.floors[index] < 2.6, "floor under the path")
-	assert_true(flight.ceilings[index] > 3.4 + 0.9, "ceiling over the path")
+	assert_true(flight.ceilings[index] > 3.6 + 0.9, "ceiling over the path")
 	assert_true(flight.ceilings[index] - flight.floors[index] >= GameplayConfig.create_default().fly_min_gap - 0.001)
 	assert_eq(flight.floors[flight.bucket_at(chart.distance_at(FLY_START + 0.2))], FlightCorridor.NO_FLOOR,
 			"no floor spikes at the lift-off")
@@ -147,6 +147,21 @@ func test_the_player_lands_after_the_section() -> void:
 	assert_false(simulation.is_flying())
 	assert_false(simulation.is_airborne(), "landed before the next ground cue")
 	assert_true(landings[landings.size() - 1] > 16.0)
+
+
+func test_air_mine_floats_clear_of_the_path_inside_the_corridor() -> void:
+	var chart: LevelChart = _chart(16.0, [{"beat": 12.0, "type": "hazard", "hazard": "air_mine"}])
+	assert_not_null(chart)
+	var mine: ChartItems.HazardPlacement = chart.hazards[0]
+	var index: int = chart.flight.bucket_at(mine.distance)
+	assert_true(mine.base_height > 3.6, "above the path (it flies 2.6..3.6)")
+	assert_true(chart.flight.ceilings[index] >= mine.base_height + mine.hazard.top, "the corridor encloses it")
+	assert_false(Autoplay.run_full(chart, GameplayConfig.create_default(), false).is_dead, "autoplay flies under it")
+
+
+func test_air_mine_outside_a_flight_is_rejected() -> void:
+	expect_errors(1)
+	assert_null(ChartFixtures.make_chart([{"beat": 4.0, "type": "hazard", "hazard": "air_mine"}]))
 
 
 func test_ground_cue_inside_a_section_is_rejected() -> void:

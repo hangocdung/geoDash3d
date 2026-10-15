@@ -1,5 +1,5 @@
 # Builds the model-based obstacles (GD3-104): laser fence, pendulum axe, spiked mine, crusher, two-lane laser
-# wall and ring gate, from the Blender models in assets/models (one neon_model material each, shared per color;
+# wall, ring gate and (gameplay v4) the rolling spiked ball, from the Blender models in assets/models (one neon_model material each, shared per color;
 # an obstacle is at most two draw calls, a model plus an energy field). The part that moves with the beat is the child named
 # ObstacleFactory.MOVING_PART (posed by ObstacleView).
 # Related: obstacle_factory.gd, obstacle_view.gd, assets/blender/generate_models.py
@@ -28,6 +28,12 @@ const MINE_SCALE: float = 1.5
 ## Crusher teeth stop this far above the hitbox bottom at the low point of each pump.
 const CRUSHER_MARGIN: float = 0.05
 const GLOW_ENERGY: float = 4.0
+## Rolling ball: model scale, radius of the drawn ball, and its speed toward the player (units per beat).
+const BALL_SCALE: float = 0.6
+const BALL_RADIUS: float = 0.55
+const BALL_SPEED: float = 3.0
+## Piston spikes: the lowest they sink between beats (share of their height).
+const PISTON_LOW: float = 0.2
 ## Laser glow flickers harder with the beat than other model glow.
 const LASER_PULSE_GAIN: float = 2.0
 
@@ -43,7 +49,7 @@ func _init(cache: MaterialCache) -> void:
 static func handles(visual: HazardDefinition.Visual) -> bool:
 	return visual in [HazardDefinition.Visual.LASER, HazardDefinition.Visual.PENDULUM, HazardDefinition.Visual.MINE,
 			HazardDefinition.Visual.CRUSHER, HazardDefinition.Visual.LASER_WALL, HazardDefinition.Visual.RING_GATE,
-			HazardDefinition.Visual.MACE_SWEEP]
+			HazardDefinition.Visual.MACE_SWEEP, HazardDefinition.Visual.ROLLING_BALL]
 
 
 func build(root: Node3D, hazard: HazardDefinition) -> void:
@@ -79,6 +85,12 @@ func build(root: Node3D, hazard: HazardDefinition) -> void:
 			mace.name = ObstacleFactory.MOVING_PART
 			mace.position = Vector3(0.0, MACE_PIVOT, 0.0)
 			root.add_child(mace)
+		HazardDefinition.Visual.ROLLING_BALL:
+			var ball: Node3D = _model(SPIKED_MACE, hazard.color)
+			ball.name = ObstacleFactory.MOVING_PART
+			ball.position = Vector3(0.0, BALL_RADIUS, hazard.lateral_center)
+			ball.scale = Vector3.ONE * BALL_SCALE
+			root.add_child(ball)
 		HazardDefinition.Visual.RING_GATE:
 			var ring: Node3D = _model(RING_GATE, hazard.color)
 			ring.name = ObstacleFactory.MOVING_PART
@@ -106,6 +118,13 @@ static func pose_moving_part(part: Node3D, hazard: HazardDefinition, hazard_beat
 			part.position.y = hazard.bottom + CRUSHER_MARGIN + 0.55 * (1.0 - exp(-phase * 5.0))
 		HazardDefinition.Visual.RING_GATE:
 			part.rotation.x = beat * 0.125 * TAU
+		HazardDefinition.Visual.PISTON:
+			# Fully up on every beat (so whenever the player reaches it), sunk halfway between beats.
+			part.scale.y = lerpf(PISTON_LOW, 1.0, 0.5 + 0.5 * cos(TAU * (beat - hazard_beat)))
+		HazardDefinition.Visual.ROLLING_BALL:
+			# Rolls down the road at the player and sits over its hitbox exactly at the hazard beat.
+			part.position.x = (hazard_beat - beat) * BALL_SPEED
+			part.rotation.z = part.position.x / BALL_RADIUS
 
 
 ## Energy field facing the player (`circular` for the ring gate).

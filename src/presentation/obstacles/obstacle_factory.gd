@@ -49,11 +49,14 @@ func build_hazard(hazard: HazardDefinition) -> Node3D:
 		_models.build(root, hazard)
 		return root
 	match hazard.visual:
-		HazardDefinition.Visual.SPIKE:
+		HazardDefinition.Visual.SPIKE, HazardDefinition.Visual.PISTON:
 			var spike: MeshInstance3D = _mesh_instance(_spike_mesh(hazard), _cache.get_material(
 					StringName("wire_%s" % hazard.id), WIRE_SHADER, {"edge_color": hazard.color,
 					"proximity_gain": APPROACH_GAIN}))
 			spike.position.z = hazard.lateral_center
+			if hazard.visual == HazardDefinition.Visual.PISTON:
+				# Pumped by ObstacleModels.pose_moving_part.
+				spike.name = MOVING_PART
 			root.add_child(spike)
 		HazardDefinition.Visual.WALL:
 			var wall: MeshInstance3D = _mesh_instance(BoxMesh.new(), _cache.get_material(StringName("wall_%s" % hazard.id),

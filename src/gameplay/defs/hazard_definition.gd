@@ -26,6 +26,10 @@ enum Visual {
 	RING_GATE,
 	## Spiked mace swinging along the track from a tall gantry (roll under the track).
 	MACE_SWEEP,
+	## Gameplay v4: spike row pumping up and down on every beat, fully up when the player arrives (jump it).
+	PISTON,
+	## Gameplay v4: spiked ball rolling down the road at the player, meeting it at the hazard beat (jump it).
+	ROLLING_BALL,
 }
 enum Entrance {
 	## Grows out of the track surface.
@@ -34,6 +38,12 @@ enum Entrance {
 	DROP,
 	## Unfolds sideways across the track.
 	UNFOLD,
+	## Gameplay v4: pops out of nothing with an elastic overshoot.
+	BEAT_POP,
+	## Gameplay v4: spins down from above.
+	SPIRAL,
+	## Gameplay v4: slides in from beside the road (walls close their lane).
+	SWEEP,
 }
 enum Face { FOLLOW_RUN, TOP, UNDERSIDE }
 

@@ -578,7 +578,8 @@
   },
   {
    "beat": 71.0,
-   "type": "dodge_left"
+   "type": "dodge_left",
+   "hazard": "sliding_wall_left"
   },
   {
    "beat": 73.0,
@@ -617,7 +618,7 @@
   {
    "beat": 93.0,
    "type": "dodge_right",
-   "hazard": "laser_gap_right"
+   "hazard": "sliding_wall_right"
   },
   {
    "beat": 96,
@@ -665,7 +666,8 @@
   },
   {
    "beat": 121.0,
-   "type": "dodge_left"
+   "type": "dodge_left",
+   "hazard": "sliding_wall_left"
   },
   {
    "beat": 122.5,
@@ -685,7 +687,8 @@
   },
   {
    "beat": 151.0,
-   "type": "jump"
+   "type": "jump",
+   "hazard": "rolling_ball"
   },
   {
    "beat": 155.0,
@@ -734,7 +737,8 @@
   },
   {
    "beat": 170.5,
-   "type": "jump"
+   "type": "jump",
+   "hazard": "piston_spikes"
   },
   {
    "beat": 173.0,
@@ -744,7 +748,7 @@
   {
    "beat": 177.0,
    "type": "dodge_left",
-   "hazard": "laser_gap_left"
+   "hazard": "sliding_wall_left"
   },
   {
    "beat": 178.5,
@@ -788,7 +792,8 @@
   },
   {
    "beat": 193.0,
-   "type": "dodge_right"
+   "type": "dodge_right",
+   "hazard": "sliding_wall_right"
   },
   {
    "beat": 194.5,
@@ -888,7 +893,7 @@
   {
    "beat": 239.0,
    "type": "dodge_left",
-   "hazard": "laser_gap_left"
+   "hazard": "sliding_wall_left"
   },
   {
    "beat": 244.0,
@@ -957,7 +962,8 @@
   },
   {
    "beat": 265.0,
-   "type": "dodge_left"
+   "type": "dodge_left",
+   "hazard": "sliding_wall_left"
   },
   {
    "beat": 269.0,
@@ -1064,7 +1070,7 @@
   {
    "beat": 313.0,
    "type": "dodge_right",
-   "hazard": "laser_gap_right"
+   "hazard": "sliding_wall_right"
   },
   {
    "beat": 317.0,
@@ -1117,7 +1123,8 @@
   },
   {
    "beat": 333.0,
-   "type": "dodge_left"
+   "type": "dodge_left",
+   "hazard": "sliding_wall_left"
   },
   {
    "beat": 334.5,
@@ -1164,7 +1171,7 @@
   {
    "beat": 347.0,
    "type": "dodge_right",
-   "hazard": "laser_gap_right"
+   "hazard": "sliding_wall_right"
   },
   {
    "beat": 349.0,
@@ -1276,6 +1283,16 @@
   {
    "beat": 143.25,
    "type": "flap"
+  },
+  {
+   "beat": 135.0,
+   "type": "hazard",
+   "hazard": "air_mine"
+  },
+  {
+   "beat": 139.5,
+   "type": "hazard",
+   "hazard": "air_mine"
   }
  ],
  "fly": [

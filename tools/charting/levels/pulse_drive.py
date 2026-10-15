@@ -3,7 +3,8 @@ than the quarter-beat slots around it, like the_dawn_assembly.
 
 The hit on beat 2 of every bar carries the song. Intro 0-32: hat on 2, snares on 1 and 4 of the odd bars.
 Groove 32-64: snare on 2 + kick on 2-and (orb). Verses 64-128: hats on 2 and 4, 3-and in the even bars.
-Build 128-156: snares. Drops 160-224 / 256-324: snare on 2 and 3-and. Break 224-256: snares on 1, 2 and 4.
+Build 128-156: snares. Drops 160-224 / 256-324: snare on 2 and 3-and; drop 2 opens with a flight (gameplay v4, 256-271: 13 standout hits
+in 16 beats, the densest stretch), flaps on those hits, two floating mines. Break 224-256: snares on 1, 2 and 4.
 Outro 324-356: the loudest isolated hits of the song, densest taps.
 Usage: python tools/charting/levels/pulse_drive.py   Related: tools/charting/handmade.py
 """
@@ -57,8 +58,8 @@ STEPS = """
 ; break: snares on 1, 2 and 4
 228:spike 231:spike 233:gap 234.5:spike 236:chain2 239:dl 244:step 245:spike 247:spike 248:drop 249:spike
 250.5:spike 252:chain2
-; drop 2: same motif, denser
-257:chain2 261:spike 262.5:spike 265:dl 269:spike 270.5:spike 273:flip 277:spike 278.5:step 281:spike
+; drop 2: a flight on the standout hits, then the same motif, denser
+256:fly15 262:amine 267:amine 273:flip 277:spike 278.5:step 281:spike
 282:drop 285:spike 286.5:spike 287.5:orb 289:spike 290:drop 293:spike 294.5:spike 297:flip 301:spike
 302.5:spike 303.5:step 305:spike 306:drop 309:spike 310.5:spike 313:dr 317:chain2 319.5:spike 321:spike
 ; outro: the loudest isolated hits
