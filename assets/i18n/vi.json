@@ -88,5 +88,15 @@
 	"UNLOCK ALL": "MỞ TẤT CẢ",
 	"The ad is not ready yet, try again in a moment.": "Quảng cáo chưa sẵn sàng, thử lại sau giây lát.",
 	"UNLOCKED: %s": "ĐÃ MỞ: %s",
-	"Clear %s or reach %d%% to unlock": "Qua màn %s hoặc đạt %d%% để mở"
+	"Clear %s or reach %d%% to unlock": "Qua màn %s hoặc đạt %d%% để mở",
+	"TAP as the cube reaches the pink ring: JUMP over the spikes": "CHẠM khi khối tới vòng hồng: NHẢY qua gai",
+	"TAP while passing through a ring in the air: JUMP AGAIN": "CHẠM khi bay qua vòng trên không: NHẢY TIẾP",
+	"TAP to SIDESTEP the orange wall into the open lane": "CHẠM để LÁCH khỏi tường cam sang làn trống",
+	"TAP to FLIP under the track through the green gate": "CHẠM để LỘN xuống dưới đường qua cổng xanh lá",
+	"TAP to ROLL all the way around the track": "CHẠM để LỘN trọn vòng quanh đường",
+	"TAP to drop UNDER the track and run upside down": "CHẠM để xuống chạy MẶT DƯỚI đường",
+	"TAP to FLIP BACK on top of the track": "CHẠM để LỘN trở lên mặt đường",
+	"Calibrate first (30 s)? Taps will match the music through your speakers or headphones.": "Chỉnh độ trễ trước (30 giây)? Lần chạm sẽ khớp nhạc với loa hoặc tai nghe của bạn.",
+	"CALIBRATE NOW": "CHỈNH NGAY",
+	"LATER": "ĐỂ SAU"
 }

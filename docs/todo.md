@@ -94,7 +94,7 @@ Android (Godot Android plugin v2 bọc Firebase Android SDK), iOS làm sau (GD3-
       trước khi mời (review gating bị cấm).
 
 ## 5. Tối ưu UI/UX
-- [ ] **GD3-250** Lần chơi đầu (Claude, M): hướng dẫn 1 thao tác chạm (nhảy, né, lộn, chạy mặt dưới) trong một màn ngắn,
+- [~] **GD3-250** (→ roadmap Phase 7) Lần chơi đầu (Claude, M): hướng dẫn 1 thao tác chạm (nhảy, né, lộn, chạy mặt dưới) trong một màn ngắn,
       gộp bước hiệu chỉnh độ trễ vào luồng này.
 - [ ] **GD3-251** Màn hình (Claude, M–L): danh sách bài (khóa/giá/BEST/độ khó), kết quả (điểm, sao/hạng, NEW BEST, nút
       chơi lại/bài tiếp), cửa hàng (IAP + restore), cài đặt, tạm dừng; nút đủ lớn cho ngón tay, safe area.

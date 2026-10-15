@@ -52,6 +52,11 @@ var haptics: bool = true:
 		haptics = value
 		changed.emit()
 
+## GD3-250: tap kinds the player has already done right (no more first-time hint), and whether the first PLAY
+## already offered audio calibration.
+var hints_seen: PackedStringArray = []
+var calibration_offered: bool = false
+
 ## Diagnostic music meter in the level (spectrum + cue lane).
 var show_music_meter: bool = false:
 	set(value):
@@ -96,6 +101,8 @@ func load_settings() -> void:
 	show_music_meter = bool(config.get_value(SECTION, "show_music_meter", false))
 	haptics = bool(config.get_value(SECTION, "haptics", true))
 	language = str(config.get_value(SECTION, "language", Locale.AUTO))
+	hints_seen = PackedStringArray(config.get_value(SECTION, "hints_seen", PackedStringArray()))
+	calibration_offered = bool(config.get_value(SECTION, "calibration_offered", false))
 	music_volume_db = float(config.get_value(SECTION, "music_volume_db", 0.0))
 	sfx_volume_db = float(config.get_value(SECTION, "sfx_volume_db", -2.0))
 
@@ -110,11 +117,21 @@ func save_settings() -> void:
 	config.set_value(SECTION, "show_music_meter", show_music_meter)
 	config.set_value(SECTION, "haptics", haptics)
 	config.set_value(SECTION, "language", language)
+	config.set_value(SECTION, "hints_seen", hints_seen)
+	config.set_value(SECTION, "calibration_offered", calibration_offered)
 	config.set_value(SECTION, "music_volume_db", music_volume_db)
 	config.set_value(SECTION, "sfx_volume_db", sfx_volume_db)
 	var error: Error = config.save(SETTINGS_PATH)
 	if error != OK:
 		push_error("UserSettings: cannot write %s (%s)" % [SETTINGS_PATH, error_string(error)])
+
+
+## A tap kind learned (TutorialHints): saved at once so the hint does not come back after a restart.
+func mark_hint_seen(group: String) -> void:
+	if hints_seen.has(group):
+		return
+	hints_seen.append(group)
+	save_settings()
 
 
 func _apply_bus_volumes() -> void:

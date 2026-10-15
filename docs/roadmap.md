@@ -327,3 +327,8 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
 - [~] **GD3-235** `perf_sample` mỗi phiên (`PerfProbe`, mọi bản build): FPS p50/p10 của 1800 frame đầu một lượt chơi
       thật (bỏ 120 frame đầu; không tính attract/autoplay/capture), kèm tier và hướng màn hình. **Còn lại:** chỉnh
       ngưỡng `QualityAutoTuner` khi có dữ liệu thật.
+- [~] **GD3-250** Lần chơi đầu: thay vì một màn hướng dẫn riêng, **gợi ý theo ngữ cảnh** (`TutorialHints`): lần đầu gặp
+      mỗi loại chạm (nhảy, vòng nhảy, lách, lộn, lộn vòng, xuống / lên mặt dưới) ở bất kỳ bài nào, HUD hiện một câu
+      hướng dẫn màu của hành động trước cú chạm đó; chỉ coi là đã học khi chạm trúng (`UserSettings.hints_seen`).
+      Lần đầu bấm CHƠI trên điện thoại: mời chỉnh độ trễ 30 giây (CHỈNH NGAY / ĐỂ SAU). Ảnh: ngang (vi) và dọc.
+      **Còn lại:** người chơi mới thử; nút "xem lại hướng dẫn" trong Settings nếu cần.

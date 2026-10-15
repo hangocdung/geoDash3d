@@ -84,7 +84,7 @@ func _build_menu() -> void:
 	var spacer := Control.new()
 	spacer.custom_minimum_size = Vector2(0, 8)
 	_menu_column.add_child(spacer)
-	_play_button = _add_button("PLAY", _open_songs.bind(SongMode.PLAY), &"ui.confirm")
+	_play_button = _add_button("PLAY", _on_play_pressed, &"ui.confirm")
 	_practice_button = _add_button("PRACTICE", _open_songs.bind(SongMode.PRACTICE))
 	_add_button("CALIBRATE AUDIO", func() -> void: Scenes.go_to(get_tree(), Scenes.CALIBRATION))
 	_add_button("SYNC TEST", func() -> void: Scenes.go_to(get_tree(), Scenes.METRONOME))
@@ -234,3 +234,34 @@ func _start_ads(level: LevelRunner) -> void:
 func _exit_tree() -> void:
 	Ads.hide_banner()
 	Ads.on_fullscreen = Callable()
+
+
+## PLAY. The very first time on a phone it first offers the 30-second audio calibration (GD3-250): phones report no
+## output latency, and the in-game auto sync only corrects between runs.
+func _on_play_pressed() -> void:
+	if UserSettings.calibration_offered or not OS.has_feature("mobile"):
+		_open_songs(SongMode.PLAY)
+		return
+	UserSettings.calibration_offered = true
+	UserSettings.save_settings()
+	_menu_column.visible = false
+	var panel := PanelContainer.new()
+	_center(panel)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 18)
+	panel.add_child(column)
+	column.add_child(UiTheme.make_label("AUDIO SYNC", 44, UiTheme.ACCENT))
+	var text: Label = UiTheme.make_label("Calibrate first (30 s)? Taps will match the music through your speakers or headphones.", 28)
+	text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	text.custom_minimum_size = Vector2(620, 0)
+	column.add_child(text)
+	var now: Button = UiTheme.make_button("CALIBRATE NOW", 420.0, 72.0, &"ui.confirm")
+	now.pressed.connect(func() -> void: Scenes.go_to(get_tree(), Scenes.CALIBRATION))
+	column.add_child(now)
+	var later: Button = UiTheme.make_button("LATER", 420.0, 72.0, &"ui.back")
+	later.pressed.connect(func() -> void:
+		panel.queue_free()
+		_open_songs(SongMode.PLAY))
+	column.add_child(later)
+	_root.add_child(panel)
+	now.grab_focus()

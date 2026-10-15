@@ -27,6 +27,7 @@ var _percent_label: Label
 var _judgement_label: Label
 var _message_label: Label
 var _attempt_label: Label
+var _hint_label: Label
 var _popup_age: float = INF
 var _attempt_fade: float = 0.0
 var run_menu: RunMenu
@@ -52,6 +53,14 @@ func _ready() -> void:
 	_combo_label = _make_label(root, 34, Control.PRESET_CENTER_TOP, Vector2(0, 182))
 	_message_label = _make_label(root, 64, Control.PRESET_CENTER, Vector2(0, -40))
 	_attempt_label = _make_label(root, 40, Control.PRESET_CENTER_TOP, Vector2(0, 260))
+	# Full width above the bottom edge, wrapping (portrait screens are narrow).
+	_hint_label = _make_label(root, 34, Control.PRESET_BOTTOM_WIDE, Vector2.ZERO)
+	_hint_label.offset_left = 60.0
+	_hint_label.offset_right = -60.0
+	_hint_label.offset_top = -260.0
+	_hint_label.offset_bottom = -140.0
+	_hint_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+	_hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_pause_button = UiTheme.make_button("II", 84.0)
 	_pause_button.theme = UiTheme.get_theme()
 	_pause_button.focus_mode = Control.FOCUS_NONE
@@ -125,6 +134,12 @@ func set_shield(ready: bool, charge: float) -> void:
 	_shield_label.add_theme_color_override("font_color", SHIELD_COLOR if ready else SHIELD_DIM)
 	_shield_fill.size.x = (SHIELD_BAR_WIDTH - 4.0) * clampf(1.0 if ready else charge, 0.0, 1.0)
 	_shield_fill.color = SHIELD_COLOR if ready else SHIELD_DIM
+
+
+## First-time hint above the bottom edge in the action's color ("" hides it). Related: TutorialHints.
+func show_hint(text: String, color: Color) -> void:
+	_hint_label.text = text
+	_hint_label.add_theme_color_override("font_color", color.lightened(0.35))
 
 
 ## Short centered notice that fades out (attempts, checkpoints).

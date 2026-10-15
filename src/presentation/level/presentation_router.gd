@@ -22,6 +22,7 @@ var _shields_shown: int = 0
 var _ghost_timer: float = 0.0
 ## Off for the menu attract mode, so the backdrop stays quiet (sounds and vibrations).
 var sfx_enabled: bool = true
+var _hints: TutorialHints
 ## Audio output delay + calibration, in song seconds: sounds started now are heard this much later.
 var _audio_delay_sec: float = 0.0
 ## Landing whose drum was already played ahead (NAN: none pending).
@@ -31,6 +32,9 @@ var _landing_sound_beat: float = NAN
 func _init(runner: LevelRunner, context: LevelContext) -> void:
 	_runner = runner
 	_context = context
+	var options: LaunchOptions = runner.options
+	# Captures with autoplay are covered by `autoplay`; --capture-manual keeps hints to show them in screenshots.
+	_hints = TutorialHints.new(runner.hud, context.chart, not (options.autoplay or options.attract_mode or options.video))
 
 
 func bind(simulation: RunSimulation, start_beat: float) -> void:
@@ -43,6 +47,7 @@ func bind(simulation: RunSimulation, start_beat: float) -> void:
 	simulation.score_changed.connect(_runner.hud.set_score)
 	simulation.shield_changed.connect(_on_shield_changed)
 	simulation.shield_used.connect(_on_shield_used)
+	_hints.bind(simulation, start_beat)
 	_shields_shown = 0
 	_landing_sound_beat = NAN
 	_audio_delay_sec = maxf((AudioServer.get_output_latency() + _runner.song_clock.calibration_offset_sec)
