@@ -15,8 +15,10 @@ bằng code (`tools/audio/synth_placeholder_sfx.py`, cùng vai trò như bảng 
 đúng chiếc trống cho ra tiếng trống sạch, đúng lúc chạm. Cảnh khối nhảy trong game (cách cũ) kéo âm về tiếng "vút"
 khó đoán. Vì vậy **dùng text-to-video, không cần ảnh đầu vào**; ảnh trong `inputs/` là của bộ prompt cũ.
 
-**Thiết lập video:** 8 giây, 16:9, chất lượng cao nhất. Mỗi prompt tạo **2–3 take**; script gom biến thể từ mọi
-take (tối đa 4 cú đánh to và sạch nhất mỗi ID).
+**Thiết lập video:** 8 giây, 16:9. Bộ đang dùng (2026-10-15) tạo bằng **Omni 1.1 Flash, 360p, x2** (12 credit mỗi
+prompt): độ phân giải không ảnh hưởng âm thanh. Script gom biến thể từ mọi take (tối đa 4 cú đánh to và sạch nhất
+mỗi ID). Âm có cú mạnh nằm giữa clip (vd. roll rồi rimshot) thì cắt bằng `art_source/sfx/cuts.json` để cú mạnh ở đầu,
+vì âm phát đúng beat.
 
 **Mẹo lấy âm sạch:**
 - Mỗi clip chỉ **một loại âm**, đánh **từng cú riêng lẻ** 3–4 lần, nghỉ 1,5–2 giây giữa các cú (không thành điệu trống).

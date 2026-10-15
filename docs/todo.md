@@ -118,9 +118,9 @@ không hợp game. Quy trình tạo âm thật đã có sẵn (prompt → Google
 - [x] **GD3-256** (→ roadmap Phase 7) Viết lại prompt (Claude, S): sửa `docs/design/sfx/sfx_video_prompts.md` theo phong cách trống (đuôi prompt
       kiểu "single close-miked drum hit, dry, short decay, no melody, no music, no speech"). Giữ quy tắc cũ: mỗi clip một
       loại âm lặp 3–4 lần cách nhau 1,5–2 giây, camera đứng yên; chụp lại ảnh đầu vào từ game hiện tại nếu cần.
-- [ ] **GD3-257** Tạo video (Người dùng): Google Flow, 2–3 take mỗi ID, tải về `art_source/sfx/<ID>_take<N>.mp4`
+- [x] **GD3-257** (→ roadmap Phase 7) Tạo video (Claude qua trình duyệt): Google Flow, 2–3 take mỗi ID, tải về `art_source/sfx/<ID>_take<N>.mp4`
       (không commit). Ghi lại gói/ngày tạo để chứng minh quyền dùng thương mại.
-- [~] **GD3-258** (→ roadmap Phase 7) Tách âm và đưa vào game (Claude, S–M):
+- [x] **GD3-258** (→ roadmap Phase 7) Tách âm và đưa vào game (Claude, S–M):
       - Chạy `python tools/audio/build_sfx.py` (tách âm, cắt, chuẩn hóa), nghe thử ở `tools/audio/out/sfx_review.html`.
       - Chỉnh mức to theo nhóm trong `sfx_spec.py` so với nhạc; thêm tùy chọn tắt riêng tiếng chạm nếu người chơi thấy rối.
       - Cân nhắc phát tiếng chạm đất **đúng beat tiếp đất**: thời điểm này biết trước nhờ parabol, nên có thể phát sớm

@@ -281,13 +281,19 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
       vật cản = hi-hat / floor tom / snare roll, lá chắn = chuông ride / crash bị chặn. Giữ nguyên các ID âm.
 - [x] **GD3-256** Prompt Flow mới trong `docs/design/sfx/sfx_video_prompts.md`: text-to-video cận cảnh đúng chiếc trống
       được đánh (model tạo âm khớp với cú đánh nhìn thấy), từng cú riêng lẻ, khô, không vang.
-- [ ] **GD3-257** **→ Người dùng:** tạo video Flow theo prompt (2–3 take mỗi ID), đặt ở `art_source/sfx/<ID>_take<N>.mp4`.
-- [~] **GD3-258** Đưa vào game: mức to mới theo nhạc (nhạc đỉnh −15…−11 LUFS; chạm −18, tiếp đất −21, chấm điểm −23,
+- [x] **GD3-257** Video Flow (Claude làm qua trình duyệt, 2026-10-15): Omni 1.1 Flash, 360p, 8 s, 2 bản mỗi prompt
+      (12 credit/prompt, 21 prompt ≈ 250 credit), project "Oct 15 - 15:17". 39 video tải bằng link CDN có chữ ký lấy từ
+      phản hồi API của Flow (đúng prompt ↔ ID), lưu `art_source/sfx/` (không commit). Âm rất sạch: nền giữa các cú đánh
+      −70 đến −93 dB, không lẫn nhạc.
+- [x] **GD3-258** Đưa vào game: mức to mới theo nhạc (nhạc đỉnh −15…−11 LUFS; chạm −18, tiếp đất −21, chấm điểm −23,
       vật cản −22; `sfx_spec.target_lufs`), cắt đuôi vang cho tiếng chạm/tiếp đất trong `build_sfx.py`; âm tạm đổi sang
       trống tổng hợp cùng vai trò (3 biến thể cho nhảy/tiếp đất/lách) để chơi thử ngay; tiếng tiếp đất phát sớm đúng độ
       trễ âm thanh nên nghe trùng beat (`LandingPredictor`, test `test_landing_predictor.gd`). Không thêm nút tắt riêng
-      tiếng chạm: thanh âm lượng SFX đã có. **Còn lại:** chạy `build_sfx.py` khi có video, nghe thử, chơi thử trên máy
-      (kiểm tra tiếng tiếp đất có trùng beat với độ trễ đã hiệu chỉnh).
+      tiếng chạm: thanh âm lượng SFX đã có. Đã tách đủ 21 âm thật (`status: generated`, 1–4 biến thể mỗi âm), kiểm tra
+      khách quan: kick 72 % năng lượng dưới 200 Hz, rimshot/clave ~3 kHz, cực đại sau 2–20 ms. `build_sfx.py`: ngưỡng
+      cú đánh ngắn cho nhóm UI/judge (tiếng gõ dùi 10–30 ms), bỏ cú đánh bị cắt đầu; `hazard.unfold` cắt từ tiếng
+      rimshot (`art_source/sfx/cuts.json`) để phần mạnh nhất đúng beat. **→ Người dùng: nghe thử, chơi trên máy** (tiếng
+      tiếp đất có trùng beat không; `fx.flash` là tiếng cymbal dâng lên sau beat, đổi nếu thấy lệch).
 - [~] **GD3-240** Quảng cáo AdMob (Poing Studios v5.1.0, người dùng duyệt 2026-10-15): `Ads` — UMP rồi khởi tạo
       (xếp hạng T, không nhắm trẻ em), interstitial chỉ khi về menu sau ≥ 180 s chơi thật, banner chỉ ở menu, tạm dừng
       nhạc nền khi quảng cáo mở, nút AD PRIVACY trong Settings khi UMP yêu cầu. Chi tiết: `docs/release/admob_setup.md`.

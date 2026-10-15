@@ -31,10 +31,13 @@ SOURCE_EXTENSIONS = {".mp4", ".mov", ".webm", ".m4a", ".wav", ".mp3", ".ogg"}
 MAX_VARIANTS = 4
 CEILING_DB = -1.0
 MAX_GAIN_DB = 30.0
-# Per-category event shaping: max event length, merge gap (s) and fade-out (s).
+# Per-category event shaping: max event length, merge gap (s), fade-out (s) and shortest event kept (s).
 SHAPES = {
     # Drum hits for taps and landings: keep the hit, cut long room tails (GD3-258).
     "player": dict(max_len=0.45, merge=0.06, fade_out=0.05),
+    # Stick clicks and taps last only 10-30 ms ("click-click" count-in stays one event).
+    "ui": dict(max_len=0.6, merge=0.15, fade_out=0.03, min_len=0.012),
+    "judge": dict(max_len=0.9, merge=0.15, fade_out=0.04, min_len=0.012),
     "stinger": dict(max_len=3.5, merge=0.6, fade_out=0.25),
     "fx": dict(max_len=1.6, merge=0.25, fade_out=0.12),
     "impact": dict(max_len=1.2, merge=0.15, fade_out=0.08),
@@ -116,7 +119,7 @@ def split_events(x, merge, threshold_db=26.0, weak_db=14.0, min_len=0.04, pre=0.
         end = e
         while end < limit and db[end] > max(run_peak - 40, floor + 6):
             end += 1
-        if s * hop < 0.01 and db[s] > run_peak - 20:
+        if s * hop < 0.03 and db[s] > run_peak - 20:
             continue  # sound already running when the clip starts
         if e * hop > len(db) * hop - 0.1:
             continue  # clip ends before the sound decays
@@ -153,12 +156,13 @@ def sound_id_of(path):
 def build_sound(sound_id, sources, overrides, ffmpeg, out_dir, tmp_dir):
     category = SOUNDS[sound_id]
     shape = dict(SHAPES.get(category, DEFAULT_SHAPE))
-    shape.update({k: v for k, v in overrides.items() if k in ("max_len", "merge", "fade_out")})
+    shape.update({k: v for k, v in overrides.items() if k in ("max_len", "merge", "fade_out", "min_len")})
     candidates = []
     for source in sources:
         audio = decode(ffmpeg, source, tmp_dir)
         cuts = overrides.get("cuts", {}).get(source.name)
-        events = [(a, b, 0.0) for a, b in cuts] if cuts else split_events(audio, shape["merge"])
+        events = [(a, b, 0.0) for a, b in cuts] if cuts else split_events(audio, shape["merge"],
+                                                                            min_len=shape.get("min_len", 0.04))
         for start, end, peak in events:
             end = min(end, start + shape["max_len"])
             clip = audio[int(start * SR):int(end * SR)]

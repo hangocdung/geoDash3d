@@ -3,237 +3,272 @@
 	"sounds": {
 		"fx.flash": {
 			"files": [
-				"res://assets/audio/sfx/placeholder/fx.flash_1.wav",
-				"res://assets/audio/sfx/placeholder/fx.flash_2.wav"
+				"res://assets/audio/sfx/fx.flash_1.wav",
+				"res://assets/audio/sfx/fx.flash_2.wav",
+				"res://assets/audio/sfx/fx.flash_3.wav",
+				"res://assets/audio/sfx/fx.flash_4.wav"
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
 			"pitch_random": 0.0,
 			"max_polyphony": 2,
-			"status": "placeholder"
+			"status": "generated"
 		},
 		"fx.shockwave": {
 			"files": [
-				"res://assets/audio/sfx/placeholder/fx.shockwave_1.wav",
-				"res://assets/audio/sfx/placeholder/fx.shockwave_2.wav"
+				"res://assets/audio/sfx/fx.shockwave_1.wav",
+				"res://assets/audio/sfx/fx.shockwave_2.wav",
+				"res://assets/audio/sfx/fx.shockwave_3.wav",
+				"res://assets/audio/sfx/fx.shockwave_4.wav"
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
 			"pitch_random": 0.0,
 			"max_polyphony": 2,
-			"status": "placeholder"
+			"status": "generated"
 		},
 		"hazard.drop": {
 			"files": [
-				"res://assets/audio/sfx/placeholder/hazard.drop_1.wav",
-				"res://assets/audio/sfx/placeholder/hazard.drop_2.wav"
+				"res://assets/audio/sfx/hazard.drop_1.wav",
+				"res://assets/audio/sfx/hazard.drop_2.wav",
+				"res://assets/audio/sfx/hazard.drop_3.wav",
+				"res://assets/audio/sfx/hazard.drop_4.wav"
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
 			"pitch_random": 0.04,
 			"max_polyphony": 4,
-			"status": "placeholder"
+			"status": "generated"
 		},
 		"hazard.rise": {
 			"files": [
-				"res://assets/audio/sfx/placeholder/hazard.rise_1.wav",
-				"res://assets/audio/sfx/placeholder/hazard.rise_2.wav"
+				"res://assets/audio/sfx/hazard.rise_1.wav",
+				"res://assets/audio/sfx/hazard.rise_2.wav",
+				"res://assets/audio/sfx/hazard.rise_3.wav",
+				"res://assets/audio/sfx/hazard.rise_4.wav"
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
 			"pitch_random": 0.04,
 			"max_polyphony": 4,
-			"status": "placeholder"
+			"status": "generated"
 		},
 		"hazard.unfold": {
 			"files": [
-				"res://assets/audio/sfx/placeholder/hazard.unfold_1.wav",
-				"res://assets/audio/sfx/placeholder/hazard.unfold_2.wav"
+				"res://assets/audio/sfx/hazard.unfold_1.wav",
+				"res://assets/audio/sfx/hazard.unfold_2.wav",
+				"res://assets/audio/sfx/hazard.unfold_3.wav",
+				"res://assets/audio/sfx/hazard.unfold_4.wav"
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
 			"pitch_random": 0.04,
 			"max_polyphony": 4,
-			"status": "placeholder"
+			"status": "generated"
 		},
 		"judge.great": {
 			"files": [
-				"res://assets/audio/sfx/placeholder/judge.great_1.wav",
-				"res://assets/audio/sfx/placeholder/judge.great_2.wav"
+				"res://assets/audio/sfx/judge.great_1.wav",
+				"res://assets/audio/sfx/judge.great_2.wav",
+				"res://assets/audio/sfx/judge.great_3.wav",
+				"res://assets/audio/sfx/judge.great_4.wav"
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
 			"pitch_random": 0.02,
 			"max_polyphony": 3,
-			"status": "placeholder"
+			"status": "generated"
 		},
 		"judge.perfect": {
 			"files": [
-				"res://assets/audio/sfx/placeholder/judge.perfect_1.wav",
-				"res://assets/audio/sfx/placeholder/judge.perfect_2.wav"
+				"res://assets/audio/sfx/judge.perfect_1.wav",
+				"res://assets/audio/sfx/judge.perfect_2.wav",
+				"res://assets/audio/sfx/judge.perfect_3.wav",
+				"res://assets/audio/sfx/judge.perfect_4.wav"
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
 			"pitch_random": 0.02,
 			"max_polyphony": 3,
-			"status": "placeholder"
+			"status": "generated"
 		},
 		"player.death": {
 			"files": [
-				"res://assets/audio/sfx/placeholder/player.death_1.wav",
-				"res://assets/audio/sfx/placeholder/player.death_2.wav"
+				"res://assets/audio/sfx/player.death_1.wav",
+				"res://assets/audio/sfx/player.death_2.wav",
+				"res://assets/audio/sfx/player.death_3.wav",
+				"res://assets/audio/sfx/player.death_4.wav"
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
 			"pitch_random": 0.03,
 			"max_polyphony": 2,
-			"status": "placeholder"
+			"status": "generated"
 		},
 		"player.dodge": {
 			"files": [
-				"res://assets/audio/sfx/placeholder/player.dodge_1.wav",
-				"res://assets/audio/sfx/placeholder/player.dodge_2.wav",
-				"res://assets/audio/sfx/placeholder/player.dodge_3.wav"
+				"res://assets/audio/sfx/player.dodge_1.wav",
+				"res://assets/audio/sfx/player.dodge_2.wav",
+				"res://assets/audio/sfx/player.dodge_3.wav"
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
 			"pitch_random": 0.03,
 			"max_polyphony": 2,
-			"status": "placeholder"
+			"status": "generated"
 		},
 		"player.flip": {
 			"files": [
-				"res://assets/audio/sfx/placeholder/player.flip_1.wav",
-				"res://assets/audio/sfx/placeholder/player.flip_2.wav"
+				"res://assets/audio/sfx/player.flip_1.wav",
+				"res://assets/audio/sfx/player.flip_2.wav",
+				"res://assets/audio/sfx/player.flip_3.wav",
+				"res://assets/audio/sfx/player.flip_4.wav"
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
 			"pitch_random": 0.03,
 			"max_polyphony": 2,
-			"status": "placeholder"
+			"status": "generated"
 		},
 		"player.jump": {
 			"files": [
-				"res://assets/audio/sfx/placeholder/player.jump_1.wav",
-				"res://assets/audio/sfx/placeholder/player.jump_2.wav",
-				"res://assets/audio/sfx/placeholder/player.jump_3.wav"
+				"res://assets/audio/sfx/player.jump_1.wav",
+				"res://assets/audio/sfx/player.jump_2.wav",
+				"res://assets/audio/sfx/player.jump_3.wav",
+				"res://assets/audio/sfx/player.jump_4.wav"
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
 			"pitch_random": 0.03,
 			"max_polyphony": 2,
-			"status": "placeholder"
+			"status": "generated"
 		},
 		"player.land": {
 			"files": [
-				"res://assets/audio/sfx/placeholder/player.land_1.wav",
-				"res://assets/audio/sfx/placeholder/player.land_2.wav",
-				"res://assets/audio/sfx/placeholder/player.land_3.wav"
+				"res://assets/audio/sfx/player.land_1.wav",
+				"res://assets/audio/sfx/player.land_2.wav",
+				"res://assets/audio/sfx/player.land_3.wav",
+				"res://assets/audio/sfx/player.land_4.wav"
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
 			"pitch_random": 0.03,
 			"max_polyphony": 2,
-			"status": "placeholder"
+			"status": "generated"
 		},
 		"player.shield": {
 			"files": [
-				"res://assets/audio/sfx/placeholder/player.shield_1.wav",
-				"res://assets/audio/sfx/placeholder/player.shield_2.wav"
+				"res://assets/audio/sfx/player.shield_1.wav",
+				"res://assets/audio/sfx/player.shield_2.wav",
+				"res://assets/audio/sfx/player.shield_3.wav",
+				"res://assets/audio/sfx/player.shield_4.wav"
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
 			"pitch_random": 0.02,
 			"max_polyphony": 3,
-			"status": "placeholder"
+			"status": "generated"
 		},
 		"player.shield_break": {
 			"files": [
-				"res://assets/audio/sfx/placeholder/player.shield_break_1.wav",
-				"res://assets/audio/sfx/placeholder/player.shield_break_2.wav"
+				"res://assets/audio/sfx/player.shield_break_1.wav",
+				"res://assets/audio/sfx/player.shield_break_2.wav",
+				"res://assets/audio/sfx/player.shield_break_3.wav",
+				"res://assets/audio/sfx/player.shield_break_4.wav"
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
 			"pitch_random": 0.03,
 			"max_polyphony": 2,
-			"status": "placeholder"
+			"status": "generated"
 		},
 		"run.attempt": {
 			"files": [
-				"res://assets/audio/sfx/placeholder/run.attempt_1.wav",
-				"res://assets/audio/sfx/placeholder/run.attempt_2.wav"
+				"res://assets/audio/sfx/run.attempt_1.wav",
+				"res://assets/audio/sfx/run.attempt_2.wav",
+				"res://assets/audio/sfx/run.attempt_3.wav",
+				"res://assets/audio/sfx/run.attempt_4.wav"
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
 			"pitch_random": 0.02,
 			"max_polyphony": 3,
-			"status": "placeholder"
+			"status": "generated"
 		},
 		"run.checkpoint": {
 			"files": [
-				"res://assets/audio/sfx/placeholder/run.checkpoint_1.wav",
-				"res://assets/audio/sfx/placeholder/run.checkpoint_2.wav"
+				"res://assets/audio/sfx/run.checkpoint_1.wav",
+				"res://assets/audio/sfx/run.checkpoint_2.wav",
+				"res://assets/audio/sfx/run.checkpoint_3.wav",
+				"res://assets/audio/sfx/run.checkpoint_4.wav"
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
 			"pitch_random": 0.02,
 			"max_polyphony": 3,
-			"status": "placeholder"
+			"status": "generated"
 		},
 		"run.complete": {
 			"files": [
-				"res://assets/audio/sfx/placeholder/run.complete_1.wav",
-				"res://assets/audio/sfx/placeholder/run.complete_2.wav"
+				"res://assets/audio/sfx/run.complete_1.wav",
+				"res://assets/audio/sfx/run.complete_2.wav"
 			],
 			"bus": "SFX",
 			"volume_db": 0.0,
 			"pitch_random": 0.0,
 			"max_polyphony": 1,
-			"status": "placeholder"
+			"status": "generated"
 		},
 		"ui.back": {
 			"files": [
-				"res://assets/audio/sfx/placeholder/ui.back_1.wav",
-				"res://assets/audio/sfx/placeholder/ui.back_2.wav"
+				"res://assets/audio/sfx/ui.back_1.wav",
+				"res://assets/audio/sfx/ui.back_2.wav",
+				"res://assets/audio/sfx/ui.back_3.wav"
 			],
 			"bus": "UI",
 			"volume_db": 0.0,
 			"pitch_random": 0.02,
 			"max_polyphony": 2,
-			"status": "placeholder"
+			"status": "generated"
 		},
 		"ui.confirm": {
 			"files": [
-				"res://assets/audio/sfx/placeholder/ui.confirm_1.wav",
-				"res://assets/audio/sfx/placeholder/ui.confirm_2.wav"
+				"res://assets/audio/sfx/ui.confirm_1.wav",
+				"res://assets/audio/sfx/ui.confirm_2.wav",
+				"res://assets/audio/sfx/ui.confirm_3.wav",
+				"res://assets/audio/sfx/ui.confirm_4.wav"
 			],
 			"bus": "UI",
 			"volume_db": 0.0,
 			"pitch_random": 0.02,
 			"max_polyphony": 2,
-			"status": "placeholder"
+			"status": "generated"
 		},
 		"ui.pause": {
 			"files": [
-				"res://assets/audio/sfx/placeholder/ui.pause_1.wav",
-				"res://assets/audio/sfx/placeholder/ui.pause_2.wav"
+				"res://assets/audio/sfx/ui.pause_1.wav",
+				"res://assets/audio/sfx/ui.pause_2.wav",
+				"res://assets/audio/sfx/ui.pause_3.wav",
+				"res://assets/audio/sfx/ui.pause_4.wav"
 			],
 			"bus": "UI",
 			"volume_db": 0.0,
 			"pitch_random": 0.02,
 			"max_polyphony": 2,
-			"status": "placeholder"
+			"status": "generated"
 		},
 		"ui.tap": {
 			"files": [
-				"res://assets/audio/sfx/placeholder/ui.tap_1.wav",
-				"res://assets/audio/sfx/placeholder/ui.tap_2.wav"
+				"res://assets/audio/sfx/ui.tap_1.wav",
+				"res://assets/audio/sfx/ui.tap_2.wav",
+				"res://assets/audio/sfx/ui.tap_3.wav",
+				"res://assets/audio/sfx/ui.tap_4.wav"
 			],
 			"bus": "UI",
 			"volume_db": 0.0,
 			"pitch_random": 0.02,
 			"max_polyphony": 2,
-			"status": "placeholder"
+			"status": "generated"
 		}
 	}
 }
