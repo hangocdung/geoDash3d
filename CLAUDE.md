@@ -90,6 +90,7 @@ trước lần export đầu, sau khi nâng Godot hoặc thêm `android_plugins/
 ```bash
 bash tools/android/setup_gradle_build.sh          # android/build từ template Godot + vá Gradle (không commit)
 bash tools/android/build_firebase_plugin.sh       # chỉ khi sửa android_plugins/geodash_firebase
+bash tools/android/build_release.sh 1.0.0         # AAB cho Play (cần biến môi trường keystore release)
 "$GODOT" --headless --path . --export-debug "Android" build/GeoDash3D.apk
 "$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe" install -r build/GeoDash3D.apk
 "$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe" logcat -s godot:V   # PERF / QUALITY / CALIBRATION lines

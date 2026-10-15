@@ -49,6 +49,13 @@ PYEOF
 	echo "patched build.gradle (google-services $GOOGLE_SERVICES_VERSION, crashlytics $CRASHLYTICS_GRADLE_VERSION)"
 fi
 
+# Target API 36 (Play requirement since 2026-08-31): the 4.6.1 template compiles against 35, raise it (AGP 8.6 builds
+# for 36 with the suppress flag; SDK platform android-36 and build-tools 36.0.0 must be installed).
+sed -i "s/compileSdk         : 35/compileSdk         : 36/; s/buildTools         : '35.0.1'/buildTools         : '36.0.0'/" "$BUILD/config.gradle"
+if ! grep -q "android.suppressUnsupportedCompileSdk=36" "$BUILD/gradle.properties"; then
+	printf '\nandroid.suppressUnsupportedCompileSdk=36\n' >> "$BUILD/gradle.properties"
+fi
+
 # No Gradle daemon: a daemon left running keeps the headless Godot export from exiting.
 if ! grep -q "org.gradle.daemon=false" "$BUILD/gradle.properties"; then
 	printf '\norg.gradle.daemon=false\n' >> "$BUILD/gradle.properties"

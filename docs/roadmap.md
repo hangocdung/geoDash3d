@@ -337,3 +337,7 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
       khóa / điều kiện / CHƠI THỬ / MỞ TẤT CẢ (GD3-242); CỬA HÀNG (GD3-241); Settings có Vibration, Language, AD
       PRIVACY. `LevelRunner` gom MENU / BÀI TIẾP vào `_leave_level`, log `--debug-clock` chuyển sang `SongClock`.
       **Còn lại:** chụp đủ mọi màn ở 19.5:9 / 16:9 / 4:3 (GD3-254), nút lớn hơn cho ngón tay trên điện thoại nhỏ.
+- [~] **GD3-260** Bản release Android: preset "Android Release" (AAB), target API 36 cho mọi preset (Play bắt buộc từ
+      31/08/2026; `setup_gradle_build.sh` nâng compileSdk 36), `tools/android/build_release.sh <version>` (version code =
+      số commit). Đã thử APK target 36 trên máy và xuất AAB bằng keystore debug. Hướng dẫn: `docs/release/android_release.md`.
+      **Còn lại (người dùng):** upload key + Play App Signing, tải lên internal testing; icon adaptive sau khi chốt tên.

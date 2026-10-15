@@ -129,7 +129,7 @@ không hợp game. Quy trình tạo âm thật đã có sẵn (prompt → Google
       - Chơi thử trên điện thoại.
 
 ## 6. Xuất bản store
-- [ ] **GD3-260** Bản release Android (Claude + Người dùng, M; thay cho GD3-053): keystore release + Play App Signing,
+- [~] **GD3-260** (→ roadmap Phase 7) Bản release Android (Claude + Người dùng, M; thay cho GD3-053): keystore release + Play App Signing,
       AAB, target API theo mốc yêu cầu hiện hành của Google Play, version code tự tăng, icon adaptive.
 - [ ] **GD3-261** Trang store (Người dùng, Claude hỗ trợ): ảnh chụp, feature graphic, video, mô tả vi/en, xếp hạng nội
       dung, form Data safety (Firebase + AdMob), khai báo có quảng cáo.
