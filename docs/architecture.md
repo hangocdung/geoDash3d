@@ -182,8 +182,10 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   safe area trên mobile.
 
 ## 4b. UI và luồng màn hình
-- `MainMenu` (main scene): instance `level.tscn` với `LaunchOptions.attract()` (autoplay, ẩn HUD, lặp khi hết nhạc)
-  làm nền, các nút PLAY / PRACTICE (đều qua `SongListPanel`: quét mọi `*.chart.json` trong `assets/music`, trừ
+- `MainMenu` (main scene): instance `level.tscn` với `LaunchOptions.attract()` (autoplay, ẩn HUD) làm nền; `AttractLoop`
+  lặp demo sau 60 s đầu hoặc điểm xa nhất người chơi từng tới (lấy cái sau hơn; bài đã qua thì tới hết chart), nhạc
+  nhỏ dần trước khi lặp. Trong danh sách bài, bấm một bài chỉ chọn nó (`previewed` → `MainMenu._preview` thay level
+  demo bằng bài đó); nút lớn trên `SongDetailCard` mới vào màn chơi. Các nút PLAY / PRACTICE (đều qua `SongListPanel`: quét mọi `*.chart.json` trong `assets/music`, trừ
   `*.classic.chart.json`, xếp từ dễ đến khó theo `ChartDifficulty`) / CALIBRATE AUDIO / SYNC TEST / SETTINGS / QUIT
   (ẩn trên mobile). Bản debug có thêm một hàng RECORD (DEV) | AUTOPLAY (DEV): AUTOPLAY chọn bài rồi để bot chơi trọn
   màn với HUD, SFX và menu kết thúc như lượt thường (`LaunchOptions.autoplay_run`, HUD ghi "AUTOPLAY").
@@ -195,7 +197,8 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   area), `UiScreen` (khung trang toàn màn: header + body, gọi `_layout(portrait)` khi xoay), `UiDialog` (hộp thoại).
   `SettingsPanel` / `SongListPanel` / `ShopPanel` kế thừa `UiScreen`; cài đặt chia tab CHUNG / ÂM THANH / HÌNH ẢNH /
   GIỚI THIỆU (`SettingsRows`), danh sách bài là các `SongRow` (ảnh bìa `assets/covers/<id>.jpg` — bản LED dùng chung
-  ảnh — badge độ khó, điểm cao nhất) lọc theo độ khó; tab nằm dọc bên trái khi ngang, thành hàng ngang khi dọc.
+  ảnh — badge độ khó, điểm cao nhất) lọc theo độ khó (hàng tab phía trên); ngang: danh sách bên trái, demo + thẻ bài
+  đã chọn bên phải; dọc: thẻ bài ở dưới.
   Ảnh bìa/logo/icon sinh bằng Codex: `tools/branding/generate_sources.sh` → `build_brand.py`.
 - `CalibrationScreen`: click 100 BPM (`ClickTrack` sinh WAV trong code), đo lệch so với beat gần nhất,
   `CalibrationMath.estimate` (median + MAD loại outlier, cần ≥ 8 lần gõ hợp lệ) → lưu `audio_offset_sec`.

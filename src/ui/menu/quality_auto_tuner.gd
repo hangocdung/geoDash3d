@@ -14,9 +14,12 @@ var _frames: int = 0
 var _done: bool = false
 
 
+## Benchmarks `level` (again from the warm-up when the song list swaps the demo level; a finished tuning stays done).
 func setup(level: LevelRunner) -> void:
 	_level = level
-	_done = not UserSettings.quality_auto
+	_elapsed = 0.0
+	_frames = 0
+	_done = _done or not UserSettings.quality_auto
 
 
 func _process(delta: float) -> void:

@@ -1,41 +1,32 @@
-# One song in the song list: cover, title, difficulty badge, BPM · length, best score and a PLAY tag (the whole row is
-# the button), or for a locked song the unlock requirement with TRY (AD) / UNLOCK ALL. Portrait rows fold the best
-# score under the title. Related: src/ui/menu/song_list_panel.gd, tools/branding/build_brand.py (covers)
+# One song in the song list: cover, title, difficulty badge, BPM · length and best result (the whole row selects the
+# song), or for a locked song the unlock requirement with TRY (AD) / UNLOCK ALL.
+# Related: src/ui/menu/song_list_panel.gd, src/ui/menu/song_detail_card.gd, tools/branding/build_brand.py (covers)
 class_name SongRow
 extends RefCounted
 
 const COVER_DIRECTORY: String = "res://assets/covers"
 const HEIGHT: float = 128.0
 const COVER_SIZE: Vector2 = Vector2(150, 100)
-const BEST_WIDTH: float = 250.0
 
 
-## Playable song: a RowButton holding the layout; `pressed` plays it.
-static func playable(entry: SongCatalog.Entry, portrait: bool) -> Button:
-	var row: Button = UiTheme.make_button("", 0.0, HEIGHT, &"ui.confirm")
+## Playable song: a toggle RowButton (the panel puts them in one ButtonGroup) holding the layout; pressing it selects
+## the song (the menu demo switches to it), the panel's SongDetailCard plays it. The selected row shows a PREVIEW tag.
+static func playable(entry: SongCatalog.Entry) -> Button:
+	var row: Button = UiTheme.make_button("", 0.0, HEIGHT, &"ui.tap")
 	row.theme_type_variation = "RowButton"
+	row.toggle_mode = true
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var layout: HBoxContainer = _layout(row)
 	layout.add_child(cover(entry))
 	var info: VBoxContainer = _info(entry)
 	layout.add_child(info)
-	var record: HighScores.Record = HighScores.best(entry.path)
-	if portrait:
-		if record.has_any():
-			var line: Label = UiKit.label(Locale.t("BEST %s  ·  %s") % [RunRecords.grouped(record.score), _result(record)],
-					"Muted")
-			line.add_theme_font_size_override("font_size", 22)
-			info.add_child(line)
-	else:
-		layout.add_child(_best(record))
-	var tag: PanelContainer = _play_tag()
+	var line: Label = best_line(HighScores.best(entry.path))
+	if not line.text.is_empty():
+		info.add_child(line)
+	var tag: PanelContainer = _preview_tag()
+	tag.modulate.a = 0.0
 	layout.add_child(tag)
-	var highlight := func(on: bool) -> void:
-		tag.add_theme_stylebox_override("panel", _tag_style(on))
-	row.mouse_entered.connect(highlight.bind(true))
-	row.mouse_exited.connect(func() -> void: highlight.call(row.has_focus()))
-	row.focus_entered.connect(highlight.bind(true))
-	row.focus_exited.connect(highlight.bind(false))
+	row.toggled.connect(func(on: bool) -> void: tag.modulate.a = 1.0 if on else 0.0)
 	return row
 
 
@@ -130,48 +121,31 @@ static func _info(entry: SongCatalog.Entry) -> VBoxContainer:
 	return info
 
 
-static func _best(record: HighScores.Record) -> VBoxContainer:
-	var column := VBoxContainer.new()
-	column.custom_minimum_size = Vector2(BEST_WIDTH, 0)
-	column.alignment = BoxContainer.ALIGNMENT_CENTER
-	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	column.add_child(UiKit.label("BEST SCORE", "Caption"))
-	var line := HBoxContainer.new()
-	line.add_theme_constant_override("separation", 18)
-	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	line.add_child(UiKit.label(RunRecords.grouped(record.score) if record.has_any() else "—", "BigNumber"))
-	if record.has_any():
-		var result: Label = UiKit.label(_result(record), "")
-		result.add_theme_font_size_override("font_size", 24)
-		result.add_theme_color_override("font_color", UiTheme.SUCCESS if record.completed else UiTheme.TEXT)
-		line.add_child(result)
-	column.add_child(line)
-	return column
+## "BEST 12,340  ·  CLEARED" (empty text when the song was never played).
+static func best_line(record: HighScores.Record) -> Label:
+	var text: String = Locale.t("BEST %s  ·  %s") % [RunRecords.grouped(record.score), _result(record)] 			if record.has_any() else ""
+	var line: Label = UiKit.label(text, "Muted")
+	line.add_theme_font_size_override("font_size", 22)
+	return line
 
 
 static func _result(record: HighScores.Record) -> String:
 	return Locale.t("CLEARED") if record.completed else "%d%%" % int(floorf(record.progress * 100.0))
 
 
-static func _play_tag() -> PanelContainer:
+## Marks the selected row: the song the menu demo is playing.
+static func _preview_tag() -> PanelContainer:
 	var tag := PanelContainer.new()
-	tag.custom_minimum_size = Vector2(170, 60)
+	tag.theme_type_variation = "Pill"
 	tag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tag.add_theme_stylebox_override("panel", _tag_style(false))
 	var content := HBoxContainer.new()
-	content.alignment = BoxContainer.ALIGNMENT_CENTER
-	content.add_theme_constant_override("separation", 12)
+	content.add_theme_constant_override("separation", 10)
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	content.add_child(UiKit.icon_rect(&"play", 26, Color.WHITE))
-	var text: Label = UiKit.label("PLAY")
-	text.add_theme_font_override("font", UiTheme.heading_font())
-	text.add_theme_font_size_override("font_size", 26)
+	content.add_child(UiKit.icon_rect(&"music", 22, UiTheme.HOT))
+	var text: Label = UiKit.label("PREVIEW")
+	text.add_theme_font_size_override("font_size", 20)
+	text.add_theme_color_override("font_color", UiTheme.HOT)
 	content.add_child(text)
 	tag.add_child(content)
 	return tag
-
-
-static func _tag_style(highlighted: bool) -> StyleBoxFlat:
-	return UiTheme.box(UiTheme.PRIMARY, Color(1.0, 0.6, 0.95), 2, 14) if highlighted \
-			else UiTheme.box(Color(0.03, 0.03, 0.1, 0.8), Color(UiTheme.ACCENT, 0.7), 2, 4)

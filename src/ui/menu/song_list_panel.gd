@@ -1,29 +1,39 @@
-# Song picker: the SongCatalog songs easiest first as SongRow rows, filtered by difficulty (side tabs in landscape, a
-# tab row in portrait); emits the chosen chart. With `apply_locks` (PLAY, PRACTICE) locked songs (SongUnlocks,
-# GD3-242) show what opens them, a TRY (AD) button (PLAY, main-chain songs: a rewarded ad opens the song until the
-# player leaves the level) and UNLOCK ALL, which asks for the shop. Dev tools list every song.
-# Related: src/ui/menu/song_row.gd, src/core/song_unlocks.gd, src/ui/menu/main_menu.gd
+# Song picker: the SongCatalog songs easiest first as SongRow rows under difficulty tabs. Pressing a row only selects it:
+# `previewed` lets the menu demo play that song behind the page (list side dark, demo side clear in landscape), and the
+# SongDetailCard's big button emits `chosen`. With `apply_locks` (PLAY, PRACTICE) locked songs (SongUnlocks, GD3-242)
+# show what opens them, a TRY (AD) button (PLAY, main-chain songs: a rewarded ad opens the song until the player
+# leaves the level) and UNLOCK ALL, which asks for the shop. Dev tools list every song.
+# Related: src/ui/menu/song_row.gd, src/ui/menu/song_detail_card.gd, src/core/song_unlocks.gd, src/ui/menu/main_menu.gd
 class_name SongListPanel
 extends UiScreen
 
 signal chosen(chart_path: String)
+## The selection changed: the menu demo should play this chart.
+signal previewed(chart_path: String)
 signal shop_requested
 
 const HEADING_ICONS: Dictionary[String, StringName] = {"PLAY": &"play", "PRACTICE": &"target", "RECORD": &"record",
 		"AUTOPLAY": &"play"}
 const ALL: String = "ALL SONGS"
+## Landscape: the list column's share of the width; the demo shows on the rest, the card at its bottom.
+const LIST_SHARE: float = 0.54
+const BACKDROP_COLOR: Color = Color(0.02, 0.0, 0.07)
 
 var heading: String = "PLAY"
 ## False for the dev tools (RECORD / AUTOPLAY): every song is playable.
 var apply_locks: bool = true
 ## Only PLAY offers rewarded trials (practice needs the song open).
 var allow_trials: bool = true
+## Chart selected when the page opens (the song the demo is playing); falls back to the first open song.
+var selected_path: String = ""
 
 var _status: Label
 var _split: BoxContainer
-var _filters: BoxContainer
-var _filter_buttons: Array[Button] = []
+var _list_column: VBoxContainer
+var _card: SongDetailCard
+var _backdrop: TextureRect
 var _songs: VBoxContainer
+var _rows: ButtonGroup
 var _filter: String = ALL
 var _entries: Array[SongCatalog.Entry] = []
 var _titles: Dictionary[String, String] = {}
@@ -36,7 +46,7 @@ func _title() -> String:
 
 
 func _subtitle() -> String:
-	return "CHOOSE A TRACK AND FEEL THE RHYTHM"
+	return "PICK A SONG, THEN PRESS PLAY" if heading == "PLAY" else "CHOOSE A TRACK AND FEEL THE RHYTHM"
 
 
 func _icon() -> StringName:
@@ -49,13 +59,54 @@ func _build_body() -> void:
 		_titles[entry.path] = entry.title
 		_ordered.append(entry.path)
 	_open = SongUnlocks.unlocked(_ordered)
+	_build_backdrop()
 	_split = BoxContainer.new()
 	_split.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_split.add_theme_constant_override("separation", 28)
 	body.add_child(_split)
-	_filters = BoxContainer.new()
-	_filters.add_theme_constant_override("separation", 12)
-	_split.add_child(_filters)
+	_list_column = VBoxContainer.new()
+	_list_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_list_column.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_list_column.size_flags_stretch_ratio = LIST_SHARE / (1.0 - LIST_SHARE)
+	_list_column.add_theme_constant_override("separation", 16)
+	_split.add_child(_list_column)
+	_list_column.add_child(_build_filters())
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_list_column.add_child(scroll)
+	_songs = VBoxContainer.new()
+	_songs.add_theme_constant_override("separation", 14)
+	_songs.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(_songs)
+	_rows = ButtonGroup.new()
+	var side := VBoxContainer.new()
+	side.alignment = BoxContainer.ALIGNMENT_END
+	side.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_split.add_child(side)
+	_card = SongDetailCard.new(heading, HEADING_ICONS.get(heading, &"play"))
+	_card.action_pressed.connect(_on_action)
+	side.add_child(_card)
+	_status = UiKit.label("", "", HORIZONTAL_ALIGNMENT_CENTER)
+	_status.add_theme_font_size_override("font_size", 24)
+	_status.add_theme_color_override("font_color", UiTheme.HOT)
+	body.add_child(_status)
+	if not _is_playable(selected_path):
+		selected_path = ""
+		for entry: SongCatalog.Entry in _entries:
+			if _is_playable(entry.path):
+				selected_path = entry.path
+				break
+	_card.show_song(_entry(selected_path))
+	if not selected_path.is_empty():
+		previewed.emit(selected_path)
+
+
+## Difficulty tabs, one row above the list.
+func _build_filters() -> HBoxContainer:
+	var filters := HBoxContainer.new()
+	filters.add_theme_constant_override("separation", 10)
 	var group := ButtonGroup.new()
 	var tiers: PackedStringArray = [ALL]
 	for entry: SongCatalog.Entry in _entries:
@@ -63,39 +114,46 @@ func _build_body() -> void:
 		if not tiers.has(tier):
 			tiers.append(tier)
 	for tier: String in tiers:
-		var button: Button = UiKit.button(tier, &"music" if tier == ALL else &"star", "TabButton", false, Vector2(280, 68))
+		var button: Button = UiKit.button(tier, &"", "TabButton", false, Vector2(0, 58))
+		button.add_theme_font_size_override("font_size", 22)
+		button.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.toggle_mode = true
 		button.button_group = group
 		button.button_pressed = tier == _filter
 		button.pressed.connect(func() -> void:
 			_filter = tier
 			_fill(UiKit.is_portrait(self)))
-		_filters.add_child(button)
-		_filter_buttons.append(button)
-	var scroll := ScrollContainer.new()
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_split.add_child(scroll)
-	_songs = VBoxContainer.new()
-	_songs.add_theme_constant_override("separation", 14)
-	_songs.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.add_child(_songs)
-	_status = UiKit.label("", "", HORIZONTAL_ALIGNMENT_CENTER)
-	_status.add_theme_font_size_override("font_size", 24)
-	_status.add_theme_color_override("font_color", UiTheme.HOT)
-	body.add_child(_status)
+		filters.add_child(button)
+	return filters
+
+
+## Landscape: dark behind the list, clear over the demo (like the home page). Portrait: the even shade.
+func _build_backdrop() -> void:
+	var gradient := Gradient.new()
+	gradient.set_color(0, Color(BACKDROP_COLOR, 0.9))
+	gradient.set_color(1, Color(BACKDROP_COLOR, 0.0))
+	gradient.add_point(LIST_SHARE, Color(BACKDROP_COLOR, 0.75))
+	gradient.add_point(LIST_SHARE + 0.12, Color(BACKDROP_COLOR, 0.1))
+	var texture := GradientTexture2D.new()
+	texture.gradient = gradient
+	texture.width = 256
+	texture.height = 4
+	_backdrop = TextureRect.new()
+	_backdrop.texture = texture
+	_backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_backdrop.stretch_mode = TextureRect.STRETCH_SCALE
+	_backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_backdrop)
+	move_child(_backdrop, shade.get_index() + 1)
 
 
 func _layout(is_portrait: bool) -> void:
 	_split.vertical = is_portrait
-	_filters.vertical = not is_portrait
-	for button: Button in _filter_buttons:
-		button.custom_minimum_size = Vector2(0, 64) if is_portrait else Vector2(280, 68)
-		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL if is_portrait else Control.SIZE_FILL
-		button.alignment = HORIZONTAL_ALIGNMENT_CENTER if is_portrait else HORIZONTAL_ALIGNMENT_LEFT
-		button.icon = null if is_portrait else UiIcons.get_icon(&"music" if button.text == ALL else &"star", 26,
-				UiTheme.ACCENT)
+	shade.visible = is_portrait
+	shade.color = Color(BACKDROP_COLOR, 0.55)
+	_backdrop.visible = not is_portrait
 	_fill(is_portrait)
 
 
@@ -103,26 +161,53 @@ func _layout(is_portrait: bool) -> void:
 func _fill(portrait: bool) -> void:
 	for child: Node in _songs.get_children():
 		child.queue_free()
-	var first: Button = null
+	var focus: Button = null
 	var any_locked: bool = false
 	for entry: SongCatalog.Entry in _entries:
 		if _filter != ALL and ChartDifficulty.tier_name(entry.difficulty) != _filter:
 			continue
-		if not apply_locks or _open.has(entry.path):
-			var row: Button = SongRow.playable(entry, portrait)
-			row.pressed.connect(func() -> void:
-				Telemetry.log_event("song_select", {"song_id": entry.id})
-				chosen.emit(entry.path))
+		if _is_playable(entry.path):
+			var row: Button = SongRow.playable(entry)
+			row.button_group = _rows
+			row.button_pressed = entry.path == selected_path
+			row.pressed.connect(_select.bind(entry.path))
 			_songs.add_child(row)
-			if first == null:
-				first = row
+			if focus == null or row.button_pressed:
+				focus = row
 		else:
 			any_locked = true
 			_songs.add_child(SongRow.locked(entry, _requirement(entry), _locked_actions(entry), portrait))
-	if first != null:
-		first.grab_focus()
+	if focus != null:
+		focus.grab_focus()
 	if any_locked and allow_trials:
 		Ads.preload_rewarded()
+
+
+func _is_playable(path: String) -> bool:
+	return _titles.has(path) and (not apply_locks or _open.has(path))
+
+
+func _entry(path: String) -> SongCatalog.Entry:
+	for entry: SongCatalog.Entry in _entries:
+		if entry.path == path:
+			return entry
+	return null
+
+
+## A row was pressed: show it on the card and let the demo play it (the level starts only from the card's button).
+func _select(path: String) -> void:
+	if path == selected_path:
+		return
+	selected_path = path
+	_card.show_song(_entry(path))
+	previewed.emit(path)
+
+
+func _on_action() -> void:
+	if selected_path.is_empty():
+		return
+	Telemetry.log_event("song_select", {"song_id": SongCatalog.song_id(selected_path)})
+	chosen.emit(selected_path)
 
 
 func _requirement(entry: SongCatalog.Entry) -> String:

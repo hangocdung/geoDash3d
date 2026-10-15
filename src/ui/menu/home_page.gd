@@ -18,6 +18,7 @@ var _menu_column: VBoxContainer
 var _backdrop: TextureRect
 var _logo: TextureRect
 var _now_playing_pill: PanelContainer
+var _now_playing_title: Label
 var _quit_button: Button
 var _buttons: Dictionary[StringName, Button] = {}
 
@@ -100,11 +101,18 @@ func _now_playing() -> PanelContainer:
 	row.add_theme_constant_override("separation", 12)
 	pill.add_child(row)
 	row.add_child(UiKit.icon_rect(&"music", 26, UiTheme.HOT))
-	var title: Label = UiKit.label("THE DAWN ASSEMBLY")
-	title.add_theme_font_size_override("font_size", 24)
-	title.add_theme_color_override("font_color", UiTheme.HOT)
-	row.add_child(title)
+	_now_playing_title = UiKit.label("")
+	_now_playing_title.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+	_now_playing_title.add_theme_font_size_override("font_size", 24)
+	_now_playing_title.add_theme_color_override("font_color", UiTheme.HOT)
+	row.add_child(_now_playing_title)
 	return pill
+
+
+## The attract level's song title (the song list may have switched it).
+func set_now_playing(title: String) -> void:
+	_now_playing_title.text = title.to_upper()
+	_now_playing_pill.visible = not title.is_empty()
 
 
 func _layout() -> void:

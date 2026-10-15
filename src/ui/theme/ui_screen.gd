@@ -8,6 +8,8 @@ extends Control
 signal closed
 
 var body: VBoxContainer
+## The dim backdrop; pages that show the level behind them (song list demo) restyle it.
+var shade: ColorRect
 var _margin: MarginContainer
 var _portrait: bool = false
 
@@ -15,7 +17,7 @@ var _portrait: bool = false
 func _ready() -> void:
 	theme = UiTheme.get_theme()
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var shade := ColorRect.new()
+	shade = ColorRect.new()
 	shade.color = Color(0.01, 0.0, 0.05, 0.6)
 	shade.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(shade)

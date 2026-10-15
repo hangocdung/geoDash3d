@@ -353,6 +353,10 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
       nút hiệu chỉnh trong ÂM THANH); danh sách bài có ảnh bìa Codex, badge độ khó, điểm cao nhất, lọc độ khó; cửa
       hàng dạng thẻ; hộp thoại luyện tập / đề nghị hiệu chỉnh / tạm dừng / kết quả; SYNC TEST có header và nút cảm ứng.
       Đã chụp mọi màn ngang (en) và dọc (vi). Không có đánh giá sao / yêu thích như ảnh mẫu (chưa có dữ liệu thật).
+- [x] **GD3-266** Danh sách bài chọn trước, chơi sau (2026-10-15): bấm một bài chỉ chọn nó, level demo phía sau menu đổi
+      sang bài đó (`MainMenu._preview`); vào màn chơi bằng nút lớn nhấp nháy trên thẻ bài đã chọn (`SongDetailCard`).
+      Ngang: danh sách bên trái, demo hiện rõ bên phải. Demo (`AttractLoop`) chỉ phát 60 s đầu, hoặc tới điểm xa nhất
+      người chơi từng tới nếu xa hơn (bài đã qua: phát hết), nhạc nhỏ dần 1,5 s trước khi lặp lại.
 - [~] **GD3-232 / 234** Phân tích độ khó và dashboard: truy vấn BigQuery mẫu cho tỉ lệ qua màn, chỗ chết / điểm nghẽn,
       lệch nhạc, so với `ChartDifficulty`, phễu bài, FPS theo máy (`docs/release/analytics_queries.md`), cách dựng
       Looker Studio. **Còn lại:** bật BigQuery export, có dữ liệu thật; lệch theo từng cue chưa gửi (cần duyệt).

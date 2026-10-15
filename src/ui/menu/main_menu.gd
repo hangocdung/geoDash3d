@@ -1,5 +1,6 @@
 # Title screen: the level runs in attract mode (autoplay, no HUD) behind the menu (HomePage). PLAY, PRACTICE and the
-# debug build's RECORD (DEV) / AUTOPLAY (DEV) first pick a song (SongListPanel); practice then picks a playback speed;
+# debug build's RECORD (DEV) / AUTOPLAY (DEV) first pick a song (SongListPanel): selecting a song swaps the demo level
+# to it (AttractLoop limits its length), the list's big button starts it; practice then picks a playback speed;
 # autoplay plays the whole level by itself with the HUD on (checking a level, filming it).
 # If level arguments were passed on the command line (--autoplay, --capture, …) it jumps straight
 # into the level so tooling keeps working. SHOP opens the in-app purchases (ShopPanel).
@@ -22,6 +23,9 @@ var _song_list: SongListPanel
 ## Home entry that opened the current page (focus returns to it).
 var _panel_opener: StringName
 var _root: Control
+## The attract level behind the menu (replaced when the song list previews another song).
+var _level: LevelRunner
+var _tuner: QualityAutoTuner
 
 
 func _ready() -> void:
@@ -37,14 +41,11 @@ func _ready() -> void:
 	if LaunchOptions.has_level_arguments():
 		Scenes.go_to.call_deferred(get_tree(), Scenes.LEVEL)
 		return
-	var level: LevelRunner = LEVEL_SCENE.instantiate() as LevelRunner
-	level.preset_options = LaunchOptions.attract()
-	add_child(level)
-	var tuner := QualityAutoTuner.new()
-	tuner.name = "QualityAutoTuner"
-	add_child(tuner)
-	tuner.setup(level)
-	_start_ads(level)
+	_tuner = QualityAutoTuner.new()
+	_tuner.name = "QualityAutoTuner"
+	add_child(_tuner)
+	_preview(Scenes.DEFAULT_CHART)
+	_start_ads()
 	var layer := CanvasLayer.new()
 	layer.layer = 10
 	add_child(layer)
@@ -55,6 +56,7 @@ func _ready() -> void:
 	_home = HomePage.new()
 	_home.action_pressed.connect(_on_home_action)
 	_root.add_child(_home)
+	_home.set_now_playing(_level.chart.title if _level.chart != null else "")
 	_landscape_tip = LandscapeTip.new()
 	_root.add_child(_landscape_tip)
 
@@ -113,6 +115,8 @@ func _open_songs(mode: SongMode) -> void:
 	_song_list.heading = ["PLAY", "PRACTICE", "RECORD", "AUTOPLAY"][mode]
 	_song_list.apply_locks = mode == SongMode.PLAY or mode == SongMode.PRACTICE
 	_song_list.allow_trials = mode == SongMode.PLAY
+	_song_list.selected_path = _level.options.chart_path
+	_song_list.previewed.connect(_preview)
 	_song_list.shop_requested.connect(func() -> void:
 		_close_songs()
 		_open_shop())
@@ -135,6 +139,7 @@ func _open_songs(mode: SongMode) -> void:
 func _close_songs() -> void:
 	_song_list.queue_free()
 	_song_list = null
+	_home.set_now_playing(_level.chart.title if _level.chart != null else "")
 	_home.visible = true
 	_home.focus(_panel_opener)
 
@@ -163,16 +168,32 @@ func _close_practice() -> void:
 	_practice_dialog = null
 
 
+## The attract level for `chart`, replacing the current one (nothing to do when it already plays that chart).
+func _preview(chart: String) -> void:
+	if _level != null:
+		if _level.options.chart_path == chart:
+			return
+		_level.song_clock.stop()
+		remove_child(_level)
+		_level.queue_free()
+	_level = LEVEL_SCENE.instantiate() as LevelRunner
+	_level.preset_options = LaunchOptions.attract()
+	_level.preset_options.chart_path = chart
+	add_child(_level)
+	move_child(_level, 0)
+	_tuner.setup(_level)
+
+
 ## The menu banner and an interstitial on coming back from a run (Ads decides
 ## whether enough play has passed). The attract level's music pauses while a full-screen ad is open.
-func _start_ads(level: LevelRunner) -> void:
+func _start_ads() -> void:
 	Ads.on_fullscreen = func(shown: bool) -> void:
-		if not is_instance_valid(level):
+		if not is_instance_valid(_level):
 			return
 		if shown:
-			level.song_clock.pause()
+			_level.song_clock.pause()
 		else:
-			level.song_clock.resume(0.0)
+			_level.song_clock.resume(0.0)
 	Ads.show_banner()
 	Ads.maybe_show_interstitial()
 

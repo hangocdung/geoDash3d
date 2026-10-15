@@ -9,9 +9,6 @@ enum RunState { LOADING, WAITING, RUNNING, PAUSED, DEAD, COMPLETE }
 const COUNT_IN_BEATS: float = 4.0
 const RESTART_DELAY_SEC: float = 0.9
 const SCENERY_SEED: int = 1337
-const ATTRACT_VOLUME_OFFSET_DB: float = -4.0
-## Menu background: loop back to the start this long after the chart ends (the song may run much longer).
-const ATTRACT_OUTRO_BEATS: float = 8.0
 
 @export_file("*.json") var chart_path: String = Scenes.DEFAULT_CHART
 @export var gameplay_config: GameplayConfig
@@ -42,6 +39,8 @@ var _records: RunRecords
 var _telemetry: RunTelemetry
 ## Where a run starts when no practice checkpoint has been earned.
 var _base_start_beat: float = -COUNT_IN_BEATS
+## Menu demo length and fade (attract mode only).
+var _attract: AttractLoop
 
 @onready var song_clock: SongClock = $SongClock
 @onready var environment_director: EnvironmentDirector = $EnvironmentDirector
@@ -69,6 +68,7 @@ func _ready() -> void:
 		return
 	_records = RunRecords.new(path, options, chart, config)
 	_telemetry = RunTelemetry.new(path, chart, options, _records.counts())
+	_attract = AttractLoop.new(chart, _records.best()) if options.attract_mode else null
 	var song_end_beat: float = chart.beat_at_time(_stream.get_length())
 	var flatten: bool = not QualityTier.uses_spectacle_track(UserSettings.quality_tier)
 	_context = LevelContext.new(chart, config, TrackPath.build(chart, song_end_beat, flatten), UserSettings.quality_tier)
@@ -92,7 +92,7 @@ func _ready() -> void:
 	elif options.autoplay and not options.attract_mode and not options.video:
 		hud.show_mode("AUTOPLAY")
 	song_clock.song_finished.connect(_on_song_finished)
-	song_clock.use_music_bus(ATTRACT_VOLUME_OFFSET_DB if options.attract_mode else 0.0)
+	song_clock.use_music_bus(AttractLoop.VOLUME_OFFSET_DB if options.attract_mode else 0.0)
 	_connect_hud()
 	if UserSettings.show_music_meter and not options.attract_mode:
 		hud.enable_music_meter(chart, song_clock)
@@ -174,7 +174,7 @@ func _process(delta: float) -> void:
 	match state:
 		RunState.RUNNING, RunState.COMPLETE:
 			var beat: float = current_beat()
-			if options.attract_mode and beat > chart.end_beat + ATTRACT_OUTRO_BEATS:
+			if _attract != null and _attract.update(song_clock, beat):
 				restart()
 				return
 			for tap_time: float in _pending_tap_times:
