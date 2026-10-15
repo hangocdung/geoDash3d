@@ -303,3 +303,12 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
       15 s, worst 61.7 ms một lần — có thể do tải quảng cáo nền, cần theo dõi khi chơi thật.
       **Còn lại:** rewarded (chờ GD3-242), App ID / ad unit thật (người dùng), liên kết AdMob–Firebase, thử
       interstitial thật sau 3 phút chơi.
+- [~] **GD3-241** Mua trong ứng dụng (plugin chính thức godot-google-play-billing 3.3.0, Billing Library 9.1.0, người
+      dùng duyệt 2026-10-15): `Store` + `Entitlements` + menu → SHOP (`ShopPanel`): `remove_ads` (tắt interstitial và
+      banner ngay), `unlock_all_songs` (lưu, chờ khóa bài GD3-242), RESTORE PURCHASES; tự khôi phục và acknowledge khi
+      khởi động. Test `tests/core/test_store.gd`. Chi tiết và việc trên Play Console: `docs/release/iap_setup.md`.
+      Thử trên Note10 Lite: SHOP hiện đủ 2 sản phẩm, giá "…" vì sản phẩm chưa tạo / bản không cài từ Play.
+      **Đo A-B-B-A** (ép ngang, Dawn Assembly từ beat 64; chỉ tính lượt đủ 3 mẫu, lượt đầu sau khi cài khởi động chậm):
+      LOW 53.5 → 53.5 FPS, MEDIUM 39.9 → 40.0 FPS → không tốn FPS.
+      **Còn lại:** tạo sản phẩm + giá trên Play Console, mua thử qua internal testing, kiểm tra giao dịch phía server
+      (chưa có), iOS StoreKit (GD3-262).

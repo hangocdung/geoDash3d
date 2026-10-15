@@ -79,7 +79,7 @@ Android (Godot Android plugin v2 bọc Firebase Android SDK), iOS làm sau (GD3-
       - Banner: chỉ ở menu, không bao giờ trong lúc chơi.
       - Khi quảng cáo mở: dừng nhạc và `SongClock`, khôi phục đúng khi quay lại. Không bao giờ chen giữa lượt chơi.
       - Đồng ý dữ liệu: Google UMP (bắt buộc với EEA/UK), ATT trên iOS. Đo FPS và bộ nhớ trước/sau khi thêm SDK.
-- [ ] **GD3-241** IAP (Claude, L; Google Play Billing — plugin chính thức Godot; iOS StoreKit — cần duyệt):
+- [~] **GD3-241** (→ roadmap Phase 7) IAP (Claude, L; Google Play Billing — plugin chính thức Godot; iOS StoreKit — cần duyệt):
       - `remove_ads` (non-consumable): bỏ interstitial và banner, giữ rewarded tự nguyện.
       - `unlock_all_songs` (non-consumable), có thể gộp gói `remove_ads + unlock_all` giá ưu đãi.
       - `creator_mode` (non-consumable): tự tạo level bằng nhạc riêng (GD3-243).

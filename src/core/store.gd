@@ -107,7 +107,8 @@ static func _on_product_details(response: Dictionary) -> void:
 		if offers is Array and not (offers as Array).is_empty():
 			var offer: Dictionary = (offers as Array)[0]
 			_prices[str(details.get("product_id", ""))] = str(offer.get("formatted_price", ""))
-	_notify()
+	# No product found: not created in Play Console yet, or a build not installed from Play.
+	_set_status("Prices unavailable" if _prices.is_empty() else "")
 
 
 static func _on_purchases_response(response: Dictionary) -> void:
