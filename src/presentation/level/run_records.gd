@@ -5,6 +5,9 @@
 class_name RunRecords
 extends RefCounted
 
+## Accuracy needed for each rank, best first.
+const RANKS: Dictionary[float, String] = {0.95: "S", 0.85: "A", 0.7: "B"}
+
 var _chart_path: String
 var _counts: bool
 var _max_score: int
@@ -40,6 +43,27 @@ func completed_text(simulation: RunSimulation, practice: bool) -> String:
 	return "%s\n%s\nPERFECT %d   GREAT %d   GOOD %d   MISS %d\n%s" % [
 			Locale.t("PRACTICE COMPLETE" if practice else "LEVEL COMPLETE"), on_completed(simulation), counts[0],
 			counts[1], counts[2], counts[3], Locale.t("MAX COMBO %d") % simulation.streak.max_combo]
+
+
+## Rank of a finished run by accuracy (score / best possible score): S, A, B or C.
+func rank(simulation: RunSimulation) -> String:
+	var accuracy: float = float(simulation.score.score) / float(maxi(_max_score, 1))
+	for bound: float in RANKS:
+		if accuracy >= bound:
+			return RANKS[bound]
+	return "C"
+
+
+## The next open song after this one (SongCatalog order), "" when there is none or the run did not count.
+func next_song() -> String:
+	var index: int = _ordered.find(_chart_path)
+	if index < 0:
+		return ""
+	var open: Dictionary[String, bool] = SongUnlocks.unlocked(_ordered)
+	for path: String in _ordered.slice(index + 1):
+		if open.has(path):
+			return path
+	return ""
 
 
 ## Lines for the level-complete menu (score, accuracy, best); submits the run when it counts.

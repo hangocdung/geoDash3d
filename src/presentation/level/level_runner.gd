@@ -92,8 +92,7 @@ func _ready() -> void:
 	elif options.autoplay and not options.attract_mode and not options.video:
 		hud.show_mode("AUTOPLAY")
 	song_clock.song_finished.connect(_on_song_finished)
-	UserSettings.changed.connect(_apply_volume)
-	_apply_volume()
+	song_clock.use_music_bus(ATTRACT_VOLUME_OFFSET_DB if options.attract_mode else 0.0)
 	_connect_hud()
 	if UserSettings.show_music_meter and not options.attract_mode:
 		hud.enable_music_meter(chart, song_clock)
@@ -189,10 +188,8 @@ func _process(delta: float) -> void:
 			if _practice != null and not simulation.is_dead and _practice.update(simulation.current_beat):
 				hud.show_toast(Locale.t("CHECKPOINT %d") % _practice.reached_count())
 				Sfx.play(&"run.checkpoint")
-			if options.debug_clock and Engine.get_process_frames() % 30 == 0:
-				print("CLOCK t=%.3f drift_ms=%.2f latency_ms=%.1f fps=%d" % [song_clock.frame_time(),
-						song_clock.audio_drift() * 1000.0, AudioServer.get_output_latency() * 1000.0,
-						Engine.get_frames_per_second()])
+			if options.debug_clock:
+				song_clock.log_drift()
 			_update_presentation(beat if state != RunState.DEAD else _death_beat, delta)
 			if state == RunState.RUNNING:
 				_router.update_trails(simulation.active_action(), delta)
@@ -241,17 +238,18 @@ func _connect_hud() -> void:
 	hud.pause_pressed.connect(_toggle_pause)
 	hud.run_menu.resume_pressed.connect(_toggle_pause)
 	hud.run_menu.restart_pressed.connect(restart)
-	hud.run_menu.menu_pressed.connect(func() -> void:
-		song_clock.stop()
-		_learn_sync()
-		_telemetry.leave()
-		Scenes.go_to(get_tree(), options.return_scene))
+	hud.run_menu.menu_pressed.connect(func() -> void: _leave_level(options.return_scene))
+	hud.run_menu.next_pressed.connect(func() -> void:
+		LaunchOptions.set_next_run(LaunchOptions.chart_run(_records.next_song()))
+		_leave_level(Scenes.LEVEL))
 
 
-func _apply_volume() -> void:
-	# User volume lives on the Music bus; the player only carries the attract-mode offset.
-	song_clock.audio_player.bus = AudioBuses.MUSIC
-	song_clock.audio_player.volume_db = ATTRACT_VOLUME_OFFSET_DB if options.attract_mode else 0.0
+## MENU (the return scene) or NEXT SONG (a new level, its options already handed over).
+func _leave_level(scene: String) -> void:
+	song_clock.stop()
+	_learn_sync()
+	_telemetry.leave()
+	Scenes.go_to(get_tree(), scene)
 
 
 func _update_presentation(beat: float, delta: float) -> void:
@@ -285,7 +283,8 @@ func _on_run_completed(_beat: float) -> void:
 		return
 	Sfx.play(&"run.complete")
 	_learn_sync()
-	hud.run_menu.open(_records.completed_text(simulation, _practice != null), false)
+	hud.run_menu.open_results(_records.completed_text(simulation, _practice != null), _records.rank(simulation),
+			not _records.next_song().is_empty())
 
 
 ## Folds learned audio-offset corrections in between runs; the note appears with the next attempt.

@@ -332,3 +332,8 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
       hướng dẫn màu của hành động trước cú chạm đó; chỉ coi là đã học khi chạm trúng (`UserSettings.hints_seen`).
       Lần đầu bấm CHƠI trên điện thoại: mời chỉnh độ trễ 30 giây (CHỈNH NGAY / ĐỂ SAU). Ảnh: ngang (vi) và dọc.
       **Còn lại:** người chơi mới thử; nút "xem lại hướng dẫn" trong Settings nếu cần.
+- [~] **GD3-251** Màn hình: kết quả có **hạng** S/A/B/C (độ chính xác ≥ 95 / 85 / 70 %), chữ thống kê tự xuống dòng
+      (vừa màn dọc), nút **BÀI TIẾP** (bài kế đã mở theo thứ tự `SongCatalog`, chỉ lượt tính kỷ lục); danh sách bài có
+      khóa / điều kiện / CHƠI THỬ / MỞ TẤT CẢ (GD3-242); CỬA HÀNG (GD3-241); Settings có Vibration, Language, AD
+      PRIVACY. `LevelRunner` gom MENU / BÀI TIẾP vào `_leave_level`, log `--debug-clock` chuyển sang `SongClock`.
+      **Còn lại:** chụp đủ mọi màn ở 19.5:9 / 16:9 / 4:3 (GD3-254), nút lớn hơn cho ngón tay trên điện thoại nhỏ.

@@ -61,6 +61,19 @@ func start(stream: AudioStream, from_sec: float, count_in_sec: float) -> void:
 	_try_begin_audio()
 
 
+## `--debug-clock`: a "CLOCK" line every 30 frames (song time, audio drift, output latency, FPS).
+func log_drift() -> void:
+	if Engine.get_process_frames() % 30 == 0:
+		print("CLOCK t=%.3f drift_ms=%.2f latency_ms=%.1f fps=%d" % [frame_time(), audio_drift() * 1000.0,
+				AudioServer.get_output_latency() * 1000.0, Engine.get_frames_per_second()])
+
+
+## Plays through the Music bus (the player's volume lives there) with an extra offset (quieter menu backdrop).
+func use_music_bus(volume_offset_db: float) -> void:
+	audio_player.bus = AudioBuses.MUSIC
+	audio_player.volume_db = volume_offset_db
+
+
 func stop() -> void:
 	if audio_player != null:
 		audio_player.stop()
