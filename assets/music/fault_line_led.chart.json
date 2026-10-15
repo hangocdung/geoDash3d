@@ -1,0 +1,1504 @@
+{
+	"version": 1,
+	"title": "Fault Line (LED)",
+	"artist": "hdgstudio86",
+	"song": "res://assets/music/fault_line.mp3",
+	"offset_sec": 0.448,
+	"end_beat": 332,
+	"tempo": [
+		{
+			"beat": 0,
+			"bpm": 128.0
+		}
+	],
+	"speed": [
+		{
+			"beat": 0,
+			"units_per_beat": 7.0
+		},
+		{
+			"beat": 88,
+			"units_per_beat": 7.75
+		},
+		{
+			"beat": 172,
+			"units_per_beat": 8.5
+		},
+		{
+			"beat": 272,
+			"units_per_beat": 9.25
+		}
+	],
+	"phases": [
+		{
+			"beat": 0,
+			"palette": "glacier"
+		},
+		{
+			"beat": 88,
+			"palette": "indigo"
+		},
+		{
+			"beat": 172,
+			"palette": "aurora"
+		},
+		{
+			"beat": 272,
+			"palette": "ember"
+		}
+	],
+	"sections": [
+		{
+			"beat": -16,
+			"name": "intro",
+			"energy": 0.2
+		},
+		{
+			"beat": 24,
+			"name": "verse",
+			"energy": 0.43
+		},
+		{
+			"beat": 88,
+			"name": "verse",
+			"energy": 0.59
+		},
+		{
+			"beat": 172,
+			"name": "drop",
+			"energy": 0.96
+		},
+		{
+			"beat": 236,
+			"name": "drop",
+			"energy": 0.93
+		},
+		{
+			"beat": 272,
+			"name": "break",
+			"energy": 0.23
+		}
+	],
+	"track": [
+		{
+			"beat": 0,
+			"shape": "straight"
+		},
+		{
+			"beat": 8,
+			"shape": "wave",
+			"amplitude": 2,
+			"count": 2
+		},
+		{
+			"beat": 20,
+			"shape": "straight"
+		},
+		{
+			"beat": 24,
+			"shape": "helix",
+			"angle_deg": 360,
+			"rise": 18
+		},
+		{
+			"beat": 40,
+			"shape": "straight"
+		},
+		{
+			"beat": 88,
+			"shape": "wave",
+			"amplitude": 2,
+			"count": 2
+		},
+		{
+			"beat": 100,
+			"shape": "straight"
+		},
+		{
+			"beat": 172,
+			"shape": "loop",
+			"lateral": -7
+		},
+		{
+			"beat": 184,
+			"shape": "straight"
+		},
+		{
+			"beat": 236,
+			"shape": "loop",
+			"lateral": 7
+		},
+		{
+			"beat": 248,
+			"shape": "straight"
+		},
+		{
+			"beat": 272,
+			"shape": "wave",
+			"amplitude": 2,
+			"count": 2
+		},
+		{
+			"beat": 284,
+			"shape": "straight"
+		}
+	],
+	"terrain": [
+		{
+			"beat": 9.6451,
+			"height": 1.5
+		},
+		{
+			"beat": 12.75,
+			"height": 0.0
+		},
+		{
+			"beat": 19.3766,
+			"gap": true
+		},
+		{
+			"beat": 19.8766,
+			"height": 0.0
+		},
+		{
+			"beat": 29.4614,
+			"height": 1.0
+		},
+		{
+			"beat": 35.6553,
+			"height": 2.5
+		},
+		{
+			"beat": 41.25,
+			"gap": true
+		},
+		{
+			"beat": 41.75,
+			"height": 2.5
+		},
+		{
+			"beat": 42.5,
+			"height": 2.0
+		},
+		{
+			"beat": 49.0543,
+			"height": 3.0
+		},
+		{
+			"beat": 55.5543,
+			"height": 4.5
+		},
+		{
+			"beat": 56.25,
+			"height": 2.0
+		},
+		{
+			"beat": 62.3403,
+			"gap": true
+		},
+		{
+			"beat": 62.8403,
+			"height": 2.0
+		},
+		{
+			"beat": 68.7002,
+			"height": 3.0
+		},
+		{
+			"beat": 69.5,
+			"height": 0.0
+		},
+		{
+			"beat": 75.6817,
+			"height": 1.5
+		},
+		{
+			"beat": 76.5,
+			"height": 0.0
+		},
+		{
+			"beat": 81.3478,
+			"gap": true
+		},
+		{
+			"beat": 81.8478,
+			"height": 0.0
+		},
+		{
+			"beat": 89.549,
+			"height": 1.0
+		},
+		{
+			"beat": 95.549,
+			"height": 2.5
+		},
+		{
+			"beat": 100.3552,
+			"gap": true
+		},
+		{
+			"beat": 100.8552,
+			"height": 2.5
+		},
+		{
+			"beat": 101.75,
+			"height": 0.0
+		},
+		{
+			"beat": 110.6369,
+			"height": 1.0
+		},
+		{
+			"beat": 115.549,
+			"height": 2.5
+		},
+		{
+			"beat": 116.25,
+			"height": 0.0
+		},
+		{
+			"beat": 121.3954,
+			"gap": true
+		},
+		{
+			"beat": 121.8954,
+			"height": 0.0
+		},
+		{
+			"beat": 128.644,
+			"height": 1.0
+		},
+		{
+			"beat": 130.75,
+			"height": 0.0
+		},
+		{
+			"beat": 135.549,
+			"height": 1.5
+		},
+		{
+			"beat": 141.25,
+			"gap": true
+		},
+		{
+			"beat": 141.75,
+			"height": 1.5
+		},
+		{
+			"beat": 142.0,
+			"height": 0.0
+		},
+		{
+			"beat": 148.6518,
+			"height": 1.0
+		},
+		{
+			"beat": 153.6538,
+			"height": 2.5
+		},
+		{
+			"beat": 154.5,
+			"height": 0.0
+		},
+		{
+			"beat": 161.3579,
+			"gap": true
+		},
+		{
+			"beat": 161.8579,
+			"height": 0.0
+		},
+		{
+			"beat": 170.049,
+			"height": 1.0
+		},
+		{
+			"beat": 172.391,
+			"gap": true
+		},
+		{
+			"beat": 173.591,
+			"height": 5.0
+		},
+		{
+			"beat": 174.25,
+			"height": 2.0
+		},
+		{
+			"beat": 175.6369,
+			"height": 3.5
+		},
+		{
+			"beat": 180.5,
+			"height": 2.0
+		},
+		{
+			"beat": 182.3658,
+			"gap": true
+		},
+		{
+			"beat": 182.8658,
+			"height": 2.0
+		},
+		{
+			"beat": 190.3374,
+			"gap": true
+		},
+		{
+			"beat": 190.8374,
+			"height": 2.0
+		},
+		{
+			"beat": 192.25,
+			"height": 0.0
+		},
+		{
+			"beat": 202.1579,
+			"height": 1.5
+		},
+		{
+			"beat": 208.3764,
+			"gap": true
+		},
+		{
+			"beat": 208.8764,
+			"height": 1.5
+		},
+		{
+			"beat": 216.8478,
+			"gap": true
+		},
+		{
+			"beat": 217.3478,
+			"height": 1.5
+		},
+		{
+			"beat": 219.7947,
+			"height": 3.0
+		},
+		{
+			"beat": 220.5,
+			"height": 2.0
+		},
+		{
+			"beat": 222.25,
+			"height": 0.0
+		},
+		{
+			"beat": 234.8549,
+			"gap": true
+		},
+		{
+			"beat": 235.3549,
+			"height": 0.0
+		},
+		{
+			"beat": 243.25,
+			"gap": true
+		},
+		{
+			"beat": 243.75,
+			"height": 0.0
+		},
+		{
+			"beat": 246.6435,
+			"height": 1.5
+		},
+		{
+			"beat": 250.8,
+			"gap": true
+		},
+		{
+			"beat": 252.0,
+			"height": 5.5
+		},
+		{
+			"beat": 255.3523,
+			"gap": true
+		},
+		{
+			"beat": 255.8523,
+			"height": 5.5
+		},
+		{
+			"beat": 259.2539,
+			"gap": true
+		},
+		{
+			"beat": 259.5039,
+			"height": 5.5
+		},
+		{
+			"beat": 262.25,
+			"height": 2.0
+		},
+		{
+			"beat": 265.75,
+			"gap": true
+		},
+		{
+			"beat": 266.25,
+			"height": 2.0
+		},
+		{
+			"beat": 268.6521,
+			"height": 3.5
+		},
+		{
+			"beat": 270.25,
+			"height": 0.0
+		},
+		{
+			"beat": 286.2082,
+			"height": 1.0
+		},
+		{
+			"beat": 289.75,
+			"height": 0.0
+		},
+		{
+			"beat": 293.6371,
+			"height": 1.5
+		},
+		{
+			"beat": 296.3471,
+			"gap": true
+		},
+		{
+			"beat": 296.8471,
+			"height": 1.5
+		},
+		{
+			"beat": 303.5411,
+			"height": 2.5
+		},
+		{
+			"beat": 307.6639,
+			"height": 4.0
+		},
+		{
+			"beat": 312.3637,
+			"gap": true
+		},
+		{
+			"beat": 312.8637,
+			"height": 4.0
+		},
+		{
+			"beat": 319.6792,
+			"height": 5.0
+		},
+		{
+			"beat": 321.25,
+			"height": 4.0
+		},
+		{
+			"beat": 324.1597,
+			"height": 5.5
+		},
+		{
+			"beat": 324.5,
+			"height": 4.0
+		},
+		{
+			"beat": 328.75,
+			"height": 0.0
+		}
+	],
+	"events": [
+		{
+			"beat": -8,
+			"type": "camera",
+			"shot": "front",
+			"blend_beats": 0
+		},
+		{
+			"beat": -2,
+			"type": "camera",
+			"shot": "side",
+			"blend_beats": 4
+		},
+		{
+			"beat": 4.5,
+			"type": "jump"
+		},
+		{
+			"beat": 6.3769,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 9.0908,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 11.1448,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 17.0939,
+			"type": "jump",
+			"hazard": "spike_double"
+		},
+		{
+			"beat": 19.1266,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 21.0,
+			"type": "dodge_left"
+		},
+		{
+			"beat": 24,
+			"type": "camera",
+			"shot": "side",
+			"blend_beats": 2
+		},
+		{
+			"beat": 25.0,
+			"type": "jump",
+			"hazard": "spike_mine"
+		},
+		{
+			"beat": 27.0978,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 28.9071,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 31.0994,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 33.1002,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 35.101,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 36.1439,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 39.0,
+			"type": "jump",
+			"hazard": "spike_double"
+		},
+		{
+			"beat": 41.0,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 43.1254,
+			"type": "jump",
+			"hazard": "spike_mine"
+		},
+		{
+			"beat": 44.626,
+			"type": "jump",
+			"hazard": "spike_mine"
+		},
+		{
+			"beat": 47.0844,
+			"type": "jump"
+		},
+		{
+			"beat": 48.5,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 51.1073,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 52.1077,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 55.0,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 57.0883,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 59.1211,
+			"type": "jump",
+			"hazard": "spike_double"
+		},
+		{
+			"beat": 62.0903,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 63.112,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 65.1447,
+			"type": "jump",
+			"hazard": "spike_mine"
+		},
+		{
+			"beat": 67.0,
+			"type": "jump",
+			"hazard": "spike_mine"
+		},
+		{
+			"beat": 68.1459,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 71.0,
+			"type": "jump"
+		},
+		{
+			"beat": 73.0,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 75.1274,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 78.0966,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 79.097,
+			"type": "jump",
+			"hazard": "spike_double"
+		},
+		{
+			"beat": 81.0978,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 83.0986,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 84.099,
+			"type": "jump",
+			"hazard": "spike_mine"
+		},
+		{
+			"beat": 87.164,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 88,
+			"type": "camera",
+			"shot": "diagonal",
+			"blend_beats": 2
+		},
+		{
+			"beat": 89.0,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 91.1549,
+			"type": "jump",
+			"hazard": "spike_mine"
+		},
+		{
+			"beat": 92.6449,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 95.0,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 97.1041,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 99.1049,
+			"type": "jump",
+			"hazard": "spike_double"
+		},
+		{
+			"beat": 100.1052,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 103.1171,
+			"type": "dodge_right",
+			"hazard": "laser_gap_right"
+		},
+		{
+			"beat": 105.0,
+			"type": "jump",
+			"hazard": "spike_mine"
+		},
+		{
+			"beat": 107.0,
+			"type": "jump"
+		},
+		{
+			"beat": 110.0879,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 111.0883,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 113.1104,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 115.0,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 118.0,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 119.1446,
+			"type": "jump",
+			"hazard": "spike_double"
+		},
+		{
+			"beat": 121.1454,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 123.0,
+			"type": "dodge_left"
+		},
+		{
+			"beat": 124.6468,
+			"type": "jump",
+			"hazard": "spike_mine"
+		},
+		{
+			"beat": 127.0,
+			"type": "jump",
+			"hazard": "pendulum"
+		},
+		{
+			"beat": 128.095,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 129.1592,
+			"type": "jump",
+			"hazard": "spike_double"
+		},
+		{
+			"beat": 133.0,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 135.0,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 137.0,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 139.1419,
+			"type": "jump",
+			"hazard": "spike_double"
+		},
+		{
+			"beat": 141.0,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 143.0,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 144.1013,
+			"type": "jump",
+			"hazard": "spike_mine"
+		},
+		{
+			"beat": 145.1017,
+			"type": "jump",
+			"hazard": "spike_mine"
+		},
+		{
+			"beat": 148.1028,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 149.1245,
+			"type": "jump"
+		},
+		{
+			"beat": 152.1044,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 153.1048,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 156.0953,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 159.1072,
+			"type": "jump",
+			"hazard": "spike_double"
+		},
+		{
+			"beat": 161.1079,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 163.1087,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 164.1091,
+			"type": "jump",
+			"hazard": "spike_mine"
+		},
+		{
+			"beat": 165.25,
+			"type": "jump",
+			"hazard": "pendulum"
+		},
+		{
+			"beat": 169.5,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 170.5,
+			"type": "jump",
+			"hazard": "spike_double"
+		},
+		{
+			"beat": 172,
+			"type": "camera",
+			"shot": "side_high",
+			"blend_beats": 2
+		},
+		{
+			"beat": 172,
+			"type": "vfx",
+			"name": "shockwave"
+		},
+		{
+			"beat": 172.091,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 172.591,
+			"type": "orb"
+		},
+		{
+			"beat": 173.091,
+			"type": "orb"
+		},
+		{
+			"beat": 175.0922,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 176.0926,
+			"type": "jump",
+			"hazard": "pendulum"
+		},
+		{
+			"beat": 177.5931,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 179.0,
+			"type": "jump",
+			"hazard": "spike_double"
+		},
+		{
+			"beat": 181.1158,
+			"type": "jump",
+			"hazard": "spike_triple"
+		},
+		{
+			"beat": 182.1158,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 183.1158,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 184.6278,
+			"type": "jump",
+			"hazard": "pendulum"
+		},
+		{
+			"beat": 185.6282,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 187.0,
+			"type": "jump",
+			"hazard": "spike_triple"
+		},
+		{
+			"beat": 188.5,
+			"type": "jump",
+			"hazard": "spike_double"
+		},
+		{
+			"beat": 190.0874,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 191.0984,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 193.1205,
+			"type": "flip_down"
+		},
+		{
+			"beat": 194.1205,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 195.1205,
+			"type": "jump",
+			"hazard": "spike_mine"
+		},
+		{
+			"beat": 197.1434,
+			"type": "jump",
+			"hazard": "spike_double"
+		},
+		{
+			"beat": 199.0,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 200.102,
+			"type": "flip_up"
+		},
+		{
+			"beat": 201.6132,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 203.1032,
+			"type": "jump",
+			"hazard": "pendulum"
+		},
+		{
+			"beat": 204.1032,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 205.1032,
+			"type": "jump",
+			"hazard": "spike_mine"
+		},
+		{
+			"beat": 207.1047,
+			"type": "jump",
+			"hazard": "spike_triple"
+		},
+		{
+			"beat": 208.1264,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 210.1059,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 211.1063,
+			"type": "jump"
+		},
+		{
+			"beat": 212.1063,
+			"type": "jump",
+			"hazard": "spike_double"
+		},
+		{
+			"beat": 213.1063,
+			"type": "jump",
+			"hazard": "pendulum"
+		},
+		{
+			"beat": 215.1079,
+			"type": "jump",
+			"hazard": "spike_double"
+		},
+		{
+			"beat": 216.5978,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 218.0984,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 219.25,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 221.1102,
+			"type": "jump",
+			"hazard": "pendulum"
+		},
+		{
+			"beat": 223.111,
+			"type": "flip_down"
+		},
+		{
+			"beat": 224.1114,
+			"type": "jump",
+			"hazard": "pendulum"
+		},
+		{
+			"beat": 226.1122,
+			"type": "jump",
+			"hazard": "spike_triple"
+		},
+		{
+			"beat": 227.1122,
+			"type": "jump",
+			"hazard": "spike_triple"
+		},
+		{
+			"beat": 228.1122,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 229.75,
+			"type": "flip_up"
+		},
+		{
+			"beat": 231.0,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 232.1146,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 233.5,
+			"type": "jump",
+			"hazard": "spike_triple"
+		},
+		{
+			"beat": 234.6049,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 236,
+			"type": "camera",
+			"shot": "side",
+			"blend_beats": 2
+		},
+		{
+			"beat": 236.0,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 236,
+			"type": "vfx",
+			"name": "shockwave"
+		},
+		{
+			"beat": 237.1165,
+			"type": "jump",
+			"hazard": "spike_mine"
+		},
+		{
+			"beat": 238.1165,
+			"type": "jump"
+		},
+		{
+			"beat": 239.1165,
+			"type": "jump",
+			"hazard": "spike_double"
+		},
+		{
+			"beat": 241.5,
+			"type": "jump",
+			"hazard": "spike_double"
+		},
+		{
+			"beat": 243.0,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 245.0877,
+			"type": "jump",
+			"hazard": "pendulum"
+		},
+		{
+			"beat": 246.0988,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 247.0992,
+			"type": "jump",
+			"hazard": "pendulum"
+		},
+		{
+			"beat": 248.6636,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 250.5,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 251.0,
+			"type": "orb"
+		},
+		{
+			"beat": 251.5,
+			"type": "orb"
+		},
+		{
+			"beat": 252.612,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 254.0,
+			"type": "jump",
+			"hazard": "spike_triple"
+		},
+		{
+			"beat": 255.1023,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 256.124,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 257.6139,
+			"type": "jump",
+			"hazard": "spike_triple"
+		},
+		{
+			"beat": 259.1039,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 259.6039,
+			"type": "orb_drop"
+		},
+		{
+			"beat": 260.2863,
+			"type": "hazard",
+			"hazard": "ceiling"
+		},
+		{
+			"beat": 261.126,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 263.1055,
+			"type": "jump",
+			"hazard": "spike_mine"
+		},
+		{
+			"beat": 264.1271,
+			"type": "jump",
+			"hazard": "spike_double"
+		},
+		{
+			"beat": 265.5,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 267.0,
+			"type": "jump"
+		},
+		{
+			"beat": 268.1074,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 269.1078,
+			"type": "jump",
+			"hazard": "pendulum"
+		},
+		{
+			"beat": 271.1192,
+			"type": "flip_down"
+		},
+		{
+			"beat": 272,
+			"type": "camera",
+			"shot": "side_far",
+			"blend_beats": 2
+		},
+		{
+			"beat": 272.5986,
+			"type": "jump",
+			"hazard": "spike_mine"
+		},
+		{
+			"beat": 275.0889,
+			"type": "jump",
+			"hazard": "spike_double"
+		},
+		{
+			"beat": 276.0889,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 277.0889,
+			"type": "jump",
+			"hazard": "pendulum"
+		},
+		{
+			"beat": 279.0,
+			"type": "flip_up"
+		},
+		{
+			"beat": 280.0,
+			"type": "jump",
+			"hazard": "spike_mine"
+		},
+		{
+			"beat": 281.1338,
+			"type": "dodge_right",
+			"hazard": "laser_gap_right"
+		},
+		{
+			"beat": 283.0814,
+			"type": "jump",
+			"hazard": "spike_mine"
+		},
+		{
+			"beat": 284.6671,
+			"type": "jump"
+		},
+		{
+			"beat": 285.6671,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 286.6671,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 288.1472,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 293.096,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 294.096,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 295.096,
+			"type": "jump",
+			"hazard": "spike_double"
+		},
+		{
+			"beat": 296.0971,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 297.1188,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 298.25,
+			"type": "jump",
+			"hazard": "spike_mine"
+		},
+		{
+			"beat": 301.0991,
+			"type": "jump",
+			"hazard": "spike_mine"
+		},
+		{
+			"beat": 303.0,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 304.0,
+			"type": "jump"
+		},
+		{
+			"beat": 305.122,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 307.1228,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 309.0,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 311.1137,
+			"type": "jump",
+			"hazard": "spike_double"
+		},
+		{
+			"beat": 312.1137,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 313.1137,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 315.0833,
+			"type": "jump",
+			"hazard": "spike_mine"
+		},
+		{
+			"beat": 317.0,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 319.1381,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 320.1491,
+			"type": "jump",
+			"hazard": "spike_mine"
+		},
+		{
+			"beat": 321.8519,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 323.6186,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 325.1085,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 327.12,
+			"type": "jump",
+			"hazard": "spike_double"
+		},
+		{
+			"beat": 332,
+			"type": "vfx",
+			"name": "burst"
+		}
+	]
+}

@@ -180,6 +180,16 @@ Người dùng cho phép **trời tông ấm** ở vài phase; camera trong vòn
       (NEW BEST) và lần thử sau khi chết (BEST %). Combo chỉ đếm PERFECT (GREAT/GOOD không cộng, không làm đứt; đổi bằng
       `GameplayConfig.perfect_only_combo`). Lá chắn vẫn nạp theo combo (giờ là chuỗi PERFECT). Test `test_score.gd`.
 
+- [x] **GD3-112** Chạy mặt dưới đường: `flip_down` lộn xuống và ở lại dưới đường, nhảy qua vật cản treo ngược, `flip_up`
+      lộn lên (cổng `gate_under`). `ActionState` (tách khỏi `RunSimulation` vì giới hạn 300 dòng), `HazardDefinition.face`,
+      `LevelChart.underside_ranges`, loader kiểm tra đoạn chạy; camera xoay ngược ở MEDIUM/HIGH, góc nhìn dưới đường ở
+      LOW. Tool đặt màn biến cổng `flip` ở đoạn mạnh thành đoạn chạy mặt dưới; sinh lại 6 màn hit-level và Pulse Drive
+      (LED). Test `test_underside.gd`. Thiết kế: `design/gameplay_v3.md` mục 12. **→ Chưa đo FPS trên máy (màn hình
+      điện thoại đang khóa khi thử).**
+
+- [x] **GD3-113** Thêm 2 màn test theo LED: "The Dawn Assembly (LED)" (121 lần chạm, 4 đoạn chạy mặt dưới) và "Fault
+      Line (LED)" (191 lần chạm, 3 đoạn), `tools/charting/levels/*_led.py`. **→ Cần người dùng chơi thử.**
+
 ## Phase 5 — Mobile
 - [x] **GD3-050** Export Android (`export_presets.cfg`, arm64, debug keystore), cài và đo trên Galaxy Note10 Lite
       (Mali-G72, Vulkan Mobile). Đo bằng `PerfProbe` + `tools/device/perf_matrix.sh`. Kết quả, khi máy đang ấm
