@@ -102,6 +102,32 @@ Android (Godot Android plugin v2 bọc Firebase Android SDK), iOS làm sau (GD3-
 - [x] **GD3-253** (→ roadmap Phase 7) Rung phản hồi (haptics) khi PERFECT/chết, tùy chọn tắt; tùy chọn giảm nhấp nháy đã có.
 - [ ] **GD3-254** Chụp ảnh mọi màn hình ở 19.5:9, 16:9 và 4:3 (tablet), dọc nếu chọn GD3-210; tự xem trước khi xong.
 
+## 5b. Làm lại âm thanh hiệu ứng (SFX) theo kiểu trống (thêm 2026-10-15)
+Mọi âm trong game vẫn là âm tạm sinh bằng code (`status: placeholder` trong `assets/audio/audio_catalog.json`) và
+không hợp game. Quy trình tạo âm thật đã có sẵn (prompt → Google Flow tạo video có tiếng → tải về → tách âm bằng
+`tools/audio/build_sfx.py`); chỉ cần đổi phong cách sang **tiếng trống**, nhất là tiếng chạm và tiếng chạm đất.
+- [ ] **GD3-255** Chốt bộ âm (Claude đề xuất, Người dùng duyệt, S): một bộ trống thống nhất hợp nhạc synthwave/EDM và
+      tribal. Đề xuất bộ trống điện tử kiểu 808/909, kèm vài take trống taiko để so. Âm ngắn, khô, không thành giai điệu:
+      - Lần chạm: `player.jump` rimshot hoặc snare ngắn; `player.dodge` clap hoặc tom nhỏ; `player.flip` (cả lộn tròn và
+        chạy mặt dưới) 2 nhát tom nhanh.
+      - Chạm đất `player.land`: kick hoặc floor tom trầm, ngắn, nhỏ hơn kick của nhạc (tiếp đất rất thường xuyên).
+      - `judge.perfect` clave/woodblock cao, nhỏ; `judge.great` nhẹ hơn.
+      - `player.death` trống lớn + crash; `player.shield_break` cymbal choke; vật cản vào sân: tom/taiko nhẹ;
+        `run.complete` fill trống + crash.
+      - Rà lại danh sách ID trong `tools/audio/sfx_spec.py`: thêm ID nếu cần âm riêng cho vòng nhảy, bệ bật, chạy mặt dưới.
+- [ ] **GD3-256** Viết lại prompt (Claude, S): sửa `docs/design/sfx/sfx_video_prompts.md` theo phong cách trống (đuôi prompt
+      kiểu "single close-miked drum hit, dry, short decay, no melody, no music, no speech"). Giữ quy tắc cũ: mỗi clip một
+      loại âm lặp 3–4 lần cách nhau 1,5–2 giây, camera đứng yên; chụp lại ảnh đầu vào từ game hiện tại nếu cần.
+- [ ] **GD3-257** Tạo video (Người dùng): Google Flow, 2–3 take mỗi ID, tải về `art_source/sfx/<ID>_take<N>.mp4`
+      (không commit). Ghi lại gói/ngày tạo để chứng minh quyền dùng thương mại.
+- [ ] **GD3-258** Tách âm và đưa vào game (Claude, S–M):
+      - Chạy `python tools/audio/build_sfx.py` (tách âm, cắt, chuẩn hóa), nghe thử ở `tools/audio/out/sfx_review.html`.
+      - Chỉnh mức to theo nhóm trong `sfx_spec.py` so với nhạc; thêm tùy chọn tắt riêng tiếng chạm nếu người chơi thấy rối.
+      - Cân nhắc phát tiếng chạm đất **đúng beat tiếp đất**: thời điểm này biết trước nhờ parabol, nên có thể phát sớm
+        bù độ trễ âm thanh để tiếng trống trùng phách. Tiếng chạm phát ngay lúc chạm (không đoán trước được), nên phải
+        thật ngắn và attack gắt.
+      - Chơi thử trên điện thoại.
+
 ## 6. Xuất bản store
 - [ ] **GD3-260** Bản release Android (Claude + Người dùng, M; thay cho GD3-053): keystore release + Play App Signing,
       AAB, target API theo mốc yêu cầu hiện hành của Google Play, version code tự tăng, icon adaptive.
@@ -136,7 +162,7 @@ kín chạy song song với phần kiếm tiền.
 |---|---|---|---|
 | A. Quyết định nền | tuần 1–2 | GD3-200, 201, 202, 203; GD3-210–212; GD3-220 | Nhạc được phép dùng, tên mới, chốt ngang/dọc, lệnh sinh level |
 | B. Đo lường | tuần 3–4 | GD3-230, 231, 235 (232–234 dựng khung) | Crash và event về Firebase từ bản test nội bộ |
-| C. UI + bản release | tuần 4–6 | GD3-250–254, GD3-260 | Bản AAB ký release, thử nội bộ |
+| C. UI + âm thanh + bản release | tuần 4–6 | GD3-250–254, GD3-255–258 (tạo video Flow song song), GD3-260 | Bản AAB ký release có SFX trống, thử nội bộ |
 | D. Kiếm tiền + store | tuần 6–8 | GD3-240, 241, 242, 244, GD3-261; bắt đầu GD3-263 (14 ngày) | Quảng cáo/IAP chạy ở thử kín, trang store xong |
 | E. Soft launch | tuần 9–12 | GD3-264, GD3-232–234 với dữ liệu thật, GD3-233 A/B; GD3-262 nếu có Mac | Chỉ số mục 7 đạt mốc → ra toàn cầu |
 | F. Sau ra mắt | từ tháng 4 | GD3-221 + GD3-243 (tự tạo level, IAP), GD3-265 | Gói creator, bài mới đều đặn |
