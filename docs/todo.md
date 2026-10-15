@@ -154,6 +154,72 @@ Mốc tham khảo thường dùng cho game casual — chỉnh theo dữ liệu t
 | Kiếm tiền | Tỉ lệ người trả tiền; ARPPU; doanh thu theo gói; LTV D7/D30 | Play Billing + Analytics | người trả tiền 1–3 % |
 | Marketing | Lượt cài theo nguồn; CPI; tỉ lệ xem trang store → cài; ROAS; điểm đánh giá | Play Console, Google Ads, Analytics | điểm ≥ 4.3; ROAS D30 > chi phí |
 
+## 7b. Nội dung online: đánh giá sao + tải bài nhạc từ Cloudflare (thêm 2026-10-15)
+Hai việc dùng chung một backend nhẹ. **Đề xuất:** Cloudflare (R2 chứa bài + Worker làm API) cho cả hai; Firebase giữ
+vai trò hiện tại (Analytics, Crashlytics, Remote Config). Lý do: bài nhạc đằng nào cũng ở Cloudflare; Worker gọi được
+bằng `HTTPRequest` của Godot trên mọi nền tảng (PC, Android, iOS) mà không phải sửa plugin Java; R2 không tính phí băng
+thông tải về.
+
+**Firebase có làm được đánh giá sao không?** Có, nhưng có 3 điểm vướng:
+1. Plugin `GeoDashFirebase` hiện chỉ có Analytics/Crashlytics/Remote Config, phải thêm Firestore + Anonymous Auth vào
+   plugin Java (chỉ chạy được trên Android). Cách khác là gọi Firestore REST + Identity Toolkit REST từ GDScript.
+2. Điểm trung bình (tổng/số lượt) nên do server tính. Firestore Security Rules không kiểm được tổng cộng dồn có đúng
+   không, nên cần Cloud Functions, mà Cloud Functions bắt buộc gói **Blaze** (trả theo dùng, vẫn có hạn mức miễn phí).
+3. Chống gian lận (mỗi máy chỉ một phiếu cho mỗi bài) cần Auth + App Check; Worker làm được tương đương bằng ID cài
+   đặt + Play Integrity (Android) / giới hạn tần suất.
+→ Firebase hợp lý nếu không muốn dùng Cloudflare. Phương án này cần: Firestore `ratings/{song}/votes/{uid}` + Function
+cập nhật `songs/{song}.sum/count`.
+
+- [ ] **GD3-270** Quyết định backend (Người dùng, S): Cloudflare Worker + D1 (đề xuất) hay Firebase Firestore + Functions
+      (cần gói Blaze). Cả hai đều trong hạn mức miễn phí ở quy mô soft launch.
+- [ ] **GD3-271** API đánh giá sao (Claude, M; cần GD3-270). Thiết kế:
+      - `POST /v1/ratings {song_id, stars 1–5, install_id}` ghi đè phiếu cũ của cùng máy (khóa `song_id + install_id`).
+      - `GET /v1/ratings` trả `{song_id: {avg, count}}` cho mọi bài, cache CDN ~5 phút.
+      - D1: bảng `votes(song_id, install_id, stars, updated_at)` và bảng tổng `songs(song_id, sum, count)` cập nhật
+        trong cùng giao dịch.
+      - Giới hạn tần suất theo IP/ID; bản Android gửi kèm token Play Integrity (bước sau).
+      - `install_id` là UUID ngẫu nhiên lưu ở `user://`, không phải dữ liệu cá nhân. Ghi vào `privacy_policy.md` và
+        form Data safety.
+- [ ] **GD3-272** Đánh giá trong game (Claude, M; cần GD3-271):
+      - Sau khi **qua màn** (không hỏi khi chết), thẻ kết quả hiện 5 sao.
+      - Cùng bài hỏi tối đa 1 lần; người chơi tự sửa được ở danh sách bài.
+      - Danh sách bài hiện `★ 4.2 (128)` lấy từ `GET /v1/ratings` (cache ở `user://`, không có mạng thì ẩn).
+      - Thêm event `song_rate` vào Analytics.
+      - Không được lẫn với GD3-244 (đánh giá app trên store).
+- [ ] **GD3-273** Mục yêu thích (Claude, S): lưu cục bộ trong `UserSettings`, thêm tab YÊU THÍCH ở danh sách bài. Không cần server.
+
+**Tải bài nhạc từ Cloudflare.** Một vài bài khởi đầu vẫn nằm trong APK (chơi offline ngay lần đầu, store review
+thấy nội dung). Các bài còn lại tải khi cần, sau đó chơi offline được.
+- [ ] **GD3-275** Định dạng gói bài và manifest (Claude, M; **cần người dùng duyệt** vì đụng định dạng chart):
+      - Gói bài `<id>/<version>/` gồm `song.mp3` (hoặc `.ogg`), `chart.json` (và chart LED nếu có), `spectrum.json`, `cover.jpg`.
+      - Đường dẫn trong gói là **tương đối** (chart hiện ghi `"song": "res://…"` → cần cho phép đường dẫn tương đối
+        hoặc ghi đè lúc nạp). Cập nhật `docs/chart_format.md`.
+      - `manifest.json` gồm `catalog_version`, `min_app_version` và mỗi bài: `id, title, artist, bpm, length, difficulty,
+        version, size, sha256` cho từng file, `unlock` (miễn phí / chuỗi mở khóa / IAP), `license` (GD3-200), cờ `enabled`.
+      - URL bất biến (có version trong đường dẫn), nên CDN cache vĩnh viễn được; chỉ `manifest.json` cache ngắn.
+- [ ] **GD3-276** Hạ tầng Cloudflare (Cả hai, S–M):
+      - Người dùng tạo tài khoản, bucket R2, tên miền phụ (vd. `cdn.<tên miền>`) và API token.
+      - Claude viết `tools/content/publish_song.py`: kiểm tra chart (autoplay qua headless, `tap_salience.py` OK,
+        `tolerance_report`), tính sha256, đẩy lên R2 bằng `wrangler`, cập nhật manifest. **Không đẩy** bài chưa qua kiểm tra.
+      - Môi trường `staging` / `prod` tách bucket hoặc thư mục để thử trước.
+- [ ] **GD3-277** Tải và quản lý bài trong game (Claude, L; cần GD3-275, 276):
+      - `ContentCatalog` lấy manifest bằng `HTTPRequest`, lưu bản cuối vào `user://content/`; không có mạng thì dùng bản cũ.
+      - `SongCatalog` gộp bài có sẵn + bài đã tải; bài chưa tải hiện nút TẢI (dung lượng MB) và thanh tiến độ.
+      - Tải vào file tạm → kiểm tra sha256 → đổi tên; tải lại được nếu đứt giữa chừng; có giới hạn dung lượng và nút XÓA BÀI ĐÃ TẢI.
+      - Nạp lúc chạy, không qua import: mp3 bằng `AudioStreamMP3.load_from_file`, ảnh bìa bằng `Image.load_jpg_from_buffer`.
+        `LevelRunner`, `SpectrumTexture`, `Metronome`, `Recorder` đang `load(res://…)`, cần một hàm nạp chung cho cả
+        `res://` lẫn `user://`.
+      - Đổi bài khi bài đang chạy thì giữ bản cũ tới hết lượt. Mỗi kết quả lưu kèm `version` bài để `HighScores` /
+        `RunRecords` không trộn kỷ lục giữa các phiên bản chart.
+- [ ] **GD3-278** Cấu hình level từ xa (Claude, M; cần GD3-277):
+      - Manifest quyết định thứ tự bài, bài nổi bật, khóa/mở; tắt được một bài lỗi mà không phát hành bản mới.
+      - Tham số gameplay chung (cửa sổ timing, lá chắn, …) vẫn đi qua Remote Config (GD3-233), không lặp lại trong manifest.
+      - Chart tải về vẫn phải **tất định** (bất biến §1.5); mỗi chart có `version` nên replay/telemetry biết đang chơi bản nào.
+- [ ] **GD3-279** Kiểm thử (Claude, M):
+      - Test giải mã manifest, kiểm tra hash, gộp catalog, nạp chart từ `user://` (dùng thư mục giả, không cần mạng).
+      - `test_shipped_charts.gd` mở rộng: chạy cả các gói trong `tools/content/staging/` trước khi publish.
+      - Thử trên máy thật: tắt mạng giữa lúc tải, đầy bộ nhớ, đổi manifest giữa phiên.
+
 ## 8. Lộ trình đề xuất
 Thứ tự theo phụ thuộc: đo lường có trước khi có người chơi bên ngoài; quyết định màn dọc trước khi làm UI; 14 ngày thử
 kín chạy song song với phần kiếm tiền.
@@ -165,4 +231,5 @@ kín chạy song song với phần kiếm tiền.
 | C. UI + âm thanh + bản release | tuần 4–6 | GD3-250–254, GD3-255–258 (tạo video Flow song song), GD3-260 | Bản AAB ký release có SFX trống, thử nội bộ |
 | D. Kiếm tiền + store | tuần 6–8 | GD3-240, 241, 242, 244, GD3-261; bắt đầu GD3-263 (14 ngày) | Quảng cáo/IAP chạy ở thử kín, trang store xong |
 | E. Soft launch | tuần 9–12 | GD3-264, GD3-232–234 với dữ liệu thật, GD3-233 A/B; GD3-262 nếu có Mac | Chỉ số mục 7 đạt mốc → ra toàn cầu |
+| E2. Nội dung online | song song E | GD3-270 (quyết định), GD3-275–279 (tải bài), GD3-271–273 (đánh giá sao) | Thêm bài mới không cần phát hành bản mới; điểm sao hiện trong danh sách bài |
 | F. Sau ra mắt | từ tháng 4 | GD3-221 + GD3-243 (tự tạo level, IAP), GD3-265 | Gói creator, bài mới đều đặn |
