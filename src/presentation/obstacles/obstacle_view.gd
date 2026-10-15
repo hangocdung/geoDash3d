@@ -1,6 +1,6 @@
-# Owns obstacle, jump pad and cue-marker nodes. Obstacles stay hidden until their entrance, which lands on
-# a whole beat (HazardDefinition.appear_beat) and emits `hazard_landed` for VFX/SFX. Pose = f(beat), so
-# seeking and restarts are exact. Related: obstacle_factory.gd, obstacle_entrance.gd, level_runner.gd
+# Owns obstacle, jump pad and cue-marker nodes, and the flight corridor (CorridorView). Obstacles stay hidden
+# until their entrance, which lands on a whole beat (HazardDefinition.appear_beat) and emits `hazard_landed` for
+# VFX/SFX. Pose = f(beat), so seeking and restarts are exact. Related: obstacle_factory.gd, obstacle_entrance.gd, level_runner.gd
 class_name ObstacleView
 extends Node3D
 
@@ -34,6 +34,11 @@ var _cue_flash: PackedFloat32Array = []
 
 
 func setup(context: LevelContext) -> void:
+	# Flight corridor spikes (gameplay v4): static MultiMeshes, animated in their shader.
+	var corridor := CorridorView.new()
+	corridor.name = "Corridor"
+	add_child(corridor)
+	corridor.build(context)
 	var factory := ObstacleFactory.new()
 	for placement: ChartItems.HazardPlacement in context.chart.hazards:
 		var obstacle := Obstacle.new()

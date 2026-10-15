@@ -1,6 +1,6 @@
 # Music-driven decor from Blender models: a portal ring at every section start (the player runs
 # through it as the music changes, under the track during underside runs; a bigger one in the new palette's
-# colors where a phase starts) and
+# colors where a phase starts; gold transform portals at both ends of a flight section, gameplay v4) and
 # spiked maces hanging in the background that swing with the bar. Colors follow the phase palette.
 # Pose is a pure function of the beat. Related: neon_model.gd, assets/blender/generate_models.py
 class_name DecorView
@@ -34,6 +34,9 @@ func setup(context: LevelContext) -> void:
 		var portal: Node3D = NeonModel.instantiate_palette(PORTAL_SCENE, 3.0)
 		portal.transform = _ground_frame(context, section.beat) * Transform3D(Basis(), Vector3(0, PORTAL_HEIGHT, 0))
 		add_child(portal)
+	for section: Vector2 in context.chart.fly_ranges:
+		for portal_beat: float in [section.x, section.y]:
+			_add_portal(context, portal_beat, GameplayConfig.FLY_COLOR, GameplayConfig.FLY_COLOR.lightened(0.4))
 	var beat: float = MACE_SPACING_BEATS * 0.5
 	var index: int = 0
 	while beat < context.chart.end_beat + 8.0:
@@ -56,8 +59,11 @@ func setup(context: LevelContext) -> void:
 
 ## Bigger ring in the colors of the palette the player is about to enter.
 func _add_phase_portal(context: LevelContext, beat: float, palette: ScenePalette) -> void:
-	var portal: Node3D = NeonModel.instantiate(PORTAL_SCENE, palette.track_rail, palette.decor_accent,
-			PHASE_PORTAL_ENERGY)
+	_add_portal(context, beat, palette.track_rail, palette.decor_accent)
+
+
+func _add_portal(context: LevelContext, beat: float, main_color: Color, accent: Color) -> void:
+	var portal: Node3D = NeonModel.instantiate(PORTAL_SCENE, main_color, accent, PHASE_PORTAL_ENERGY)
 	portal.transform = _ground_frame(context, beat) * Transform3D(Basis().scaled(Vector3.ONE * PHASE_PORTAL_SCALE),
 			Vector3(0, PORTAL_HEIGHT * PHASE_PORTAL_SCALE, 0))
 	add_child(portal)

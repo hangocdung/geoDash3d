@@ -4,8 +4,11 @@ Mục tiêu: màn chơi đa dạng và cuốn hơn, **FPS gần như không đ�
 53 FPS, MEDIUM khoảng 40 FPS). Vẫn giữ mọi bất biến trong `CLAUDE.md` §1: `SongClock` là đồng hồ duy nhất, không
 physics engine, chart viết theo beat, kết quả tất định, logic tách khỏi trình bày, chỉ một thao tác `tap`.
 
-**Cần người dùng duyệt trước khi code** (mục 7): thêm trường vào định dạng chart, màu riêng cho dạng bay, luật chấm
-điểm khi bay.
+**Đã duyệt 2026-10-15:** mọi đề xuất mục 7. Thêm theo yêu cầu: khi gặp nhóm lách, camera chuyển sang góc nhìn từ trên
+xuống hơi nghiêng và chuyển động liên tục (shot `top_tilt`, `CameraDirector.auto_shot`; tier LOW giữ camera đứng yên vì
+camera xoay liên tục tốn 5–7 FPS trên Mali-G72). Đổi so với bản đề xuất: trường `fly` không có `drift` (hình hành lang
+đi theo đường bay chuẩn); không có `fly_max_fall` (giữ parabol thuần); định dạng chart vẫn `version` 1 vì `fly` là
+trường tùy chọn như `terrain`.
 
 ---
 

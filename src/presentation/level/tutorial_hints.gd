@@ -9,7 +9,7 @@ extends RefCounted
 const GROUPS: Dictionary[StringName, String] = {
 	&"jump": "jump", &"orb": "orb", &"orb_big": "orb", &"orb_drop": "orb",
 	&"dodge_left": "dodge", &"dodge_right": "dodge", &"flip": "flip", &"roll": "roll",
-	&"flip_down": "under", &"flip_up": "under_up",
+	&"flip_down": "under", &"flip_up": "under_up", &"flap": "fly",
 }
 const TEXTS: Dictionary[String, String] = {
 	"jump": "TAP as the cube reaches the pink ring: JUMP over the spikes",
@@ -19,6 +19,7 @@ const TEXTS: Dictionary[String, String] = {
 	"roll": "TAP to ROLL all the way around the track",
 	"under": "TAP to drop UNDER the track and run upside down",
 	"under_up": "TAP to FLIP BACK on top of the track",
+	"fly": "Through the gold portal you FLY: keep TAPPING to the beat to stay between the spikes",
 }
 
 var _hud: Hud

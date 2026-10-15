@@ -85,6 +85,13 @@ static func uses_spectacle_track(tier: Tier) -> bool:
 	return tier != Tier.LOW
 
 
+## Gameplay v4 look: hazard entrances with overshoot and twist, three spikes per corridor step, the moving camera
+## of dodge sections. LOW keeps plain rises, one spike per step and a still camera (a turning camera costs FPS
+## there, see uses_spectacle_track); collision is the same on every tier.
+static func uses_rich_hazards(tier: Tier) -> bool:
+	return tier != Tier.LOW
+
+
 ## LED equalizer on the road's camera-side face (one texel fetch per pixel of that face).
 static func uses_led_wall(_tier: Tier) -> bool:
 	return true

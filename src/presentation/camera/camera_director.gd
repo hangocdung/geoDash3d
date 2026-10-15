@@ -2,7 +2,9 @@
 # between cues), placed in the smoothed track frame raised to the (smoothed) terrain height. Adds shake
 # and FOV kicks from events. Flips swing it under the track; rolls and underside runs turn it around the
 # track with the player (except on LOW, where a turning camera costs FPS: see QualityTier.uses_spectacle_track;
-# LOW watches underside runs from the low underside shot instead).
+# LOW watches underside runs from the low underside shot instead). Gameplay v4: flight sections switch to the wider
+# fly shot, and dodge stretches to a top-down, slightly tilted shot that keeps drifting around the player (it holds
+# still on LOW). Both are pure functions of the beat and the chart.
 # Related: src/presentation/camera/camera_shots.gd, src/presentation/level/level_runner.gd
 class_name CameraDirector
 extends Node3D
@@ -21,6 +23,17 @@ const FRAME_SMOOTHING: float = 6.0
 const PORTRAIT_SAFE_SIDE: float = 0.4
 const PORTRAIT_SAFE_UP: float = 0.45
 const PORTRAIT_SAFE_DOWN: float = 0.55
+## Dodge shot: zones run from DODGE_LEAD beats before a dodge cue to DODGE_TAIL after it (closer zones merge);
+## the camera blends in and out over DODGE_BLEND beats and orbits ±DODGE_ORBIT_DEG every DODGE_ORBIT_BEATS.
+const DODGE_LEAD: float = 2.5
+const DODGE_TAIL: float = 1.5
+const DODGE_MERGE_GAP: float = 3.0
+const DODGE_BLEND: float = 1.5
+const DODGE_ORBIT_DEG: float = 22.0
+const DODGE_ORBIT_BEATS: float = 8.0
+const DODGE_BOB: float = 1.5
+## Fly shot: blends in over the beat before a flight section and out over FLY_BLEND_OUT after it.
+const FLY_BLEND_OUT: float = 1.5
 
 var camera: Camera3D
 var _context: LevelContext
@@ -33,6 +46,9 @@ var _smoothed_frame: Transform3D
 var _has_frame: bool = false
 ## 9:16 view (DisplayOrientation): chart shots are swapped for their portrait variants.
 var _portrait: bool = false
+## Beat ranges that use the dodge shot (x = start, y = end).
+var _dodge_zones: PackedVector2Array = []
+var _drifts: bool = true
 
 
 func setup(context: LevelContext) -> void:
@@ -45,6 +61,15 @@ func setup(context: LevelContext) -> void:
 	add_child(camera)
 	camera.make_current()
 	_noise.frequency = 2.5
+	_drifts = QualityTier.uses_rich_hazards(context.quality)
+	for cue: ChartItems.ActionCue in context.chart.cues:
+		if cue.action.kind != ActionDefinition.Kind.DODGE:
+			continue
+		var zone := Vector2(cue.beat - DODGE_LEAD, cue.beat + DODGE_TAIL)
+		if not _dodge_zones.is_empty() and zone.x - _dodge_zones[_dodge_zones.size() - 1].y < DODGE_MERGE_GAP:
+			_dodge_zones[_dodge_zones.size() - 1].y = zone.y
+		else:
+			_dodge_zones.append(zone)
 
 
 func reset_view() -> void:
@@ -68,7 +93,7 @@ func update_camera(beat: float, simulation: RunSimulation, delta: float, player:
 	var flip_pose: Vector2 = _flip_pose(simulation, beat)
 	var underside_amount: float = flip_pose.x
 	var roll: float = flip_pose.y
-	var shot: CameraShots.Shot = shot_at(beat)
+	var shot: CameraShots.Shot = auto_shot(shot_at(beat), beat)
 	if underside_amount > 0.0:
 		shot = shot.blended(CameraShots.get_shot(CameraShots.UNDERSIDE_SHOT, _portrait), underside_amount)
 	var target_frame: Transform3D = _context.frame_at_beat(beat)
@@ -148,6 +173,34 @@ func _flip_pose(simulation: RunSimulation, beat: float) -> Vector2:
 		ActionDefinition.FlipPart.UP:
 			return Vector2(1.0 - smoothstep(0.4, 1.0, progress), 0.0)
 	return Vector2(smoothstep(0.0, 0.3, progress) * (1.0 - smoothstep(0.75, 1.0, progress)), 0.0)
+
+
+## `shot` blended toward the dodge shot (drifting around the player) near dodge cues and toward the fly shot in
+## flight sections.
+func auto_shot(shot: CameraShots.Shot, beat: float) -> CameraShots.Shot:
+	var result: CameraShots.Shot = shot
+	for zone: Vector2 in _dodge_zones:
+		var weight: float = smoothstep(zone.x - DODGE_BLEND, zone.x, beat) * (1.0 - smoothstep(zone.y, zone.y + DODGE_BLEND,
+				beat))
+		if weight > 0.0:
+			result = result.blended(_drifting_dodge_shot(beat), weight)
+	for section: Vector2 in _context.chart.fly_ranges:
+		var weight: float = smoothstep(section.x - 1.0, section.x, beat) * (1.0 - smoothstep(section.y,
+				section.y + FLY_BLEND_OUT, beat))
+		if weight > 0.0:
+			result = result.blended(CameraShots.get_shot(CameraShots.FLY_SHOT, _portrait), weight)
+	return result
+
+
+## The top-down dodge shot orbiting slowly around its look-at point and bobbing (held still on LOW).
+func _drifting_dodge_shot(beat: float) -> CameraShots.Shot:
+	var shot: CameraShots.Shot = CameraShots.get_shot(CameraShots.DODGE_SHOT, _portrait)
+	if not _drifts:
+		return shot
+	var yaw: float = deg_to_rad(DODGE_ORBIT_DEG) * sin(beat * TAU / DODGE_ORBIT_BEATS)
+	var arm: Vector3 = Basis(Vector3.UP, yaw) * (shot.position - shot.look_at)
+	arm.y += DODGE_BOB * sin(beat * TAU / (DODGE_ORBIT_BEATS * 2.0))
+	return CameraShots.Shot.new(shot.look_at + arm, shot.look_at, shot.fov, shot.roll_deg * cos(beat * TAU / DODGE_ORBIT_BEATS))
 
 
 ## Blended shot at `beat` (deterministic: depends only on the chart and the beat).

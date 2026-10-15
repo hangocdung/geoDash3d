@@ -47,6 +47,7 @@ func bind(simulation: RunSimulation, start_beat: float) -> void:
 	simulation.score_changed.connect(_runner.hud.set_score)
 	simulation.shield_changed.connect(_on_shield_changed)
 	simulation.shield_used.connect(_on_shield_used)
+	simulation.flight_changed.connect(_on_flight_changed)
 	_hints.bind(simulation, start_beat)
 	_shields_shown = 0
 	_landing_sound_beat = NAN
@@ -97,6 +98,15 @@ func _on_phase_started(index: int, phase: ChartItems.Phase) -> void:
 	var speed_ratio: float = _context.chart.speed_at(phase.beat) / maxf(first_speed, 0.001)
 	var speed_note: String = Locale.t("  ·  SPEED ×%.2f") % speed_ratio if speed_ratio > 1.001 else ""
 	_runner.hud.show_toast(Locale.t("PHASE %d") % (index + 1) + speed_note)
+
+
+## Through a gold transform portal (gameplay v4): a shockwave ring, a FOV kick and a light shake.
+func _on_flight_changed(_flying: bool, beat: float) -> void:
+	_play(&"fx.shockwave", -6.0)
+	_runner.camera_director.add_fov_kick(PHASE_FOV_KICK_DEG * 0.6)
+	_runner.camera_director.add_shake(PHASE_SHAKE * 0.5)
+	_runner.vfx_director.play_cue(&"shockwave", _runner.player_view.center_position(), _context.frame_at_beat(beat),
+			GameplayConfig.FLY_COLOR)
 
 
 ## Afterimages while a dodge or flip is active.

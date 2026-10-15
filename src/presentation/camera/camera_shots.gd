@@ -9,6 +9,11 @@ extends RefCounted
 const DEFAULT_SHOT: StringName = &"side"
 ## Used automatically while the player runs under the track (flip).
 const UNDERSIDE_SHOT: StringName = &"underside"
+## Used automatically in flight sections (gameplay v4): further out, so the corridor ahead reads.
+const FLY_SHOT: StringName = &"fly"
+## Used automatically around dodge cues (gameplay v4, user request 2026-10-15): from above, slightly tilted, so the
+## lanes read; CameraDirector keeps it drifting.
+const DODGE_SHOT: StringName = &"top_tilt"
 
 
 class Shot:
@@ -53,6 +58,10 @@ static func get_shot(shot_name: StringName, portrait: bool = false) -> Shot:
 			return Shot.new(Vector3(13.0, 2.6, 6.0), Vector3(0.0, 1.0, 0.0), 58.0)
 		&"underside":
 			return Shot.new(Vector3(1.5, -0.6, 12.5), Vector3(5.5, -1.4, 0.0), 60.0)
+		&"fly":
+			return Shot.new(Vector3(1.0, 3.8, 15.5), Vector3(7.5, 2.6, 0.0), 58.0)
+		&"top_tilt":
+			return Shot.new(Vector3(-6.5, 13.5, 4.5), Vector3(7.0, 0.0, 0.0), 56.0, 3.0)
 	push_warning("CameraShots: unknown shot '%s', using '%s'" % [shot_name, DEFAULT_SHOT])
 	return get_shot(DEFAULT_SHOT)
 
@@ -73,10 +82,14 @@ static func _portrait_shot(shot_name: StringName) -> Shot:
 			return Shot.new(Vector3(14.0, 3.0, 1.5), Vector3(0.0, 1.0, 0.0), 74.0)
 		&"underside":
 			return Shot.new(Vector3(-7.0, -3.2, 0.6), Vector3(12.0, -1.6, 0.0), 74.0)
+		&"fly":
+			return Shot.new(Vector3(-11.0, 6.0, 0.6), Vector3(14.0, 2.0, 0.0), 72.0)
+		&"top_tilt":
+			return Shot.new(Vector3(-5.0, 15.0, 1.8), Vector3(10.0, 0.0, 0.0), 68.0)
 	push_warning("CameraShots: unknown shot '%s', using '%s'" % [shot_name, DEFAULT_SHOT])
 	return _portrait_shot(DEFAULT_SHOT)
 
 
 static func names() -> PackedStringArray:
 	return PackedStringArray(["side", "side_low", "side_high", "side_far", "chase", "chase_low", "high",
-			"diagonal", "front", "underside"])
+			"diagonal", "front", "underside", "fly", "top_tilt"])

@@ -193,10 +193,15 @@ Người dùng cho phép **trời tông ấm** ở vài phase; camera trong vòn
 
 ## Phase 4.10 — Gameplay v4: dạng bay, vật cản mới (đề xuất 2026-10-15, chờ duyệt)
 Thiết kế: `docs/design/gameplay_v4.md`. Branch `feat/gameplay-v4`. Ngân sách: LOW −0,5 FPS, MEDIUM −1 FPS tối đa.
-- [ ] **GD3-280** Người dùng chốt: màu dạng bay, trường `fly` + cue `flap` trong chart, luật chấm điểm khi bay, độ khó.
-- [ ] **GD3-281** Mô phỏng bay (parabol theo lần chạm, hành lang `floor`/`ceiling` O(1), lá chắn, autoplay, test).
-- [ ] **GD3-282** Trình bày bay: tàu lượn, cổng biến hình, camera, vệt bay, vạch nhịp, gợi ý lần đầu.
-- [ ] **GD3-283** Hành lang gai bằng MultiMesh + vertex shader.
+- [x] **GD3-280** Người dùng chốt (2026-10-15): đồng ý mọi đề xuất mục 7 (vàng kim, `fly` + `flap`, chạm ngoài cue không
+      phạt, đoạn bay từ NORMAL, khối gập thành tàu lượn); thêm: **nhóm lách có camera nhìn từ trên xuống hơi nghiêng,
+      chuyển động liên tục**.
+- [x] **GD3-281** Mô phỏng bay (parabol theo lần chạm, hành lang `floor`/`ceiling` O(1), lá chắn, autoplay, test).
+- [x] **GD3-282** Trình bày bay: tàu lượn (khối dẹt + cánh vàng, ngóc mũi theo hướng bay), cổng vàng hai đầu, shot `fly`,
+      vòng cue `flap` làm vạch nhịp, sóng xung kích + FOV khi qua cổng, gợi ý lần đầu. Camera lách: shot `top_tilt` tự bật
+      quanh cue lách, quỹ đạo ±22° mỗi 8 beat + nhấp nhô (LOW đứng yên: camera xoay tốn FPS trên Mali).
+- [x] **GD3-283** Hành lang gai: `CorridorView` 3 MultiMesh (gai sàn, gai trần, tấm) = 3 draw call, gai dựng lên theo sóng
+      3 beat trước người chơi (lưới 1/16) trong `corridor_spike.gdshader`; LOW 1 gai/ô, không nảy xoắn. Chưa đo trên máy.
 - [ ] **GD3-284** Kiểu vào sân mới trong shader (ASSEMBLE / MATERIALIZE / BEAT_POP / SPIRAL / WAVE), phân tier.
 - [ ] **GD3-285** Vật cản đợt 1: `air_mine`, `piston_spikes`, `rolling_ball`, `sliding_wall`.
 - [ ] **GD3-286** Công cụ soạn màn cho đoạn bay + trọng số độ khó.

@@ -3,7 +3,8 @@
 # edge on flips, squashes on landing, shows a ring while a shield is held and leaves a pixel trail. A beat
 # ring on the ground under the player sends out a wave on every beat and takes the color of the next tap's
 # action as it approaches (stays on the ground while jumping, hidden over gaps and while flipping; on the
-# underside during underside runs, where the cube hangs upside down). Read-only.
+# underside during underside runs, where the cube hangs upside down). In flight sections (gameplay v4) the cube
+# flattens into a glider with gold delta wings and pitches with its climb instead of rolling. Read-only.
 # Related: src/gameplay/simulation/run_simulation.gd, src/presentation/shaders/neon_box.gdshader
 class_name PlayerView
 extends Node3D
@@ -22,12 +23,20 @@ const FOOT_RING_SIZE: float = 2.6
 const FOOT_RING_GLYPH: int = 10
 ## The foot ring turns to the next cue's action color over this many beats before it.
 const FOOT_RING_LEAD_BEATS: float = 2.0
+## Glider form: the cube's shape at full morph, the morph time (beats), and how much the nose follows the climb.
+const GLIDER_STRETCH: Vector3 = Vector3(1.35, 0.5, 0.95)
+const GLIDE_MORPH_BEATS: float = 0.5
+const GLIDE_PITCH_GAIN: float = 1.2
+const GLIDE_MAX_PITCH: float = 0.6
 
 var body: MeshInstance3D
 var trail: GPUParticles3D
 var _shield_ring: MeshInstance3D
 var _foot_ring: MeshInstance3D
 var _foot_material: ShaderMaterial
+var _wings: MeshInstance3D
+## Took off into a flight section and has not landed yet: the body pitches instead of rolling.
+var _gliding: bool = false
 ## First cue at or after the last posed beat (the foot ring's color target).
 var _next_cue: int = 0
 var _context: LevelContext
@@ -63,6 +72,8 @@ func setup(context: LevelContext) -> void:
 	# Top level: placed on the ground in world space while the cube jumps.
 	_foot_ring.top_level = true
 	add_child(_foot_ring)
+	_wings = _create_wings()
+	add_child(_wings)
 
 
 func reset_view() -> void:
@@ -70,6 +81,8 @@ func reset_view() -> void:
 	_roll_residual = 0.0
 	_land_squash = 0.0
 	_flash = 0.0
+	_gliding = false
+	_wings.visible = false
 	visible = true
 	_shield_ring.visible = false
 	_next_cue = 0
@@ -85,6 +98,13 @@ func update_pose(beat: float, simulation: RunSimulation, delta: float) -> void:
 	var air_beats: float = simulation.air_beats_at(beat)
 	_roll_residual *= exp(-ROLL_SNAP_RATE * delta)
 	var forward_roll: float = _roll_base - air_beats * ROLL_PER_BEAT if air_beats >= 0.0 else _roll_base + _roll_residual
+	var glide: float = _glide_amount(beat)
+	_gliding = _gliding or simulation.is_flying()
+	if _gliding:
+		# Nose up while climbing, down while sinking (vertical speed against the run speed).
+		var climb: float = (simulation.player_height_at(beat + 0.02) - offset.y) / 0.02
+		forward_roll = _roll_base + clampf(atan2(climb, _context.chart.speed_at(beat)) * GLIDE_PITCH_GAIN,
+				-GLIDE_MAX_PITCH, GLIDE_MAX_PITCH)
 	var underside: bool = simulation.is_underside()
 	var side_roll: float = PI if underside else 0.0
 	if action != null and progress >= 0.0:
@@ -98,7 +118,7 @@ func update_pose(beat: float, simulation: RunSimulation, delta: float) -> void:
 				# edge (roll, a full turn).
 				side_roll = action.flip_angle(progress)
 	_land_squash = maxf(_land_squash - delta * LAND_SQUASH_DECAY, 0.0)
-	var stretch := Vector3(1.0 + 0.18 * _land_squash, 1.0 - 0.22 * _land_squash, 1.0 + 0.18 * _land_squash)
+	var stretch := Vector3(1.0 + 0.18 * _land_squash, 1.0 - 0.22 * _land_squash, 1.0 + 0.18 * _land_squash) 			* Vector3.ONE.lerp(GLIDER_STRETCH, glide)
 	_flash = maxf(_flash - delta * 5.0, 0.0)
 	body.set_instance_shader_parameter("flash", _flash)
 	global_transform = frame * Transform3D(Basis(), Vector3(0.0, offset.y, offset.x))
@@ -107,14 +127,17 @@ func update_pose(beat: float, simulation: RunSimulation, delta: float) -> void:
 	var half: float = CUBE_SIZE * 0.5
 	var center: float = CUBE_SIZE - half * stretch.y if underside else half * stretch.y
 	body.transform = Transform3D(rotation_basis.scaled(stretch), Vector3(0.0, center, 0.0))
-	_update_foot_ring(beat, offset, underside)
+	_wings.visible = glide > 0.01
+	if _wings.visible:
+		_wings.transform = Transform3D(rotation_basis.scaled(Vector3.ONE * glide), Vector3(0.0, center, 0.0))
+	_update_foot_ring(beat, offset, underside, glide > 0.0)
 
 
-func _update_foot_ring(beat: float, offset: Vector2, underside: bool) -> void:
+func _update_foot_ring(beat: float, offset: Vector2, underside: bool, gliding: bool) -> void:
 	var chart: LevelChart = _context.chart
 	var distance: float = chart.distance_at(beat)
 	var ground: float = chart.terrain.height_at(distance)
-	_foot_ring.visible = underside or (not Terrain.is_gap(ground) and offset.y > -0.5)
+	_foot_ring.visible = not gliding and (underside or (not Terrain.is_gap(ground) and offset.y > -0.5))
 	if not _foot_ring.visible:
 		return
 	var ground_frame: Transform3D = _context.underside_frame_at(beat) if underside \
@@ -135,6 +158,12 @@ func _update_foot_ring(beat: float, offset: Vector2, underside: bool) -> void:
 
 ## Snaps the roll to the nearest face; the remainder eases out over a few frames.
 func on_landed(airtime_beats: float) -> void:
+	if _gliding:
+		# Back from a flight: the body pitched instead of rolling, so there is nothing to snap.
+		_gliding = false
+		_roll_residual = 0.0
+		_land_squash = 1.0
+		return
 	var landed_roll: float = _roll_base - airtime_beats * ROLL_PER_BEAT
 	_roll_base = roundf(landed_roll / ROLL_PER_BEAT) * ROLL_PER_BEAT
 	_roll_residual = landed_roll - _roll_base
@@ -193,6 +222,36 @@ func _create_foot_ring() -> MeshInstance3D:
 	ring.material_override = _foot_material
 	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	return ring
+
+
+## 0..1 glider morph at `beat`: grows over GLIDE_MORPH_BEATS from a flight section's start, folds back after its end.
+func _glide_amount(beat: float) -> float:
+	for section: Vector2 in _context.chart.fly_ranges:
+		var amount: float = smoothstep(section.x, section.x + GLIDE_MORPH_BEATS, beat) 				* (1.0 - smoothstep(section.y, section.y + GLIDE_MORPH_BEATS, beat))
+		if amount > 0.0:
+			return amount
+	return 0.0
+
+
+## Flat gold delta wings (both sides in one mesh), unshaded so they glow like the hazards of the flight colour.
+static func _create_wings() -> MeshInstance3D:
+	var tool := SurfaceTool.new()
+	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for side: float in [-1.0, 1.0]:
+		tool.add_vertex(Vector3(0.35, 0.0, 0.0))
+		tool.add_vertex(Vector3(-0.55, 0.0, 1.45 * side))
+		tool.add_vertex(Vector3(-0.3, 0.0, 0.0))
+	var wings := MeshInstance3D.new()
+	wings.name = "Wings"
+	wings.mesh = tool.commit()
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	material.albedo_color = GameplayConfig.FLY_COLOR * 1.2
+	wings.material_override = material
+	wings.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	wings.visible = false
+	return wings
 
 
 ## World-space center of the cube (for camera and effects).
