@@ -1,4 +1,4 @@
-# Combo counts PERFECT hits only, score = grade points x combo bonus, high scores per chart, and which runs count.
+# Combo counts PERFECT hits only (GREAT/GOOD break it), score = grade points x combo bonus, high scores per chart, and which runs count.
 # Related: src/gameplay/simulation/score_keeper.gd, src/core/high_scores.gd, src/presentation/level/run_records.gd
 extends TestCase
 
@@ -17,10 +17,11 @@ func _simulate(taps: Array[float]) -> RunSimulation:
 
 
 func test_combo_counts_perfect_hits_only() -> void:
-	# 0.12 beat late at 120 BPM = 60 ms: GREAT. It neither adds to the combo nor breaks it.
+	# 0.12 beat late at 120 BPM = 60 ms: GREAT. A non-PERFECT hit breaks the combo like a miss.
 	var simulation: RunSimulation = _simulate([4.0, 8.12, 12.0, 16.0])
 	assert_eq(simulation.grade_counts[Judgement.Grade.GREAT], 1)
-	assert_eq(simulation.streak.combo, 3, "three PERFECTs, the GREAT skipped")
+	assert_eq(simulation.streak.combo, 2, "the GREAT at 8 reset the combo")
+	assert_eq(simulation.streak.max_combo, 2)
 	var missed: RunSimulation = _simulate([4.0, 12.0, 16.0])
 	assert_eq(missed.streak.combo, 2, "the miss at 8 reset the combo")
 
@@ -31,7 +32,7 @@ func test_score_adds_grade_points_with_combo_bonus() -> void:
 	assert_eq(ScoreKeeper.points_for(Judgement.Grade.GREAT, 0, config), 150)
 	assert_eq(ScoreKeeper.points_for(Judgement.Grade.PERFECT, 500, config), 600, "bonus capped at combo 100")
 	var simulation: RunSimulation = _simulate([4.0, 8.12, 12.0, 16.0])
-	assert_eq(simulation.score.score, 303 + 152 + 306 + 309, "GREAT at combo 1: 150 x 1.01 rounds to 152")
+	assert_eq(simulation.score.score, 303 + 150 + 303 + 306, "the GREAT scores at combo 0, then it restarts")
 	assert_eq(_simulate([4.0, 8.0, 12.0, 16.0]).score.score, ScoreKeeper.max_score(4, config))
 
 

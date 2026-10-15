@@ -31,8 +31,8 @@ uniform float rail_energy = 5.0;
 uniform float pulse_gain = 1.4;
 uniform vec3 streak_color : source_color = vec3(0.75, 0.97, 1.0);
 uniform float streak_energy = 5.0;
-// Units a streak's head runs ahead of the player during one beat, and its tail length.
-uniform float streak_reach = 36.0;
+// Units a streak's head runs back behind the player during one beat, and its tail length.
+uniform float streak_reach = 24.0;
 uniform float streak_length = 5.0;
 #ifdef DETAIL_TEXTURES
 // R = road plates, G = circuit traces, B = side panels, A = hex plates. One tile spans the track width (a plate
@@ -59,12 +59,13 @@ float grid_line(float coordinate, float half_width) {
 	return 1.0 - smoothstep(half_width, half_width + aa, distance_to_line);
 }
 
-// x = thin wave front across the track at the streak head, y = fading tail behind it.
+// x = thin wave front across the track at the streak head, y = fading tail back toward the player. The wave runs
+// backward from the player so the road ahead (where the hazards are) stays free of glare.
 vec2 beat_streak(float distance_along) {
 	float phase = fract(run_beat);
-	float ahead = distance_along - player_distance;
-	float behind_head = phase * streak_reach - ahead;
-	float alive = step(0.0, ahead) * (1.0 - phase) * step(0.0, run_beat);
+	float behind = player_distance - distance_along;
+	float behind_head = phase * streak_reach - behind;
+	float alive = step(0.0, behind) * (1.0 - phase) * step(0.0, run_beat);
 	float front = exp(-abs(behind_head) / 0.5);
 	float tail = step(0.0, behind_head) * exp(-behind_head / streak_length);
 	return vec2(front, tail) * alive;

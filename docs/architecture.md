@@ -66,7 +66,7 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   - `PlayerBody` gói chuyển động lên xuống (`VerticalMotion`), đất dưới chân, rơi khỏi mép và bệ bật.
   - Điểm (`ScoreKeeper`, GD3-111): mỗi cue được điểm theo bậc (`GameplayConfig.grade_points` 300/150/50/0) × (1 + 0.01 ×
     min(combo, 100)); `max_score` = tổng khi mọi cue PERFECT (độ chính xác). Combo **chỉ đếm PERFECT**
-    (`perfect_only_combo`): GREAT/GOOD không cộng cũng không làm đứt; MISS hoặc va chạm được lá chắn đỡ thì về 0.
+    (`perfect_only_combo`): GREAT/GOOD làm đứt combo (về 0) như MISS; MISS hoặc va chạm được lá chắn đỡ thì về 0.
     Kỷ lục từng chart: `HighScores` (`user://scores.cfg`: điểm, % xa nhất, max combo, đã hoàn thành), ghi bởi
     `RunRecords` chỉ cho lượt thường (không luyện tập/autoplay/attract/chụp/bất tử); HUD hiện điểm, màn kết thúc hiện
     điểm + độ chính xác + NEW BEST / BEST, lần thử sau khi chết hiện BEST %, danh sách bài hiện BEST.

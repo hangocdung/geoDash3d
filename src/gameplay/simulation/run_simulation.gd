@@ -168,11 +168,15 @@ func _perform_tap(tap_beat: float, start_beat: float) -> void:
 		var grade: Judgement.Grade = Judgement.grade_for_error(error_sec, config)
 		grade_counts[grade] += 1
 		cue_judged.emit(cue_index, grade, error_sec)
-		# Combo (and the shields it charges) counts PERFECT hits only unless the config says otherwise.
+		# Combo (and the shields it charges) counts PERFECT hits only unless the config says otherwise: a GREAT or
+		# GOOD then breaks it like a miss.
 		if grade == Judgement.Grade.PERFECT or not config.perfect_only_combo:
 			if streak.register_hit():
 				shield_changed.emit(streak.shields)
 			combo_changed.emit(streak.combo)
+		elif streak.combo > 0:
+			streak.register_miss()
+			combo_changed.emit(0)
 		score.add(grade, streak.combo)
 		score_changed.emit(score.score)
 	else:
