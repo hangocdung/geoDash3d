@@ -102,7 +102,13 @@ Tạo nhạc bằng các prompt ở `docs/design/music_prompts.md` (tempo cố �
    Bước này cho ra BPM, offset (nhịp mạnh đầu tiên), onset theo dải tần và năng lượng từng ô nhịp (để chia đoạn).
 3. Viết `assets/music/<id>.plan.json`: các đoạn, luật mật độ cho từng đoạn, tốc độ, hình dạng đường, camera, VFX.
    Xem bài mẫu `the_dawn_assembly.plan.json`.
-4. **Đặt tay** (cách chính, người dùng yêu cầu 2026-10-14 vì bản tự sinh không khớp nhạc): in lưới onset theo dải
+4. **Dựng từ cú đánh nổi bật** (GD3-107, nhanh nhất cho bài mới): viết `tools/charting/levels/<id>.py` gồm `bpm`,
+   `difficulty` 1–5, `palettes` rồi gọi `hit_level.build(SONG)`. Tool chọn đúng thời điểm thật của các cú đánh nổi bật
+   nhất (trên trung vị của bài, không làm tròn vào lưới), mật độ/khoảng cách/cặp chạm theo phase và độ khó
+   (`hit_level.DIFFICULTY`), tỉa đầu bài để cuối khó hơn ≥ 1.7 lần, khớp offset trên cú đánh mạnh (`fit_tempo.py` khi
+   phân tích báo sai BPM), chia đoạn theo ô nhịp gần lặng và độ to, đặt phase ngay sau ô lặng, tự xếp hình đường /
+   camera / vfx; vật cản do `recording_level.Builder` chọn (cùng ràng buộc với level viết tay).
+5. **Đặt tay** (cách chính cho bài cần chăm chút, người dùng yêu cầu 2026-10-14 vì bản tự sinh không khớp nhạc): in lưới onset theo dải
    tần (kick / snare / hi-hat) từng ô nhịp, tìm motif của mỗi đoạn, viết `tools/charting/levels/<id>.py` là danh sách
    `beat:mẫu` (khai báo `"phases": [(beat, palette, units_per_beat)]` trong `SONG`, tool tự sinh `speed`; xem `tools/charting/handmade.py`: bộ kiểm tra báo lỗi nếu người chơi chưa tiếp đất, quá cao, hay lách
    làn/lộn khi không ở đường phẳng). `build()` mặc định thêm biến thể (giữ nguyên nhịp chạm và độ cao đất):
@@ -117,9 +123,10 @@ Tạo nhạc bằng các prompt ở `docs/design/music_prompts.md` (tempo cố �
    độ cao. BPM/offset được khớp lại với onset nếu tốt hơn rõ rệt.
    Tự thử seed kế tiếp tới khi độ khó cuối ≥ 1.6× đầu. Đổi `--seed` để có bản khác.
    (`the_dawn_assembly` viết tay bằng cùng thư viện mẫu; `draft_chart.py` + plan chỉ còn cho map classic.)
-5. Chạy test, rồi chụp ảnh hoặc chơi thử: `godot --path . -- --chart=res://assets/music/<id>.chart.json`.
-6. Kiểm tra dung sai bằng `tolerance_report.gd`; muốn chỉnh thì sửa bộ sinh/seed rồi sinh lại, chỉ sửa tay chart cho
-   chi tiết cuối cùng. Bài mới tự xuất hiện trong menu chọn bài (PLAY / PRACTICE).
+6. Chạy test, rồi chụp ảnh hoặc chơi thử: `godot --path . -- --chart=res://assets/music/<id>.chart.json`.
+7. Kiểm tra dung sai bằng `tolerance_report.gd`; muốn chỉnh thì sửa bộ sinh/seed rồi sinh lại, chỉ sửa tay chart cho
+   chi tiết cuối cùng. Bài mới tự xuất hiện trong menu chọn bài (PLAY / PRACTICE), xếp từ dễ đến khó theo `ChartDifficulty`
+   (lần chạm có trọng số × tốc độ mỗi phút; nhãn EASY / NORMAL / HARD / HARDER / EXPERT).
 
 ## Đặt hành động bằng tay: record mode, `.sm`, `fixed`
 - **Record mode** (menu RECORD (DEV) → chọn bài, chỉ có ở bản debug), mọi chức năng đều có nút trên màn hình:

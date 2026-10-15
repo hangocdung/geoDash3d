@@ -39,6 +39,11 @@ SINGLE_FALLBACKS = ["spike", "gap", "step", "step1", "saw", "wall", "flip"]
 PAIRS = ["orb", "dive", "orb", "borb"]
 
 
+def same_gap(gap, target):
+    """Tap spacing equal to `target` beats (tolerant to float error: hit_level.py taps are not on a grid)."""
+    return abs(gap - target) < 1e-6
+
+
 class Tempo:
     def __init__(self, chart):
         self.offset = float(chart.get("offset_sec", 0.0))
@@ -99,11 +104,11 @@ class Builder:
         gaps = [self.taps[index + k] - self.taps[index + k - 1] if index + k < len(self.taps) else math.inf
                 for k in (1, 2)]
         result = []
-        if gaps[0] == 0.5 and gaps[1] == 0.5:
+        if same_gap(gaps[0], 0.5) and same_gap(gaps[1], 0.5):
             result.append(("trip", 3))
-        if gaps[0] == 0.75 and gaps[1] == 0.75:
+        if same_gap(gaps[0], 0.75) and same_gap(gaps[1], 0.75):
             result.append(("fstairs" if self.energy_at(beat) >= HIGH_ENERGY else "stairs", 3))
-        if gaps[0] == 0.5:
+        if same_gap(gaps[0], 0.5):
             preferred_pair = PAIRS[self.pair_count % len(PAIRS)]
             result += [(name, 2) for name in [preferred_pair] + [n for n in ("orb", "dive", "borb") if n != preferred_pair]]
         rotation = AUTO_HIGH if self.energy_at(beat) >= HIGH_ENERGY else AUTO_CALM

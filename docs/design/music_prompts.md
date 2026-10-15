@@ -151,3 +151,23 @@ the hits.
    phải ra **OK**, `tolerance_report.gd` ≥ ±90 ms, test pass, chụp ảnh.
 
 Hoặc chỉ cần đưa file mp3 và tên bài: các bước trên do agent làm.
+
+## 7. Kết quả 6 bài đầu tiên tạo từ các prompt này (2026-10-15)
+Neon Rhythm Stabs (+ Alt), Temple Battle Taiko (+ Alt), Tribal Battle Rhythm (+ Alt), hdgstudio86. Level dựng bằng
+`hit_level.py` (độ khó 1–5: Temple Alt 1, Temple 2, Neon 3, Neon Alt 3, Tribal 4, Tribal Alt 5).
+
+| | Ô nhịp có cú đánh nổi bật (đo theo thời điểm thật) | Lần chạm: nổi so với xung quanh / attack |
+|---|---|---|
+| the_dawn_assembly (chuẩn) | 84 % | ×1.95 / ×6.2 |
+| pulse_drive / fault_line | 51 % / 40 % | ×2.0 / ×3.2, ×1.8 / ×4.4 |
+| 6 bài mới | 4–20 % | ×1.5–1.9 / ×2.0–2.4 |
+
+Các bài mới **nổi so với xung quanh gần bằng bài chuẩn nhưng attack yếu** (cú đánh không bùng lên từ khoảng lặng):
+nhạc tạo ra vẫn có lớp nền liên tục (pad, drone, ostinato, reverb dài). Level vẫn chơi được (mọi lần chạm là cú
+đánh nổi nhất quanh đó), nhưng cảm giác "chạm là trống nổ" sẽ kém Dawn. Ngoài ra AI không giữ BPM của prompt (Neon
+130 thay vì 128, Temple 130 thay vì 120) và cú đánh không khít lưới, nên level đặt chạm theo thời điểm thật.
+Lần tạo nhạc sau nên thêm vào prompt:
+- "Before every main hit there is at least half a beat of near silence; no sustained pads, drones or held chords
+  under the hits."
+- "Dry, close mix with short reverb that dies away before the next hit; staccato articulation only."
+- "Exactly N BPM, every hit precisely on the beat grid (quantized), no swing, no humanization."

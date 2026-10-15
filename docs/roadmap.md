@@ -149,12 +149,16 @@ Người dùng cho phép **trời tông ấm** ở vài phase; camera trong vòn
 - [x] **GD3-106** Hành động `roll` (lộn trọn vòng quanh đường) + vật cản `mace_sweep` (quả cầu gai lia dọc đường dưới khung
       cao) và `falling_block` (khối rơi chặn đường); camera xoay theo người chơi ở MEDIUM/HIGH. `HazardLibrary` tách khỏi
       `GameplayConfig`. Fault Line / Pulse Drive: một nửa số `flip` thành `roll`. Thiết kế: `gameplay_v3.md` mục 11.
-- [~] **GD3-107** Đã bỏ 6 bài có lần chạm không nổi bật (cyber_rush(_take2), neon_arcade_dash(_take2),
+- [x] **GD3-107** Đã bỏ 6 bài có lần chạm không nổi bật (cyber_rush(_take2), neon_arcade_dash(_take2),
       tribal_battle_awakening(_take2): `hit_grid.py` 7–28 % ô nhịp có cú đánh đáng chạm, `tap_salience.py` ×0.9–1.3; bài
       giữ 60–79 %, ×1.8–2.0). Bản sao ở `art_source/removed_songs/`. Công cụ mới: `tools/charting/tap_salience.py`
       (chấm chart), `tools/charting/hit_grid.py` (lưới cú đánh để đặt chạm + kiểm tra bài). 3 prompt nhạc trong
       `docs/design/music_prompts.md` (prompt tribal của người dùng đã chỉnh: tempo cố định, cú đánh rời rạc, motif
-      1 / 2-và / 3, khối 8/16 ô nhịp có ô lặng trước mỗi phase). **Còn lại:** người dùng tạo nhạc → dựng level.
+      1 / 2-và / 3, khối 8/16 ô nhịp có ô lặng trước mỗi phase). Người dùng tạo 6 bài (Neon Rhythm Stabs, Temple Battle
+      Taiko, Tribal Battle Rhythm, mỗi bài 2 bản) → level bằng `tools/charting/hit_level.py` (chạm đúng thời điểm thật
+      của các cú đánh nổi nhất, độ khó 1–5) + `fit_tempo.py`; dung sai tệ nhất ±90–110 ms; độ nổi ×1.5–1.9 nhưng attack
+      chỉ ×2.0–2.4 (nhạc vẫn dày, xem `music_prompts.md` mục 7). Menu xếp bài từ dễ đến khó (`ChartDifficulty`, nhãn
+      EASY … EXPERT). **→ Cần người chơi thử cảm giác khớp nhạc của 6 màn mới.**
 
 ## Phase 5 — Mobile
 - [x] **GD3-050** Export Android (`export_presets.cfg`, arm64, debug keystore), cài và đo trên Galaxy Note10 Lite

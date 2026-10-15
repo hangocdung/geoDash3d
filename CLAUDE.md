@@ -156,6 +156,12 @@ Mỗi feature để `.gd` và `.tscn` cạnh nhau trong cùng thư mục.
 | `assets/music/the_dawn_assembly.mp3` | Google Flow Music (AI) | **Chưa xác nhận dùng thương mại** | 120 | 0.058 s |
 | `assets/music/fault_line.mp3` | Người dùng cung cấp 2026-10-14 (AI, hdgstudio86) | **Chưa xác nhận** | 128 | 0.448 s |
 | `assets/music/pulse_drive.mp3` | Người dùng cung cấp 2026-10-14 (AI, hdgstudio86) | **Chưa xác nhận** | 122 | 0.5025 s |
+| `assets/music/temple_battle_taiko_alt.mp3` | Người dùng cung cấp 2026-10-15 (AI, hdgstudio86) | **Chưa xác nhận** | 120 | 0.0440 s (khớp trên cú đánh) |
+| `assets/music/temple_battle_taiko.mp3` | Người dùng cung cấp 2026-10-15 (AI, hdgstudio86) | **Chưa xác nhận** | 130 | 0.0620 s (khớp trên cú đánh) |
+| `assets/music/neon_rhythm_stabs.mp3` | Người dùng cung cấp 2026-10-15 (AI, hdgstudio86) | **Chưa xác nhận** | 130 | 0.5105 s (khớp trên cú đánh) |
+| `assets/music/neon_rhythm_stabs_alt.mp3` | Người dùng cung cấp 2026-10-15 (AI, hdgstudio86) | **Chưa xác nhận** | 136 | 1.3565 s (khớp trên cú đánh) |
+| `assets/music/tribal_battle_rhythm.mp3` | Người dùng cung cấp 2026-10-15 (AI, hdgstudio86) | **Chưa xác nhận** | 150 (phân tích báo nhầm 100) | 0.6580 s (khớp trên cú đánh) |
+| `assets/music/tribal_battle_rhythm_alt.mp3` | Người dùng cung cấp 2026-10-15 (AI, hdgstudio86) | **Chưa xác nhận** | 150 (phân tích báo nhầm 100) | 0.0740 s (khớp trên cú đánh) |
 
 Bản trùng audio (chỉ khác metadata) nằm ở `art_source/music_duplicates/` (không commit). Sáu bài cyber_rush(_take2),
 neon_arcade_dash(_take2), tribal_battle_awakening(_take2) đã bỏ 2026-10-15 vì lần chạm không trùng cú đánh nổi bật

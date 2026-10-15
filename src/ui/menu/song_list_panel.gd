@@ -1,6 +1,6 @@
-# Song picker: every *.chart.json in assets/music (title, BPM, length), scrollable; emits the chosen chart.
-# Charts named *.classic.chart.json are kept for comparisons and not listed.
-# Related: src/ui/menu/main_menu.gd, src/gameplay/chart/chart_loader.gd
+# Song picker: every *.chart.json in assets/music (title, difficulty, BPM, length), easiest first, scrollable;
+# emits the chosen chart. Charts named *.classic.chart.json are kept for comparisons and not listed.
+# Related: src/ui/menu/main_menu.gd, src/gameplay/chart/chart_difficulty.gd
 class_name SongListPanel
 extends PanelContainer
 
@@ -16,6 +16,7 @@ class Entry:
 	var title: String
 	var bpm: float
 	var length_sec: float
+	var difficulty: float
 
 
 var heading: String = "PLAY"
@@ -37,8 +38,8 @@ func _ready() -> void:
 	var first: Button = null
 	for entry: Entry in list_songs():
 		var minutes: int = int(entry.length_sec) / 60
-		var label: String = "%s\n%d BPM  ·  %d:%02d" % [entry.title.to_upper(), roundi(entry.bpm), minutes,
-				int(entry.length_sec) % 60]
+		var label: String = "%s\n%s  ·  %d BPM  ·  %d:%02d" % [entry.title.to_upper(),
+				ChartDifficulty.tier_name(entry.difficulty), roundi(entry.bpm), minutes, int(entry.length_sec) % 60]
 		var button: Button = UiTheme.make_button(label, 540.0, 92.0, &"ui.confirm")
 		button.pressed.connect(func() -> void: chosen.emit(entry.path))
 		songs.add_child(button)
@@ -50,7 +51,7 @@ func _ready() -> void:
 	(first if first != null else back).grab_focus()
 
 
-## Reads only the header fields of each chart (cheap; the level does the full validation).
+## Reads each chart's JSON (cheap; the level does the full validation), easiest first (ChartDifficulty).
 static func list_songs() -> Array[Entry]:
 	var entries: Array[Entry] = []
 	for file_name: String in DirAccess.get_files_at(MUSIC_DIRECTORY):
@@ -68,6 +69,10 @@ static func list_songs() -> Array[Entry]:
 		entry.title = str(chart.get("title", file_name))
 		entry.bpm = float((tempo[0] as Dictionary).get("bpm", 120.0)) if not tempo.is_empty() else 120.0
 		entry.length_sec = float(chart.get("end_beat", 0.0)) * 60.0 / maxf(entry.bpm, 1.0)
+		entry.difficulty = ChartDifficulty.score(chart)
 		entries.append(entry)
-	entries.sort_custom(func(a: Entry, b: Entry) -> bool: return a.title.naturalnocasecmp_to(b.title) < 0)
+	entries.sort_custom(func(a: Entry, b: Entry) -> bool:
+		if not is_equal_approx(a.difficulty, b.difficulty):
+			return a.difficulty < b.difficulty
+		return a.title.naturalnocasecmp_to(b.title) < 0)
 	return entries
