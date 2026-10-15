@@ -43,6 +43,9 @@ func _ready() -> void:
 	if LaunchOptions.has_level_arguments():
 		Scenes.go_to.call_deferred(get_tree(), Scenes.LEVEL)
 		return
+	SongRatings.start(get_tree()).refresh()
+	if OS.is_debug_build() and LaunchOptions.user_args().has("--content-probe"):
+		add_child(ContentProbe.new())
 	_backdrop = MenuBackdrop.new()
 	add_child(_backdrop)
 	_backdrop.show_chart(Scenes.DEFAULT_CHART)
@@ -175,6 +178,10 @@ func _close_practice() -> void:
 func _start_level(run: LaunchOptions) -> void:
 	if _next_run != null:
 		return
+	if _song_list != null and _song_list._online.downloader.busy:
+		return
+	if is_instance_valid(SongRatings.instance):
+		SongRatings.instance.suspend()
 	var loader: LevelLoader = _backdrop.loader_for(run.chart_path)
 	if loader == null:
 		loader = LevelLoader.new(run.chart_path, GameplayConfig.create_for_play(), UserSettings.quality_tier)

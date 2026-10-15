@@ -39,3 +39,6 @@ __pycache__/
 # AdMob plugin: downloaded iOS binaries and download cache
 /addons/admob/ios/bin/
 /addons/admob/downloads/
+
+# Validated music packages and reports are local outputs, not source.
+/tools/content/staging/

@@ -170,39 +170,37 @@ thông tải về.
 → Firebase hợp lý nếu không muốn dùng Cloudflare. Phương án này cần: Firestore `ratings/{song}/votes/{uid}` + Function
 cập nhật `songs/{song}.sum/count`.
 
-- [ ] **GD3-270** Quyết định backend (Người dùng, S): Cloudflare Worker + D1 (đề xuất) hay Firebase Firestore + Functions
-      (cần gói Blaze). Cả hai đều trong hạn mức miễn phí ở quy mô soft launch.
-- [ ] **GD3-271** API đánh giá sao (Claude, M; cần GD3-270). Thiết kế:
-      - `POST /v1/ratings {song_id, stars 1–5, install_id}` ghi đè phiếu cũ của cùng máy (khóa `song_id + install_id`).
-      - `GET /v1/ratings` trả `{song_id: {avg, count}}` cho mọi bài, cache CDN ~5 phút.
-      - D1: bảng `votes(song_id, install_id, stars, updated_at)` và bảng tổng `songs(song_id, sum, count)` cập nhật
-        trong cùng giao dịch.
+- [x] **GD3-270** Đã chọn sntgames-api riêng, Python/SQLite trên sv129 trong `/mnt/app/sntgames-api`; R2 cho snapshot/nội dung.
+- [x] **GD3-271** API đánh giá sao (Claude, M; cần GD3-270). Thiết kế:
+      - `POST /v1/beatglide/ratings {song_id, stars 1–5, install_id}` ghi đè phiếu cũ của cùng máy (khóa `song_id + install_id`).
+      - `GET /v1/beatglide/ratings` trả `{song_id: {avg, count}}` cho mọi bài, cache CDN ~5 phút.
+      - SQLite: bảng phiếu lưu HMAC của install_id, cập nhật và tính tổng trong cùng giao dịch.
       - Giới hạn tần suất theo IP/ID; bản Android gửi kèm token Play Integrity (bước sau).
-      - `install_id` là UUID ngẫu nhiên lưu ở `user://`, không phải dữ liệu cá nhân. Ghi vào `privacy_policy.md` và
+      - `install_id` là UUID ngẫu nhiên lưu ở `user://`, là định danh giả danh cần khai báo. Ghi vào `privacy_policy.md` và
         form Data safety.
-- [ ] **GD3-272** Đánh giá trong game (Claude, M; cần GD3-271):
+- [x] **GD3-272** Đánh giá trong game (Claude, M; cần GD3-271):
       - Sau khi **qua màn** (không hỏi khi chết), thẻ kết quả hiện 5 sao.
       - Cùng bài hỏi tối đa 1 lần; người chơi tự sửa được ở danh sách bài.
-      - Danh sách bài hiện `★ 4.2 (128)` lấy từ `GET /v1/ratings` (cache ở `user://`, không có mạng thì ẩn).
+      - Danh sách bài hiện `★ 4.2 (128)` lấy từ `GET /v1/beatglide/ratings` (cache ở `user://`, không có mạng thì ẩn).
       - Thêm event `song_rate` vào Analytics.
       - Không được lẫn với GD3-244 (đánh giá app trên store).
-- [ ] **GD3-273** Mục yêu thích (Claude, S): lưu cục bộ trong `UserSettings`, thêm tab YÊU THÍCH ở danh sách bài. Không cần server.
+- [x] **GD3-273** Mục yêu thích (Claude, S): lưu cục bộ trong `UserSettings`, thêm tab YÊU THÍCH ở danh sách bài. Không cần server.
 
 **Tải bài nhạc từ Cloudflare.** Một vài bài khởi đầu vẫn nằm trong APK (chơi offline ngay lần đầu, store review
 thấy nội dung). Các bài còn lại tải khi cần, sau đó chơi offline được.
-- [ ] **GD3-275** Định dạng gói bài và manifest (Claude, M; **cần người dùng duyệt** vì đụng định dạng chart):
+- [x] **GD3-275** Định dạng gói bài và manifest (Claude, M; **người dùng đã duyệt thực hiện tự động** 2026-10-15):
       - Gói bài `<id>/<version>/` gồm `song.mp3` (hoặc `.ogg`), `chart.json` (và chart LED nếu có), `spectrum.json`, `cover.jpg`.
       - Đường dẫn trong gói là **tương đối** (chart hiện ghi `"song": "res://…"` → cần cho phép đường dẫn tương đối
         hoặc ghi đè lúc nạp). Cập nhật `docs/chart_format.md`.
       - `manifest.json` gồm `catalog_version`, `min_app_version` và mỗi bài: `id, title, artist, bpm, length, difficulty,
         version, size, sha256` cho từng file, `unlock` (miễn phí / chuỗi mở khóa / IAP), `license` (GD3-200), cờ `enabled`.
       - URL bất biến (có version trong đường dẫn), nên CDN cache vĩnh viễn được; chỉ `manifest.json` cache ngắn.
-- [ ] **GD3-276** Hạ tầng Cloudflare (Cả hai, S–M):
+- [x] **GD3-276** Hạ tầng Cloudflare (Cả hai, S–M):
       - Người dùng tạo tài khoản, bucket R2, tên miền phụ (vd. `cdn.<tên miền>`) và API token.
       - Claude viết `tools/content/publish_song.py`: kiểm tra chart (autoplay qua headless, `tap_salience.py` OK,
-        `tolerance_report`), tính sha256, đẩy lên R2 bằng `wrangler`, cập nhật manifest. **Không đẩy** bài chưa qua kiểm tra.
+        `tolerance_report`), tính sha256, đẩy lên R2 qua S3 API, cập nhật manifest. **Không đẩy** bài chưa qua kiểm tra.
       - Môi trường `staging` / `prod` tách bucket hoặc thư mục để thử trước.
-- [ ] **GD3-277** Tải và quản lý bài trong game (Claude, L; cần GD3-275, 276):
+- [x] **GD3-277** Tải và quản lý bài trong game (Claude, L; cần GD3-275, 276):
       - `ContentCatalog` lấy manifest bằng `HTTPRequest`, lưu bản cuối vào `user://content/`; không có mạng thì dùng bản cũ.
       - `SongCatalog` gộp bài có sẵn + bài đã tải; bài chưa tải hiện nút TẢI (dung lượng MB) và thanh tiến độ.
       - Tải vào file tạm → kiểm tra sha256 → đổi tên; tải lại được nếu đứt giữa chừng; có giới hạn dung lượng và nút XÓA BÀI ĐÃ TẢI.
@@ -211,14 +209,17 @@ thấy nội dung). Các bài còn lại tải khi cần, sau đó chơi offline
         `res://` lẫn `user://`.
       - Đổi bài khi bài đang chạy thì giữ bản cũ tới hết lượt. Mỗi kết quả lưu kèm `version` bài để `HighScores` /
         `RunRecords` không trộn kỷ lục giữa các phiên bản chart.
-- [ ] **GD3-278** Cấu hình level từ xa (Claude, M; cần GD3-277):
+- [x] **GD3-278** Cấu hình level từ xa (Claude, M; cần GD3-277):
       - Manifest quyết định thứ tự bài, bài nổi bật, khóa/mở; tắt được một bài lỗi mà không phát hành bản mới.
       - Tham số gameplay chung (cửa sổ timing, lá chắn, …) vẫn đi qua Remote Config (GD3-233), không lặp lại trong manifest.
       - Chart tải về vẫn phải **tất định** (bất biến §1.5); mỗi chart có `version` nên replay/telemetry biết đang chơi bản nào.
-- [ ] **GD3-279** Kiểm thử (Claude, M):
+- [~] **GD3-279** Kiểm thử (Claude, M):
       - Test giải mã manifest, kiểm tra hash, gộp catalog, nạp chart từ `user://` (dùng thư mục giả, không cần mạng).
       - `test_shipped_charts.gd` mở rộng: chạy cả các gói trong `tools/content/staging/` trước khi publish.
       - Thử trên máy thật: tắt mạng giữa lúc tải, đầy bộ nhớ, đổi manifest giữa phiên.
+
+Đã kiểm tra 161 test game và 6 test backend; desktop tải 4 chart, sửa file hỏng, chấm sao và khôi phục backup đạt.
+Android còn chờ mở khóa điện thoại để thử mất mạng/dung lượng/FPS. Chi tiết: `D:/sntgames-api/docs/verification.md`.
 
 ## 8. Lộ trình đề xuất
 Thứ tự theo phụ thuộc: đo lường có trước khi có người chơi bên ngoài; quyết định màn dọc trước khi làm UI; 14 ngày thử

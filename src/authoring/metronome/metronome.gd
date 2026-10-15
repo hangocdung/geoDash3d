@@ -27,7 +27,7 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_build_layout()
 	_chart = ChartLoader.load_file(Scenes.DEFAULT_CHART, GameplayConfig.create_default())
-	var song: AudioStream = load(_chart.song_path) as AudioStream if _chart != null else null
+	var song: AudioStream = ContentPaths.audio(_chart.song_path) if _chart != null else null
 	if song == null:
 		_info_label.text = "Cannot load chart or song: %s" % Scenes.DEFAULT_CHART
 		return

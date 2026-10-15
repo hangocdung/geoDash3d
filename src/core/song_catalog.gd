@@ -14,6 +14,9 @@ class Entry:
 	var bpm: float
 	var length_sec: float
 	var difficulty: float
+	var revision: int = 1
+	var remote: Dictionary = {}
+	var downloaded: bool = true
 
 
 static func list_songs() -> Array[Entry]:
@@ -30,6 +33,7 @@ static func list_songs() -> Array[Entry]:
 		var tempo: Array = chart.get("tempo", [])
 		var entry := Entry.new()
 		entry.path = path
+		entry.revision = int(chart.get("chart_revision", 1))
 		entry.id = song_id(path)
 		entry.title = str(chart.get("title", file_name))
 		entry.bpm = float((tempo[0] as Dictionary).get("bpm", 120.0)) if not tempo.is_empty() else 120.0
@@ -40,9 +44,58 @@ static func list_songs() -> Array[Entry]:
 		if not is_equal_approx(a.difficulty, b.difficulty):
 			return a.difficulty < b.difficulty
 		return a.title.naturalnocasecmp_to(b.title) < 0)
-	return entries
+	return merge_remote(entries)
 
 
 ## "res://assets/music/fault_line.chart.json" → "fault_line".
 static func song_id(chart_path: String) -> String:
 	return chart_path.get_file().trim_suffix(".chart.json")
+
+
+static func merge_remote(entries: Array[Entry]) -> Array[Entry]:
+	var by_id: Dictionary[String, Entry] = {}
+	for entry: Entry in entries:
+		by_id[entry.id] = entry
+	for song: Dictionary in ContentCatalog.songs():
+		var id: String = str(song["id"])
+		if not bool(song.get("enabled", true)):
+			by_id.erase(id)
+			continue
+		if not ContentManifest.compatible(str(song.get("min_app_version", "1.0.0"))):
+			continue
+		var version: int = int(song["version"])
+		if by_id.has(id) and by_id[id].revision >= version:
+			by_id[id].remote = song
+			continue
+		var entry := Entry.new()
+		entry.path = ContentCatalog.chart_path(song)
+		entry.id = id
+		entry.title = str(song.get("title", id))
+		entry.bpm = float(song.get("bpm", 120.0))
+		entry.length_sec = float(song.get("length", 0.0))
+		entry.difficulty = float(song.get("difficulty", 0.0))
+		entry.revision = version
+		entry.remote = song
+		entry.downloaded = ContentCatalog.installed(song)
+		# Keep a playable bundled copy until an update has finished installing.
+		if by_id.has(id) and not entry.downloaded:
+			by_id[id].remote = song
+		else:
+			by_id[id] = entry
+	var result: Array[Entry] = by_id.values()
+	result.sort_custom(func(a: Entry, b: Entry) -> bool:
+		var ao: int = _order(a.id)
+		var bo: int = _order(b.id)
+		if ao != bo:
+			return ao < bo
+		if not is_equal_approx(a.difficulty, b.difficulty):
+			return a.difficulty < b.difficulty
+		return a.id < b.id)
+	return result
+
+
+static func _order(id: String) -> int:
+	for song: Dictionary in ContentCatalog.songs():
+		if song["id"] == id:
+			return int(song.get("order", 100000))
+	return 100000

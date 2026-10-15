@@ -44,7 +44,7 @@ func _ready() -> void:
 		if argument.begins_with("--record-chart="):
 			_chart_path = argument.trim_prefix("--record-chart=")
 	_chart = ChartLoader.load_file(_chart_path, GameplayConfig.create_default())
-	_song = load(_chart.song_path) as AudioStream if _chart != null else null
+	_song = ContentPaths.audio(_chart.song_path) if _chart != null else null
 	_build_layout()
 	if _song == null:
 		_status.text = "Cannot load chart/song: %s" % _chart_path

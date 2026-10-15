@@ -54,3 +54,11 @@ metadata và nhãn hiệu).
 - **Data safety:** thu thập ID quảng cáo, tương tác app (Analytics), chẩn đoán lỗi (Crashlytics), IP / vị trí thô
   (AdMob); không bán dữ liệu; mã hóa khi truyền; có cách yêu cầu xóa (email trong chính sách quyền riêng tư).
 - **Chính sách quyền riêng tư:** URL công khai của `docs/release/privacy_policy.md` (GD3-202).
+
+
+### Bổ sung đánh giá bài hát (GD3-271/272)
+
+Khi điền Data safety, thêm UUID bản cài dùng để chống phiếu trùng/sửa số sao (Device or other IDs), tương tác chấm
+sao (song_id, stars, timestamp), và xử lý IP ngắn hạn để chống spam. UUID không phải mã phần cứng nhưng vẫn là ID
+có thể liên kết các phiếu của cùng bản cài; không khai là hoàn toàn vô danh. Server lưu HMAC UUID, IP chỉ hash10phút,
+không đưa dữ liệu cá nhân lên snapshot public. Đây là hướng dẫn trong repo, chưa gửi form Play Console.

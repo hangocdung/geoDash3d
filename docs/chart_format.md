@@ -194,3 +194,22 @@ Godot hỏng. Các bước tay bên dưới dùng khi cần chăm chút.
   - `merge`: giữ các lần gõ rồi tự lấp thêm từ onset.
   - Lần gõ nào quá sát lần trước sẽ bị bỏ, kèm cảnh báo.
 - `"fixed": [{"beat": 104, "type": "jump"}]` trong plan: hành động đặt tay, luôn được giữ.
+
+
+## Gói tải về và phiên bản nội dung (GD3-275, người dùng duyệt 2026-10-15)
+
+Trường `version: 1` tiếp tục là schema chart; chart cũ với `song: res://...` giữ nguyên hành vi. Trường tùy chọn mới
+`chart_revision` (số nguyên ≥1, mặc định1) phân biệt lần sửa nội dung. Gói remote dùng đường dẫn `song: song.mp3`,
+được `ContentPaths.resolve` giải quyết cạnh file chart. Cấm đường dẫn tuyệt đối, `..`, dấu `\`, scheme hoặc `res://`
+trong chart từ `user://`; không cho gói tải về đọc file ngoài thư mục riêng. Mọi file phải có sha256 và kích thước.
+
+Gói `<package_id>/<version>/` có `<id>.chart.json`, tùy chọn `<id>_led.chart.json`, `song.mp3`, `song.spectrum.json`,
+`cover.jpg`. Hai chart dùng chung nhạc/spectrum/cover. Phiên bản gói bất biến; revision chart bằng version gói.
+Metadata manifest có schema_version, catalog_version, min_app_version, enabled, featured, order, license, unlock.
+Luật unlock hiện dùng `existing_chain`: SongUnlocks/Firebase và entitlement IAP/quảng cáo hiện có tiếp tục quyết định.
+Không ghi quyền mua hàng hoặc tham số gameplay vào manifest R2. Trường JSON lạ được bỏ qua; JSON hỏng/schema lạ
+không thay thế cache cuối. Tối đa 64 MB/file, 128 MB/gói và 512 MB cache.
+
+Spec đầy đủ và quy trình publish ở `D:/sntgames-api/docs/contracts.md`. Mỗi chart phải qua autoplay toàn màn,
+tap_salience OK và tolerance_report trước upload. Gói chưa có giấy phép chỉ được thử có kiểm soát, không public CDN
+plaintext. HighScores revision1 giữ key cũ; revision mới dùng hậu tố `@rN`; telemetry gửi chart_revision.

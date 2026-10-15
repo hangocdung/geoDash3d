@@ -8,6 +8,7 @@ signal changed
 const SETTINGS_PATH: String = "user://settings.cfg"
 const SECTION: String = "player"
 const MAX_CALIBRATION_SEC: float = 0.5
+var favorite_song_ids: PackedStringArray = []
 
 ## Extra delay (seconds) between the engine's audio clock and what the player hears.
 ## Positive values mean the player hears the music later than the engine thinks.
@@ -102,6 +103,7 @@ func load_settings() -> void:
 	haptics = bool(config.get_value(SECTION, "haptics", true))
 	language = str(config.get_value(SECTION, "language", Locale.AUTO))
 	hints_seen = PackedStringArray(config.get_value(SECTION, "hints_seen", PackedStringArray()))
+	favorite_song_ids = PackedStringArray(config.get_value(SECTION, "favorite_song_ids", PackedStringArray()))
 	calibration_offered = bool(config.get_value(SECTION, "calibration_offered", false))
 	music_volume_db = float(config.get_value(SECTION, "music_volume_db", 0.0))
 	sfx_volume_db = float(config.get_value(SECTION, "sfx_volume_db", -2.0))
@@ -118,6 +120,7 @@ func save_settings() -> void:
 	config.set_value(SECTION, "haptics", haptics)
 	config.set_value(SECTION, "language", language)
 	config.set_value(SECTION, "hints_seen", hints_seen)
+	config.set_value(SECTION, "favorite_song_ids", favorite_song_ids)
 	config.set_value(SECTION, "calibration_offered", calibration_offered)
 	config.set_value(SECTION, "music_volume_db", music_volume_db)
 	config.set_value(SECTION, "sfx_volume_db", sfx_volume_db)

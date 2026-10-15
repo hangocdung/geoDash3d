@@ -70,7 +70,7 @@ static func cover(entry: SongCatalog.Entry) -> Control:
 
 ## Cover of the song `id` (SongCatalog.song_id), for screens that only know the chart path (loading cover).
 static func cover_art(id: String) -> Control:
-	var path: String = COVER_DIRECTORY.path_join(id.trim_suffix("_led") + ".jpg")
+	var path: String = ContentCatalog.cover_path(id)
 	var frame := PanelContainer.new()
 	frame.custom_minimum_size = COVER_SIZE
 	frame.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -78,9 +78,9 @@ static func cover_art(id: String) -> Control:
 	var style: StyleBoxFlat = UiTheme.box(Color(0.08, 0.05, 0.2), Color(UiTheme.ACCENT, 0.5), 1, 0, 8)
 	style.set_content_margin_all(1)
 	frame.add_theme_stylebox_override("panel", style)
-	if ResourceLoader.exists(path):
+	if ResourceLoader.exists(path) or path.begins_with("user://"):
 		var art := TextureRect.new()
-		art.texture = load(path) as Texture2D
+		art.texture = ContentPaths.cover(path)
 		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 		art.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -113,6 +113,8 @@ static func _info(entry: SongCatalog.Entry) -> VBoxContainer:
 	title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	title.clip_text = true
 	info.add_child(title)
+	if bool(entry.remote.get("featured", false)):
+		info.add_child(UiKit.label("FEATURED", "Caption"))
 	var meta := HBoxContainer.new()
 	meta.add_theme_constant_override("separation", 16)
 	meta.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -123,6 +125,10 @@ static func _info(entry: SongCatalog.Entry) -> VBoxContainer:
 	details.add_theme_font_size_override("font_size", 22)
 	meta.add_child(details)
 	info.add_child(meta)
+	if is_instance_valid(SongRatings.instance):
+		var rating: String = SongRatings.instance.summary(entry.id)
+		if not rating.is_empty():
+			info.add_child(UiKit.label(rating, "Caption"))
 	return info
 
 

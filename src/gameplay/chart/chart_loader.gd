@@ -21,14 +21,12 @@ const MAX_BANK_DEG: float = 45.0
 var _errors: PackedStringArray = []
 var _config: GameplayConfig
 
-
 static func load_file(path: String, config: GameplayConfig) -> LevelChart:
 	var text: String = FileAccess.get_file_as_string(path)
 	if text.is_empty():
 		push_error("ChartLoader: cannot read '%s' (%s)" % [path, error_string(FileAccess.get_open_error())])
 		return null
 	return parse_text(text, config, path)
-
 
 static func parse_text(text: String, config: GameplayConfig, source_name: String = "<text>") -> LevelChart:
 	var json := JSON.new()
@@ -45,9 +43,13 @@ static func parse_text(text: String, config: GameplayConfig, source_name: String
 		for message: String in loader._errors:
 			push_error("ChartLoader: %s: %s" % [source_name, message])
 		return null
+	chart.song_path = ContentPaths.resolve(chart.song_path, source_name)
+	if chart.song_path.is_empty():
+		push_error("ChartLoader: unsafe song path")
+		return null
+	chart.revision = maxi(1, int((json.data as Dictionary).get("chart_revision", 1)))
 	ReferenceRun.annotate(chart, config)
 	return chart
-
 
 func _parse(root: Dictionary) -> LevelChart:
 	var version: int = int(_number(root, "version", 0.0))
@@ -77,7 +79,6 @@ func _parse(root: Dictionary) -> LevelChart:
 	_validate_underside(chart)
 	return chart
 
-
 func _parse_tempo(root: Dictionary) -> TempoMap:
 	var beats: PackedFloat64Array = []
 	var bpms: PackedFloat64Array = []
@@ -91,7 +92,6 @@ func _parse_tempo(root: Dictionary) -> TempoMap:
 	if tempo == null:
 		_errors.append("invalid 'tempo' entries")
 	return tempo
-
 
 func _parse_speed(root: Dictionary) -> PiecewiseLinearMap:
 	var beats: PackedFloat64Array = []

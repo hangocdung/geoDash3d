@@ -62,3 +62,22 @@ Ngày hiệu lực: «YYYY-MM-DD» · Nhà phát triển: «tên» · Liên hệ
 ## Hệ quả cho code (ghi chú cho GD3-230/240)
 - Settings → About phải hiện app-instance ID của Firebase (để người chơi yêu cầu xóa) và nút mở lại form đồng ý UMP.
 - Thời hạn lưu Analytics đặt 14 tháng trong Firebase console (mặc định 2 tháng nếu không đổi).
+
+
+## Song ratings — draft addition
+
+When you rate a song, BeatGlide creates a random installation identifier and sends it with the song identifier and
+star rating to SNTGames. The server stores a keyed hash of that installation identifier to replace your previous
+vote instead of counting it twice. Network addresses are processed for abuse prevention; only a short-lived hash is
+kept for up to ten minutes. Public rating summaries contain averages and vote counts, not installation identifiers.
+Clearing app data or uninstalling resets the local identifier and saved preferences. The identifier is pseudonymous,
+not an anonymous hardware-free exemption from disclosure. Final retention and deletion contact details must be
+completed before publication.
+
+## Định danh đánh giá bài hát (GD3-271/272)
+
+BeatGlide sinh UUID ngẫu nhiên cho bản cài để gửi/sửa đánh giá bài hát. Đây là định danh giả danh, vẫn phải khai
+Device or other IDs trong form Data safety khi phát hành; không được coi là hoàn toàn vô danh. Server chỉ lưu HMAC
+UUID cùng song_id, stars, thời gian cập nhật; IP dùng giới hạn tần suất, chỉ lưu hash ngắn hạn10phút. Snapshot public
+chỉ có trung bình/số phiếu, không chứa ID cá nhân. Gỡ app/xóa dữ liệu tạo ID mới. Chính sách đang là bản nháp, phần
+mô tả tiếng Anh và biểu mẫu store phải được đồng bộ trước khi công bố. Chưa tự publish chính sách.

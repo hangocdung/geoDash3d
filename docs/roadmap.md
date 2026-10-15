@@ -368,3 +368,16 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
       Looker Studio. **Còn lại:** bật BigQuery export, có dữ liệu thật; lệch theo từng cue chưa gửi (cần duyệt).
 - [~] **GD3-261** Trang store: bản nháp vi/en (tên, mô tả ngắn / đầy đủ), danh sách hình ảnh, khai báo Data safety /
       IARC (`docs/release/store_listing.md`). **Còn lại:** chốt tên, icon, feature graphic, người dùng điền Play Console.
+
+
+## Nội dung online và đánh giá bài hát (2026-10-15)
+
+- [x] **GD3-270** Backend riêng `D:/sntgames-api`, GitHub private `hangocdung/sntgames-api`, SQLite trên sv129
+  `/mnt/app/sntgames-api` (ổ NVMe còn 1,6 TB), cổng 127.0.0.1:3320 qua tunnel hiện có.
+- [x] **GD3-271 / 272** API upsert đánh giá, giới hạn tần suất, snapshot R2; UI sao trong chi tiết bài/sau qua màn,
+  cache và phiếu chờ đồng bộ, event song_rate riêng. Desktop đã kiểm tra toàn luồng; mục yêu thích GD3-273 đã tích hợp.
+- [x] **GD3-275** Người dùng duyệt tự thực hiện, không cần xác nhận thêm. Schema chart version1 giữ nguyên,
+  thêm chart_revision, đường dẫn tương đối an toàn; tách kỷ lục theo revision.
+- [x] **GD3-276 / 277 / 278** Gói nhạc/chart/spectrum/cover, kiểm tra trước publish, staging mã hóa có token;
+  tải menu/hash từng frame/kích hoạt nguyên gói, catalog remote; gameplay vẫn Firebase RemoteSettings.
+- [~] **GD3-279** Test parser/hash/merge/version, backend concurrency; 161 test game và 6 test backend đạt; staging tải 4 chart thành công. Android còn chờ mở khóa máy để đo FPS và thử lỗi mạng/dung lượng.

@@ -272,3 +272,27 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   phủ 116/224 beat.
 - Hành động mới (trượt, đổi làn) sẽ cần thêm trục lệch ngang trong `HazardChecker`. Mặt dưới chỉ cho nhảy thường
   (không vòng nhảy, bệ bật, hố, né làn).
+
+
+## Nội dung online và đánh giá bài (GD3-270–279)
+
+`SongRatings` là node con của UserSettings, được tạo khi vào menu; lưu install_id UUID ngẫu nhiên, phiếu cá nhân,
+phiếu chờ gửi, cờ đã hỏi và snapshot aggregate trong `user://song_ratings.cfg`. Chỉ tải snapshot/gửi phiếu ở menu
+hoặc màn kết quả; vào màn chơi hủy request. Lỗi mạng giữ phiếu pending, gửi lại vẫn idempotent ở server.
+`SongRatingWidget` dùng UiKit/UiTheme, xuất hiện trong chi tiết bài và tự hỏi một lần sau lượt hoàn thành hợp lệ;
+không áp dụng attract/autoplay/practice/capture/chết. Tách riêng lời mời store review. `favorite_song_ids` lưu local.
+
+`ContentManifest` kiểm tra schema/phiên bản/path/hash/giới hạn; `ContentCatalog` giữ cache cuối và metadata nội dung.
+`ContentDownloader` là node **thuộc panel menu**: request chạy thread, hash từng khối64KB qua nhiều frame,
+`.part` → rename → marker khi đủ file/parse chart thành công. Rời menu hủy worker; không tải/băm trong gameplay.
+`SongCatalog` gộp với shipped, bản đã cài revision cao hơn thắng, bằng nhau ưu tiên shipped. Luật khóa/mở cũ vẫn
+áp dụng. `ContentPaths` nạp runtime mp3/cover và giải quyết đường dẫn chart, `SpectrumTexture` đọc LED cạnh nhạc.
+Các gói version bất biến giữ lượt chơi/kỷ lục không thay đổi giữa phiên; HighScores tách revision, telemetry ghi revision.
+
+Firebase `RemoteSettings` vẫn là nguồn tham số gameplay/A-B. R2 chỉ là catalog: thứ tự, featured, enabled,
+min_app_version, nội dung level và snapshot đánh giá. Không dựng nguồn gameplay config thứ hai.
+
+Backend độc lập `D:/sntgames-api`, deploy `/mnt/app/sntgames-api` trên129: Flask/Gunicorn+SQLite WAL,
+127.0.0.1:3320 qua Cloudflare Tunnel. Export aggregate5phút, backup SQLite online mỗi ngày mã hóa trên R2.
+Vì nhạc chưa rõ giấy phép, staging trên bucket public chỉ có ciphertext AES-GCM; API proxy giải mã yêu cầu token
+cục bộ riêng bản debug. Production đã xác minh giấy phép mới dùng CDN trực tiếp. Token debug không đóng vào APK.

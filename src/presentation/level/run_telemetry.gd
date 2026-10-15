@@ -31,7 +31,7 @@ func _init(chart_path: String, chart: LevelChart, options: LaunchOptions, counts
 	_chart = chart
 	_chart_path = chart_path
 	_song_id = chart_path.get_file().trim_suffix(".chart.json")
-	_chart_version = FileAccess.get_md5(chart_path).substr(0, 8)
+	_chart_version = str(chart.revision)
 	_mode = "practice" if options.practice else "normal"
 
 
