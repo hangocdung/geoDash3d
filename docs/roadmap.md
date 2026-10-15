@@ -232,7 +232,9 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
 - [~] **GD3-203** Đề xuất 13+, không nhắm trẻ em, cấu hình AdMob/Play tương ứng (`legal_and_brand.md`). **→ Người dùng duyệt.**
 - [~] **GD3-210** Ngang + dọc trong một bản (người dùng yêu cầu 2026-10-15): menu xoay theo máy, vào màn chơi thì
       khóa hướng tới khi về menu (`DisplayOrientation`, `Scenes.go_to`); canvas UI 1920×1080 / 1080×1920 theo cửa sổ;
-      bộ shot sau/trên cho 9:16 (`CameraShots._portrait_shot`); `--portrait` ép dọc để chụp/đo. Ảnh 720×1280: đường phía trước thấy rõ, HUD vừa. Sửa player sát/mất
+      bộ shot sau/trên cho 9:16 (`CameraShots._portrait_shot`); `--portrait` ép dọc để chụp/đo.
+      Ở màn dọc, home / chọn bài / cài đặt hiện dòng "Xoay ngang điện thoại để có trải nghiệm tốt nhất" (`LandscapeTip`,
+      theo xoay máy, dưới vùng tai thỏ; ẩn ở cửa hàng và trong màn chơi). Ảnh 720×1280: đường phía trước thấy rõ, HUD vừa. Sửa player sát/mất
       mép ở màn dọc (phản hồi 2026-10-15): bỏ lệch ngang của camera dọc + `_keep_in_frame` giữ khối player trong vùng an
       toàn; `tools/capture/portrait_framing.gd` đo 13 chart × tier LOW/MEDIUM/HIGH: trước 1112 khung hình bị cắt (riêng
       The Dawn Assembly), sau 0; player luôn trong 14–85 % ngang, 22–85 % dọc. **Còn lại:** đo FPS trên máy

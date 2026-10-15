@@ -16,6 +16,7 @@ var _menu_column: VBoxContainer
 var _settings_button: Button
 var _settings: SettingsPanel
 var _shop: ShopPanel
+var _landscape_tip: LandscapeTip
 var _shop_button: Button
 var _practice_panel: PanelContainer
 var _play_button: Button
@@ -58,6 +59,8 @@ func _ready() -> void:
 	layer.add_child(_root)
 	_build_backdrop()
 	_build_menu()
+	_landscape_tip = LandscapeTip.new()
+	_root.add_child(_landscape_tip)
 
 
 func _build_backdrop() -> void:
@@ -127,11 +130,13 @@ func _open_settings() -> void:
 
 func _open_shop() -> void:
 	_menu_column.visible = false
+	_landscape_tip.suppressed = true
 	_shop = ShopPanel.new()
 	_center(_shop)
 	_shop.closed.connect(func() -> void:
 		_shop.queue_free()
 		_shop = null
+		_landscape_tip.suppressed = false
 		_menu_column.visible = true
 		_shop_button.grab_focus())
 	_root.add_child(_shop)
