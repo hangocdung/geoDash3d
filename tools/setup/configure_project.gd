@@ -13,6 +13,8 @@ const AUTOLOADS: Dictionary[String, String] = {
 }
 
 const MAIN_SCENE: String = "res://src/ui/menu/main_menu.tscn"
+## Phones start in any orientation; DisplayOrientation locks it while a level runs (GD3-210).
+const HANDHELD_ORIENTATION: DisplayServer.ScreenOrientation = DisplayServer.SCREEN_SENSOR
 
 ## Import defaults for new images: the 3D detail textures (assets/textures) need mipmaps and VRAM compression
 ## (ETC2/ASTC on phones). Change a single 2D/UI image in the editor's Import dock if it should stay lossless.
@@ -59,6 +61,7 @@ func _init() -> void:
 	_configure_autoloads()
 	_configure_shader_globals()
 	ProjectSettings.set_setting("application/run/main_scene", MAIN_SCENE)
+	ProjectSettings.set_setting("display/window/handheld/orientation", HANDHELD_ORIENTATION)
 	ProjectSettings.set_setting("importer_defaults/texture", TEXTURE_IMPORT_DEFAULTS)
 	var error: Error = ProjectSettings.save()
 	if error != OK:

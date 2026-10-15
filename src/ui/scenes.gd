@@ -12,7 +12,10 @@ const DEFAULT_CHART: String = "res://assets/music/the_dawn_assembly.chart.json"
 
 
 ## Deferred so the current scene finishes handling the input event (touch release) before it is freed.
+## Every scene but the main menu keeps the orientation it opens in (the menu lets the phone rotate again).
 static func go_to(tree: SceneTree, scene_path: String) -> void:
+	if scene_path != MAIN_MENU:
+		DisplayOrientation.lock_current(tree.root)
 	_change_scene.call_deferred(tree, scene_path)
 
 

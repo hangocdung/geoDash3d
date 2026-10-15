@@ -230,9 +230,9 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
 - [~] **GD3-202** Bản nháp chính sách quyền riêng tư vi/en: `docs/release/privacy_policy.md`. **→ Người dùng điền tên,
       email, đăng ở URL công khai** (khi có Firebase/AdMob).
 - [~] **GD3-203** Đề xuất 13+, không nhắm trẻ em, cấu hình AdMob/Play tương ứng (`legal_and_brand.md`). **→ Người dùng duyệt.**
-- [~] **GD3-210** Prototype dọc: `DisplayOrientation` (feature `portrait` / `--portrait`), preset "Android Portrait"
-      (package riêng `com.dunghn.geodash3d.portrait`, cài song song), canvas UI 1080×1920, bộ shot sau/trên cho 9:16
-      (`CameraShots._portrait_shot`). Ảnh 720×1280: đường phía trước thấy rõ, HUD vừa; ở khúc cua gắt/lộn camera sau
+- [~] **GD3-210** Ngang + dọc trong một bản (người dùng yêu cầu 2026-10-15): menu xoay theo máy, vào màn chơi thì
+      khóa hướng tới khi về menu (`DisplayOrientation`, `Scenes.go_to`); canvas UI 1920×1080 / 1080×1920 theo cửa sổ;
+      bộ shot sau/trên cho 9:16 (`CameraShots._portrait_shot`); `--portrait` ép dọc để chụp/đo. Ảnh 720×1280: đường phía trước thấy rõ, HUD vừa; ở khúc cua gắt/lộn camera sau
       lưng bị lệch nhân vật sang mép. **Còn lại:** đo FPS trên máy (máy bị khóa lúc làm:
       `EXTRA_ARGS="--portrait --start-beat=64" bash tools/device/perf_matrix.sh baseline` so với không `--portrait`),
       người chơi thử theo tiêu chí GD3-211, sửa camera ở khúc cua.

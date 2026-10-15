@@ -1,33 +1,59 @@
-# Portrait prototype (GD3-210): a build exported with the "portrait" feature, or `-- --portrait` on desktop, runs
-# 9:16 (UI laid out on a 1080x1920 canvas, desktop window 720x1280); on a debug APK `--portrait` can also come from
-# user://debug_args.txt (perf A/B on one build). Presentation asks is_portrait() per viewport.
-# Related: src/ui/menu/main_menu.gd (applies it at startup), src/presentation/camera/camera_shots.gd
+# Landscape and portrait in one build (GD3-210): menus follow the phone's rotation, a level locks the orientation it
+# started in until the player is back in the menu. The UI canvas is 1920x1080 or 1080x1920 to match the window, and
+# presentation asks is_portrait() per viewport. `-- --portrait` (also from user://debug_args.txt on a debug APK) forces
+# portrait: a 720x1280 window on desktop, portrait lock on phones (captures, perf A/B).
+# Related: src/ui/scenes.gd (lock/unlock on scene change), src/presentation/camera/camera_shots.gd
 class_name DisplayOrientation
 extends RefCounted
 
-const FEATURE: String = "portrait"
 const ARGUMENT: String = "--portrait"
+const LANDSCAPE_CANVAS := Vector2i(1920, 1080)
 const PORTRAIT_CANVAS := Vector2i(1080, 1920)
 const DESKTOP_PORTRAIT_WINDOW := Vector2i(720, 1280)
+const _CONNECTED_META: StringName = &"display_orientation_connected"
 
 
-static func wants_portrait() -> bool:
-	return OS.has_feature(FEATURE) or LaunchOptions.user_args().has(ARGUMENT)
+static func forced_portrait() -> bool:
+	return LaunchOptions.user_args().has(ARGUMENT)
 
 
-static func apply(window: Window) -> void:
-	if not wants_portrait():
+## Called once at startup (main menu): fits the canvas now and on every resize/rotation.
+static func setup(window: Window) -> void:
+	if not window.has_meta(_CONNECTED_META):
+		window.set_meta(_CONNECTED_META, true)
+		window.size_changed.connect(func() -> void: _fit_canvas(window))
+		if forced_portrait() and not OS.has_feature("mobile"):
+			DisplayServer.window_set_size(DESKTOP_PORTRAIT_WINDOW)
+			var screen: Rect2i = DisplayServer.screen_get_usable_rect()
+			DisplayServer.window_set_position(screen.position + (screen.size - DESKTOP_PORTRAIT_WINDOW) / 2)
+	_fit_canvas(window)
+
+
+## Menus: follow the sensor (any orientation), unless portrait is forced.
+static func allow_rotation() -> void:
+	if not OS.has_feature("mobile"):
 		return
-	window.content_scale_size = PORTRAIT_CANVAS
-	if OS.has_feature("mobile"):
-		DisplayServer.screen_set_orientation(DisplayServer.SCREEN_SENSOR_PORTRAIT)
+	DisplayServer.screen_set_orientation(DisplayServer.SCREEN_SENSOR_PORTRAIT if forced_portrait()
+			else DisplayServer.SCREEN_SENSOR)
+
+
+## Levels and tools: keep the current orientation (180-degree flips still allowed) until allow_rotation().
+static func lock_current(window: Window) -> void:
+	if not OS.has_feature("mobile"):
 		return
-	DisplayServer.window_set_size(DESKTOP_PORTRAIT_WINDOW)
-	var screen: Rect2i = DisplayServer.screen_get_usable_rect()
-	DisplayServer.window_set_position(screen.position + (screen.size - DESKTOP_PORTRAIT_WINDOW) / 2)
+	DisplayServer.screen_set_orientation(DisplayServer.SCREEN_SENSOR_PORTRAIT if _window_is_portrait(window)
+			else DisplayServer.SCREEN_SENSOR_LANDSCAPE)
 
 
-## True when the viewport is taller than wide (portrait build, or a desktop window resized that way).
+## True when the viewport is taller than wide.
 static func is_portrait(viewport: Viewport) -> bool:
 	var size: Vector2 = viewport.get_visible_rect().size
 	return size.y > size.x
+
+
+static func _window_is_portrait(window: Window) -> bool:
+	return window.size.y > window.size.x
+
+
+static func _fit_canvas(window: Window) -> void:
+	window.content_scale_size = PORTRAIT_CANVAS if _window_is_portrait(window) else LANDSCAPE_CANVAS

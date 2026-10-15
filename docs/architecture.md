@@ -102,10 +102,12 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   của người chơi (`CameraShots`). Riêng phần xoay của frame được làm mượt khi qua khúc cua. Frame được nâng theo
   độ cao địa hình đã làm mượt (±9 đơn vị, nhìn trước 4) cộng 35% độ cao người chơi so với mặt đất.
   Có thêm rung (trauma) và FOV kick.
-  Màn dọc (GD3-210, prototype): `DisplayOrientation` (build có feature `portrait` = preset "Android Portrait", hoặc
-  tham số `--portrait`, kể cả qua `user://debug_args.txt`) đặt canvas UI 1080×1920 và hướng dọc; khi viewport cao hơn
-  rộng, `CameraShots.get_shot(name, true)` thay mọi shot của chart bằng biến thể nhìn từ sau/trên (đường chạy dọc màn
-  hình). Chart không đổi.
+  Ngang + dọc trong một bản (GD3-210): điện thoại mở ở mọi hướng (`handheld/orientation` = sensor). Ở menu
+  (`MainMenu` gọi `DisplayOrientation.allow_rotation`) màn hình xoay theo máy; `Scenes.go_to` sang bất kỳ scene nào khác
+  (level, calibration, recorder) khóa hướng hiện tại (`lock_current`, vẫn cho lật 180°) tới khi về menu. Canvas UI
+  1920×1080 hoặc 1080×1920 theo cửa sổ (cập nhật khi đổi kích thước). Khi viewport cao hơn rộng,
+  `CameraShots.get_shot(name, true)` thay mọi shot của chart bằng biến thể nhìn từ sau/trên. Chart không đổi.
+  `--portrait` (cả qua `user://debug_args.txt`) ép dọc: cửa sổ 720×1280 trên PC, khóa dọc trên điện thoại.
 - **EnvironmentDirector**:
   - Trời là shader (gradient, sao, hành tinh có vành), dùng `AT_CUBEMAP_PASS` để radiance không cập nhật mỗi frame.
     Phần nền nhìn thấy (pass nửa độ phân giải) sáng lên theo `beat_pulse`, mạnh nhất ở chân trời (~6–8% ở đầu phách);
