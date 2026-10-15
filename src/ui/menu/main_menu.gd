@@ -1,6 +1,7 @@
-# Title screen: the level runs in attract mode (autoplay, no HUD) behind the menu (HomePage). PLAY, PRACTICE and the
-# debug build's RECORD (DEV) / AUTOPLAY (DEV) first pick a song (SongListPanel): selecting a song swaps the demo level
-# to it (AttractLoop limits its length), the list's big button starts it; practice then picks a playback speed;
+# Title screen: the level runs in attract mode (autoplay, no HUD) behind the menu (HomePage, MenuBackdrop). PLAY,
+# PRACTICE and the debug build's RECORD (DEV) / AUTOPLAY (DEV) first pick a song (SongListPanel): selecting a song
+# swaps the demo level to it (loaded in the background; AttractLoop limits its length), the list's big button starts
+# it behind a LoadingCover (reusing the demo's loaded data); practice then picks a playback speed;
 # autoplay plays the whole level by itself with the HUD on (checking a level, filming it).
 # If level arguments were passed on the command line (--autoplay, --capture, …) it jumps straight
 # into the level so tooling keeps working. SHOP opens the in-app purchases (ShopPanel).
@@ -8,7 +9,6 @@
 class_name MainMenu
 extends Node
 
-const LEVEL_SCENE: PackedScene = preload("res://src/presentation/level/level.tscn")
 const PRACTICE_RATES: Array[float] = [1.0, 0.75, 0.5]
 
 enum SongMode { PLAY, PRACTICE, RECORD, AUTOPLAY }
@@ -23,9 +23,11 @@ var _song_list: SongListPanel
 ## Home entry that opened the current page (focus returns to it).
 var _panel_opener: StringName
 var _root: Control
-## The attract level behind the menu (replaced when the song list previews another song).
-var _level: LevelRunner
-var _tuner: QualityAutoTuner
+var _backdrop: MenuBackdrop
+## The run waiting for its data behind the loading cover (null when none) and that data.
+var _next_run: LaunchOptions
+var _next_loader: LevelLoader
+var _cover: LoadingCover
 
 
 func _ready() -> void:
@@ -41,10 +43,9 @@ func _ready() -> void:
 	if LaunchOptions.has_level_arguments():
 		Scenes.go_to.call_deferred(get_tree(), Scenes.LEVEL)
 		return
-	_tuner = QualityAutoTuner.new()
-	_tuner.name = "QualityAutoTuner"
-	add_child(_tuner)
-	_preview(Scenes.DEFAULT_CHART)
+	_backdrop = MenuBackdrop.new()
+	add_child(_backdrop)
+	_backdrop.show_chart(Scenes.DEFAULT_CHART)
 	_start_ads()
 	var layer := CanvasLayer.new()
 	layer.layer = 10
@@ -56,7 +57,8 @@ func _ready() -> void:
 	_home = HomePage.new()
 	_home.action_pressed.connect(_on_home_action)
 	_root.add_child(_home)
-	_home.set_now_playing(_level.chart.title if _level.chart != null else "")
+	_home.set_now_playing("")
+	_backdrop.level_shown.connect(_home.set_now_playing)
 	_landscape_tip = LandscapeTip.new()
 	_root.add_child(_landscape_tip)
 
@@ -115,8 +117,9 @@ func _open_songs(mode: SongMode) -> void:
 	_song_list.heading = ["PLAY", "PRACTICE", "RECORD", "AUTOPLAY"][mode]
 	_song_list.apply_locks = mode == SongMode.PLAY or mode == SongMode.PRACTICE
 	_song_list.allow_trials = mode == SongMode.PLAY
-	_song_list.selected_path = _level.options.chart_path
-	_song_list.previewed.connect(_preview)
+	_song_list.selected_path = _backdrop.current_chart()
+	_song_list.previewed.connect(_backdrop.show_chart)
+	_backdrop.loading_changed.connect(_song_list.set_loading)
 	_song_list.shop_requested.connect(func() -> void:
 		_close_songs()
 		_open_shop())
@@ -128,18 +131,17 @@ func _open_songs(mode: SongMode) -> void:
 			Recorder.next_chart_path = chart
 			Scenes.go_to(get_tree(), Scenes.RECORDER)
 		elif mode == SongMode.AUTOPLAY:
-			LaunchOptions.set_next_run(LaunchOptions.autoplay_run(chart))
-			Scenes.go_to(get_tree(), Scenes.LEVEL)
+			_start_level(LaunchOptions.autoplay_run(chart))
 		else:
-			LaunchOptions.set_next_run(LaunchOptions.chart_run(chart))
-			Scenes.go_to(get_tree(), Scenes.LEVEL))
+			_start_level(LaunchOptions.chart_run(chart)))
 	_root.add_child(_song_list)
+	_song_list.set_loading(_backdrop.is_loading())
 
 
 func _close_songs() -> void:
+	_backdrop.loading_changed.disconnect(_song_list.set_loading)
 	_song_list.queue_free()
 	_song_list = null
-	_home.set_now_playing(_level.chart.title if _level.chart != null else "")
 	_home.visible = true
 	_home.focus(_panel_opener)
 
@@ -151,8 +153,8 @@ func _open_practice(chart: String) -> void:
 	var first: Button = null
 	for rate: float in PRACTICE_RATES:
 		var start_run := func() -> void:
-			LaunchOptions.set_next_run(LaunchOptions.practice_run(rate, chart))
-			Scenes.go_to(get_tree(), Scenes.LEVEL)
+			_practice_dialog.close()
+			_start_level(LaunchOptions.practice_run(rate, chart))
 		var button: Button = _practice_dialog.add_button(Locale.t("SPEED %d%%") % roundi(rate * 100.0), &"speed",
 				first == null, start_run, &"ui.confirm")
 		if first == null:
@@ -168,32 +170,43 @@ func _close_practice() -> void:
 	_practice_dialog = null
 
 
-## The attract level for `chart`, replacing the current one (nothing to do when it already plays that chart).
-func _preview(chart: String) -> void:
-	if _level != null:
-		if _level.options.chart_path == chart:
-			return
-		_level.song_clock.stop()
-		remove_child(_level)
-		_level.queue_free()
-	_level = LEVEL_SCENE.instantiate() as LevelRunner
-	_level.preset_options = LaunchOptions.attract()
-	_level.preset_options.chart_path = chart
-	add_child(_level)
-	move_child(_level, 0)
-	_tuner.setup(_level)
+## Starts `run` behind a LoadingCover: its data comes from the demo when it already has it, else loads on a thread
+## while the cover animates; the level then shows the same cover while it builds its views.
+func _start_level(run: LaunchOptions) -> void:
+	if _next_run != null:
+		return
+	var loader: LevelLoader = _backdrop.loader_for(run.chart_path)
+	if loader == null:
+		loader = LevelLoader.new(run.chart_path, GameplayConfig.create_for_play(), UserSettings.quality_tier)
+	_next_loader = loader.start()
+	_next_run = run
+	_backdrop.stop()
+	_cover = LoadingCover.new(run.chart_path, _song_list.title_of(run.chart_path) if _song_list != null else "")
+	_root.add_child(_cover)
+
+
+func _process(_delta: float) -> void:
+	if _next_run == null:
+		return
+	_cover.set_progress(_next_loader.progress * LevelBoot.LOADER_SHARE)
+	if _next_loader.is_done():
+		LaunchOptions.set_next_run(_next_run)
+		LevelLoader.next_for_level = _next_loader
+		Scenes.go_to(get_tree(), Scenes.LEVEL)
+		set_process(false)
 
 
 ## The menu banner and an interstitial on coming back from a run (Ads decides
 ## whether enough play has passed). The attract level's music pauses while a full-screen ad is open.
 func _start_ads() -> void:
 	Ads.on_fullscreen = func(shown: bool) -> void:
-		if not is_instance_valid(_level):
+		var level: LevelRunner = _backdrop.level if is_instance_valid(_backdrop) else null
+		if level == null or level.state == LevelRunner.RunState.LOADING:
 			return
 		if shown:
-			_level.song_clock.pause()
+			level.song_clock.pause()
 		else:
-			_level.song_clock.resume(0.0)
+			level.song_clock.resume(0.0)
 	Ads.show_banner()
 	Ads.maybe_show_interstitial()
 

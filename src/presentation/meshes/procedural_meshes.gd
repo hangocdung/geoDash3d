@@ -72,12 +72,11 @@ static func saw_blade(radius: float, inner_radius: float, teeth: int, thickness:
 	return tool.commit()
 
 
-## Box-section road between two distances, its top `lift` above the track. Top face: UV.x across,
-## UV.y distance; sides and caps: UV.x down from the top edge. Caps close the start/end faces.
-static func track_chunk(track: TrackPath, from_distance: float, to_distance: float, width: float,
-		thickness: float, lift: float = 0.0, cap_start: bool = false, cap_end: bool = false) -> ArrayMesh:
-	var tool := SurfaceTool.new()
-	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+## Box-section road between two distances, its top `lift` above the track, added to `tool` (already begun with
+## PRIMITIVE_TRIANGLES; no RenderingServer use, so level loading builds it off the main thread). Top face: UV.x
+## across, UV.y distance; sides and caps: UV.x down from the top edge. Caps close the start/end faces.
+static func add_track_chunk(tool: SurfaceTool, track: TrackPath, from_distance: float, to_distance: float,
+		width: float, thickness: float, lift: float = 0.0, cap_start: bool = false, cap_end: bool = false) -> void:
 	var half_width: float = width * 0.5
 	var steps: int = maxi(1, int(ceil((to_distance - from_distance) / TrackPath.SAMPLE_SPACING)))
 	var previous: Transform3D = track.transform_at(from_distance)
@@ -113,7 +112,6 @@ static func track_chunk(track: TrackPath, from_distance: float, to_distance: flo
 	if cap_end:
 		var end_frame: Transform3D = track.transform_at(to_distance)
 		_add_cap(tool, end_frame, half_width, lift, thickness, end_frame.basis.x)
-	return tool.commit()
 
 
 static func _add_cap(tool: SurfaceTool, frame: Transform3D, half_width: float, lift: float, thickness: float,

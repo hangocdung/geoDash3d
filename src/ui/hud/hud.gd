@@ -152,6 +152,15 @@ func show_toast(text: String) -> void:
 	_attempt_fade = 1.6
 
 
+## "ATTEMPT 3  ·  <note>  ·  <note>" (empty notes are skipped).
+func show_attempt(attempt: int, notes: PackedStringArray) -> void:
+	var parts: PackedStringArray = [Locale.t("ATTEMPT %d") % attempt]
+	for note: String in notes:
+		if not note.is_empty():
+			parts.append(note)
+	show_toast("  ·  ".join(parts))
+
+
 ## Persistent mode tag next to the pause button (e.g. PRACTICE 75%).
 func show_mode(text: String) -> void:
 	_mode_label.text = text

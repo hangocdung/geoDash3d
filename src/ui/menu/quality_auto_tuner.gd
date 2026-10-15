@@ -23,7 +23,7 @@ func setup(level: LevelRunner) -> void:
 
 
 func _process(delta: float) -> void:
-	if _done or _level == null:
+	if _done or _level == null or _level.state == LevelRunner.RunState.LOADING:
 		return
 	_elapsed += delta
 	if _elapsed < WARMUP_SEC:

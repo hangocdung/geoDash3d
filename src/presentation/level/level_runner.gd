@@ -1,29 +1,32 @@
-# Level orchestrator: loads the chart, owns the RunSimulation, feeds it song time and taps, and runs
-# the state machine (waiting / running / paused / dead / complete / attract). Effects are routed by
-# PresentationRouter. Related: src/gameplay/simulation/run_simulation.gd, src/presentation/level/level.tscn
+# Level orchestrator: boots the level (LevelBoot: LevelLoader thread, then views over a few frames), owns the
+# RunSimulation, feeds it song time and taps, and runs the state machine (loading / waiting / running / paused / dead /
+# complete / attract). Effects go through PresentationRouter. Related: level_boot.gd, level.tscn
 class_name LevelRunner
 extends Node3D
+
+## The views are built and the run has started (or waits for the first tap); `chart` is set.
+signal loaded
 
 enum RunState { LOADING, WAITING, RUNNING, PAUSED, DEAD, COMPLETE }
 
 const COUNT_IN_BEATS: float = 4.0
 const RESTART_DELAY_SEC: float = 0.9
-const SCENERY_SEED: int = 1337
 
 @export_file("*.json") var chart_path: String = Scenes.DEFAULT_CHART
 @export var gameplay_config: GameplayConfig
 
-## Set before adding to the tree to bypass command-line parsing (menu attract mode).
+## Set before adding to the tree to bypass command-line parsing (menu attract mode; its data loaded on a thread).
 var preset_options: LaunchOptions
+var preset_loader: LevelLoader
 var chart: LevelChart
+## The data this level was built from (read only; the menu hands the demo's loader to the level the player starts).
+var loader: LevelLoader
 var simulation: RunSimulation
 var options: LaunchOptions
 var state: RunState = RunState.LOADING
 var start_beat: float = -COUNT_IN_BEATS
 
-var _context: LevelContext
 var _router: PresentationRouter
-var _stream: AudioStream
 var _autoplay: Autoplay
 var _pending_tap_times: PackedFloat64Array = []
 var _attempt: int = 0
@@ -39,6 +42,7 @@ var _records: RunRecords
 var _telemetry: RunTelemetry
 ## Where a run starts when no practice checkpoint has been earned.
 var _base_start_beat: float = -COUNT_IN_BEATS
+var _boot: LevelBoot
 ## Menu demo length and fade (attract mode only).
 var _attract: AttractLoop
 
@@ -59,25 +63,21 @@ func _ready() -> void:
 	options = preset_options if preset_options != null else LaunchOptions.take_next_run()
 	if options == null:
 		options = LaunchOptions.from_command_line()
-	var config: GameplayConfig = gameplay_config if gameplay_config != null else GameplayConfig.create_for_play()
-	var path: String = options.chart_path if not options.chart_path.is_empty() else chart_path
-	chart = ChartLoader.load_file(path, config)
-	_stream = load(chart.song_path) as AudioStream if chart != null else null
-	if _stream == null:
-		hud.show_message(Locale.t("Cannot load chart or song:\n%s") % path)
+	loader = LevelBoot.pick_loader(preset_loader, options.chart_path if not options.chart_path.is_empty() else chart_path,
+			gameplay_config)
+	_boot = LevelBoot.new(self, loader, not (options.attract_mode or options.video or options.is_capture_run()))
+
+
+## The views are built: the rest of the setup, then the run starts (or waits for the first tap).
+func _on_views_built() -> void:
+	if loader.failed():
+		_boot = null
 		return
-	_records = RunRecords.new(path, options, chart, config)
-	_telemetry = RunTelemetry.new(path, chart, options, _records.counts())
+	chart = loader.chart
+	_records = RunRecords.new(loader.chart_path, options, chart, loader.context.config)
+	_telemetry = RunTelemetry.new(loader.chart_path, chart, options, _records.counts())
 	_attract = AttractLoop.new(chart, _records.best()) if options.attract_mode else null
-	var song_end_beat: float = chart.beat_at_time(_stream.get_length())
-	var flatten: bool = not QualityTier.uses_spectacle_track(UserSettings.quality_tier)
-	_context = LevelContext.new(chart, config, TrackPath.build(chart, song_end_beat, flatten), UserSettings.quality_tier)
-	QualityTier.apply_to_viewport(get_viewport(), UserSettings.quality_tier)
-	for view: Node in [environment_director, track_view, decor_view, obstacle_view, player_view, camera_director,
-			vfx_director]:
-		view.call(&"setup", _context)
-	scenery_view.setup(_context, SCENERY_SEED)
-	_router = PresentationRouter.new(self, _context)
+	_router = PresentationRouter.new(self, loader.context)
 	_router.sfx_enabled = not options.attract_mode
 	obstacle_view.hazard_landed.connect(_router.on_hazard_landed)
 	song_clock.drive_mode = SongClock.DriveMode.FRAME_DELTA if options.frame_delta_clock \
@@ -91,7 +91,8 @@ func _ready() -> void:
 		hud.show_mode(Locale.t("PRACTICE  %d%%") % roundi(options.playback_rate * 100.0))
 	elif options.autoplay and not options.attract_mode and not options.video:
 		hud.show_mode("AUTOPLAY")
-	song_clock.song_finished.connect(_on_song_finished)
+	if options.attract_mode:
+		song_clock.song_finished.connect(restart)
 	song_clock.use_music_bus(AttractLoop.VOLUME_OFFSET_DB if options.attract_mode else 0.0)
 	_connect_hud()
 	if UserSettings.show_music_meter and not options.attract_mode:
@@ -101,6 +102,7 @@ func _ready() -> void:
 	if not is_nan(options.start_beat):
 		start_beat = chart.safe_start_beat(options.start_beat)
 	_base_start_beat = start_beat
+	loaded.emit()
 	if options.is_capture_run():
 		capture.begin(self, options)
 		return
@@ -120,7 +122,7 @@ func apply_quality(tier: QualityTier.Tier) -> void:
 
 ## Fresh simulation at `start_beat`; views are reset and posed but the clock is not started.
 func prepare_run() -> void:
-	simulation = RunSimulation.new(chart, _context.config, start_beat)
+	simulation = RunSimulation.new(chart, loader.context.config, start_beat)
 	simulation.invincible = options.invincible
 	simulation.player_died.connect(_on_player_died)
 	simulation.run_completed.connect(_on_run_completed)
@@ -145,17 +147,13 @@ func begin_run() -> void:
 		vfx_director.prewarm(camera_director.camera)
 	song_clock.calibration_offset_sec = UserSettings.audio_offset_sec
 	if not options.attract_mode and not options.video:
-		var notes: PackedStringArray = [Locale.t("ATTEMPT %d") % _attempt]
-		for note: String in [_pending_best_note, _pending_sync_note]:
-			if not note.is_empty():
-				notes.append(note)
-		hud.show_toast("  ·  ".join(notes))
+		hud.show_attempt(_attempt, [_pending_best_note, _pending_sync_note])
 		_pending_sync_note = ""
 		_pending_best_note = ""
 		Sfx.play(&"run.attempt", -6.0)
 	var start_time: float = chart.time_at(start_beat)
 	var audio_start: float = maxf(start_time, 0.0)
-	song_clock.start(_stream, audio_start, audio_start - start_time)
+	song_clock.start(loader.stream, audio_start, audio_start - start_time)
 	state = RunState.RUNNING
 
 
@@ -171,6 +169,13 @@ func current_beat() -> float:
 
 
 func _process(delta: float) -> void:
+	if _boot != null:
+		if state == RunState.LOADING:
+			if _boot.step():
+				_on_views_built()
+			return
+		if _boot.settle():
+			_boot = null
 	match state:
 		RunState.RUNNING, RunState.COMPLETE:
 			var beat: float = current_beat()
@@ -293,7 +298,3 @@ func _learn_sync() -> void:
 	if not note.is_empty():
 		_pending_sync_note = note
 
-
-func _on_song_finished() -> void:
-	if options.attract_mode:
-		restart()

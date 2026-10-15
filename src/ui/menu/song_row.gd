@@ -65,7 +65,12 @@ static func locked(entry: SongCatalog.Entry, requirement: String, actions: Array
 
 ## The song's cover (assets/covers/<id>.jpg, shared by the LED variant), or a music icon on a dark tile.
 static func cover(entry: SongCatalog.Entry) -> Control:
-	var path: String = COVER_DIRECTORY.path_join(entry.id.trim_suffix("_led") + ".jpg")
+	return cover_art(entry.id)
+
+
+## Cover of the song `id` (SongCatalog.song_id), for screens that only know the chart path (loading cover).
+static func cover_art(id: String) -> Control:
+	var path: String = COVER_DIRECTORY.path_join(id.trim_suffix("_led") + ".jpg")
 	var frame := PanelContainer.new()
 	frame.custom_minimum_size = COVER_SIZE
 	frame.size_flags_vertical = Control.SIZE_SHRINK_CENTER

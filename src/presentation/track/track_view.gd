@@ -25,9 +25,36 @@ var track_material: ShaderMaterial
 var block_material: ShaderMaterial
 
 
-func setup(context: LevelContext) -> void:
+## Mesh data of a level, built off the main thread by LevelLoader (only SurfaceTool arrays and transforms, no
+## RenderingServer objects); setup() turns it into nodes.
+class Geometry:
+	## Surface arrays (Mesh.ARRAY_MAX entries) of each CHUNK_LENGTH road group / raised-block group.
+	var road: Array[Array] = []
+	var blocks: Array[Array] = []
+	var pillars: Array[Transform3D] = []
+
+
+## Thread-safe: reads only the context's chart, terrain and track.
+static func build_geometry(context: LevelContext) -> Geometry:
+	var geometry := Geometry.new()
 	var width: float = context.config.track_width
 	var thickness: float = context.config.track_thickness
+	var terrain: Terrain = context.chart.terrain
+	var road_groups: Dictionary[int, SurfaceTool] = {}
+	for stretch: Vector2 in _road_stretches(terrain, context.track.start_distance, context.track.end_distance):
+		_build_road(context, stretch, width, thickness, road_groups)
+	for group: int in road_groups:
+		geometry.road.append(road_groups[group].commit_to_arrays())
+	for tool: SurfaceTool in _build_blocks(context, terrain, width).values():
+		geometry.blocks.append(tool.commit_to_arrays())
+	geometry.pillars = _pillar_transforms(context, terrain, width, thickness)
+	return geometry
+
+
+## `geometry`: prebuilt by LevelLoader; null builds it here (on this thread).
+func setup(context: LevelContext, geometry: Geometry = null) -> void:
+	if geometry == null:
+		geometry = build_geometry(context)
 	# Colors follow the phase palette; raised ground has a slightly brighter body and a cooler rail than the
 	# road, so steps read against it.
 	# Detail textures only where the tier affords them: the other tiers get the shader variant without that code.
@@ -49,18 +76,15 @@ func setup(context: LevelContext) -> void:
 		track_material.set_shader_parameter("detail_map", TRACK_DETAIL)
 		block_material.set_shader_parameter("detail_map", TRACK_DETAIL)
 	block_material.set_shader_parameter("grid_energy", 0.8)
-	var terrain: Terrain = context.chart.terrain
-	var road_groups: Dictionary[int, SurfaceTool] = {}
-	for stretch: Vector2 in _road_stretches(terrain, context.track.start_distance, context.track.end_distance):
-		_build_road(context, stretch, width, thickness, road_groups)
-	for group: int in road_groups:
-		_add_mesh("TrackChunk", road_groups[group].commit(), track_material)
-	_build_blocks(context, terrain, width)
-	_build_pillars(context, terrain, width, thickness)
+	for arrays: Array in geometry.road:
+		_add_mesh("TrackChunk", arrays, track_material)
+	for arrays: Array in geometry.blocks:
+		_add_mesh("Blocks", arrays, block_material)
+	_add_pillars(context, geometry.pillars)
 
 
 ## Solid road between gaps, as (from, to) distances.
-func _road_stretches(terrain: Terrain, start_distance: float, end_distance: float) -> Array[Vector2]:
+static func _road_stretches(terrain: Terrain, start_distance: float, end_distance: float) -> Array[Vector2]:
 	var stretches: Array[Vector2] = []
 	var stretch_start: float = start_distance
 	for index: int in terrain.piece_count():
@@ -78,7 +102,7 @@ func _road_stretches(terrain: Terrain, start_distance: float, end_distance: floa
 
 ## Road pieces are merged per CHUNK_LENGTH of track (`groups`), so short stretches between holes do not each
 ## cost a draw call.
-func _build_road(context: LevelContext, stretch: Vector2, width: float, thickness: float,
+static func _build_road(context: LevelContext, stretch: Vector2, width: float, thickness: float,
 		groups: Dictionary[int, SurfaceTool]) -> void:
 	var distance: float = stretch.x
 	while distance < stretch.y:
@@ -87,16 +111,14 @@ func _build_road(context: LevelContext, stretch: Vector2, width: float, thicknes
 		# Cap the faces that border a gap (not the far ends of the whole track).
 		var cap_start: bool = is_equal_approx(distance, stretch.x) and stretch.x > context.track.start_distance
 		var cap_end: bool = is_equal_approx(chunk_end, stretch.y) and stretch.y < context.track.end_distance
-		if not groups.has(group):
-			groups[group] = SurfaceTool.new()
-		groups[group].append_from(ProceduralMeshes.track_chunk(context.track, distance, chunk_end, width, thickness,
-				0.0, cap_start, cap_end), 0, Transform3D.IDENTITY)
+		ProceduralMeshes.add_track_chunk(_group_tool(groups, group), context.track, distance, chunk_end, width,
+				thickness, 0.0, cap_start, cap_end)
 		distance = chunk_end
 
 
 ## Raised pieces standing on the road (faces toward lower neighbours are closed), merged into one mesh per
 ## CHUNK_LENGTH of track (one draw call for all the steps of a stretch instead of one per piece).
-func _build_blocks(context: LevelContext, terrain: Terrain, width: float) -> void:
+static func _build_blocks(context: LevelContext, terrain: Terrain, width: float) -> Dictionary[int, SurfaceTool]:
 	var groups: Dictionary[int, SurfaceTool] = {}
 	for index: int in terrain.piece_count():
 		var height: float = terrain.piece_height(index)
@@ -108,17 +130,23 @@ func _build_blocks(context: LevelContext, terrain: Terrain, width: float) -> voi
 			continue
 		var cap_start: bool = index == 0 or terrain.piece_height(index - 1) < height
 		var cap_end: bool = index + 1 >= terrain.piece_count() or terrain.piece_height(index + 1) < height
-		var piece: ArrayMesh = ProceduralMeshes.track_chunk(context.track, from_distance, to_distance, width, height,
-				height, cap_start, cap_end)
 		var group: int = int(floor((from_distance - context.track.start_distance) / CHUNK_LENGTH))
-		if not groups.has(group):
-			groups[group] = SurfaceTool.new()
-		groups[group].append_from(piece, 0, Transform3D.IDENTITY)
-	for group: int in groups:
-		_add_mesh("Blocks", groups[group].commit(), block_material)
+		ProceduralMeshes.add_track_chunk(_group_tool(groups, group), context.track, from_distance, to_distance, width,
+				height, height, cap_start, cap_end)
+	return groups
 
 
-func _add_mesh(node_name: String, mesh: ArrayMesh, material: Material) -> void:
+static func _group_tool(groups: Dictionary[int, SurfaceTool], group: int) -> SurfaceTool:
+	if not groups.has(group):
+		var tool := SurfaceTool.new()
+		tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+		groups[group] = tool
+	return groups[group]
+
+
+func _add_mesh(node_name: String, arrays: Array, material: Material) -> void:
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	var instance := MeshInstance3D.new()
 	instance.name = "%s%d" % [node_name, get_child_count()]
 	instance.mesh = mesh
@@ -136,18 +164,9 @@ static func _near_underside_run(context: LevelContext, distance: float) -> bool:
 	return false
 
 
-func _build_pillars(context: LevelContext, terrain: Terrain, width: float, thickness: float) -> void:
+static func _pillar_transforms(context: LevelContext, terrain: Terrain, width: float,
+		thickness: float) -> Array[Transform3D]:
 	var clearance := TrackClearance.new(context.track)
-	var material := ShaderMaterial.new()
-	material.set_shader_parameter("palette_role", 2)
-	if QualityTier.uses_detail_textures(context.quality):
-		material.shader = BOX_DETAIL_SHADER
-		material.set_shader_parameter("detail_map", SCENERY_DETAIL)
-		material.set_shader_parameter("detail_tile", 5.0)
-	else:
-		material.shader = BOX_SHADER
-	material.set_shader_parameter("edge_energy", 2.5)
-	material.set_shader_parameter("edge_width", 0.1)
 	var transforms: Array[Transform3D] = []
 	var distance: float = context.track.start_distance + PILLAR_SPACING * 0.5
 	while distance < context.track.end_distance:
@@ -163,6 +182,20 @@ func _build_pillars(context: LevelContext, terrain: Terrain, width: float, thick
 					Vector3(1.4, PILLAR_DEPTH, width * 0.7))
 			transforms.append(Transform3D(basis, center))
 		distance += PILLAR_SPACING
+	return transforms
+
+
+func _add_pillars(context: LevelContext, transforms: Array[Transform3D]) -> void:
+	var material := ShaderMaterial.new()
+	material.set_shader_parameter("palette_role", 2)
+	if QualityTier.uses_detail_textures(context.quality):
+		material.shader = BOX_DETAIL_SHADER
+		material.set_shader_parameter("detail_map", SCENERY_DETAIL)
+		material.set_shader_parameter("detail_tile", 5.0)
+	else:
+		material.shader = BOX_SHADER
+	material.set_shader_parameter("edge_energy", 2.5)
+	material.set_shader_parameter("edge_width", 0.1)
 	var multimesh := MultiMesh.new()
 	multimesh.transform_format = MultiMesh.TRANSFORM_3D
 	multimesh.use_colors = true

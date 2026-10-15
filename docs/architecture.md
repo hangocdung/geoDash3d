@@ -182,7 +182,15 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   safe area trên mobile.
 
 ## 4b. UI và luồng màn hình
-- `MainMenu` (main scene): instance `level.tscn` với `LaunchOptions.attract()` (autoplay, ẩn HUD) làm nền; `AttractLoop`
+- Tải level (GD3-267): `LevelLoader` chạy trên `WorkerThreadPool` — `ChartLoader` (kèm `ReferenceRun`), nhạc,
+  `TrackPath`, mảng mesh đường `TrackView.Geometry` (chỉ `SurfaceTool.commit_to_arrays`, không đụng RenderingServer).
+  Dữ liệu tải xong chỉ đọc, nên dùng chung được giữa demo menu và lượt chơi (`LevelLoader.next_for_level`,
+  `LevelRunner.preset_loader`; khớp theo đường dẫn chart + quality tier). `LevelRunner` ở trạng thái LOADING cho tới
+  khi `LevelBoot` xong: chờ thread, rồi mỗi frame `setup` một nhóm view (view tắt `_process` tới lúc đó), sau đó phát
+  `loaded`. Lượt chơi thường có `LoadingCover` (ảnh bìa, vòng xoay, thanh tiến độ), mờ đi sau vài frame đầu (biên dịch
+  shader); menu hiện cùng màn đó trước khi đổi scene nên nhìn liền mạch. Demo/capture/video không có cover.
+- `MainMenu` (main scene): `MenuBackdrop` giữ level demo `LaunchOptions.attract()` (autoplay, ẩn HUD) làm nền, tải bài
+  mới trong nền rồi đổi qua lớp tối mờ dần; `AttractLoop`
   lặp demo sau 60 s đầu hoặc điểm xa nhất người chơi từng tới (lấy cái sau hơn; bài đã qua thì tới hết chart), nhạc
   nhỏ dần trước khi lặp. Trong danh sách bài, bấm một bài chỉ chọn nó (`previewed` → `MainMenu._preview` thay level
   demo bằng bài đó); nút lớn trên `SongDetailCard` mới vào màn chơi. Các nút PLAY / PRACTICE (đều qua `SongListPanel`: quét mọi `*.chart.json` trong `assets/music`, trừ

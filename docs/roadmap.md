@@ -357,6 +357,12 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
       sang bài đó (`MainMenu._preview`); vào màn chơi bằng nút lớn nhấp nháy trên thẻ bài đã chọn (`SongDetailCard`).
       Ngang: danh sách bên trái, demo hiện rõ bên phải. Demo (`AttractLoop`) chỉ phát 60 s đầu, hoặc tới điểm xa nhất
       người chơi từng tới nếu xa hơn (bài đã qua: phát hết), nhạc nhỏ dần 1,5 s trước khi lặp lại.
+- [x] **GD3-267** Tải level không treo màn hình (2026-10-15). Đo trên SM-N770F: mỗi lần đổi bài demo treo ~3,6 s (đọc
+      chart + reference run 2,2 s, dựng mesh đường 1 s). Giờ `LevelLoader` làm chart, nhạc, `TrackPath` và mảng mesh
+      đường (`TrackView.Geometry`) trên `WorkerThreadPool`; `LevelBoot` dựng view mỗi frame một bước. Menu giữ demo cũ
+      chạy, thẻ bài hiện "ĐANG TẢI BẢN NGHE THỬ", rồi chuyển qua lớp tối mờ dần (`MenuBackdrop`). CHƠI hiện
+      `LoadingCover` (ảnh bìa, vòng xoay, thanh tiến độ) và dùng lại dữ liệu demo đã tải. Frame chậm nhất trên máy
+      ~140 ms thay cho 3,7 s. Kèm sửa: banner quảng cáo không còn che nút CHƠI (lề dưới tính chiều cao banner).
 - [~] **GD3-232 / 234** Phân tích độ khó và dashboard: truy vấn BigQuery mẫu cho tỉ lệ qua màn, chỗ chết / điểm nghẽn,
       lệch nhạc, so với `ChartDifficulty`, phễu bài, FPS theo máy (`docs/release/analytics_queries.md`), cách dựng
       Looker Studio. **Còn lại:** bật BigQuery export, có dữ liệu thật; lệch theo từng cue chưa gửi (cần duyệt).

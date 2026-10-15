@@ -83,6 +83,11 @@ static func hide_banner() -> void:
 		_banner = null
 
 
+## Screen pixels the bottom banner takes (0 without one): menu pages keep their buttons above it.
+static func banner_height_pixels() -> int:
+	return _banner.get_height_in_pixels() if _banner != null else 0
+
+
 ## Starts loading a rewarded ad if none is ready (the song list calls it when it shows a locked song).
 static func preload_rewarded() -> void:
 	if _state != State.READY or _loading_rewarded or _rewarded != null:

@@ -183,6 +183,15 @@ func _fill(portrait: bool) -> void:
 		Ads.preload_rewarded()
 
 
+## The demo is loading the selected song (MenuBackdrop.loading_changed).
+func set_loading(loading: bool) -> void:
+	_card.set_loading(loading)
+
+
+func title_of(path: String) -> String:
+	return _titles.get(path, "")
+
+
 func _is_playable(path: String) -> bool:
 	return _titles.has(path) and (not apply_locks or _open.has(path))
 

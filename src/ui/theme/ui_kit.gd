@@ -105,6 +105,8 @@ static func safe_margins(control: Control) -> Vector4:
 	margins.y = maxf(margins.y, safe.position.y * canvas_per_pixel + 12.0)
 	margins.z = maxf(margins.z, (window.size.x - safe.end.x) * canvas_per_pixel + 16.0)
 	margins.w = maxf(margins.w, (window.size.y - safe.end.y) * canvas_per_pixel + 12.0)
+	# The menu's bottom banner (GD3-240) would cover a page's bottom buttons (the song list's PLAY).
+	margins.w = maxf(margins.w, float(Ads.banner_height_pixels()) * canvas_per_pixel + 12.0)
 	return margins
 
 

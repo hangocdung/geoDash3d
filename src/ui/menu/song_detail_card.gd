@@ -1,6 +1,7 @@
-# The selected song in the song list: cover, title, difficulty, BPM · length, best result and the big pulsing action
-# button (PLAY / PRACTICE / …) that starts it. Selecting a row only previews the song in the menu demo; this button is
-# the way into the level. Related: src/ui/menu/song_list_panel.gd, src/ui/menu/song_row.gd
+# The selected song in the song list: cover, title, difficulty, BPM · length, best result, a spinner while the menu
+# demo loads it, and the big pulsing action button (PLAY / PRACTICE / …) that starts it. Selecting a row only previews
+# the song in the menu demo; this button is the way into the level.
+# Related: src/ui/menu/song_list_panel.gd, src/ui/menu/song_row.gd, src/ui/loading/loading_spinner.gd
 class_name SongDetailCard
 extends PanelContainer
 
@@ -14,6 +15,7 @@ const PULSE_SEC: float = 0.9
 var _cover_slot: Control
 var _info_slot: VBoxContainer
 var _button: Button
+var _loading_row: HBoxContainer
 
 
 ## `text` / `icon`: the mode's action, e.g. "PLAY" / &"play".
@@ -31,7 +33,21 @@ func _init(text: String, icon: StringName) -> void:
 	_info_slot = VBoxContainer.new()
 	_info_slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_info_slot.alignment = BoxContainer.ALIGNMENT_CENTER
-	top.add_child(_info_slot)
+	var info_column := VBoxContainer.new()
+	info_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	info_column.alignment = BoxContainer.ALIGNMENT_CENTER
+	info_column.add_theme_constant_override("separation", 8)
+	info_column.add_child(_info_slot)
+	_loading_row = HBoxContainer.new()
+	_loading_row.add_theme_constant_override("separation", 12)
+	_loading_row.visible = false
+	var spinner := LoadingSpinner.new(30.0)
+	spinner.line_width = 4.0
+	_loading_row.add_child(spinner)
+	var loading: Label = UiKit.label("LOADING PREVIEW", "Caption")
+	_loading_row.add_child(loading)
+	info_column.add_child(_loading_row)
+	top.add_child(info_column)
 	_button = UiKit.button(text, icon, "PrimaryButton", false, Vector2(0, BUTTON_HEIGHT), &"ui.confirm")
 	_button.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_button.icon = UiIcons.get_icon(icon, 48, Color.WHITE)
@@ -75,6 +91,10 @@ func show_song(entry: SongCatalog.Entry) -> void:
 	if best.text.is_empty():
 		best.text = Locale.t("NOT PLAYED YET")
 	_info_slot.add_child(best)
+
+
+func set_loading(loading: bool) -> void:
+	_loading_row.visible = loading
 
 
 func focus_button() -> void:
