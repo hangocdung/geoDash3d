@@ -243,7 +243,8 @@ def main():
         print("DRY RUN (output outside the project): catalog and manifest not updated")
         return
     save_catalog(catalog)
-    manifest_path.write_text(json.dumps(dict(sorted(manifest.items())), indent="\t") + "\n", encoding="utf-8")
+    manifest_path.write_text(json.dumps(dict(sorted(manifest.items())), indent="\t") + "\n", encoding="utf-8",
+                             newline="\n")
     write_review(ROOT / "tools/audio/out/sfx_review.html", catalog)
     missing = [s for s in SOUNDS if catalog["sounds"].get(s, {}).get("status") != "generated"]
     print("STILL PLACEHOLDER (%d): %s" % (len(missing), ", ".join(missing)))
