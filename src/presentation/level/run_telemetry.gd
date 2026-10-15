@@ -1,6 +1,7 @@
 # One analytics event per run (GD3-231): level_start when an attempt is prepared, level_end when it dies, completes or
 # is left (restart / menu), plus new_best and first_clear for runs that count for high scores. Collects the run's
 # grades, timing errors, misses and shields from the simulation's signals. Silent in attract, autoplay and captures.
+# Each finished attempt also counts its play time toward the next interstitial (Ads).
 # Related: src/core/telemetry.gd, src/presentation/level/level_runner.gd, docs/todo.md (event table)
 class_name RunTelemetry
 extends RefCounted
@@ -96,6 +97,7 @@ func _finish(result: String, beat: float, extra: Dictionary[String, Variant]) ->
 			"miss_cues": ",".join(_misses).left(MISS_LIST_LENGTH)}
 	params.merge(extra)
 	Telemetry.log_event("level_end", params)
+	Ads.note_play_time(float(params["duration_sec"]))
 	# Only finished runs are submitted to the high scores (RunRecords), so only they can set a record.
 	if not _counts_for_records or result == "quit":
 		return

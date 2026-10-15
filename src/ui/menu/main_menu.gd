@@ -38,6 +38,7 @@ func _ready() -> void:
 	tuner.name = "QualityAutoTuner"
 	add_child(tuner)
 	tuner.setup(level)
+	_start_ads(level)
 	var layer := CanvasLayer.new()
 	layer.layer = 10
 	add_child(layer)
@@ -186,3 +187,23 @@ func _close_practice() -> void:
 	_practice_panel.queue_free()
 	_practice_panel = null
 	_song_list.visible = true
+
+
+## Consent + SDK on first launch, the menu banner, and an interstitial on coming back from a run (Ads decides
+## whether enough play has passed). The attract level's music pauses while a full-screen ad is open.
+func _start_ads(level: LevelRunner) -> void:
+	Ads.on_fullscreen = func(shown: bool) -> void:
+		if not is_instance_valid(level):
+			return
+		if shown:
+			level.song_clock.pause()
+		else:
+			level.song_clock.resume(0.0)
+	Ads.start()
+	Ads.show_banner()
+	Ads.maybe_show_interstitial()
+
+
+func _exit_tree() -> void:
+	Ads.hide_banner()
+	Ads.on_fullscreen = Callable()

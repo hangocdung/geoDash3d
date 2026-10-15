@@ -1,4 +1,4 @@
-# Settings panel: quality tier, volumes, manual audio offset (±5 ms), auto sync, reduce flashing, vibration, language,
+# Settings panel: quality tier, volumes, manual audio offset (±5 ms), auto sync, reduce flashing, vibration, language, ad privacy (EEA/UK),
 # saved to UserSettings.
 # Related: src/core/user_settings.gd, src/ui/menu/main_menu.gd
 class_name SettingsPanel
@@ -90,6 +90,11 @@ func _ready() -> void:
 	meter.add_theme_font_size_override("font_size", 26)
 	meter.toggled.connect(func(enabled: bool) -> void: UserSettings.show_music_meter = enabled)
 	column.add_child(_row("Music meter", meter))
+
+	if Ads.privacy_options_required():
+		var privacy: Button = UiTheme.make_button("AD PRIVACY", 300.0, 64.0)
+		privacy.pressed.connect(Ads.show_privacy_options)
+		column.add_child(_row("Ads", privacy))
 
 	var back: Button = UiTheme.make_button("BACK", 300.0, 72.0, &"ui.back")
 	back.pressed.connect(_close)

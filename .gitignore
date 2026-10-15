@@ -35,3 +35,7 @@ __pycache__/
 /android_plugins/*/local.properties
 # Firebase project config (per developer account; see docs/release/firebase_setup.md)
 /android_plugins/google-services.json
+
+# AdMob plugin: downloaded iOS binaries and download cache
+/addons/admob/ios/bin/
+/addons/admob/downloads/
