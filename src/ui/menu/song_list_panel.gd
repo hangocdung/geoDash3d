@@ -40,6 +40,7 @@ var _entries: Array[SongCatalog.Entry] = []
 var _titles: Dictionary[String, String] = {}
 var _ordered: PackedStringArray = []
 var _open: Dictionary[String, bool] = {}
+var _online: SongOnlinePanel
 
 
 func _title() -> String:
@@ -55,6 +56,9 @@ func _icon() -> StringName:
 
 
 func _build_body() -> void:
+	_online = SongOnlinePanel.new()
+	body.add_child(_online)
+	_online.changed.connect(_reload_content)
 	_entries = SongCatalog.list_songs()
 	for entry: SongCatalog.Entry in _entries:
 		_titles[entry.path] = entry.title
@@ -110,7 +114,7 @@ func _build_filters() -> HBoxContainer:
 	var filters := HBoxContainer.new()
 	filters.add_theme_constant_override("separation", 10)
 	var group := ButtonGroup.new()
-	var tiers: PackedStringArray = [ALL]
+	var tiers: PackedStringArray = [ALL, "FAVORITES"]
 	for entry: SongCatalog.Entry in _entries:
 		var tier: String = ChartDifficulty.tier_name(entry.difficulty)
 		if not tiers.has(tier):
@@ -168,8 +172,16 @@ func _fill(portrait: bool) -> void:
 	var focus: Button = null
 	var any_locked: bool = false
 	for entry: SongCatalog.Entry in _entries:
-		if _filter != ALL and ChartDifficulty.tier_name(entry.difficulty) != _filter:
+		if _filter == "FAVORITES" and not UserSettings.favorite_song_ids.has(entry.id):
 			continue
+		if _filter != ALL and _filter != "FAVORITES" and ChartDifficulty.tier_name(entry.difficulty) != _filter:
+			continue
+		if not entry.downloaded:
+			_songs.add_child(_online.download_row(entry))
+			continue
+		if not entry.remote.is_empty() and entry.revision < int(entry.remote["version"]) \
+				and not ContentCatalog.installed(entry.remote):
+			_songs.add_child(_online.download_row(entry))
 		if _is_playable(entry.path):
 			var row: Button = SongRow.playable(entry)
 			row.button_group = _rows
@@ -198,7 +210,7 @@ func title_of(path: String) -> String:
 
 
 func _is_playable(path: String) -> bool:
-	return _titles.has(path) and (not apply_locks or _open.has(path))
+	return _titles.has(path) and _entry(path).downloaded and (not apply_locks or _open.has(path))
 
 
 func _entry(path: String) -> SongCatalog.Entry:
@@ -218,7 +230,7 @@ func _select(path: String) -> void:
 
 
 func _on_action() -> void:
-	if selected_path.is_empty():
+	if selected_path.is_empty() or _online.downloader.busy:
 		return
 	Telemetry.log_event("song_select", {"song_id": SongCatalog.song_id(selected_path)})
 	chosen.emit(selected_path)
@@ -258,3 +270,27 @@ func _start_trial(entry: SongCatalog.Entry) -> void:
 	elif not Ads.show_rewarded("song_trial", play):
 		Ads.preload_rewarded()
 		_status.text = Locale.t("The ad is not ready yet, try again in a moment.")
+
+
+func _reload_content() -> void:
+	var previous_path: String = selected_path
+	var selected_id: String = SongCatalog.song_id(selected_path)
+	_entries = SongCatalog.list_songs()
+	_titles.clear()
+	_ordered.clear()
+	for entry: SongCatalog.Entry in _entries:
+		_titles[entry.path] = entry.title
+		_ordered.append(entry.path)
+		if entry.id == selected_id and entry.downloaded:
+			selected_path = entry.path
+	_open = SongUnlocks.unlocked(_ordered)
+	if not _is_playable(selected_path):
+		selected_path = ""
+		for entry: SongCatalog.Entry in _entries:
+			if _is_playable(entry.path):
+				selected_path = entry.path
+				break
+	_card.show_song(_entry(selected_path))
+	if selected_path != previous_path and not selected_path.is_empty():
+		previewed.emit(selected_path)
+	_fill(UiKit.is_portrait(self))

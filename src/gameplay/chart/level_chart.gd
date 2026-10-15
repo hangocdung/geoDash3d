@@ -5,6 +5,7 @@ class_name LevelChart
 extends RefCounted
 
 var title: String = ""
+var revision: int = 1
 var artist: String = ""
 var song_path: String = ""
 var end_beat: float = 0.0

@@ -19,6 +19,8 @@ var _title: Label
 var _details: Label
 var _resume_button: Button
 var _next_button: Button
+var _rating: SongRatingWidget
+var _column: VBoxContainer
 var _rank: Label
 
 
@@ -36,6 +38,7 @@ func _ready() -> void:
 	card.theme_type_variation = "Dialog"
 	center.add_child(card)
 	var column := VBoxContainer.new()
+	_column = column
 	column.custom_minimum_size = Vector2(CARD_WIDTH, 0)
 	column.add_theme_constant_override("separation", 16)
 	card.add_child(column)
@@ -79,6 +82,8 @@ func open(title: String, can_resume: bool) -> void:
 	_rank.visible = false
 	_next_button.visible = false
 	_resume_button.visible = can_resume
+	if is_instance_valid(_rating):
+		_rating.queue_free()
 	visible = true
 
 
@@ -103,3 +108,14 @@ func _add_button(parent: Control, text: String, icon: StringName, primary: bool,
 	button.pressed.connect(func() -> void: emitted.emit())
 	parent.add_child(button)
 	return button
+
+
+func offer_song_rating(id: String) -> void:
+	var ratings: SongRatings = SongRatings.start(get_tree())
+	if ratings.prompted(id):
+		return
+	ratings.mark_prompted(id)
+	_rating = SongRatingWidget.new()
+	_rating.song_id = id
+	_column.add_child(_rating)
+	_column.move_child(_rating, _details.get_index() + 1)

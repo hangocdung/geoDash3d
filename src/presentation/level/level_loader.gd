@@ -66,7 +66,7 @@ func _work() -> void:
 	if chart == null:
 		progress = 1.0
 		return
-	stream = load(chart.song_path) as AudioStream
+	stream = ContentPaths.audio(chart.song_path)
 	if stream == null:
 		push_error("LevelLoader: cannot load song '%s'" % chart.song_path)
 		progress = 1.0

@@ -91,6 +91,21 @@ func show_song(entry: SongCatalog.Entry) -> void:
 	if best.text.is_empty():
 		best.text = Locale.t("NOT PLAYED YET")
 	_info_slot.add_child(best)
+	var rating := SongRatingWidget.new()
+	rating.song_id = entry.id
+	_info_slot.add_child(rating)
+	var favorite: Button = UiKit.button("★ Favorite" if UserSettings.favorite_song_ids.has(entry.id) else "☆ Favorite",
+			&"", "", false, Vector2(0, 48))
+	favorite.pressed.connect(func() -> void:
+		var ids: PackedStringArray = UserSettings.favorite_song_ids
+		if ids.has(entry.id):
+			ids.remove_at(ids.find(entry.id))
+		else:
+			ids.append(entry.id)
+		UserSettings.favorite_song_ids = ids
+		UserSettings.save_settings()
+		favorite.text = "★ Favorite" if ids.has(entry.id) else "☆ Favorite")
+	_info_slot.add_child(favorite)
 
 
 func set_loading(loading: bool) -> void:

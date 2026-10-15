@@ -30,7 +30,8 @@ static func start() -> void:
 	OS.add_logger(_logger)
 	var plugin: Object = Engine.get_singleton(PLUGIN_SINGLETON)
 	plugin.call(&"set_custom_key", "godot_version", Engine.get_version_info()["string"])
-	plugin.call(&"set_custom_key", "quality_tier", QualityTier.Tier.keys()[UserSettings.quality_tier])
+	var settings: Node = (Engine.get_main_loop() as SceneTree).root.get_node("UserSettings")
+	plugin.call(&"set_custom_key", "quality_tier", QualityTier.Tier.keys()[int(settings.get("quality_tier"))])
 
 
 ## True on a build where Firebase is configured and running.

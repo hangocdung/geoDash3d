@@ -58,7 +58,6 @@ var _attract: AttractLoop
 @onready var hud: Hud = $Hud
 @onready var capture: CaptureController = $CaptureController
 
-
 func _ready() -> void:
 	options = preset_options if preset_options != null else LaunchOptions.take_next_run()
 	if options == null:
@@ -66,7 +65,6 @@ func _ready() -> void:
 	loader = LevelBoot.pick_loader(preset_loader, options.chart_path if not options.chart_path.is_empty() else chart_path,
 			gameplay_config)
 	_boot = LevelBoot.new(self, loader, not (options.attract_mode or options.video or options.is_capture_run()))
-
 
 ## The views are built: the rest of the setup, then the run starts (or waits for the first tap).
 func _on_views_built() -> void:
@@ -112,7 +110,6 @@ func _on_views_built() -> void:
 	else:
 		state = RunState.WAITING
 		hud.show_message("%s\n%s" % [chart.title.to_upper(), Locale.t("TAP TO START")])
-
 
 ## Re-applies graphics quality live (used by the menu's automatic quality tuner).
 func apply_quality(tier: QualityTier.Tier) -> void:
@@ -290,6 +287,8 @@ func _on_run_completed(_beat: float) -> void:
 	_learn_sync()
 	hud.run_menu.open_results(_records.completed_text(simulation, _practice != null), _records.rank(simulation),
 			not _records.next_song().is_empty())
+	if _records.counts():
+		hud.run_menu.offer_song_rating(SongCatalog.song_id(loader.chart_path))
 
 
 ## Folds learned audio-offset corrections in between runs; the note appears with the next attempt.

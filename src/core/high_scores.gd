@@ -27,7 +27,7 @@ static func best(chart_path: String) -> Record:
 	var file := ConfigFile.new()
 	if file.load(path) != OK:
 		return record
-	var section: String = chart_path.get_file()
+	var section: String = ContentPaths.score_key(chart_path)
 	record.score = int(file.get_value(section, "score", 0))
 	record.progress = float(file.get_value(section, "progress", 0.0))
 	record.max_combo = int(file.get_value(section, "max_combo", 0))
@@ -43,7 +43,7 @@ static func submit(chart_path: String, score: int, progress: float, max_combo: i
 	if error != OK and error != ERR_FILE_NOT_FOUND:
 		push_error("HighScores: cannot read '%s' (%s)" % [path, error_string(error)])
 		return previous
-	var section: String = chart_path.get_file()
+	var section: String = ContentPaths.score_key(chart_path)
 	file.set_value(section, "score", maxi(previous.score, score))
 	file.set_value(section, "progress", maxf(previous.progress, clampf(progress, 0.0, 1.0)))
 	file.set_value(section, "max_combo", maxi(previous.max_combo, max_combo))
