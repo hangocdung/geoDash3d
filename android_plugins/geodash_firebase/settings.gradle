@@ -1,0 +1,21 @@
+// Godot Android plugin (v2) wrapping Firebase Analytics, Crashlytics (with NDK crashes) and Remote Config (GD3-230).
+// Build: tools/android/build_firebase_plugin.sh  (writes the AARs into addons/geodash_firebase/bin)
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    plugins {
+        id 'com.android.library' version '8.6.1'
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = 'geodash_firebase'

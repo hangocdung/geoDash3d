@@ -1,0 +1,32 @@
+// Android library for the GeoDashFirebase Godot plugin. Firebase is compileOnly here: the game's Gradle build pulls
+// the same versions through addons/geodash_firebase/export_plugin.gd (FIREBASE_DEPENDENCIES), keep both in sync.
+plugins {
+    id 'com.android.library'
+}
+
+ext {
+    godotVersion = '4.6.1.stable'
+    firebaseBom = '34.0.0'
+}
+
+android {
+    namespace 'com.dunghn.geodash.firebase'
+    compileSdk 35
+
+    defaultConfig {
+        minSdk 24
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    compileOnly "org.godotengine:godot:$godotVersion"
+    compileOnly platform("com.google.firebase:firebase-bom:$firebaseBom")
+    compileOnly 'com.google.firebase:firebase-analytics'
+    compileOnly 'com.google.firebase:firebase-crashlytics'
+    compileOnly 'com.google.firebase:firebase-config'
+}

@@ -27,3 +27,11 @@ __pycache__/
 
 # Owner-generated source media (large); provenance lives in assets/audio/sfx_manifest.json
 /art_source/
+
+# Android Gradle build template (recreated by tools/android/setup_gradle_build.sh) and plugin build outputs
+/android/
+/android_plugins/*/build/
+/android_plugins/*/.gradle/
+/android_plugins/*/local.properties
+# Firebase project config (per developer account; see docs/release/firebase_setup.md)
+/android_plugins/google-services.json

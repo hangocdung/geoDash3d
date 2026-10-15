@@ -13,6 +13,8 @@ const AUTOLOADS: Dictionary[String, String] = {
 }
 
 const MAIN_SCENE: String = "res://src/ui/menu/main_menu.tscn"
+## Editor plugins (export-time only): the Firebase Android plugin (GD3-230).
+const EDITOR_PLUGINS: PackedStringArray = ["res://addons/geodash_firebase/plugin.cfg"]
 ## Phones start in any orientation; DisplayOrientation locks it while a level runs (GD3-210).
 const HANDHELD_ORIENTATION: DisplayServer.ScreenOrientation = DisplayServer.SCREEN_SENSOR
 
@@ -61,6 +63,7 @@ func _init() -> void:
 	_configure_autoloads()
 	_configure_shader_globals()
 	ProjectSettings.set_setting("application/run/main_scene", MAIN_SCENE)
+	ProjectSettings.set_setting("editor_plugins/enabled", EDITOR_PLUGINS)
 	ProjectSettings.set_setting("display/window/handheld/orientation", HANDHELD_ORIENTATION)
 	ProjectSettings.set_setting("importer_defaults/texture", TEXTURE_IMPORT_DEFAULTS)
 	var error: Error = ProjectSettings.save()

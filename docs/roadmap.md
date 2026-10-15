@@ -258,3 +258,9 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
       toast lần thử) + `tools/capture/record_clip.sh` (Movie Maker 60 FPS → ffmpeg H.264 1080×1920 hoặc 1920×1080;
       khung hình đặt bằng `override.cfg` tạm vì `--resolution` không đổi được kích thước của Movie Maker). Thử: Pulse
       Drive (LED) từ beat 64, 8 s, dọc → mp4 1080×1920 có tiếng, ~29 s để quay.
+- [~] **GD3-230** Plugin Firebase Android (người dùng duyệt 2026-10-15): `android_plugins/geodash_firebase` + addon
+      `geodash_firebase` + Gradle build (`tools/android/setup_gradle_build.sh` vá google-services / Crashlytics, tắt
+      Gradle daemon vì daemon giữ tiến trình export của Godot). APK debug có `libcrashlytics*.so`, export ~1 phút.
+      Lỗi script → non-fatal (`TelemetryLogger`). **Còn lại:** người dùng tạo project Firebase và đặt
+      `android_plugins/google-services.json` (`docs/release/firebase_setup.md`); đo FPS A-B-B-A trên máy (đã có
+      `build/fb_a.apk` không Gradle/Firebase và `build/fb_b.apk` có, máy bị khóa lúc làm); kiểm tra DebugView.

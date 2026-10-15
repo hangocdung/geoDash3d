@@ -39,7 +39,7 @@ Danh sách việc **để lên kế hoạch**, chưa bắt đầu (lập 2026-10
 ## 3. Firebase: tìm lỗi và chỉ số
 Firebase **không có SDK chính thức cho Godot**. Plugin cộng đồng dạng REST không có Crashlytics → nên tự viết plugin
 Android (Godot Android plugin v2 bọc Firebase Android SDK), iOS làm sau (GD3-262).
-- [ ] **GD3-230** Plugin Firebase Android (Claude, L): Crashlytics (crash + ANR; `push_error` của GDScript gửi thành
+- [~] **GD3-230** (→ roadmap Phase 7) Plugin Firebase Android (Claude, L): Crashlytics (crash + ANR; `push_error` của GDScript gửi thành
       lỗi non-fatal), Analytics, Remote Config. Lớp GDScript `Telemetry` để code game không gọi thẳng plugin
       (PC/test: không gửi gì). Không gửi gì trong attract mode/autoplay/capture.
 - [~] **GD3-231** (→ roadmap Phase 7) Bộ event (Claude, M) — gửi **một event mỗi lượt chơi**, không gửi theo từng lần chạm:

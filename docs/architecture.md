@@ -199,6 +199,13 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   (restart, MENU), kèm `new_best`/`first_clear` cho lượt tính kỷ lục. Không gửi trong attract, autoplay, capture.
   Khác: `calibration_done` (thủ công/tự học), `song_select`. Chưa có: `perf_sample`, `shop_view`, `iap_click`,
   `rate_prompt_shown` (chờ GD3-235/241/244).
+- Firebase (GD3-230): plugin Android v2 tự viết `android_plugins/geodash_firebase` (Java, AAR commit ở
+  `addons/geodash_firebase/bin/`), singleton `GeoDashFirebase`: `log_event`, `set_user_property`, `record_error`,
+  `crash_log`, `set_custom_key`, `fetch_remote_config` / `remote_config_json`, `get_app_instance_id`,
+  `set_collection_enabled`. Export plugin (`addons/geodash_firebase/export_plugin.gd`) thêm AAR + Firebase BOM 34.0.0
+  (analytics 23.0.0, crashlytics-ndk 20.0.0, config 23.0.0) vào Gradle build. `Telemetry.start()` (gọi từ
+  `UserSettings`) cài `TelemetryLogger`: `push_error` → non-fatal Crashlytics (mỗi thông điệp 1 lần, tối đa 25/phiên).
+  Thiếu `google-services.json` → plugin không khởi tạo Firebase, mọi lệnh là no-op.
 - `Haptics` (`src/core/haptics.gd`): rung ngắn khi PERFECT, vỡ lá chắn, chết; tắt trong Settings (`UserSettings.haptics`),
   không rung trong attract. Android cần quyền `vibrate` (đã bật trong preset).
 

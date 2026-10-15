@@ -1,7 +1,8 @@
 # Analytics facade (GD3-230/231): game code logs events here and never talks to a plugin directly. Events are checked
 # against Firebase Analytics limits, kept in a short in-memory history (tests, debugging) and handed to the backend:
 # the Firebase Android plugin's singleton when present, else a "TELEMETRY" console line in debug builds, else nothing.
-# Callers decide when not to log (attract mode, autoplay, captures). Related: src/presentation/level/run_telemetry.gd
+# Callers decide when not to log (attract mode, autoplay, captures). start() also sends script errors to Crashlytics.
+# Related: src/presentation/level/run_telemetry.gd, src/core/telemetry_logger.gd, android_plugins/geodash_firebase
 class_name Telemetry
 extends RefCounted
 
@@ -18,6 +19,42 @@ const RESERVED_PREFIXES: PackedStringArray = ["firebase_", "google_", "ga_"]
 static var history: Array[Dictionary] = []
 ## False stops the backend (tests); events are still validated and kept in `history`.
 static var send_enabled: bool = true
+static var _logger: TelemetryLogger
+
+
+## Once at startup (UserSettings): on a build with the Firebase plugin, errors become Crashlytics non-fatals.
+static func start() -> void:
+	if _logger != null or not Engine.has_singleton(PLUGIN_SINGLETON):
+		return
+	_logger = TelemetryLogger.new()
+	OS.add_logger(_logger)
+	var plugin: Object = Engine.get_singleton(PLUGIN_SINGLETON)
+	plugin.call(&"set_custom_key", "godot_version", Engine.get_version_info()["string"])
+	plugin.call(&"set_custom_key", "quality_tier", QualityTier.Tier.keys()[UserSettings.quality_tier])
+
+
+## True on a build where Firebase is configured and running.
+static func is_live() -> bool:
+	return Engine.has_singleton(PLUGIN_SINGLETON) and bool(Engine.get_singleton(PLUGIN_SINGLETON).call(&"is_ready"))
+
+
+## Analytics app-instance ID ("" until known or without Firebase), for data deletion requests (privacy policy).
+static func app_instance_id() -> String:
+	if not Engine.has_singleton(PLUGIN_SINGLETON):
+		return ""
+	return str(Engine.get_singleton(PLUGIN_SINGLETON).call(&"get_app_instance_id"))
+
+
+## A non-fatal Crashlytics issue (TelemetryLogger sends push_error messages here).
+static func record_error(message: String) -> void:
+	if send_enabled and Engine.has_singleton(PLUGIN_SINGLETON):
+		Engine.get_singleton(PLUGIN_SINGLETON).call(&"record_error", message.left(1000))
+
+
+## A line attached to the next crash report (where the player was: scene, song, beat).
+static func breadcrumb(message: String) -> void:
+	if send_enabled and Engine.has_singleton(PLUGIN_SINGLETON):
+		Engine.get_singleton(PLUGIN_SINGLETON).call(&"crash_log", message)
 
 
 static func log_event(event_name: String, params: Dictionary[String, Variant] = {}) -> void:
@@ -32,6 +69,7 @@ static func log_event(event_name: String, params: Dictionary[String, Variant] = 
 		return
 	if Engine.has_singleton(PLUGIN_SINGLETON):
 		Engine.get_singleton(PLUGIN_SINGLETON).call(&"log_event", event_name, params)
+		breadcrumb("%s %s" % [event_name, params.get("song_id", "")])
 	elif OS.is_debug_build():
 		print("TELEMETRY %s %s" % [event_name, JSON.stringify(params)])
 

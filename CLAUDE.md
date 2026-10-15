@@ -85,8 +85,11 @@ python tools/textures/build_textures.py
 python tools/audio/build_sfx.py            # ffmpeg: D:/ffmpeg-8.1-essentials_build/bin/ffmpeg.exe
 python tools/audio/synth_placeholder_sfx.py  # âm tạm cho ID chưa có (không ghi đè ID đã 'generated')
 ```
-Android (máy cắm USB, đã bật USB debugging):
+Android (máy cắm USB, đã bật USB debugging). Preset dùng Gradle build (plugin Firebase): chạy `setup_gradle_build.sh`
+trước lần export đầu, sau khi nâng Godot hoặc thêm `android_plugins/google-services.json` (docs/release/firebase_setup.md).
 ```bash
+bash tools/android/setup_gradle_build.sh          # android/build từ template Godot + vá Gradle (không commit)
+bash tools/android/build_firebase_plugin.sh       # chỉ khi sửa android_plugins/geodash_firebase
 "$GODOT" --headless --path . --export-debug "Android" build/GeoDash3D.apk
 "$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe" install -r build/GeoDash3D.apk
 "$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe" logcat -s godot:V   # PERF / QUALITY / CALIBRATION lines

@@ -75,6 +75,7 @@ func _ready() -> void:
 	AudioBuses.ensure_layout()
 	load_settings()
 	Locale.apply(language)
+	Telemetry.start()
 	_apply_bus_volumes()
 
 
