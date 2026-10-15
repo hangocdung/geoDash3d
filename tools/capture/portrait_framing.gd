@@ -77,7 +77,7 @@ func _check(path: String, tier: QualityTier.Tier) -> int:
 			break
 		autoplay.drive(simulation, beat)
 		player.update_pose(beat, simulation, 1.0 / FPS)
-		director.update_camera(beat, simulation, 1.0 / FPS, player.center_position())
+		director.update_camera(beat, simulation, 1.0 / FPS, player)
 		var reach: Rect2 = _screen_reach(director.camera, player)
 		extreme = Rect2(Vector2(minf(extreme.position.x, reach.position.x), minf(extreme.position.y, reach.position.y)),
 				Vector2.ZERO).expand(Vector2(maxf(extreme.end.x, reach.end.x), maxf(extreme.end.y, reach.end.y)))

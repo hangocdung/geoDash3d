@@ -14,7 +14,8 @@ if [ ${#VARIANTS[@]} -eq 0 ]; then
 	VARIANTS=(baseline scale=0.5 noglow nosky nofog noparticles noscenery noobstacles notrack "noglow+nosky+nofog+noparticles+noscenery")
 fi
 for variant in "${VARIANTS[@]}"; do
-	args="--autoplay${EXTRA_ARGS:+ $EXTRA_ARGS}"
+	# --landscape: a phone lying flat would start the level in portrait; EXTRA_ARGS="--portrait" overrides it.
+	args="--autoplay --landscape${EXTRA_ARGS:+ $EXTRA_ARGS}"
 	[ "$variant" != "baseline" ] && args="$args --perf=$variant"
 	"$ADB" shell am force-stop "$PACKAGE"
 	"$ADB" shell "run-as $PACKAGE sh -c 'mkdir -p files && echo \"$args\" > files/debug_args.txt'"

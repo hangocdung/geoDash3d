@@ -1,12 +1,14 @@
 # Landscape and portrait in one build (GD3-210): menus follow the phone's rotation, a level locks the orientation it
 # started in until the player is back in the menu. The UI canvas is 1920x1080 or 1080x1920 to match the window, and
 # presentation asks is_portrait() per viewport. `-- --portrait` (also from user://debug_args.txt on a debug APK) forces
-# portrait: a 720x1280 window on desktop, portrait lock on phones (captures, perf A/B).
+# portrait: a 720x1280 window on desktop, portrait lock on phones; `--landscape` forces landscape (device perf runs).
 # Related: src/ui/scenes.gd (lock/unlock on scene change), src/presentation/camera/camera_shots.gd
 class_name DisplayOrientation
 extends RefCounted
 
 const ARGUMENT: String = "--portrait"
+## Forces landscape on phones (device perf runs: a phone lying flat would otherwise start in portrait).
+const LANDSCAPE_ARGUMENT: String = "--landscape"
 const LANDSCAPE_CANVAS := Vector2i(1920, 1080)
 const PORTRAIT_CANVAS := Vector2i(1080, 1920)
 const DESKTOP_PORTRAIT_WINDOW := Vector2i(720, 1280)
@@ -33,15 +35,22 @@ static func setup(window: Window) -> void:
 static func allow_rotation() -> void:
 	if not OS.has_feature("mobile"):
 		return
-	DisplayServer.screen_set_orientation(DisplayServer.SCREEN_SENSOR_PORTRAIT if forced_portrait()
-			else DisplayServer.SCREEN_SENSOR)
+	if forced_portrait():
+		DisplayServer.screen_set_orientation(DisplayServer.SCREEN_SENSOR_PORTRAIT)
+	elif LaunchOptions.user_args().has(LANDSCAPE_ARGUMENT):
+		DisplayServer.screen_set_orientation(DisplayServer.SCREEN_SENSOR_LANDSCAPE)
+	else:
+		DisplayServer.screen_set_orientation(DisplayServer.SCREEN_SENSOR)
 
 
 ## Levels and tools: keep the current orientation (180-degree flips still allowed) until allow_rotation().
 static func lock_current(window: Window) -> void:
 	if not OS.has_feature("mobile"):
 		return
-	DisplayServer.screen_set_orientation(DisplayServer.SCREEN_SENSOR_PORTRAIT if _window_is_portrait(window)
+	# A forced orientation wins: the menu may hand over before the requested rotation has happened.
+	var portrait: bool = forced_portrait() or (_window_is_portrait(window)
+			and not LaunchOptions.user_args().has(LANDSCAPE_ARGUMENT))
+	DisplayServer.screen_set_orientation(DisplayServer.SCREEN_SENSOR_PORTRAIT if portrait
 			else DisplayServer.SCREEN_SENSOR_LANDSCAPE)
 
 

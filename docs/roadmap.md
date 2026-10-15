@@ -264,3 +264,15 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
       Lỗi script → non-fatal (`TelemetryLogger`). **Còn lại:** người dùng tạo project Firebase và đặt
       `android_plugins/google-services.json` (`docs/release/firebase_setup.md`); đo FPS A-B-B-A trên máy (đã có
       `build/fb_a.apk` không Gradle/Firebase và `build/fb_b.apk` có, máy bị khóa lúc làm); kiểm tra DebugView.
+      **Đo Note10 Lite 2026-10-15** (Dawn Assembly từ beat 64, A-B-B-A):
+      - Có/không thư viện Firebase (chưa có google-services.json nên Firebase chưa chạy): LOW 50.4 → 51.05,
+        MEDIUM 39.95 → 39.95 (lượt này máy nằm phẳng nên game chạy dọc — xem dưới) → thư viện không tốn FPS.
+      - Bản đầu phiên (`72dd883`) vs bản hiện tại (Gradle + Firebase + mọi thay đổi trong phiên), cùng ép ngang:
+        LOW 53.65 → 54.0, MEDIUM 39.95 → 39.95 → không sụt.
+      - Bẫy đo: từ khi menu xoay theo cảm biến, máy nằm phẳng làm game vào màn ở chế độ dọc. `perf_ab.sh` /
+        `perf_matrix.sh` giờ luôn thêm `--landscape` (`EXTRA_ARGS="--portrait"` để đo dọc); `lock_current` tôn trọng
+        hướng ép.
+      - Dữ liệu cho GD3-211: **chế độ dọc tốn ~3.5 FPS ở LOW** (≈ 50.2 vs 53.7; camera sau lưng thấy nhiều đường
+        và thành phố hơn), MEDIUM không đổi (40). Chưa đạt tiêu chí "FPS dọc không kém ngang" → cần giảm tầm nhìn /
+        mật độ cảnh ở chế độ dọc trước khi chốt.
+      - Còn đo: khi có google-services.json (Firebase chạy thật).

@@ -61,8 +61,8 @@ func add_fov_kick(degrees: float) -> void:
 	_fov_kick = maxf(_fov_kick, degrees)
 
 
-## `player_center`: the cube's world position (portrait keeps it inside the frame).
-func update_camera(beat: float, simulation: RunSimulation, delta: float, player_center: Vector3) -> void:
+## `player`: read only in portrait, to keep the cube inside the frame.
+func update_camera(beat: float, simulation: RunSimulation, delta: float, player: PlayerView) -> void:
 	var player_height: float = simulation.player_height_at(beat)
 	_portrait = DisplayOrientation.is_portrait(get_viewport())
 	var flip_pose: Vector2 = _flip_pose(simulation, beat)
@@ -107,7 +107,7 @@ func update_camera(beat: float, simulation: RunSimulation, delta: float, player_
 	var up: Vector3 = frame.basis.y.rotated((target - eye).normalized(), deg_to_rad(shot.roll_deg))
 	var view := Transform3D(Basis.looking_at(target - eye, up), eye)
 	if _portrait:
-		view = _keep_in_frame(view, shot.fov, player_center)
+		view = _keep_in_frame(view, shot.fov, player.center_position())
 	camera.global_transform = Transform3D(view.basis, eye + jitter)
 	camera.fov = shot.fov + _fov_kick
 

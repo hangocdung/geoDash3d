@@ -10,7 +10,8 @@ PKG="com.dunghn.geodash3d"
 ACTIVITY="$PKG/com.godot.game.GodotAppLauncher"
 APK_A="$1"
 APK_B="$2"
-ARGS="--autoplay ${3:---start-beat=64}"
+# --landscape: a phone lying flat would start the level in portrait (different camera, different cost).
+ARGS="--autoplay --landscape ${3:---start-beat=64}"
 if [ ! -f "$APK_A" ] || [ ! -f "$APK_B" ]; then
 	echo "usage: bash tools/device/perf_ab.sh <a.apk> <b.apk> [\"level args\"]"
 	exit 1
