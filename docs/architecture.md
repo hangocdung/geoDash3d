@@ -77,6 +77,14 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   - `HazardChecker` xét chồng lấn hộp (khoảng cách × ngang × độ cao), hộp vật cản đặt trên mặt đất tại chỗ
     (`HazardPlacement.base_height`), có cursor vì người chơi chỉ đi tới.
   - `invincible` ghi lại các lần trúng thay vì chết (đâm bệ thì đặt lên mặt bệ), dùng cho luyện tập và soạn màn.
+- **Bay** (gameplay v4, GD3-281): `PlayerBody.update_flight` vào đoạn `chart.fly_ranges` thì phóng bằng
+  `config.fly_entry`, không có mặt đất (`support_at` = GAP), mỗi lần chạm là `flap` (JUMP `air_allowed`, đặt lại vận
+  tốc — chạm mỗi 0.75 beat giữ độ cao, mỗi nửa beat lên, mỗi beat xuống); hết đoạn thì cùng cung bay tiếp với trọng
+  lực rơi tới khi đáp. Chạm ngoài cue khi bay = flap không chấm điểm. `FlightCorridor` (dựng lúc nạp, sau
+  `ReferenceRun`): sàn/trần theo ô 1 đơn vị từ đường bay chuẩn chạy 3 lần (đúng giờ, sớm, muộn 0.1 s), làm mượt ±2 ô,
+  chừa `fly_clearance`, nới tới `gap`; beat đầu không có sàn (lúc cất cánh). Va chạm hành lang = một lần tra mỗi bước,
+  tính như địa hình (`TERRAIN_HIT`, lá chắn đưa về đường bay chuẩn). Luật chart: `FlightSections`. Signal
+  `flight_changed`. Chấm điểm/combo/lá chắn tách sang `RunScoring` (RunSimulation chuyển tiếp signal).
 - **ReferenceRun**: lúc nạp chart, chạy autoplay một lượt (invincible) để ghi `chart.cue_heights` (độ cao người chơi
   ở mỗi cue: vòng cue và vòng nhảy vẽ ở đó), `chart.airborne_ranges` (khoảng đang bay: `safe_start_beat` không
   bao giờ chọn điểm bắt đầu giữa không trung) và `reference_beats/motions` (trạng thái lên xuống, cho lá chắn).

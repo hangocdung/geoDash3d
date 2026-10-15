@@ -35,6 +35,11 @@ var underside_ranges: PackedVector2Array = []
 ## Also from ReferenceRun: the perfect run's vertical state from each beat on (empty for flat charts).
 var reference_beats: PackedFloat64Array = []
 var reference_motions: Array[VerticalMotion] = []
+## Flight sections (gameplay v4): x = start beat, y = end beat, sorted; `fly_gaps` = their narrowest corridor.
+var fly_ranges: PackedVector2Array = []
+var fly_gaps: PackedFloat32Array = []
+## Spike corridor of the flight sections, built from the perfect run (null when the chart has none).
+var flight: FlightCorridor = null
 
 
 func distance_at(beat: float) -> float:
@@ -87,6 +92,14 @@ func is_hazard_underside(hazard: HazardDefinition, beat: float) -> bool:
 
 
 ## The perfect run's vertical state in effect at `beat`, or null (flat chart, or before it starts).
+## Index of the flight section containing `beat` ([start, end)), or -1.
+func fly_range_at(beat: float) -> int:
+	for index: int in fly_ranges.size():
+		if fly_ranges[index].x <= beat and beat < fly_ranges[index].y:
+			return index
+	return -1
+
+
 func reference_motion_at(beat: float) -> VerticalMotion:
 	var index: int = reference_beats.bsearch(beat, false) - 1
 	return reference_motions[index] if index >= 0 else null

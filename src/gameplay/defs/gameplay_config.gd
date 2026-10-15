@@ -29,6 +29,21 @@ extends Resource
 @export var pad_half_length: float = 0.6
 ## Launch performed by jump pads (no tap needed).
 @export var pad_launch: ActionDefinition
+## Flight (gameplay v4): the lift into the air at a flight section's start (no tap needed).
+@export var fly_entry: ActionDefinition
+## Flight: what a tap does in the air when no cue is near (the `flap` cue's action).
+@export var flap_action: StringName = &"flap"
+## Flight corridor: space kept between the perfect path (tapped `timing_margin` early or late) and the spikes.
+@export var fly_clearance: float = 0.45
+@export var fly_timing_margin_sec: float = 0.1
+## Narrowest corridor (floor to ceiling) a flight section may have, and its default when the chart gives none.
+@export var fly_min_gap: float = 3.4
+## Corridor resolution along the track (units).
+@export var fly_bucket_length: float = 1.0
+## The perfect path must stay at least this far above the road (the floor spikes stand on it).
+@export var fly_min_height: float = 0.6
+## The first ground cue after a flight comes at least this many beats after it (time to land).
+@export var fly_exit_beats: float = 2.0
 ## Every this many consecutive cue hits charge one shield; a shield absorbs one fatal hit.
 @export var shield_combo: int = 16
 @export var max_shields: int = 1
@@ -45,6 +60,8 @@ extends Resource
 const JUMP_COLOR: Color = Color(1.0, 0.25, 0.85)
 const DODGE_COLOR: Color = Color(1.0, 0.58, 0.15)
 const FLIP_COLOR: Color = Color(0.55, 1.0, 0.3)
+## Flight (gameplay v4, user approved 2026-10-15): gold, apart from the three action colours and the cold scenery.
+const FLY_COLOR: Color = Color(1.0, 0.79, 0.24)
 const CUBE_SIZE: float = 1.0
 
 
@@ -61,9 +78,12 @@ static func create_default() -> GameplayConfig:
 		_orb(),
 		_big_orb(),
 		_dive_orb(),
+		_flap(),
 	]
 	config.pad_launch = _action(&"pad", ActionDefinition.Kind.JUMP, 1.5, &"", 0.0, JUMP_COLOR, &"player.jump")
 	config.pad_launch.jump_height = 4.5
+	config.fly_entry = _action(&"fly_entry", ActionDefinition.Kind.JUMP, 1.0, &"", 0.0, FLY_COLOR, &"player.jump")
+	config.fly_entry.jump_height = 2.6
 	config.hazards = HazardLibrary.create_all(config)
 	return config
 
@@ -179,6 +199,16 @@ static func _big_orb() -> ActionDefinition:
 	orb.jump_height = 4.5
 	orb.air_allowed = true
 	return orb
+
+
+## Flight tap: a short lift that resets the vertical speed (it does not add up). Tapping every 0.75 beat holds the
+## height, every half beat climbs (+0.7 per tap), every beat sinks (−1.4 per tap).
+static func _flap() -> ActionDefinition:
+	var flap: ActionDefinition = _action(&"flap", ActionDefinition.Kind.JUMP, 0.75, &"", 0.0, FLY_COLOR,
+			&"player.jump")
+	flap.jump_height = 0.8
+	flap.air_allowed = true
+	return flap
 
 
 ## Dive ring: tapped in mid-air, it throws the player straight down (lands ~0.15 beat later from 2 up).

@@ -11,6 +11,8 @@ const TIER_NAMES: PackedStringArray = ["EASY", "NORMAL", "HARD", "HARDER", "EXPE
 const WEIGHTS: Dictionary[String, float] = {
 	"jump": 1.0, "orb": 1.0, "orb_big": 1.0, "orb_drop": 1.0, "dodge_left": 1.25, "dodge_right": 1.25,
 	"flip": 1.75, "roll": 1.75, "flip_down": 1.75, "flip_up": 1.75,
+	# Flight taps come thick and fast; one counts less than a ground action (gameplay v4).
+	"flap": 0.6,
 }
 
 

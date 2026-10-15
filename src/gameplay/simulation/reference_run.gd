@@ -44,9 +44,9 @@ static func annotate(chart: LevelChart, config: GameplayConfig) -> void:
 	chart.reference_motions = motions
 
 
-## No terrain, pads or orbs: the pre-v3 kind of chart, which needs no simulation pass.
+## No terrain, pads, orbs or flight: the pre-v3 kind of chart, which needs no simulation pass.
 static func _is_flat(chart: LevelChart) -> bool:
-	if not chart.terrain.is_flat() or not chart.pads.is_empty():
+	if not chart.terrain.is_flat() or not chart.pads.is_empty() or not chart.fly_ranges.is_empty():
 		return false
 	for cue: ChartItems.ActionCue in chart.cues:
 		if cue.action.air_allowed:

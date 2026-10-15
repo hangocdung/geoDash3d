@@ -1,6 +1,6 @@
 # Parses *.chart.json (format documented in docs/chart_format.md) into a LevelChart.
 # Collects every validation problem, reports them with push_error and returns null on failure.
-# A valid chart is then annotated by an autoplay pass (ReferenceRun).
+# A valid chart is then annotated by an autoplay pass (ReferenceRun), which also builds the flight corridor.
 # Related: src/gameplay/chart/level_chart.gd, src/gameplay/defs/gameplay_config.gd
 class_name ChartLoader
 extends RefCounted
@@ -9,12 +9,6 @@ const SUPPORTED_VERSION: int = 1
 const NO_HAZARD: String = "none"
 ## Sanity bound for terrain heights (units above the road surface).
 const MAX_TERRAIN_HEIGHT: float = 12.0
-const TRACK_SHAPES: Dictionary[String, ChartItems.TrackSegment.Shape] = {
-	"straight": ChartItems.TrackSegment.Shape.STRAIGHT, "turn": ChartItems.TrackSegment.Shape.TURN,
-	"slope": ChartItems.TrackSegment.Shape.SLOPE, "helix": ChartItems.TrackSegment.Shape.HELIX,
-	"loop": ChartItems.TrackSegment.Shape.LOOP, "roll": ChartItems.TrackSegment.Shape.ROLL,
-	"wave": ChartItems.TrackSegment.Shape.WAVE,
-}
 const DEFAULT_LOOP_LATERAL: float = 6.0
 const MAX_BANK_DEG: float = 45.0
 
@@ -46,7 +40,7 @@ static func parse_text(text: String, config: GameplayConfig, source_name: String
 			push_error("ChartLoader: %s: %s" % [source_name, message])
 		return null
 	ReferenceRun.annotate(chart, config)
-	return chart
+	return chart if FlightCorridor.build(chart, config, source_name) else null
 
 
 func _parse(root: Dictionary) -> LevelChart:
@@ -69,6 +63,7 @@ func _parse(root: Dictionary) -> LevelChart:
 	_parse_phases(root, chart)
 	_parse_track(root, chart)
 	_parse_terrain(root, chart)
+	_errors.append_array(FlightSections.parse(_objects(root, "fly"), chart, _config))
 	_parse_events(root, chart)
 	if chart.tempo == null or chart.distance_map == null:
 		return null
@@ -137,10 +132,10 @@ func _parse_track(root: Dictionary, chart: LevelChart) -> void:
 	for entry: Dictionary in _objects(root, "track"):
 		var beat: float = _number(entry, "beat", 0.0)
 		var shape_name: String = str(entry.get("shape", "straight"))
-		if not TRACK_SHAPES.has(shape_name):
+		if not ChartItems.TrackSegment.SHAPE_NAMES.has(shape_name):
 			_errors.append("track segment at beat %.3f has unknown shape '%s'" % [beat, shape_name])
 			continue
-		var segment := ChartItems.TrackSegment.new(beat, TRACK_SHAPES[shape_name])
+		var segment := ChartItems.TrackSegment.new(beat, ChartItems.TrackSegment.SHAPE_NAMES[shape_name])
 		segment.angle_deg = _number(entry, "angle_deg", 0.0)
 		segment.rise = _number(entry, "rise", 0.0)
 		segment.bank_deg = _number(entry, "bank_deg", 0.0)
@@ -154,7 +149,7 @@ func _parse_track(root: Dictionary, chart: LevelChart) -> void:
 
 ## Shapes that would run into themselves (or flip the road over too far) are rejected.
 func _validate_track_segment(segment: ChartItems.TrackSegment) -> void:
-	var where: String = "track %s at beat %.3f" % [TRACK_SHAPES.find_key(segment.shape), segment.beat]
+	var where: String = "track %s at beat %.3f" % [ChartItems.TrackSegment.SHAPE_NAMES.find_key(segment.shape), segment.beat]
 	match segment.shape:
 		ChartItems.TrackSegment.Shape.HELIX:
 			var turns: float = absf(segment.angle_deg) / 360.0

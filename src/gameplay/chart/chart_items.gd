@@ -99,6 +99,9 @@ class Phase:
 ## Track shape from `beat` until the next segment (see docs/chart_format.md and TrackPath).
 class TrackSegment:
 	enum Shape { STRAIGHT, TURN, SLOPE, HELIX, LOOP, ROLL, WAVE }
+	## Chart names of the shapes (`track` entries).
+	const SHAPE_NAMES: Dictionary[String, Shape] = {"straight": Shape.STRAIGHT, "turn": Shape.TURN,
+			"slope": Shape.SLOPE, "helix": Shape.HELIX, "loop": Shape.LOOP, "roll": Shape.ROLL, "wave": Shape.WAVE}
 
 	var beat: float
 	var shape: Shape

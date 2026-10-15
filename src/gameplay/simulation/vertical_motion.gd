@@ -59,6 +59,11 @@ func height_at(beat: float) -> float:
 	return launch_height + launch_velocity * t - 0.5 * gravity * t * t
 
 
+## Vertical speed at `beat` (units per beat, + = up; 0 on the ground).
+func velocity_at(beat: float) -> float:
+	return launch_velocity - gravity * (beat - launch_beat) if airborne else 0.0
+
+
 ## Beats since leaving the ground, or -1 while grounded.
 func air_beats_at(beat: float) -> float:
 	return beat - take_off_beat if airborne else -1.0

@@ -52,6 +52,8 @@ enum Face { FOLLOW_RUN, TOP, UNDERSIDE }
 @export var visual_height: float = 1.1
 ## SPIKE: number of spikes in a row along the track (each `visual_length` / `repeat` long).
 @export var repeat: int = 1
+## Flight hazard (gameplay v4): floats in a fly section at `bottom`..`top` above the road, not on the ground.
+@export var airborne: bool = false
 @export var color: Color = Color(1.0, 0.25, 0.85)
 ## Which face of the road the hazard stands on (GD3-112). FOLLOW_RUN: under the track inside an underside run
 ## (LevelChart.underside_ranges), on top elsewhere. Gates are pinned: the flip_down's gate stays on top even
