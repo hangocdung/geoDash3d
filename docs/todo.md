@@ -72,7 +72,7 @@ Android (Godot Android plugin v2 bọc Firebase Android SDK), iOS làm sau (GD3-
       tải màn; chỉnh ngưỡng tự chọn tier (`QualityAutoTuner`) theo dữ liệu thật.
 
 ## 4. Kiếm tiền
-- [ ] **GD3-240** Quảng cáo AdMob (Claude, L; ứng viên plugin: Poing Studios `godot-admob-plugin`, cần duyệt):
+- [~] **GD3-240** (→ roadmap Phase 7) Quảng cáo AdMob (Claude, L; ứng viên plugin: Poing Studios `godot-admob-plugin`, cần duyệt):
       - Interstitial chỉ **giữa các lượt**: sau khi qua màn hoặc khi về menu, giới hạn tần suất (vd. ≥ 3 phút chơi
         giữa 2 lần), **không** hiện sau mỗi lần chết (game tự chơi lại sau 0.9 s).
       - Rewarded (tự nguyện): vd. mở thử 1 bài bị khóa, hoặc bắt đầu lượt với 1 lá chắn.

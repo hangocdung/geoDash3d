@@ -288,3 +288,12 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
       trễ âm thanh nên nghe trùng beat (`LandingPredictor`, test `test_landing_predictor.gd`). Không thêm nút tắt riêng
       tiếng chạm: thanh âm lượng SFX đã có. **Còn lại:** chạy `build_sfx.py` khi có video, nghe thử, chơi thử trên máy
       (kiểm tra tiếng tiếp đất có trùng beat với độ trễ đã hiệu chỉnh).
+- [~] **GD3-240** Quảng cáo AdMob (Poing Studios v5.1.0, người dùng duyệt 2026-10-15): `Ads` — UMP rồi khởi tạo
+      (xếp hạng T, không nhắm trẻ em), interstitial chỉ khi về menu sau ≥ 180 s chơi thật, banner chỉ ở menu, tạm dừng
+      nhạc nền khi quảng cáo mở, nút AD PRIVACY trong Settings khi UMP yêu cầu. Chi tiết: `docs/release/admob_setup.md`.
+      Thử trên Note10 Lite: banner thử hiện ở đáy menu, UMP chạy (ngoài EEA không hiện form).
+      **Đo A-B-B-A** (ép ngang, Dawn Assembly từ beat 64, SDK khởi tạo + interstitial tải nền khi đang chơi, build sạch
+      trong worktree): LOW 53.2 → 53.25 FPS, MEDIUM 40.1 → 40.15 FPS; số lần giật (> 33 ms) ở LOW 1/1 → 3/4 mỗi lượt
+      15 s, worst 61.7 ms một lần — có thể do tải quảng cáo nền, cần theo dõi khi chơi thật.
+      **Còn lại:** rewarded (chờ GD3-242), App ID / ad unit thật (người dùng), liên kết AdMob–Firebase, thử
+      interstitial thật sau 3 phút chơi.
