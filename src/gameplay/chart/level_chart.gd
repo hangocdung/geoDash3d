@@ -30,6 +30,8 @@ var vfx_cues: Array[ChartItems.VfxCue] = []
 ## ranges (x = take-off, y = landing) where the autoplay player is in the air.
 var cue_heights: PackedFloat32Array = []
 var airborne_ranges: PackedVector2Array = []
+## Underside runs (GD3-112): x = the beat a flip_down has the player under the track, y = its flip_up's beat.
+var underside_ranges: PackedVector2Array = []
 ## Also from ReferenceRun: the perfect run's vertical state from each beat on (empty for flat charts).
 var reference_beats: PackedFloat64Array = []
 var reference_motions: Array[VerticalMotion] = []
@@ -59,6 +61,29 @@ func beat_at_time(time_sec: float) -> float:
 ## Ground height under the player at `beat` for visuals (gaps report the ground before them).
 func surface_height_at(beat: float) -> float:
 	return terrain.surface_height_at(distance_at(beat))
+
+
+## True while the player runs under the track (between a flip_down's end and its flip_up).
+func is_underside_at(beat: float) -> bool:
+	for run: Vector2 in underside_ranges:
+		if run.x <= beat and beat < run.y:
+			return true
+	return false
+
+
+## True when the player taps `cue` from under the track (jumps of an underside run and its flip_up).
+func is_cue_underside(cue: ChartItems.ActionCue) -> bool:
+	return cue.action.flip_part == ActionDefinition.FlipPart.UP or is_underside_at(cue.beat)
+
+
+## True when `hazard` placed at `beat` hangs under the track (HazardDefinition.face).
+func is_hazard_underside(hazard: HazardDefinition, beat: float) -> bool:
+	match hazard.face:
+		HazardDefinition.Face.TOP:
+			return false
+		HazardDefinition.Face.UNDERSIDE:
+			return true
+	return is_underside_at(beat)
 
 
 ## The perfect run's vertical state in effect at `beat`, or null (flat chart, or before it starts).
@@ -100,7 +125,8 @@ func phase_index_at(beat: float) -> int:
 func safe_start_beat(beat: float, lead_beats: float = 1.0) -> float:
 	var result: float = beat
 	while true:
-		var earlier: float = _ground_safe_start(_cue_safe_start(result, lead_beats), lead_beats)
+		var earlier: float = _underside_safe_start(_ground_safe_start(_cue_safe_start(result, lead_beats), lead_beats),
+				lead_beats)
 		if earlier >= result:
 			return result
 		result = earlier
@@ -132,6 +158,16 @@ func _ground_safe_start(beat: float, lead_beats: float) -> float:
 	return result
 
 
+## Moves `beat` before an underside run it falls in (from its flip_down to the end of its flip_up).
+func _underside_safe_start(beat: float, lead_beats: float) -> float:
+	const FLIP_BEATS: float = 1.0
+	var result: float = beat
+	for run: Vector2 in underside_ranges:
+		if run.x - FLIP_BEATS < result and result < run.y + FLIP_BEATS:
+			result = run.x - FLIP_BEATS - lead_beats
+	return result
+
+
 ## Sorts events and fills derived fields. Called once by the loader.
 func finalize() -> void:
 	sections.sort_custom(func(a: ChartItems.Section, b: ChartItems.Section) -> bool: return a.beat < b.beat)
@@ -150,9 +186,20 @@ func finalize() -> void:
 		starts.append(distance_at(segment.beat))
 		heights.append(segment.height)
 	terrain = Terrain.build(starts, heights)
+	underside_ranges.clear()
+	var open: float = NAN
+	for cue: ChartItems.ActionCue in cues:
+		match cue.action.flip_part if cue.action.kind == ActionDefinition.Kind.FLIP else -1:
+			ActionDefinition.FlipPart.DOWN:
+				open = cue.beat + cue.action.duration_beats
+			ActionDefinition.FlipPart.UP:
+				if not is_nan(open):
+					underside_ranges.append(Vector2(open, cue.beat))
+				open = NAN
 	for placement: ChartItems.HazardPlacement in hazards:
 		placement.distance = distance_at(placement.beat)
-		placement.base_height = terrain.surface_height_at(placement.distance)
+		placement.underside = is_hazard_underside(placement.hazard, placement.beat)
+		placement.base_height = 0.0 if placement.underside else terrain.surface_height_at(placement.distance)
 	for pad: ChartItems.PadPlacement in pads:
 		pad.distance = distance_at(pad.beat)
 		pad.base_height = terrain.surface_height_at(pad.distance)

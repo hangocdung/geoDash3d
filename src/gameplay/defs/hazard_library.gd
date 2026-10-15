@@ -26,6 +26,7 @@ static func create_all(config: GameplayConfig) -> Array[HazardDefinition]:
 	gate.visual_length = 0.4
 	gate.visual_width = config.track_width + 0.8
 	gate.visual_height = 3.6
+	gate.face = HazardDefinition.Face.TOP
 	var hazards: Array[HazardDefinition] = [spike, _wall(config, &"wall_gap_left", 1.0),
 			_wall(config, &"wall_gap_right", -1.0), gate, _spike_row(&"spike_double", 2, 0.75, 0.75, 1.8, 1.05),
 			_spike_row(&"spike_triple", 3, 1.05, 0.65, 2.4, 0.9), _saw(), _ceiling(config)]
@@ -35,6 +36,11 @@ static func create_all(config: GameplayConfig) -> Array[HazardDefinition]:
 			_wall(config, &"laser_gap_right", -1.0, HazardDefinition.Visual.LASER_WALL), _ring_gate(gate)])
 	# GD3-106: hazards of the roll (full turn around the track), blocking the whole road like the gate.
 	hazards.append_array([_mace_sweep(gate), _falling_block(gate)])
+	# GD3-112: the gate that closes an underside run hangs under the track (flip_up's hazard).
+	var gate_under: HazardDefinition = gate.duplicate() as HazardDefinition
+	gate_under.id = &"gate_under"
+	gate_under.face = HazardDefinition.Face.UNDERSIDE
+	hazards.append(gate_under)
 	return hazards
 
 

@@ -123,8 +123,10 @@ func _on_player_landed(beat: float, airtime_beats: float) -> void:
 	_runner.camera_director.add_shake(0.12)
 
 
-## Track frame at the player's feet (terrain and jump height included).
+## Track frame at the player's feet (terrain and jump height included; upside down under the track).
 func _feet_at(beat: float) -> Transform3D:
+	if _simulation.is_underside():
+		return _context.underside_frame_at(beat, -_simulation.player_height_at(beat) - _context.config.underside_depth())
 	return _context.frame_at_height(beat, _simulation.player_height_at(beat))
 
 

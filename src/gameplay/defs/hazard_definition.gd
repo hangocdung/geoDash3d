@@ -35,6 +35,7 @@ enum Entrance {
 	## Unfolds sideways across the track.
 	UNFOLD,
 }
+enum Face { FOLLOW_RUN, TOP, UNDERSIDE }
 
 @export var id: StringName = &""
 @export var visual: Visual = Visual.SPIKE
@@ -52,6 +53,10 @@ enum Entrance {
 ## SPIKE: number of spikes in a row along the track (each `visual_length` / `repeat` long).
 @export var repeat: int = 1
 @export var color: Color = Color(1.0, 0.25, 0.85)
+## Which face of the road the hazard stands on (GD3-112). FOLLOW_RUN: under the track inside an underside run
+## (LevelChart.underside_ranges), on top elsewhere. Gates are pinned: the flip_down's gate stays on top even
+## though it lands after the player went under, the flip_up's gate (gate_under) always hangs underneath.
+@export var face: Face = Face.FOLLOW_RUN
 ## Sound played when the entrance lands (see tools/audio/sfx_spec.py).
 @export var landing_sound: StringName = &""
 

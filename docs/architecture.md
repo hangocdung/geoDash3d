@@ -46,7 +46,14 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   - Xử lý một lần chạm: `ActionResolver` tìm cue gần nhất trong ±150 ms rồi chấm điểm. Không có cue nào thì
     thực hiện hành động mặc định (jump).
   - Jump/orb/pad là **parabol** trong `VerticalMotion` (y = y0 + v·t − ½·g·t², theo beat), kết thúc khi tiếp đất.
-    Dodge/flip vẫn là hành động thời lượng cố định (`_active_action`), cộng offset lên độ cao nền.
+    Dodge/flip vẫn là hành động thời lượng cố định (`ActionState`), cộng offset lên độ cao nền.
+  - Chạy mặt dưới (GD3-112): `ActionState.underside` bật khi `flip_down` kết thúc, tắt khi `flip_up` bắt đầu. Khi đó
+    mặt đất là mặt dưới phẳng của đường (độ cao 0, loader đã kiểm tra đường liền), `player_offset_at` trả
+    −(độ dày đường + cạnh khối) − độ cao nhảy (nhảy là đi xa khỏi mặt dưới). Vật cản trong đoạn chạy mặt dưới
+    (`LevelChart.underside_ranges`, theo `HazardDefinition.face`: `FOLLOW_RUN` / `TOP` / `UNDERSIDE`) có
+    `HazardPlacement.underside`, hộp va chạm lật xuống dưới mặt dưới đường trong `HazardChecker`. Va chạm được tha
+    (lá chắn, bất tử) đưa người chơi về đúng mặt của lượt hoàn hảo (`ActionState.follow_run`), để lỡ `flip_up`
+    không kẹt dưới đường cả màn.
   - Đang bay chỉ chạm được cue `orb` (`ActionDefinition.air_allowed`). Lần chạm khác được *buffer* và chỉ thực
     hiện nếu tiếp đất trong ≤ 100 ms sau đó (dodge/flip: ≤ 100 ms trước khi kết thúc).
   - Địa hình: mỗi bước so độ cao người chơi với `Terrain.support_height` (đất cao nhất dưới hộp ±0.38).
@@ -88,7 +95,10 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
 - **LevelRunner** + `level.tscn`: các trạng thái `WAITING → RUNNING ⇄ PAUSED → DEAD (tự restart sau 0.9 s) / COMPLETE`.
   Lần chạm được ghi bằng `song_clock.now()` khi có input, rồi đưa vào simulation đầu frame kế tiếp.
 - **CameraDirector**: shot là hàm thuần của beat, blend smoothstep giữa các cue. Khi `flip` camera hạ xuống góc dưới đường;
-  khi `roll` (GD3-106) camera xoay quanh tâm đường cùng người chơi (MEDIUM/HIGH; LOW như `flip`). Shot được định nghĩa trong frame
+  khi `roll` (GD3-106) camera xoay quanh tâm đường cùng người chơi (MEDIUM/HIGH; LOW như `flip`). Đoạn chạy mặt dưới
+  (GD3-112): MEDIUM/HIGH xoay theo `flip_down`, giữ lộn ngược (π, bám cú nhảy xuống), xoay tiếp theo `flip_up`; LOW
+  giữ góc nhìn dưới đường (không xoay). Phần trình bày đặt vật dưới đường bằng `LevelContext.underside_frame_at`
+  (vật cản, vòng cue, icon, vòng dưới chân, cổng portal; không đặt cột đỡ gần đoạn chạy). Shot được định nghĩa trong frame
   của người chơi (`CameraShots`). Riêng phần xoay của frame được làm mượt khi qua khúc cua. Frame được nâng theo
   độ cao địa hình đã làm mượt (±9 đơn vị, nhìn trước 4) cộng 35% độ cao người chơi so với mặt đất.
   Có thêm rung (trauma) và FOV kick.
@@ -196,4 +206,5 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
   double jump, không có giữ để nhảy).
 - Gameplay v3 (địa hình): chưa có địa hình theo làn, trần/bệ treo; `draft_chart.py` chưa sinh địa hình; map chính mới
   phủ 116/224 beat.
-- Hành động mới (trượt, đổi làn, đảo trọng lực) sẽ cần thêm trục lệch ngang/lộn ngược trong `HazardChecker`.
+- Hành động mới (trượt, đổi làn) sẽ cần thêm trục lệch ngang trong `HazardChecker`. Mặt dưới chỉ cho nhảy thường
+  (không vòng nhảy, bệ bật, hố, né làn).

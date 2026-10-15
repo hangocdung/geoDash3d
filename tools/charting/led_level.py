@@ -2,7 +2,8 @@
 bands rising at once, measured at 100 frames a second on the same bands as tools/audio/build_spectrum.py), and the
 loud sections get bursts: runs of jumps half a beat, three quarters of a beat or one beat apart are kept whole
 (orb triplets, stairs, jump chains) so the player taps continuously. Sections, phases, track shapes, cameras,
-density per phase and the end ramp come from hit_level.py; the obstacles from recording_level.Builder.
+density per phase and the end ramp come from hit_level.py; the obstacles from recording_level.Builder, with an
+underside run (flip_down, jumps under the track, flip_up) every SONG["under_every"] beats where the taps allow.
 Usage: a song script calls build(SONG) (see tools/charting/levels/pulse_drive_led.py).
 Related: tools/charting/hit_level.py, tools/audio/build_spectrum.py, src/presentation/track/spectrum_texture.gd
 """
@@ -158,7 +159,7 @@ def build(song):
     header = {"speed": [{"beat": b, "units_per_beat": rate} for b, _, rate in phases],
               "sections": [{"beat": b, "energy": e} for b, _, e in sections], "end_beat": end_beat}
     warnings = []
-    builder = Builder(header, taps, warnings)
+    builder = Builder(header, taps, warnings, song.get("under_every"))
     builder.build()
     for warning in warnings:
         print("WARN", warning)

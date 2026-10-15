@@ -24,6 +24,8 @@ class HazardPlacement:
 	var distance: float = 0.0
 	## Ground height under the hazard (filled by LevelChart); its hitbox sits on top of it.
 	var base_height: float = 0.0
+	## Hangs under the track (filled by LevelChart): its hitbox mirrors below the road's underside.
+	var underside: bool = false
 
 	func _init(hazard_beat: float, hazard_definition: HazardDefinition) -> void:
 		beat = hazard_beat

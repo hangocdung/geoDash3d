@@ -3,8 +3,9 @@
 This module parses the step list, checks it (the player has landed before each tap, ground height limits,
 flat road for dodges and flips), places the patterns (terrain_patterns.py) and writes the chart.
 Patterns: spike spike2 spike3 saw laser pendulum mine roll gap step step1 chain2 chain3 orb borb dive trip stairs fstairs pad dl dr flip
-drop drop2 drop4 (drop/drop2/drop4: run off the ledge down to 0 / 2 / 4; spike2/spike3: spike rows; borb: big
-orb onto +2, lands 2 beats after the jump; dive: jump + dive orb under a spiked ceiling).
+drop drop2 drop4 fdown fup (drop/drop2/drop4: run off the ledge down to 0 / 2 / 4; spike2/spike3: spike rows; borb:
+big orb onto +2, lands 2 beats after the jump; dive: jump + dive orb under a spiked ceiling; fdown ... fup: underside
+run, only spike patterns and chains in between, the hazards hang under the track).
 build() adds variety by default: plain `spike` steps rotate through spike / saw / spike rows by section energy, and
 every other `orb` with room after it becomes `borb` (same taps, same ground).
 Usage: a song script calls build(SONG, STEPS) (see tools/charting/levels/*.py).
@@ -26,6 +27,10 @@ SPIKE_VARIETY = (["spike", "laser", "saw", "mine"],
                  ["spike", "saw", "pendulum", "spike2", "laser", "mine"],
                  ["spike", "spike2", "pendulum", "saw", "spike3", "laser", "mine"])
 BIG_ORB_LANDING = 2.0
+# GD3-112: what can be played under the track (plain jumps over hazards hanging there).
+UNDER_PATTERNS = set(SPIKE_HAZARDS) | {"chain2", "chain3"}
+# The fup's gate hangs under the road 1.25 beats after the tap: no hole in the road until it has passed.
+UNDER_GATE_CLEAR = 1.75
 
 
 def landing_after_step(rise):
@@ -48,15 +53,42 @@ class Checker:
         self.level = level
         self.free = -100.0
         self.errors = []
+        # Between an fdown and its fup: the player runs under the track.
+        self.under = False
+        self.solid_until = -100.0
 
     def need(self, condition, beat, message):
         if not condition:
             self.errors.append("beat %.2f: %s" % (beat, message))
 
+    def snapshot(self):
+        level = self.level
+        return (len(level.events), len(level.terrain), level.ground, self.free, len(self.errors), self.under,
+                self.solid_until)
+
+    def restore(self, saved):
+        level = self.level
+        del level.events[saved[0]:]
+        del level.terrain[saved[1]:]
+        level.ground, self.free = saved[2], saved[3]
+        del self.errors[saved[4]:]
+        self.under, self.solid_until = saved[5], saved[6]
+
     def apply(self, beat, name):
+        first = len(self.level.terrain)
+        self._apply(beat, name)
+        for piece in self.level.terrain[first:]:
+            if piece.get("gap") and piece["beat"] < self.solid_until:
+                self.errors.append("beat %.2f: %s opens a hole under the last fup's gate (road solid until %.2f)"
+                                   % (beat, name, self.solid_until))
+
+    def _apply(self, beat, name):
         level = self.level
         ground = level.ground
         speed = level.speed.speed_at(beat)
+        if self.under and name not in UNDER_PATTERNS and name != "fup":
+            self.errors.append("beat %.2f: %s under the track (only spike patterns until fup)" % (beat, name))
+            return
         if name.startswith("drop"):
             target = {"drop": 0.0, "drop2": 2.0, "drop4": 4.0}[name]
             self.need(ground > target, beat, "drop from %.1f to %.1f" % (ground, target))
@@ -68,7 +100,7 @@ class Checker:
         self.need(start >= self.free - EPSILON, beat, "%s before the player is free (%.2f)" % (name, self.free))
         rise = {"step": 1.5, "step1": 1.0, "orb": 2.0, "borb": 2.0, "trip": 4.0, "stairs": 4.5, "fstairs": 4.5, "pad": 4.0}.get(name, 0.0)
         self.need(ground + rise <= MAX_HEIGHT, beat, "%s from height %.1f goes above %.1f" % (name, ground, MAX_HEIGHT))
-        if name in ("dl", "dr", "flip", "roll"):
+        if name in ("dl", "dr", "flip", "roll", "fdown"):
             self.need(ground == 0.0, beat, "%s needs the road (height 0), ground is %.1f" % (name, ground))
         if name in SPIKE_HAZARDS:
             level.spike(beat, SPIKE_HAZARDS[name])
@@ -112,21 +144,28 @@ class Checker:
         elif name == "roll":
             level.roll(beat)
             self.free = beat + 2.0
+        elif name == "fdown":
+            self.need(not self.under, beat, "fdown while already under the track")
+            level.flip_down(beat)
+            self.under = True
+            self.free = beat + 1.0
+        elif name == "fup":
+            self.need(self.under, beat, "fup without an fdown before it")
+            level.flip_up(beat)
+            self.under = False
+            self.free = beat + 1.0
+            self.solid_until = beat + UNDER_GATE_CLEAR
         else:
             self.errors.append("beat %.2f: unknown pattern '%s'" % (beat, name))
 
 
 def try_apply(checker, beat, name, deadline):
     """Applies a pattern if the checker accepts it and the player is free again by `deadline`; else undoes it."""
-    level = checker.level
-    saved = (len(level.events), len(level.terrain), level.ground, checker.free, len(checker.errors))
+    saved = checker.snapshot()
     checker.apply(beat, name)
     if len(checker.errors) == saved[4] and checker.free <= deadline + EPSILON:
         return True
-    del level.events[saved[0]:]
-    del level.terrain[saved[1]:]
-    level.ground, checker.free = saved[2], saved[3]
-    del checker.errors[saved[4]:]
+    checker.restore(saved)
     return False
 
 
@@ -193,6 +232,7 @@ def build(song, steps, variety=True):
                 continue
         checker.apply(beat, name)
         index += 1
+    checker.need(not checker.under, song["end_beat"], "the last fdown has no fup")
     if checker.errors:
         print("\n".join(checker.errors))
         sys.exit(1)
@@ -220,5 +260,5 @@ def build(song, steps, variety=True):
         json.dump(chart, handle, indent="\t")
         handle.write("\n")
     taps = sum(1 for e in events if e["type"] in ("jump", "orb", "orb_big", "orb_drop", "dodge_left", "dodge_right", "flip",
-                                                  "roll"))
+                                                  "roll", "flip_down", "flip_up"))
     print("wrote %s: %d taps, end beat %d" % (path, taps, song["end_beat"]))

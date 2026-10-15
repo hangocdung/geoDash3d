@@ -1,5 +1,6 @@
 # Music-driven decor from Blender models: a portal ring at every section start (the player runs
-# through it as the music changes; a bigger one in the new palette's colors where a phase starts) and
+# through it as the music changes, under the track during underside runs; a bigger one in the new palette's
+# colors where a phase starts) and
 # spiked maces hanging in the background that swing with the bar. Colors follow the phase palette.
 # Pose is a pure function of the beat. Related: neon_model.gd, assets/blender/generate_models.py
 class_name DecorView
@@ -31,7 +32,7 @@ func setup(context: LevelContext) -> void:
 		if section.beat <= 0.0 or section.beat >= context.chart.end_beat or phase_beats.has(section.beat):
 			continue
 		var portal: Node3D = NeonModel.instantiate_palette(PORTAL_SCENE, 3.0)
-		portal.transform = context.surface_frame_at_beat(section.beat) * Transform3D(Basis(), Vector3(0, PORTAL_HEIGHT, 0))
+		portal.transform = _ground_frame(context, section.beat) * Transform3D(Basis(), Vector3(0, PORTAL_HEIGHT, 0))
 		add_child(portal)
 	var beat: float = MACE_SPACING_BEATS * 0.5
 	var index: int = 0
@@ -57,9 +58,16 @@ func setup(context: LevelContext) -> void:
 func _add_phase_portal(context: LevelContext, beat: float, palette: ScenePalette) -> void:
 	var portal: Node3D = NeonModel.instantiate(PORTAL_SCENE, palette.track_rail, palette.decor_accent,
 			PHASE_PORTAL_ENERGY)
-	portal.transform = context.surface_frame_at_beat(beat) * Transform3D(Basis().scaled(Vector3.ONE * PHASE_PORTAL_SCALE),
+	portal.transform = _ground_frame(context, beat) * Transform3D(Basis().scaled(Vector3.ONE * PHASE_PORTAL_SCALE),
 			Vector3(0, PORTAL_HEIGHT * PHASE_PORTAL_SCALE, 0))
 	add_child(portal)
+
+
+## Where the player runs at `beat`: the road's surface, or its underside during an underside run.
+static func _ground_frame(context: LevelContext, beat: float) -> Transform3D:
+	if context.chart.is_underside_at(beat):
+		return context.underside_frame_at(beat)
+	return context.surface_frame_at_beat(beat)
 
 
 ## Maces swing one full cycle every two bars, alternating phase between neighbours.

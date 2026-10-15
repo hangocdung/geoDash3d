@@ -2,7 +2,8 @@
 # turn per beat, snapped to the nearest face on landing), rolls sideways on dodges, swings around the
 # edge on flips, squashes on landing, shows a ring while a shield is held and leaves a pixel trail. A beat
 # ring on the ground under the player sends out a wave on every beat and takes the color of the next tap's
-# action as it approaches (stays on the ground while jumping, hidden over gaps and under the track). Read-only.
+# action as it approaches (stays on the ground while jumping, hidden over gaps and while flipping; on the
+# underside during underside runs, where the cube hangs upside down). Read-only.
 # Related: src/gameplay/simulation/run_simulation.gd, src/presentation/shaders/neon_box.gdshader
 class_name PlayerView
 extends Node3D
@@ -84,7 +85,8 @@ func update_pose(beat: float, simulation: RunSimulation, delta: float) -> void:
 	var air_beats: float = simulation.air_beats_at(beat)
 	_roll_residual *= exp(-ROLL_SNAP_RATE * delta)
 	var forward_roll: float = _roll_base - air_beats * ROLL_PER_BEAT if air_beats >= 0.0 else _roll_base + _roll_residual
-	var side_roll: float = 0.0
+	var underside: bool = simulation.is_underside()
+	var side_roll: float = PI if underside else 0.0
 	if action != null and progress >= 0.0:
 		var hold: float = action.hold_amount(progress)
 		match action.kind:
@@ -101,21 +103,23 @@ func update_pose(beat: float, simulation: RunSimulation, delta: float) -> void:
 	body.set_instance_shader_parameter("flash", _flash)
 	global_transform = frame * Transform3D(Basis(), Vector3(0.0, offset.y, offset.x))
 	var rotation_basis: Basis = Basis(Vector3.RIGHT, side_roll) * Basis(Vector3.BACK, forward_roll)
-	# Rotate around the cube center; squash around the bottom so the cube stays planted.
+	# Rotate around the cube center; squash around the face on the ground so the cube stays planted.
 	var half: float = CUBE_SIZE * 0.5
-	body.transform = Transform3D(rotation_basis.scaled(stretch), Vector3(0.0, half * stretch.y, 0.0))
-	_update_foot_ring(beat, offset)
+	var center: float = CUBE_SIZE - half * stretch.y if underside else half * stretch.y
+	body.transform = Transform3D(rotation_basis.scaled(stretch), Vector3(0.0, center, 0.0))
+	_update_foot_ring(beat, offset, underside)
 
 
-func _update_foot_ring(beat: float, offset: Vector2) -> void:
+func _update_foot_ring(beat: float, offset: Vector2, underside: bool) -> void:
 	var chart: LevelChart = _context.chart
 	var distance: float = chart.distance_at(beat)
 	var ground: float = chart.terrain.height_at(distance)
-	_foot_ring.visible = not Terrain.is_gap(ground) and offset.y > -0.5
+	_foot_ring.visible = underside or (not Terrain.is_gap(ground) and offset.y > -0.5)
 	if not _foot_ring.visible:
 		return
-	_foot_ring.global_transform = _context.frame_at_height(beat, ground) * Transform3D(Basis(),
-			Vector3(0.0, 0.05, offset.x))
+	var ground_frame: Transform3D = _context.underside_frame_at(beat) if underside \
+			else _context.frame_at_height(beat, ground)
+	_foot_ring.global_transform = ground_frame * Transform3D(Basis(), Vector3(0.0, 0.05, offset.x))
 	if _next_cue > 0 and chart.cues[_next_cue - 1].beat > beat:
 		_next_cue = 0
 	while _next_cue < chart.cues.size() and chart.cues[_next_cue].beat < beat:

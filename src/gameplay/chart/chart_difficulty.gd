@@ -1,6 +1,6 @@
 # Difficulty of a chart from its raw JSON (the song menu sorts by it without loading whole levels): weighted taps
 # per minute of play, each tap scaled by the run speed at its beat (same action weights as the shipped-charts test:
-# jump / orbs 1, dodges 1.25, flips / rolls 1.75). Related: src/ui/menu/song_list_panel.gd, docs/chart_format.md
+# jump / orbs 1, dodges 1.25, flips / rolls / underside flips 1.75). Related: src/ui/menu/song_list_panel.gd, docs/chart_format.md
 class_name ChartDifficulty
 extends RefCounted
 
@@ -10,7 +10,7 @@ const TIER_LIMITS: Array[float] = [35.0, 45.0, 55.0, 65.0]
 const TIER_NAMES: PackedStringArray = ["EASY", "NORMAL", "HARD", "HARDER", "EXPERT"]
 const WEIGHTS: Dictionary[String, float] = {
 	"jump": 1.0, "orb": 1.0, "orb_big": 1.0, "orb_drop": 1.0, "dodge_left": 1.25, "dodge_right": 1.25,
-	"flip": 1.75, "roll": 1.75,
+	"flip": 1.75, "roll": 1.75, "flip_down": 1.75, "flip_up": 1.75,
 }
 
 

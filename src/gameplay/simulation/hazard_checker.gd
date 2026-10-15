@@ -8,10 +8,13 @@ const NO_HAZARD: int = -1
 
 var _hazards: Array[ChartItems.HazardPlacement]
 var _cursor: int = 0
+## Underside hazards hang below the road's underside: their boxes mirror below this depth.
+var _track_thickness: float = 0.0
 
 
-func _init(hazards_sorted_by_distance: Array[ChartItems.HazardPlacement]) -> void:
+func _init(hazards_sorted_by_distance: Array[ChartItems.HazardPlacement], track_thickness: float = 0.0) -> void:
 	_hazards = hazards_sorted_by_distance
+	_track_thickness = track_thickness
 
 
 ## Returns the index of the first hazard overlapping the player box, or NO_HAZARD.
@@ -34,7 +37,12 @@ func find_collision(player_distance: float, half_length: float, lateral_range: V
 			break
 		if placement.distance + hazard.half_length < player_back:
 			continue
-		if vertical_range.y < placement.base_height + hazard.bottom or vertical_range.x > placement.base_height + hazard.top:
+		var box_bottom: float = placement.base_height + hazard.bottom
+		var box_top: float = placement.base_height + hazard.top
+		if placement.underside:
+			box_bottom = -_track_thickness - hazard.top
+			box_top = -_track_thickness - hazard.bottom
+		if vertical_range.y < box_bottom or vertical_range.x > box_top:
 			continue
 		var hazard_left: float = hazard.lateral_center - hazard.lateral_half_width
 		var hazard_right: float = hazard.lateral_center + hazard.lateral_half_width

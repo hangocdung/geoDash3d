@@ -13,6 +13,9 @@ enum Kind {
 	## Wrap around the track edge to run upside-down under the track, then wrap back.
 	FLIP,
 }
+## FLIP: the whole trip under the track and back (flip, roll), or only half of an underside run (GD3-112):
+## DOWN ends upside-down under the track, UP comes back up the other edge (together they make one full turn).
+enum FlipPart { ROUND_TRIP, DOWN, UP }
 
 @export var id: StringName = &""
 @export var kind: Kind = Kind.JUMP
@@ -31,6 +34,7 @@ enum Kind {
 @export var flip_depth: float = 0.0
 ## FLIP: keep going around instead of wrapping back: over one edge, under the track, up the other edge (roll).
 @export var full_turn: bool = false
+@export var flip_part: FlipPart = FlipPart.ROUND_TRIP
 ## Hazard ids that cannot hurt the player while this action is active.
 @export var immune_to: Array[StringName] = []
 @export var paired_hazard: StringName = &""
@@ -56,6 +60,10 @@ func gravity() -> float:
 ## Player offset from its resting spot: x = lateral (+ = right), y = height of the player's lower edge.
 ## JUMP is the flat-ground parabola; RunSimulation integrates real jumps against the terrain.
 func offset_at(progress: float) -> Vector2:
+	if kind == Kind.FLIP:
+		# Angle-based even at the ends: DOWN finishes (and UP starts) under the track.
+		var angle: float = flip_angle(clampf(progress, 0.0, 1.0))
+		return Vector2(sin(angle) * lateral_distance, (cos(angle) - 1.0) * flip_depth * 0.5)
 	if progress <= 0.0 or progress >= 1.0:
 		return Vector2.ZERO
 	match kind:
@@ -63,15 +71,17 @@ func offset_at(progress: float) -> Vector2:
 			return Vector2(0.0, 4.0 * jump_height * progress * (1.0 - progress))
 		Kind.DODGE:
 			return Vector2(lateral_distance * hold_amount(progress), 0.0)
-		Kind.FLIP:
-			var angle: float = flip_angle(progress)
-			return Vector2(sin(angle) * lateral_distance, (cos(angle) - 1.0) * flip_depth * 0.5)
 	return Vector2.ZERO
 
 
 ## FLIP: angle around the track's length axis (0 = on the road, PI = under it). A flip wraps back to 0; a
 ## full turn goes on to TAU, coming up the other edge.
 func flip_angle(progress: float) -> float:
+	match flip_part:
+		FlipPart.DOWN:
+			return PI * smoothstep(0.0, 1.0, progress)
+		FlipPart.UP:
+			return PI + PI * smoothstep(0.0, 1.0, progress)
 	if full_turn and progress >= 0.5:
 		return PI * (2.0 - hold_amount(progress)) if progress < 1.0 else 0.0
 	return PI * hold_amount(progress)

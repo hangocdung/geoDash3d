@@ -56,6 +56,8 @@ static func create_default() -> GameplayConfig:
 		_dodge(config, &"dodge_right", 1.0, &"wall_gap_right"),
 		_flip(config),
 		_roll(config),
+		_underside_flip(config, &"flip_down", ActionDefinition.FlipPart.DOWN, &"gate"),
+		_underside_flip(config, &"flip_up", ActionDefinition.FlipPart.UP, &"gate_under"),
 		_orb(),
 		_big_orb(),
 		_dive_orb(),
@@ -130,6 +132,24 @@ static func _roll(config: GameplayConfig) -> ActionDefinition:
 	roll.full_turn = true
 	roll.transition_fraction = 0.25
 	return roll
+
+
+## Underside run (GD3-112): flip_down wraps over the right-hand edge and stays under the track (a gate on the
+## road behind it), flip_up comes back up the left-hand edge (a gate under the track behind it).
+static func _underside_flip(config: GameplayConfig, action_id: StringName, part: ActionDefinition.FlipPart,
+		hazard_id: StringName) -> ActionDefinition:
+	var flip: ActionDefinition = _flip(config)
+	flip.id = action_id
+	flip.flip_part = part
+	flip.duration_beats = 1.0
+	flip.paired_hazard = hazard_id
+	flip.hazard_beat_offset = 1.25
+	return flip
+
+
+## Depth of the player's lower edge (its head, upside down) while it runs under the track.
+func underside_depth() -> float:
+	return track_thickness + CUBE_SIZE
 
 
 ## Mid-air jump ring: same arc as a jump, but it can be tapped while airborne.

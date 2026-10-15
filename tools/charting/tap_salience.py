@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from loudness_onsets import FRAME_SEC, HOP, decode  # noqa: E402
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
-TAP_TYPES = {"jump", "orb", "orb_big", "orb_drop", "dodge_left", "dodge_right", "flip", "roll"}
+TAP_TYPES = {"jump", "orb", "orb_big", "orb_drop", "dodge_left", "dodge_right", "flip", "roll", "flip_down", "flip_up"}
 WINDOW_SEC = 0.03
 NEIGHBOUR_SLOTS = [-1.0, -0.75, -0.5, -0.25, 0.25, 0.5, 0.75, 1.0]
 GOOD_STANDOUT = 1.6

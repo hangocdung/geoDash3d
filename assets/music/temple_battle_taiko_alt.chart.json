@@ -279,35 +279,27 @@
 			"height": 0.0
 		},
 		{
-			"beat": 271.5452,
+			"beat": 283.9071,
 			"gap": true
 		},
 		{
-			"beat": 272.0452,
+			"beat": 284.4071,
 			"height": 0.0
 		},
 		{
-			"beat": 293.0164,
+			"beat": 309.7683,
 			"gap": true
 		},
 		{
-			"beat": 293.5164,
-			"height": 0.0
-		},
-		{
-			"beat": 302.0527,
-			"height": 1.5
-		},
-		{
-			"beat": 303.0,
+			"beat": 310.2683,
 			"height": 0.0
 		},
 		{
 			"beat": 336.5143,
-			"height": 1.5
+			"height": 1.0
 		},
 		{
-			"beat": 337.25,
+			"beat": 337.5,
 			"height": 0.0
 		}
 	],
@@ -642,67 +634,65 @@
 		},
 		{
 			"beat": 267.6834,
-			"type": "jump",
-			"hazard": "pendulum"
+			"type": "flip_down"
 		},
 		{
 			"beat": 269.4993,
 			"type": "jump",
-			"hazard": "spike_triple"
+			"hazard": "saw"
 		},
 		{
 			"beat": 271.2952,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 277.4712,
-			"type": "jump",
-			"hazard": "laser_fence"
+			"type": "flip_up"
 		},
 		{
 			"beat": 281.4621,
-			"type": "dodge_right",
-			"hazard": "laser_gap_right"
+			"type": "jump",
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 283.6571,
-			"type": "roll",
-			"hazard": "falling_block"
+			"type": "jump",
+			"hazard": "none"
 		},
 		{
 			"beat": 286.0716,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 287.9673,
-			"type": "jump",
-			"hazard": "spike_double"
+			"type": "dodge_right",
+			"hazard": "laser_gap_right"
 		},
 		{
 			"beat": 292.7664,
-			"type": "jump",
-			"hazard": "none"
+			"type": "roll",
+			"hazard": "falling_block"
 		},
 		{
 			"beat": 297.4558,
-			"type": "dodge_left"
-		},
-		{
-			"beat": 301.5066,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 309.5183,
 			"type": "jump",
 			"hazard": "pendulum"
 		},
 		{
-			"beat": 311.9728,
+			"beat": 301.5066,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "spike_double"
+		},
+		{
+			"beat": 309.5183,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 311.9728,
+			"type": "dodge_left"
 		},
 		{
 			"beat": 320,

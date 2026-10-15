@@ -38,8 +38,8 @@ func setup(context: LevelContext) -> void:
 	for placement: ChartItems.HazardPlacement in context.chart.hazards:
 		var obstacle := Obstacle.new()
 		obstacle.hazard = placement.hazard
-		obstacle.rest = context.track.transform_at(placement.distance) * Transform3D(Basis(),
-				Vector3(0, placement.base_height, 0))
+		obstacle.rest = context.track.transform_at(placement.distance) * (context.underside_flip()
+				if placement.underside else Transform3D(Basis(), Vector3(0, placement.base_height, 0)))
 		obstacle.appear_beat = placement.hazard.appear_beat(placement.beat)
 		obstacle.hazard_beat = placement.beat
 		obstacle.root = factory.build_hazard(placement.hazard)

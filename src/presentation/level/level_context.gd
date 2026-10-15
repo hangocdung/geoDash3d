@@ -27,6 +27,17 @@ func frame_at_height(beat: float, height: float) -> Transform3D:
 	return frame_at_beat(beat) * Transform3D(Basis(), Vector3(0.0, height, 0.0))
 
 
+## Track frame on the road's underside at `beat`, upside down (its up axis points away from the road) and
+## `depth` below it: what frame_at_height is on top of the road, for underside runs (GD3-112).
+func underside_frame_at(beat: float, depth: float = 0.0) -> Transform3D:
+	return frame_at_beat(beat) * underside_flip() * Transform3D(Basis(), Vector3(0.0, depth, 0.0))
+
+
+## Turns something placed on the road upside down under it (half a turn around the track's length axis).
+func underside_flip() -> Transform3D:
+	return Transform3D(Basis(Vector3.RIGHT, PI), Vector3(0.0, -config.track_thickness, 0.0))
+
+
 ## Track frame at `beat` raised onto the ground (terrain) at that point.
 func surface_frame_at_beat(beat: float) -> Transform3D:
 	return frame_at_height(beat, chart.surface_height_at(beat))

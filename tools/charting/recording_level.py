@@ -4,7 +4,8 @@ Each tap marks a moment the player acts. Taps are quantized to the grid, then gr
 -> orb triplet, 0.75 apart -> stairs, two taps 0.5 apart -> a rotation of orb / dive under a spiked ceiling / big
 orb; any other tap is one obstacle picked from a rotation that depends on the section energy (spike, saw, spike
 rows, hole, ledge, two-lane wall, gate), falling back to whatever fits. Ledges are left with a drop where there is room (always before walls and gates). Lanes in old recordings
-are ignored.
+are ignored. A gate (flip) in a loud section becomes an underside run where the next taps allow it: flip_down,
+jumps under the track, flip_up (GD3-112); `under_every` adds more of them.
 Every choice goes through handmade.Checker (the rules of hand-written levels); a tap that fits nothing is
 skipped with a warning. Tempo, speed, sections, track, cameras and vfx are copied from the source chart.
 Usage: python tools/charting/recording_level.py [<id> or chart path] [--grid=0.5] [--out=<path>] (no id: list songs)
@@ -21,7 +22,8 @@ from handmade import Checker, EPSILON, MAX_HEIGHT, try_apply  # noqa: E402
 from terrain_patterns import Level, SpeedMap  # noqa: E402
 
 MUSIC_DIR = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "assets", "music"))
-GAMEPLAY_EVENTS = {"jump", "orb", "orb_big", "orb_drop", "pad", "dodge_left", "dodge_right", "flip", "roll"}
+GAMEPLAY_EVENTS = {"jump", "orb", "orb_big", "orb_drop", "pad", "dodge_left", "dodge_right", "flip", "roll",
+                   "flip_down", "flip_up"}
 ROAD_PATTERNS = ("dl", "dr", "flip", "roll")
 # No obstacle before this beat (the run-up) or in the last beat of the song.
 FIRST_BEAT = 2.0
@@ -37,6 +39,16 @@ AUTO_HIGH = ["spike2", "gap", "wall", "step", "pendulum", "saw", "flip", "spike3
 SINGLE_FALLBACKS = ["spike", "gap", "step", "step1", "saw", "wall", "flip"]
 # Two taps half a beat apart: plain orb, dive under a spiked ceiling, big orb (each needs more room after it).
 PAIRS = ["orb", "dive", "orb", "borb"]
+# Underside runs (GD3-112): loud sections only, flip_down to flip_up within these many beats, 2+ jumps under the track.
+UNDER_ENERGY = 0.6
+UNDER_MIN_BEATS = 4.0
+UNDER_MAX_BEATS = 12.0
+UNDER_MAX_JUMPS = 4
+# A gate this soon after the previous underside run stays a plain flip (runs are set pieces, not the whole level).
+UNDER_MIN_SPACING = 16.0
+# Taps less than a beat after the previous one cannot be played under the track: at most this many are left out.
+UNDER_MAX_SKIPPED = 2
+UNDER_HAZARDS = ["saw", "mine", "spike2", "laser", "pendulum", "spike3", "spike"]
 
 
 def same_gap(gap, target):
@@ -74,7 +86,7 @@ def load_taps(recording, tempo, grid, end_beat, warnings):
 
 
 class Builder:
-    def __init__(self, chart, taps, warnings):
+    def __init__(self, chart, taps, warnings, under_every=None):
         self.checker = Checker(Level(SpeedMap([(float(k["beat"]), float(k["units_per_beat"])) for k in chart["speed"]])))
         self.sections = [(float(s["beat"]), float(s.get("energy", 0.5))) for s in chart.get("sections", [])]
         self.end_beat = float(chart["end_beat"])
@@ -84,6 +96,10 @@ class Builder:
         self.auto_count = 0
         self.pair_count = 0
         self.wall_left = True
+        # Beats between underside runs started on purpose (None: only gates become underside runs).
+        self.under_every = under_every
+        self.last_under = -math.inf
+        self.under_count = 0
 
     def energy_at(self, beat):
         energy = 0.5
@@ -148,6 +164,53 @@ class Builder:
                 return name, count
         return None
 
+    def wants_underside(self, beat, options):
+        if self.energy_at(beat) < UNDER_ENERGY or beat - self.last_under < UNDER_MIN_SPACING:
+            return False
+        if options[0][0] == "flip":
+            return True
+        return self.under_every is not None and beat - self.last_under >= self.under_every and options[0][1] == 1
+
+    def place_underside(self, index):
+        """flip_down on this tap, jumps under the track on the next taps, flip_up on the last one (GD3-112); taps
+        less than a beat after the previous one are left out. Longest run that fits first. Returns how many taps
+        it used up (left-out ones included), or 0."""
+        start = self.taps[index]
+        picked, last = [], start
+        for k in range(index + 1, len(self.taps)):
+            if self.taps[k] - start > UNDER_MAX_BEATS or len(picked) > UNDER_MAX_JUMPS:
+                break
+            if self.taps[k] - last >= 1.0 - EPSILON:
+                picked.append(k)
+                last = self.taps[k]
+        for count in range(len(picked), 2, -1):
+            end = picked[count - 1]
+            skipped = end - index - count
+            if self.taps[end] - start < UNDER_MIN_BEATS or skipped > UNDER_MAX_SKIPPED:
+                continue
+            if self.try_underside(index, picked[:count]):
+                if skipped:
+                    self.warnings.append("beat %.2f: %d tap(s) left out of the underside run (less than a beat apart)"
+                                         % (start, skipped))
+                return end - index + 1
+        return 0
+
+    def try_underside(self, index, picked):
+        saved, step_count = self.checker.snapshot(), len(self.steps)
+        jumps = [self.taps[k] for k in picked[:-1]]
+        plan = [(self.taps[index], "fdown")] + [
+            (beat, UNDER_HAZARDS[(self.under_count + n) % len(UNDER_HAZARDS)]) for n, beat in enumerate(jumps)]
+        plan.append((self.taps[picked[-1]], "fup"))
+        deadlines = [beat for beat, _ in plan[1:]] + [self.deadline(picked[-1] + 1)]
+        for (beat, name), deadline in zip(plan, deadlines):
+            if not self.try_apply(beat, name, deadline):
+                self.checker.restore(saved)
+                del self.steps[step_count:]
+                return False
+        self.under_count += len(jumps)
+        self.last_under = self.taps[index]
+        return True
+
     def deadline(self, index):
         return self.taps[index] if index < len(self.taps) else self.end_beat
 
@@ -156,7 +219,14 @@ class Builder:
         while index < len(self.taps):
             beat = self.taps[index]
             options = self.candidates(index)
-            self.drop_before(beat, options[0][0] in ROAD_PATTERNS)
+            under = self.wants_underside(beat, options)
+            self.drop_before(beat, under or options[0][0] in ROAD_PATTERNS)
+            used = self.place_underside(index) if under else 0
+            if used:
+                if options[0][0] == "flip":
+                    self.auto_count += 1
+                index += used
+                continue
             chosen = self.place(index, options)
             if chosen is None and self.checker.level.ground > 0.0:
                 # Too high for every pattern: leave the ledge first, then try again.

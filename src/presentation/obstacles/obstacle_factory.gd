@@ -72,7 +72,8 @@ func build_hazard(hazard: HazardDefinition) -> Node3D:
 
 
 ## Ring at the tap moment (in the target lane, on the ground under the player), icon above the paired
-## obstacle (none for terrain jumps, so it is never mistaken for an orb), lit strip for dodges.
+## obstacle (none for terrain jumps, so it is never mistaken for an orb), lit strip for dodges. Ring and icon
+## hang under the track where the player or the obstacle is there (underside runs).
 ## Jump orbs float where the player will be (`cue_height` = its feet at the cue).
 func build_cue_markers(cue: ChartItems.ActionCue, cue_height: float,
 		context: LevelContext) -> Array[GeometryInstance3D]:
@@ -83,7 +84,9 @@ func build_cue_markers(cue: ChartItems.ActionCue, cue_height: float,
 	var markers: Array[GeometryInstance3D] = []
 	var ring: MeshInstance3D = _plane(Vector2(PAD_SIZE, PAD_SIZE) * CUE_APPROACH_SCALE, _cue_glyph(action,
 			GLYPH_RING, false, 0.42))
-	ring.transform = context.frame_at_height(cue.beat, cue_height) * Transform3D(Basis(), Vector3(0, 0.03, lane))
+	var ring_frame: Transform3D = context.underside_frame_at(cue.beat) if context.chart.is_cue_underside(cue) \
+			else context.frame_at_height(cue.beat, cue_height)
+	ring.transform = ring_frame * Transform3D(Basis(), Vector3(0, 0.03, lane))
 	markers.append(ring)
 	if cue.has_hazard:
 		markers.append(_icon(cue, cue_height, context, lane))
@@ -111,7 +114,10 @@ func _icon(cue: ChartItems.ActionCue, cue_height: float, context: LevelContext, 
 	var icon_beat: float = cue.beat + action.hazard_beat_offset
 	var icon_ground: float = maxf(cue_height, context.chart.surface_height_at(icon_beat))
 	var icon_height: float = (hazard.visual_height if hazard != null else 1.0) + ICON_CLEARANCE
-	icon.transform = context.frame_at_height(icon_beat, icon_ground) * Transform3D(Basis(), Vector3(0, icon_height, lane))
+	var icon_frame: Transform3D = context.frame_at_height(icon_beat, icon_ground)
+	if hazard != null and context.chart.is_hazard_underside(hazard, icon_beat):
+		icon_frame = context.underside_frame_at(icon_beat)
+	icon.transform = icon_frame * Transform3D(Basis(), Vector3(0, icon_height, lane))
 	return icon
 
 

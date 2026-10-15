@@ -488,11 +488,11 @@
 			"height": 0.0
 		},
 		{
-			"beat": 388.7317,
+			"beat": 396.2895,
 			"gap": true
 		},
 		{
-			"beat": 389.2317,
+			"beat": 396.7895,
 			"height": 0.0
 		}
 	],
@@ -1124,31 +1124,31 @@
 		},
 		{
 			"beat": 381.5724,
-			"type": "flip"
+			"type": "flip_down"
 		},
 		{
 			"beat": 384.0293,
 			"type": "jump",
-			"hazard": "spike_triple"
+			"hazard": "saw"
 		},
 		{
 			"beat": 388.4817,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 391.0134,
-			"type": "jump",
-			"hazard": "laser_fence"
+			"type": "flip_up"
 		},
 		{
 			"beat": 394.044,
-			"type": "dodge_right",
-			"hazard": "laser_gap_right"
+			"type": "jump",
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 396.0395,
-			"type": "roll"
+			"type": "jump",
+			"hazard": "none"
 		},
 		{
 			"beat": 416,

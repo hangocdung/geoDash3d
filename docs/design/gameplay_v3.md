@@ -163,6 +163,22 @@ dùng biến thể (`terrain_patterns.Level._variant`). Model: `assets/blender/g
 đỉnh), vật liệu dùng chung theo màu (`ObstacleModels`). Mỗi vật cản tối đa 3 draw call: hàng rào laser và lưới laser là
 một mesh gộp (cột + tia), rìu chỉ một vật liệu — đo trên PC, bản tách rời (6–8 draw call) làm tụt FPS rõ hơn.
 
+## 12. Chạy mặt dưới đường (GD3-112, 2026-10-15)
+Người dùng muốn lộn xuống mặt dưới để né vật cản rồi chơi tiếp ở mặt dưới một đoạn với vật cản khác, sau đó mới lên.
+- Hai nửa của một vòng lộn: `flip_down` (góc 0 → π, qua mép phải, 1 beat) rồi chạy lộn ngược dưới đường, `flip_up`
+  (π → 2π, lên mép trái, 1 beat). Cổng `gate` trên đường 1.25 beat sau `flip_down`, cổng `gate_under` treo dưới đường
+  1.25 beat sau `flip_up`: bỏ lỡ lần chạm nào cũng đâm cổng.
+- Dưới đường chỉ có nhảy thường qua vật cản treo ngược (gai, cưa, mìn, laser, con lắc, hàng gai); cú nhảy đi xa khỏi
+  mặt dưới, hộp va chạm lật ngược nên dung sai như trên mặt đường.
+- Lá chắn đỡ cổng khi lỡ `flip_down`/`flip_up` thì người chơi được đặt về đúng mặt của lượt hoàn hảo.
+- Tool đặt màn (`recording_level.Builder`): ở đoạn mạnh (năng lượng ≥ 0.6), chỗ đáng lẽ đặt cổng `flip` trở thành
+  một đoạn chạy mặt dưới nếu các lần chạm sau cho phép (4–12 beat, 2–4 cú nhảy cách nhau ≥ 1 beat, bỏ tối đa 2 lần
+  chạm quá sát), cách đoạn trước ≥ 16 beat; màn LED thêm một đoạn mỗi 24 beat (`SONG["under_every"]`). Lần chạm giữ
+  nguyên nhịp; 6 màn hit-level được sinh lại (1–3 đoạn mỗi màn, cùng số lần chạm).
+- Camera: MEDIUM/HIGH xoay theo người chơi và giữ lộn ngược suốt đoạn (thế giới đảo ngược, mặt dưới đường thành
+  "sàn"); LOW giữ góc nhìn thấp dưới đường, không xoay (xoay camera ở LOW tốn FPS, GD3-105). Không đặt cột đỡ gần
+  đoạn chạy mặt dưới (cú nhảy xuống sâu hơn khoảng trống dưới đường).
+
 ## 11. Lộn tròn quanh đường (GD3-106, 2026-10-15)
 Người dùng muốn quả cầu gai lia qua theo hướng chạy, người chơi phải lộn xuống mặt dưới rồi lên lại thành một vòng
 tròn, camera đi theo; hoặc một vật thể rơi xuống chặn đường.

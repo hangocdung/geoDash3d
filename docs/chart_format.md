@@ -51,6 +51,8 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
   | `dodge_left` / `dodge_right` | lăn sang làn trái / phải 1.25 beat rồi về | `wall_gap_left` / `wall_gap_right` (+0.625), tường chắn làn giữa và làn còn lại | rơi xuống |
   | `flip` | lộn qua mép xuống mặt dưới 2 beat rồi lên | `gate` (+1.0), cổng chắn cả bề ngang | bung ngang |
   | `roll` | lộn trọn vòng quanh đường 2 beat (GD3-106): qua mép phải, chạy dưới đường, lên lại mép trái | `mace_sweep` (+1.0), quả cầu gai lia dọc hướng chạy, buông thẳng đúng lúc người chơi tới; biến thể `falling_block` (khối rơi chặn cả đường) | rơi xuống |
+  | `flip_down` | lộn qua mép phải xuống mặt dưới 1 beat và **ở lại** dưới đường (GD3-112) | `gate` (+1.25), trên mặt đường | bung ngang |
+  | `flip_up` | từ mặt dưới lộn lên mép trái về mặt đường 1 beat | `gate_under` (+1.25), cổng treo dưới đường | bung ngang |
   | `orb` | vòng nhảy giữa không trung: chạm được cả khi đang bay, bật parabol mới (như jump) | không có | — |
   | `orb_big` | vòng nhảy lớn: như `orb` nhưng bật parabol của bệ bật (đỉnh +4.5, 1.5 beat) | không có | — |
   | `orb_drop` | vòng lao xuống: chạm khi đang bay thì lao thẳng xuống (12 đơn vị/beat, từ đỉnh +2 chạm đất sau ~0.15 beat) | không có | — |
@@ -77,6 +79,10 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
   hành động trước (jump 1, dodge 1.25, flip 2 beat); lên bậc +1.5 thì 0.75 beat là đủ.
   `draft_chart.py` chừa thêm ~0.5 beat: jump 1.5, dodge 1.75, flip 2.5.
 - Dodge/flip cần đường phẳng ở độ cao 0 cho tới khi kết thúc; bệ bật và vật cản không được đặt trên hố (loader báo lỗi).
+- Đoạn chạy mặt dưới (GD3-112): mỗi `flip_down` phải có `flip_up` sau nó; ở giữa chỉ có `jump` (vật cản đi kèm treo
+  dưới đường, cùng hộp va chạm lật ngược); đường phẳng độ cao 0, không hố, không bệ bật từ `flip_down` tới 1 beat sau
+  `flip_up` (loader báo lỗi). Vật cản đặt riêng (`"type": "hazard"`) nằm trong đoạn cũng treo dưới đường; `gate`
+  luôn ở trên, `gate_under` luôn ở dưới. Tool đặt màn còn giữ đường liền tới 1.75 beat sau `flip_up` (cổng dưới đường).
 - Tốc độ không được giảm; mỗi phase nhanh hơn phase trước (bậc thang chuẩn của các màn đặt tay: 7 → 7.75 → 8.5 →
   9.25 → 10, hoặc 7 → 8 → 8.75/9 → 9.5/10 với 4 phase); độ khó có trọng số (jump 1, dodge 1.25, flip 1.75, × tốc độ) của 1/4 cuối phải > 1.5 lần 1/4 đầu.
 - Autoplay (chạm đúng mọi cue) phải qua màn: `tests/gameplay/test_shipped_charts.gd`.

@@ -74,6 +74,7 @@ func _parse(root: Dictionary) -> LevelChart:
 		return null
 	chart.finalize()
 	_validate_terrain(chart)
+	_validate_underside(chart)
 	return chart
 
 
@@ -205,6 +206,31 @@ func _validate_terrain(chart: LevelChart) -> void:
 	for placement: ChartItems.HazardPlacement in chart.hazards:
 		if Terrain.is_gap(chart.terrain.height_at(placement.distance)):
 			_errors.append("hazard '%s' at beat %.3f is over a gap" % [placement.hazard.id, placement.beat])
+
+
+## Underside runs: every flip_down closed by a flip_up, only plain jumps in between, unbroken flat road.
+func _validate_underside(chart: LevelChart) -> void:
+	var open_beat: float = NAN
+	for cue: ChartItems.ActionCue in chart.cues:
+		var part: int = cue.action.flip_part if cue.action.kind == ActionDefinition.Kind.FLIP else -1
+		if part == ActionDefinition.FlipPart.DOWN:
+			if not is_nan(open_beat):
+				_errors.append("flip_down at beat %.3f: the flip_down at %.3f has no flip_up yet" % [cue.beat, open_beat])
+			open_beat = cue.beat
+		elif part == ActionDefinition.FlipPart.UP:
+			if is_nan(open_beat):
+				_errors.append("flip_up at beat %.3f has no flip_down before it" % cue.beat)
+			open_beat = NAN
+		elif not is_nan(open_beat) and (cue.action.kind != ActionDefinition.Kind.JUMP or cue.action.air_allowed):
+			_errors.append("%s at beat %.3f: only plain jumps can be tapped under the track" % [cue.action.id, cue.beat])
+	if not is_nan(open_beat):
+		_errors.append("flip_down at beat %.3f is never closed by a flip_up" % open_beat)
+	for run: Vector2 in chart.underside_ranges:
+		if not chart.terrain.is_level(chart.distance_at(run.x - 1.0), chart.distance_at(run.y + 1.0), 0.0):
+			_errors.append("underside run %.3f..%.3f needs flat, unbroken road above it" % [run.x, run.y])
+		for pad: ChartItems.PadPlacement in chart.pads:
+			if run.x - 1.0 <= pad.beat and pad.beat <= run.y + 1.0:
+				_errors.append("pad at beat %.3f is inside an underside run" % pad.beat)
 
 
 func _parse_events(root: Dictionary, chart: LevelChart) -> void:

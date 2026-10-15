@@ -1,6 +1,6 @@
 # Deterministic run state: player motion over the terrain, tap handling, misses, combo/shields and
 # collisions, in beats. Same chart + same tap beats ⇒ same result, independent of frame rate (fixed grid).
-# Related: action_resolver.gd, hazard_checker.gd, player_body.gd, combo_shield.gd, level_runner.gd
+# Related: action_resolver.gd, action_state.gd, hazard_checker.gd, player_body.gd, combo_shield.gd
 class_name RunSimulation
 extends RefCounted
 
@@ -50,9 +50,8 @@ var _checker: HazardChecker
 var _body: PlayerBody
 ## The body's vertical motion (jumps, falls): same object as _body.motion.
 var _motion: VerticalMotion
-## Dodge or flip in progress (fixed duration); jumps live in _motion.
-var _active_action: ActionDefinition = null
-var _active_start_beat: float = 0.0
+## Dodge or flip in progress and the side of the track the player runs on; jumps live in _motion.
+var _action := ActionState.new()
 var _buffered_tap_beat: float = NAN
 var _grid_index: int = 0
 
@@ -64,7 +63,8 @@ func _init(level_chart: LevelChart, gameplay_config: GameplayConfig, start_beat:
 	_grid_index = floori(start_beat / config.simulation_step_beats)
 	_resolver = ActionResolver.new(chart.cues, chart.tempo, config.cue_window_sec)
 	_resolver.skip_before(start_beat)
-	_checker = HazardChecker.new(chart.hazards)
+	_checker = HazardChecker.new(chart.hazards, config.track_thickness)
+	_action.underside = chart.is_underside_at(start_beat)
 	streak = ComboShield.new(config.shield_combo, config.max_shields)
 	score = ScoreKeeper.new(config)
 	_body = PlayerBody.new(chart, config, start_beat)
@@ -83,9 +83,8 @@ func tap(beat: float) -> void:
 	var timing_error: float = _resolver.nearest_cue_error_sec(tap_beat, TAP_TIMING_RANGE_SEC)
 	if not is_nan(timing_error):
 		tap_timed.emit(timing_error)
-	if _active_action != null:
-		var action_end: float = _active_start_beat + _active_action.duration_beats
-		if chart.tempo.seconds_between(tap_beat, action_end) <= config.input_buffer_sec:
+	if _action.is_active():
+		if chart.tempo.seconds_between(tap_beat, _action.end_beat()) <= config.input_buffer_sec:
 			_buffered_tap_beat = tap_beat
 		return
 	if _motion.airborne:
@@ -115,10 +114,7 @@ func advance_to(target_beat: float) -> void:
 
 ## Offset from the track surface: x = lateral (+ = right), y = height of the player's lower edge.
 func player_offset_at(beat: float) -> Vector2:
-	var offset := Vector2(0.0, _motion.height_at(beat))
-	if _active_action != null:
-		offset += _active_action.offset_at(action_progress_at(beat))
-	return offset
+	return _action.offset_at(beat, _motion.height_at(beat), config.underside_depth())
 
 
 func player_height_at(beat: float) -> float:
@@ -127,8 +123,8 @@ func player_height_at(beat: float) -> float:
 
 ## 0..1 progress of the active action at `beat` (jumps: of their flat-ground duration), or -1 when idle.
 func action_progress_at(beat: float) -> float:
-	if _active_action != null:
-		return clampf((beat - _active_start_beat) / _active_action.duration_beats, 0.0, 1.0)
+	if _action.is_active():
+		return _action.progress_at(beat)
 	if _motion.airborne and _motion.launch_action != null:
 		return clampf((beat - _motion.launch_beat) / _motion.launch_action.duration_beats, 0.0, 1.0)
 	return -1.0
@@ -136,9 +132,13 @@ func action_progress_at(beat: float) -> float:
 
 ## Dodge/flip in progress, else the action that launched the current arc (null while standing or falling).
 func active_action() -> ActionDefinition:
-	if _active_action != null:
-		return _active_action
+	if _action.is_active():
+		return _action.action
 	return _motion.launch_action if _motion.airborne else null
+
+
+func is_underside() -> bool:
+	return _action.underside
 
 
 func is_airborne() -> bool:
@@ -183,8 +183,7 @@ func _perform_tap(tap_beat: float, start_beat: float) -> void:
 	if action.kind == ActionDefinition.Kind.JUMP:
 		_body.launch(action, start_beat)
 	else:
-		_active_action = action
-		_active_start_beat = start_beat
+		_action.start(action, start_beat)
 	action_started.emit(action, start_beat, cue_index)
 
 
@@ -214,7 +213,8 @@ func _simulate_step(beat: float) -> void:
 
 ## Ground contact for this grid step. Returns false when the player died.
 func _update_motion(beat: float) -> bool:
-	var support: float = _body.support_at(beat)
+	# Under the track the ground is the road's flat underside (the loader checks the road is unbroken).
+	var support: float = 0.0 if _action.underside else _body.support_at(beat)
 	match _body.step(beat, support):
 		VerticalMotion.Contact.LANDED:
 			_on_landed()
@@ -231,19 +231,19 @@ func _update_motion(beat: float) -> bool:
 func _survive_hit(hazard_index: int, beat: float, support: float) -> bool:
 	if invincible:
 		hazard_hit.emit(hazard_index, beat)
-		if hazard_index == TERRAIN_HIT:
-			_put_on_ground(beat, support)
-		else:
-			hit_hazards.append(hazard_index)
-		return true
-	if not streak.use_shield():
+	elif not streak.use_shield():
 		_die(hazard_index, beat)
 		return false
-	shield_used.emit(hazard_index, beat)
-	shield_changed.emit(streak.shields)
-	combo_changed.emit(0)
+	else:
+		shield_used.emit(hazard_index, beat)
+		shield_changed.emit(streak.shields)
+		combo_changed.emit(0)
 	if hazard_index != TERRAIN_HIT:
 		hit_hazards.append(hazard_index)
+		_action.follow_run(chart, beat)
+		return true
+	if invincible:
+		_put_on_ground(beat, support)
 		return true
 	# Back onto the perfect run's ground or arc at this very beat, so the next cue lands on its beat.
 	_buffered_tap_beat = NAN
@@ -288,13 +288,10 @@ func _die(hazard_index: int, beat: float) -> void:
 
 
 func _finish_action_if_due(beat: float) -> void:
-	if _active_action == null:
+	var end_beat: float = _action.end_beat() if _action.is_active() else NAN
+	var finished: ActionDefinition = _action.finish_if_due(beat)
+	if finished == null:
 		return
-	var end_beat: float = _active_start_beat + _active_action.duration_beats
-	if beat < end_beat:
-		return
-	var finished: ActionDefinition = _active_action
-	_active_action = null
 	action_finished.emit(finished, end_beat)
 	# While falling, a buffered tap waits for the landing instead.
 	if not is_nan(_buffered_tap_beat) and not _motion.airborne:

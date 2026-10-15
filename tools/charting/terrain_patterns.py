@@ -187,6 +187,15 @@ class Level:
             event["hazard"] = "ring_gate"
         self.events.append(event)
 
+    def flip_down(self, beat):
+        """Energy gate across the road: wrap over the edge and keep running upside down under the track
+        (GD3-112). Until the flip_up: flat road at 0 above, only jumps over hazards hanging under the track."""
+        self.events.append({"beat": beat, "type": "flip_down"})
+
+    def flip_up(self, beat):
+        """Gate under the track: wrap back up the other edge onto the road."""
+        self.events.append({"beat": beat, "type": "flip_up"})
+
     def roll(self, beat):
         """Sweeping spiked mace (every other one a falling block) across the road: roll all the way around the
         track, over one edge and up the other (GD3-106). Same timing and flat-road rule as a flip."""

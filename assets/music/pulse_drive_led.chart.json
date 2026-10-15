@@ -253,192 +253,128 @@
 			"height": 1.5
 		},
 		{
-			"beat": 54.25,
-			"gap": true
-		},
-		{
-			"beat": 54.75,
-			"height": 1.5
-		},
-		{
-			"beat": 60.549,
-			"height": 2.5
-		},
-		{
-			"beat": 63.6653,
-			"height": 4.0
-		},
-		{
-			"beat": 69.25,
-			"gap": true
-		},
-		{
-			"beat": 69.75,
-			"height": 4.0
-		},
-		{
-			"beat": 70.0,
+			"beat": 51.25,
 			"height": 0.0
 		},
 		{
-			"beat": 75.549,
+			"beat": 62.25,
+			"gap": true
+		},
+		{
+			"beat": 62.75,
+			"height": 0.0
+		},
+		{
+			"beat": 69.549,
 			"height": 1.0
 		},
 		{
-			"beat": 78.549,
+			"beat": 74.549,
 			"height": 2.5
 		},
 		{
-			"beat": 82.25,
+			"beat": 77.25,
 			"gap": true
 		},
 		{
-			"beat": 82.75,
+			"beat": 77.75,
 			"height": 2.5
 		},
 		{
-			"beat": 87.549,
-			"height": 3.5
+			"beat": 80.25,
+			"height": 0.0
 		},
 		{
-			"beat": 91.549,
-			"height": 5.0
+			"beat": 90.549,
+			"height": 1.0
 		},
 		{
-			"beat": 94.25,
+			"beat": 93.549,
+			"height": 2.5
+		},
+		{
+			"beat": 97.25,
 			"gap": true
 		},
 		{
-			"beat": 94.75,
-			"height": 5.0
+			"beat": 97.75,
+			"height": 2.5
 		},
 		{
-			"beat": 96.5,
-			"height": 4.0
-		},
-		{
-			"beat": 100.549,
-			"height": 5.0
-		},
-		{
-			"beat": 106.25,
+			"beat": 98.5,
 			"height": 2.0
 		},
 		{
-			"beat": 107.25,
-			"gap": true
-		},
-		{
-			"beat": 107.75,
-			"height": 2.0
-		},
-		{
-			"beat": 111.549,
+			"beat": 102.549,
 			"height": 3.0
 		},
 		{
-			"beat": 115.549,
+			"beat": 105.6903,
 			"height": 4.5
 		},
 		{
-			"beat": 116.25,
-			"gap": true
-		},
-		{
-			"beat": 116.75,
-			"height": 4.5
-		},
-		{
-			"beat": 120.5,
+			"beat": 106.5,
 			"height": 4.0
 		},
 		{
-			"beat": 124.25,
+			"beat": 109.25,
 			"gap": true
 		},
 		{
-			"beat": 124.75,
+			"beat": 109.75,
 			"height": 4.0
 		},
 		{
-			"beat": 126.549,
-			"height": 5.5
+			"beat": 113.549,
+			"height": 5.0
 		},
 		{
-			"beat": 131.5,
-			"height": 0.0
-		},
-		{
-			"beat": 134.25,
-			"gap": true
-		},
-		{
-			"beat": 134.75,
-			"height": 0.0
-		},
-		{
-			"beat": 142.25,
-			"gap": true
-		},
-		{
-			"beat": 142.75,
-			"height": 0.0
-		},
-		{
-			"beat": 145.1591,
-			"height": 1.5
-		},
-		{
-			"beat": 147.5,
-			"height": 0.0
-		},
-		{
-			"beat": 153.8872,
-			"gap": true
-		},
-		{
-			"beat": 155.0872,
+			"beat": 114.5,
 			"height": 4.0
 		},
 		{
-			"beat": 156.25,
+			"beat": 120.0,
 			"height": 0.0
 		},
 		{
-			"beat": 158.25,
+			"beat": 130.25,
 			"gap": true
 		},
 		{
-			"beat": 158.75,
+			"beat": 130.75,
 			"height": 0.0
 		},
 		{
-			"beat": 165.9081,
+			"beat": 134.549,
+			"height": 1.5
+		},
+		{
+			"beat": 141.25,
 			"gap": true
 		},
 		{
-			"beat": 166.4081,
+			"beat": 141.75,
+			"height": 1.5
+		},
+		{
+			"beat": 144.0,
 			"height": 0.0
 		},
 		{
-			"beat": 169.5447,
-			"height": 1.5
-		},
-		{
-			"beat": 177.25,
+			"beat": 161.25,
 			"gap": true
 		},
 		{
-			"beat": 177.75,
+			"beat": 161.75,
+			"height": 0.0
+		},
+		{
+			"beat": 163.6627,
 			"height": 1.5
 		},
 		{
-			"beat": 185.25,
-			"gap": true
-		},
-		{
-			"beat": 185.75,
-			"height": 1.5
+			"beat": 170.0,
+			"height": 0.0
 		},
 		{
 			"beat": 186.9249,
@@ -446,94 +382,110 @@
 		},
 		{
 			"beat": 188.1249,
-			"height": 5.5
-		},
-		{
-			"beat": 191.25,
 			"height": 4.0
 		},
 		{
-			"beat": 197.25,
+			"beat": 190.3745,
 			"gap": true
 		},
 		{
-			"beat": 197.75,
+			"beat": 190.8745,
 			"height": 4.0
 		},
 		{
-			"beat": 201.5447,
+			"beat": 193.5447,
 			"height": 5.5
 		},
 		{
-			"beat": 202.75,
+			"beat": 193.75,
 			"height": 4.0
 		},
 		{
-			"beat": 206.9086,
-			"gap": true
-		},
-		{
-			"beat": 207.4086,
-			"height": 4.0
+			"beat": 198.0,
+			"height": 0.0
 		},
 		{
 			"beat": 209.5447,
-			"height": 5.5
+			"height": 1.5
 		},
 		{
-			"beat": 210.75,
-			"height": 2.0
-		},
-		{
-			"beat": 214.0,
-			"height": 0.0
-		},
-		{
-			"beat": 217.25,
+			"beat": 209.95,
 			"gap": true
 		},
 		{
-			"beat": 217.75,
-			"height": 0.0
+			"beat": 210.2947,
+			"height": 3.0
 		},
 		{
-			"beat": 227.25,
+			"beat": 210.7,
 			"gap": true
 		},
 		{
-			"beat": 227.75,
-			"height": 0.0
+			"beat": 211.0447,
+			"height": 4.5
 		},
 		{
-			"beat": 233.5447,
-			"height": 1.0
+			"beat": 211.25,
+			"height": 4.0
 		},
 		{
-			"beat": 237.5447,
-			"height": 2.5
-		},
-		{
-			"beat": 241.25,
+			"beat": 213.25,
 			"gap": true
 		},
 		{
-			"beat": 241.75,
-			"height": 2.5
+			"beat": 213.75,
+			"height": 4.0
 		},
 		{
-			"beat": 245.5447,
-			"height": 3.5
+			"beat": 221.25,
+			"gap": true
 		},
 		{
-			"beat": 250.5447,
+			"beat": 221.75,
+			"height": 4.0
+		},
+		{
+			"beat": 227.5447,
 			"height": 5.0
 		},
 		{
-			"beat": 253.25,
+			"beat": 230.5,
+			"height": 4.0
+		},
+		{
+			"beat": 231.5447,
+			"height": 5.5
+		},
+		{
+			"beat": 232.25,
+			"height": 4.0
+		},
+		{
+			"beat": 236.25,
 			"gap": true
 		},
 		{
-			"beat": 253.75,
+			"beat": 236.75,
+			"height": 4.0
+		},
+		{
+			"beat": 241.5447,
+			"height": 5.0
+		},
+		{
+			"beat": 246.5,
+			"height": 4.0
+		},
+		{
+			"beat": 249.25,
+			"gap": true
+		},
+		{
+			"beat": 249.75,
+			"height": 4.0
+		},
+		{
+			"beat": 253.5447,
 			"height": 5.0
 		},
 		{
@@ -549,31 +501,43 @@
 			"height": 4.0
 		},
 		{
-			"beat": 263.8751,
+			"beat": 259.25,
 			"gap": true
 		},
 		{
-			"beat": 264.3751,
+			"beat": 259.75,
 			"height": 4.0
 		},
 		{
-			"beat": 266.6311,
-			"height": 5.5
+			"beat": 260.0,
+			"height": 0.0
 		},
 		{
-			"beat": 268.25,
-			"height": 2.0
+			"beat": 271.0411,
+			"height": 1.5
 		},
 		{
 			"beat": 272.0411,
-			"height": 3.5
+			"height": 3.0
+		},
+		{
+			"beat": 272.45,
+			"gap": true
 		},
 		{
 			"beat": 272.7911,
-			"height": 5.0
+			"height": 4.5
 		},
 		{
-			"beat": 274.0,
+			"beat": 273.2,
+			"gap": true
+		},
+		{
+			"beat": 273.5411,
+			"height": 6.0
+		},
+		{
+			"beat": 273.75,
 			"height": 4.0
 		},
 		{
@@ -585,55 +549,43 @@
 			"height": 4.0
 		},
 		{
-			"beat": 283.6318,
-			"height": 5.5
-		},
-		{
-			"beat": 284.0,
+			"beat": 282.0,
 			"height": 0.0
 		},
 		{
-			"beat": 289.8,
+			"beat": 298.25,
 			"gap": true
 		},
 		{
-			"beat": 291.0,
-			"height": 4.0
+			"beat": 298.75,
+			"height": 0.0
 		},
 		{
-			"beat": 294.75,
-			"gap": true
-		},
-		{
-			"beat": 295.25,
-			"height": 4.0
+			"beat": 300.5411,
+			"height": 1.5
 		},
 		{
 			"beat": 301.5411,
-			"height": 5.5
+			"height": 3.0
 		},
 		{
-			"beat": 302.75,
-			"height": 4.0
-		},
-		{
-			"beat": 304.0411,
-			"height": 5.5
-		},
-		{
-			"beat": 304.25,
-			"height": 4.0
-		},
-		{
-			"beat": 308.25,
-			"height": 0.0
-		},
-		{
-			"beat": 311.895,
+			"beat": 301.95,
 			"gap": true
 		},
 		{
-			"beat": 312.395,
+			"beat": 302.2911,
+			"height": 4.5
+		},
+		{
+			"beat": 302.7,
+			"gap": true
+		},
+		{
+			"beat": 303.0411,
+			"height": 6.0
+		},
+		{
+			"beat": 306.0,
 			"height": 0.0
 		},
 		{
@@ -661,47 +613,47 @@
 			"height": 4.0
 		},
 		{
-			"beat": 323.788,
-			"height": 5.0
+			"beat": 322.538,
+			"height": 5.5
 		},
 		{
-			"beat": 324.6495,
-			"height": 6.0
+			"beat": 324.25,
+			"height": 2.0
 		},
 		{
-			"beat": 329.25,
+			"beat": 326.25,
 			"gap": true
 		},
 		{
-			"beat": 329.75,
+			"beat": 326.75,
+			"height": 2.0
+		},
+		{
+			"beat": 330.538,
+			"height": 3.0
+		},
+		{
+			"beat": 331.6486,
+			"height": 4.5
+		},
+		{
+			"beat": 332.6224,
 			"height": 6.0
 		},
 		{
-			"beat": 332.25,
-			"height": 4.0
-		},
-		{
-			"beat": 334.538,
-			"height": 5.0
-		},
-		{
-			"beat": 340.25,
+			"beat": 336.25,
 			"gap": true
 		},
 		{
-			"beat": 340.75,
-			"height": 5.0
-		},
-		{
-			"beat": 344.538,
+			"beat": 336.75,
 			"height": 6.0
 		},
 		{
-			"beat": 350.75,
+			"beat": 346.25,
 			"gap": true
 		},
 		{
-			"beat": 351.25,
+			"beat": 346.75,
 			"height": 6.0
 		},
 		{
@@ -848,62 +800,60 @@
 		},
 		{
 			"beat": 52.0,
-			"type": "jump",
-			"hazard": "laser_fence"
+			"type": "flip_down"
 		},
 		{
 			"beat": 53.0,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "saw"
 		},
 		{
 			"beat": 54.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 55.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 57.0,
 			"type": "jump",
-			"hazard": "spike_mine"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 58.5,
-			"type": "jump",
-			"hazard": "saw"
+			"type": "flip_up"
 		},
 		{
 			"beat": 60.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 61.0,
 			"type": "jump",
-			"hazard": "pendulum"
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 62.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "none"
 		},
 		{
 			"beat": 63.1163,
-			"type": "jump",
-			"hazard": "none"
+			"type": "dodge_right",
+			"hazard": "laser_gap_right"
 		},
 		{
 			"beat": 65.0,
 			"type": "jump",
-			"hazard": "laser_fence"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 67.5,
-			"type": "jump",
-			"hazard": "spike_double"
+			"type": "jump"
 		},
 		{
 			"beat": 69.0,
@@ -912,186 +862,185 @@
 		},
 		{
 			"beat": 71.0,
-			"type": "dodge_right",
-			"hazard": "laser_gap_right"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 73.0,
 			"type": "jump",
-			"hazard": "spike_mine"
+			"hazard": "saw"
 		},
 		{
 			"beat": 74.0,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "none"
 		},
 		{
 			"beat": 75.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 76.0,
 			"type": "jump",
-			"hazard": "laser_fence"
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 77.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "none"
 		},
 		{
 			"beat": 78.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "pendulum"
 		},
 		{
 			"beat": 79.1026,
 			"type": "jump",
-			"hazard": "laser_fence"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 81.0,
-			"type": "jump",
-			"hazard": "spike_double"
+			"type": "flip_down"
 		},
 		{
 			"beat": 82.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "pendulum"
 		},
 		{
 			"beat": 83.0,
 			"type": "jump",
-			"hazard": "spike_mine"
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 84.0,
 			"type": "jump",
-			"hazard": "spike_mine"
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 85.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 87.0,
-			"type": "jump",
-			"hazard": "none"
+			"type": "flip_up"
 		},
 		{
 			"beat": 89.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 90.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "none"
 		},
 		{
 			"beat": 91.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 92.0,
 			"type": "jump",
-			"hazard": "laser_fence"
+			"hazard": "saw"
 		},
 		{
 			"beat": 93.0,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "none"
 		},
 		{
 			"beat": 94.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 95.0,
 			"type": "jump",
-			"hazard": "pendulum"
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 97.0,
 			"type": "jump",
-			"hazard": "spike_mine"
+			"hazard": "none"
 		},
 		{
 			"beat": 99.0,
-			"type": "jump",
-			"hazard": "spike_double"
+			"type": "jump"
 		},
 		{
 			"beat": 100.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 101.0,
 			"type": "jump",
-			"hazard": "laser_fence"
+			"hazard": "saw"
 		},
 		{
 			"beat": 102.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "none"
 		},
 		{
 			"beat": 103.0,
 			"type": "jump",
-			"hazard": "spike_mine"
+			"hazard": "pendulum"
 		},
 		{
 			"beat": 104.0,
 			"type": "jump",
-			"hazard": "laser_fence"
+			"hazard": "saw"
 		},
 		{
 			"beat": 105.1413,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "none"
 		},
 		{
 			"beat": 107.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 108.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 109.0,
 			"type": "jump",
-			"hazard": "spike_mine"
+			"hazard": "none"
 		},
 		{
 			"beat": 110.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 111.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 112.0,
 			"type": "jump",
-			"hazard": "pendulum"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 113.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "none"
 		},
 		{
 			"beat": 115.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 116,
@@ -1102,7 +1051,7 @@
 		{
 			"beat": 116.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 116,
@@ -1112,61 +1061,59 @@
 		{
 			"beat": 117.0,
 			"type": "jump",
-			"hazard": "laser_fence"
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 118.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 119.0,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 121.0,
-			"type": "jump",
-			"hazard": "pendulum"
+			"type": "flip_down"
 		},
 		{
 			"beat": 122.5,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 124.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 125.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 126.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "pendulum"
 		},
 		{
 			"beat": 127.1022,
-			"type": "jump",
-			"hazard": "pendulum"
+			"type": "flip_up"
 		},
 		{
 			"beat": 128.6136,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 130.0,
 			"type": "jump",
-			"hazard": "spike_triple"
+			"hazard": "none"
 		},
 		{
 			"beat": 133.0,
-			"type": "jump",
-			"hazard": "spike_triple"
+			"type": "jump"
 		},
 		{
 			"beat": 134.0,
@@ -1176,83 +1123,80 @@
 		{
 			"beat": 135.0,
 			"type": "jump",
-			"hazard": "laser_fence"
-		},
-		{
-			"beat": 136.5865,
-			"type": "dodge_left"
-		},
-		{
-			"beat": 138.0,
-			"type": "roll"
-		},
-		{
-			"beat": 140.0,
-			"type": "jump",
-			"hazard": "laser_fence"
-		},
-		{
-			"beat": 141.0,
-			"type": "jump",
-			"hazard": "spike_double"
-		},
-		{
-			"beat": 142.0,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 143.0,
-			"type": "dodge_right",
-			"hazard": "laser_gap_right"
-		},
-		{
-			"beat": 144.6101,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 146.0,
-			"type": "jump",
 			"hazard": "pendulum"
 		},
 		{
-			"beat": 149.124,
+			"beat": 136.5865,
 			"type": "jump",
 			"hazard": "saw"
 		},
 		{
-			"beat": 151.0,
+			"beat": 138.0,
 			"type": "jump",
-			"hazard": "spike_mine"
+			"hazard": "spike_double"
 		},
 		{
-			"beat": 152.5,
+			"beat": 140.0,
 			"type": "jump",
 			"hazard": "spike_triple"
 		},
 		{
-			"beat": 153.5872,
+			"beat": 141.0,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 154.0872,
-			"type": "orb"
+			"beat": 142.0,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 143.0,
+			"type": "jump",
+			"hazard": "pendulum"
+		},
+		{
+			"beat": 144.6101,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 146.0,
+			"type": "flip_down"
+		},
+		{
+			"beat": 149.124,
+			"type": "jump",
+			"hazard": "spike_triple"
+		},
+		{
+			"beat": 151.0,
+			"type": "jump",
+			"hazard": "spike_triple"
+		},
+		{
+			"beat": 152.5,
+			"type": "jump",
+			"hazard": "saw"
+		},
+		{
+			"beat": 153.5872,
+			"type": "jump",
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 154.5872,
-			"type": "orb"
+			"type": "flip_up"
 		},
 		{
 			"beat": 158.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 159.0,
 			"type": "jump",
-			"hazard": "laser_fence"
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 160,
@@ -1267,71 +1211,70 @@
 		},
 		{
 			"beat": 161.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "none"
 		},
 		{
 			"beat": 162.118,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 163.118,
 			"type": "jump",
-			"hazard": "pendulum"
+			"hazard": "none"
 		},
 		{
 			"beat": 164.118,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "pendulum"
 		},
 		{
 			"beat": 165.6581,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "saw"
 		},
 		{
 			"beat": 167.1594,
-			"type": "dodge_left"
+			"type": "jump"
 		},
 		{
 			"beat": 169.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 171.0,
-			"type": "jump",
-			"hazard": "pendulum"
+			"type": "flip_down"
 		},
 		{
 			"beat": 172.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 173.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 175.1018,
 			"type": "jump",
-			"hazard": "spike_triple"
+			"hazard": "pendulum"
 		},
 		{
 			"beat": 177.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 178.6115,
-			"type": "jump",
-			"hazard": "laser_fence"
+			"type": "flip_up"
 		},
 		{
 			"beat": 180.0,
 			"type": "jump",
-			"hazard": "spike_triple"
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 181.0,
@@ -1340,18 +1283,17 @@
 		},
 		{
 			"beat": 182.5979,
-			"type": "jump",
-			"hazard": "spike_mine"
+			"type": "dodge_left"
 		},
 		{
 			"beat": 184.0,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "pendulum"
 		},
 		{
 			"beat": 185.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "saw"
 		},
 		{
 			"beat": 186.6249,
@@ -1368,22 +1310,23 @@
 		},
 		{
 			"beat": 189.0,
-			"type": "jump"
-		},
-		{
-			"beat": 190.1245,
 			"type": "jump",
 			"hazard": "spike_double"
 		},
 		{
+			"beat": 190.1245,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
 			"beat": 191.8388,
 			"type": "jump",
-			"hazard": "pendulum"
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 193.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "none"
 		},
 		{
 			"beat": 194.5,
@@ -1393,32 +1336,31 @@
 		{
 			"beat": 196.0,
 			"type": "jump",
-			"hazard": "spike_triple"
+			"hazard": "saw"
 		},
 		{
 			"beat": 197.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 199.0,
-			"type": "jump",
-			"hazard": "laser_fence"
+			"type": "flip_down"
 		},
 		{
 			"beat": 201.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "spike_mine"
 		},
 		{
-			"beat": 201.75,
+			"beat": 202.5,
 			"type": "jump",
 			"hazard": "saw"
 		},
 		{
 			"beat": 203.5,
 			"type": "jump",
-			"hazard": "spike_triple"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 205.1168,
@@ -1427,8 +1369,7 @@
 		},
 		{
 			"beat": 206.6586,
-			"type": "jump",
-			"hazard": "none"
+			"type": "flip_up"
 		},
 		{
 			"beat": 209.0,
@@ -1438,51 +1379,56 @@
 		{
 			"beat": 209.75,
 			"type": "jump",
-			"hazard": "laser_fence"
+			"hazard": "none"
 		},
 		{
-			"beat": 211.5985,
-			"type": "jump",
-			"hazard": "pendulum"
-		},
-		{
-			"beat": 213.0,
-			"type": "jump",
-			"hazard": "saw"
-		},
-		{
-			"beat": 214.6619,
-			"type": "jump",
-			"hazard": "spike_mine"
-		},
-		{
-			"beat": 215.8994,
-			"type": "jump",
-			"hazard": "spike_triple"
-		},
-		{
-			"beat": 217.0,
+			"beat": 210.5,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 218.0,
+			"beat": 211.5985,
+			"type": "jump",
+			"hazard": "spike_triple"
+		},
+		{
+			"beat": 213.0,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
+			"beat": 214.6619,
 			"type": "jump",
 			"hazard": "laser_fence"
 		},
 		{
+			"beat": 215.8994,
+			"type": "jump"
+		},
+		{
+			"beat": 217.0,
+			"type": "jump",
+			"hazard": "spike_double"
+		},
+		{
+			"beat": 218.0,
+			"type": "jump",
+			"hazard": "pendulum"
+		},
+		{
 			"beat": 219.0,
-			"type": "dodge_right",
-			"hazard": "laser_gap_right"
+			"type": "jump",
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 221.0,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "none"
 		},
 		{
 			"beat": 222.5,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "saw"
 		},
 		{
 			"beat": 224,
@@ -1493,12 +1439,12 @@
 		{
 			"beat": 224.0,
 			"type": "jump",
-			"hazard": "laser_fence"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 225.0,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 227.0,
@@ -1512,42 +1458,42 @@
 		{
 			"beat": 229.0,
 			"type": "jump",
-			"hazard": "spike_mine"
+			"hazard": "saw"
 		},
 		{
 			"beat": 231.0,
 			"type": "jump",
-			"hazard": "laser_fence"
+			"hazard": "none"
 		},
 		{
 			"beat": 233.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 234.5,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 236.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "none"
 		},
 		{
 			"beat": 237.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 238.0,
 			"type": "jump",
-			"hazard": "laser_fence"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 239.0,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "saw"
 		},
 		{
 			"beat": 241.0,
@@ -1562,7 +1508,7 @@
 		{
 			"beat": 243.0,
 			"type": "jump",
-			"hazard": "spike_mine"
+			"hazard": "saw"
 		},
 		{
 			"beat": 244.0,
@@ -1571,32 +1517,32 @@
 		{
 			"beat": 245.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 247.0,
 			"type": "jump",
-			"hazard": "laser_fence"
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 249.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "none"
 		},
 		{
 			"beat": 250.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 251.0,
 			"type": "jump",
-			"hazard": "laser_fence"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 252.0,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "saw"
 		},
 		{
 			"beat": 253.0,
@@ -1606,7 +1552,7 @@
 		{
 			"beat": 254.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 256,
@@ -1635,22 +1581,21 @@
 		{
 			"beat": 259.0,
 			"type": "jump",
-			"hazard": "pendulum"
+			"hazard": "none"
 		},
 		{
 			"beat": 261.0,
-			"type": "jump",
-			"hazard": "saw"
+			"type": "flip_down"
 		},
 		{
 			"beat": 262.5,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 263.6251,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "pendulum"
 		},
 		{
 			"beat": 265.0,
@@ -1660,22 +1605,21 @@
 		{
 			"beat": 266.09,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 267.1551,
-			"type": "jump",
-			"hazard": "pendulum"
+			"type": "flip_up"
 		},
 		{
 			"beat": 269.1128,
-			"type": "jump",
-			"hazard": "saw"
+			"type": "dodge_right",
+			"hazard": "laser_gap_right"
 		},
 		{
 			"beat": 270.5,
 			"type": "jump",
-			"hazard": "laser_fence"
+			"hazard": "none"
 		},
 		{
 			"beat": 271.5,
@@ -1690,26 +1634,26 @@
 		{
 			"beat": 273.0,
 			"type": "jump",
-			"hazard": "laser_fence"
+			"hazard": "none"
 		},
 		{
 			"beat": 274.5,
 			"type": "jump",
-			"hazard": "spike_mine"
+			"hazard": "pendulum"
 		},
 		{
 			"beat": 275.75,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "saw"
 		},
 		{
 			"beat": 277.0,
-			"type": "jump",
-			"hazard": "spike_double"
+			"type": "jump"
 		},
 		{
 			"beat": 278.5,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 280.0,
@@ -1719,17 +1663,15 @@
 		{
 			"beat": 281.0,
 			"type": "jump",
-			"hazard": "pendulum"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 283.0907,
-			"type": "jump",
-			"hazard": "none"
+			"type": "dodge_left"
 		},
 		{
 			"beat": 285.0,
-			"type": "jump",
-			"hazard": "pendulum"
+			"type": "flip_down"
 		},
 		{
 			"beat": 286.5,
@@ -1738,55 +1680,52 @@
 		},
 		{
 			"beat": 287.5,
-			"type": "flip"
+			"type": "jump",
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 289.5,
 			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 290.0,
-			"type": "orb"
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 290.5,
-			"type": "orb"
+			"type": "jump",
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 293.0,
-			"type": "jump",
-			"hazard": "spike_triple"
+			"type": "flip_up"
 		},
 		{
 			"beat": 294.5,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 295.5,
 			"type": "jump",
-			"hazard": "laser_fence"
+			"hazard": "pendulum"
 		},
 		{
 			"beat": 297.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "spike_double"
 		},
 		{
 			"beat": 298.0,
 			"type": "jump",
-			"hazard": "spike_triple"
+			"hazard": "none"
 		},
 		{
 			"beat": 299.0,
 			"type": "jump",
-			"hazard": "laser_fence"
+			"hazard": "saw"
 		},
 		{
 			"beat": 300.0,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "none"
 		},
 		{
 			"beat": 301.0,
@@ -1796,26 +1735,31 @@
 		{
 			"beat": 301.75,
 			"type": "jump",
-			"hazard": "spike_mine"
+			"hazard": "none"
 		},
 		{
-			"beat": 303.5,
+			"beat": 302.5,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 305.0,
+			"beat": 303.5,
 			"type": "jump",
 			"hazard": "pendulum"
 		},
 		{
-			"beat": 307.0905,
+			"beat": 305.0,
 			"type": "jump",
 			"hazard": "saw"
 		},
 		{
+			"beat": 307.0905,
+			"type": "flip_down"
+		},
+		{
 			"beat": 309.1496,
-			"type": "jump"
+			"type": "jump",
+			"hazard": "pendulum"
 		},
 		{
 			"beat": 310.5,
@@ -1825,16 +1769,16 @@
 		{
 			"beat": 311.645,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 313.0,
 			"type": "jump",
-			"hazard": "laser_fence"
+			"hazard": "saw"
 		},
 		{
 			"beat": 315.0,
-			"type": "dodge_left"
+			"type": "flip_up"
 		},
 		{
 			"beat": 317.0,
@@ -1854,7 +1798,7 @@
 		{
 			"beat": 319.5,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "spike_triple"
 		},
 		{
 			"beat": 320,
@@ -1865,56 +1809,56 @@
 		{
 			"beat": 321.0,
 			"type": "jump",
-			"hazard": "spike_mine"
+			"hazard": "saw"
 		},
 		{
 			"beat": 322.0,
 			"type": "jump",
-			"hazard": "spike_mine"
+			"hazard": "none"
 		},
 		{
 			"beat": 323.25,
 			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 324.1115,
-			"type": "jump",
-			"hazard": "none"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 325.0,
 			"type": "jump",
-			"hazard": "saw"
-		},
-		{
-			"beat": 326.0,
-			"type": "jump"
-		},
-		{
-			"beat": 327.0,
-			"type": "jump",
-			"hazard": "laser_fence"
-		},
-		{
-			"beat": 328.0,
-			"type": "jump",
 			"hazard": "spike_double"
 		},
 		{
-			"beat": 329.0,
+			"beat": 326.0,
 			"type": "jump",
 			"hazard": "none"
 		},
 		{
-			"beat": 330.0,
+			"beat": 327.0,
+			"type": "jump"
+		},
+		{
+			"beat": 328.0,
+			"type": "jump",
+			"hazard": "spike_mine"
+		},
+		{
+			"beat": 329.0,
 			"type": "jump",
 			"hazard": "saw"
 		},
 		{
+			"beat": 330.0,
+			"type": "jump",
+			"hazard": "none"
+		},
+		{
 			"beat": 331.1106,
 			"type": "jump",
-			"hazard": "spike_mine"
+			"hazard": "none"
+		},
+		{
+			"beat": 332.0844,
+			"type": "jump",
+			"hazard": "none"
 		},
 		{
 			"beat": 333.0,
@@ -1924,7 +1868,7 @@
 		{
 			"beat": 334.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 335.0,
@@ -1940,56 +1884,56 @@
 		{
 			"beat": 336.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "none"
 		},
 		{
 			"beat": 337.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 338.0,
 			"type": "jump",
-			"hazard": "laser_fence"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 339.0,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "saw"
 		},
 		{
 			"beat": 340.0,
 			"type": "jump",
-			"hazard": "none"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 341.0,
-			"type": "jump",
-			"hazard": "spike_mine"
+			"type": "jump"
 		},
 		{
 			"beat": 342.0,
 			"type": "jump",
-			"hazard": "spike_mine"
+			"hazard": "saw"
 		},
 		{
 			"beat": 343.0,
-			"type": "jump"
-		},
-		{
-			"beat": 344.0,
-			"type": "jump",
-			"hazard": "none"
-		},
-		{
-			"beat": 345.0,
 			"type": "jump",
 			"hazard": "laser_fence"
 		},
 		{
+			"beat": 344.0,
+			"type": "jump",
+			"hazard": "laser_fence"
+		},
+		{
+			"beat": 345.0,
+			"type": "jump",
+			"hazard": "spike_double"
+		},
+		{
 			"beat": 346.0,
 			"type": "jump",
-			"hazard": "saw"
+			"hazard": "none"
 		},
 		{
 			"beat": 347.0,
@@ -1999,17 +1943,16 @@
 		{
 			"beat": 348.0,
 			"type": "jump",
-			"hazard": "laser_fence"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 349.1053,
 			"type": "jump",
-			"hazard": "spike_double"
+			"hazard": "spike_mine"
 		},
 		{
 			"beat": 350.5,
-			"type": "jump",
-			"hazard": "none"
+			"type": "jump"
 		},
 		{
 			"beat": 352,
@@ -2020,7 +1963,7 @@
 		{
 			"beat": 352.0,
 			"type": "jump",
-			"hazard": "spike_mine"
+			"hazard": "laser_fence"
 		},
 		{
 			"beat": 356,

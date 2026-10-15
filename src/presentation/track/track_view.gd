@@ -1,6 +1,7 @@
 # Builds the visible road from TrackPath in chunks (for frustum culling), cut open where the terrain has
 # gaps, plus raised ground blocks (same neon road look, lit step faces) and support pillars that drop into
-# the fog (only under upright road with no other track below: helices, loops and rolls stand free).
+# the fog (only under upright road with no other track below: helices, loops and rolls stand free, and none
+# where the player runs under the track).
 # Purely visual; collision lives in RunSimulation.
 # Related: src/presentation/meshes/procedural_meshes.gd, src/gameplay/track/terrain.gd, neon_track.gdshader
 class_name TrackView
@@ -126,6 +127,15 @@ func _add_mesh(node_name: String, mesh: ArrayMesh, material: Material) -> void:
 	add_child(instance)
 
 
+## Underside runs (with their flips) keep pillars away: jumps under the track reach below UNDERSIDE_CLEARANCE.
+static func _near_underside_run(context: LevelContext, distance: float) -> bool:
+	for run: Vector2 in context.chart.underside_ranges:
+		if context.chart.distance_at(run.x - 2.0) - PILLAR_GAP_CLEARANCE <= distance \
+				and distance <= context.chart.distance_at(run.y + 2.0) + PILLAR_GAP_CLEARANCE:
+			return true
+	return false
+
+
 func _build_pillars(context: LevelContext, terrain: Terrain, width: float, thickness: float) -> void:
 	var clearance := TrackClearance.new(context.track)
 	var material := ShaderMaterial.new()
@@ -143,7 +153,9 @@ func _build_pillars(context: LevelContext, terrain: Terrain, width: float, thick
 	while distance < context.track.end_distance:
 		if not Terrain.is_gap(terrain.support_height(distance - PILLAR_GAP_CLEARANCE, distance + PILLAR_GAP_CLEARANCE)) \
 				and terrain.is_level(distance - PILLAR_GAP_CLEARANCE, distance + PILLAR_GAP_CLEARANCE,
-				terrain.height_at(distance)) and context.track.is_upright_at(distance) 				and clearance.is_column_clear(context.track.transform_at(distance).origin, width,
+				terrain.height_at(distance)) and context.track.is_upright_at(distance) \
+				and not _near_underside_run(context, distance) \
+				and clearance.is_column_clear(context.track.transform_at(distance).origin, width,
 				PILLAR_DEPTH + UNDERSIDE_CLEARANCE + thickness):
 			var frame: Transform3D = context.track.transform_at(distance)
 			var center: Vector3 = frame.origin - Vector3.UP * (thickness + UNDERSIDE_CLEARANCE + PILLAR_DEPTH * 0.5)

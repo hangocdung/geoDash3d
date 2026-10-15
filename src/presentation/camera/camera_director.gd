@@ -1,7 +1,8 @@
 # Drives the Camera3D from chart camera cues: the shot is a pure function of the beat (blended
 # between cues), placed in the smoothed track frame raised to the (smoothed) terrain height. Adds shake
-# and FOV kicks from events. Flips swing it under the track; rolls turn it around the track with the
-# player (except on LOW, where a turning camera costs FPS: see QualityTier.uses_spectacle_track).
+# and FOV kicks from events. Flips swing it under the track; rolls and underside runs turn it around the
+# track with the player (except on LOW, where a turning camera costs FPS: see QualityTier.uses_spectacle_track;
+# LOW watches underside runs from the low underside shot instead).
 # Related: src/presentation/camera/camera_shots.gd, src/presentation/level/level_runner.gd
 class_name CameraDirector
 extends Node3D
@@ -81,7 +82,11 @@ func update_camera(beat: float, simulation: RunSimulation, delta: float) -> void
 		var half_thickness: float = _context.config.track_thickness * 0.5
 		var axis_point: Vector3 = target_frame.origin - _smoothed_frame.basis.y * half_thickness
 		var rolled: Basis = _smoothed_frame.basis * Basis(Vector3.RIGHT, roll)
-		frame = Transform3D(rolled, axis_point + rolled.y * (half_thickness + ground))
+		var rise: float = ground
+		if simulation.is_underside():
+			# Upside down under the road: follow jumps away from its underside.
+			rise += (-player_height - _context.config.underside_depth()) * HEIGHT_FOLLOW
+		frame = Transform3D(rolled, axis_point + rolled.y * (half_thickness + rise))
 	var eye: Vector3 = frame * shot.position
 	var target: Vector3 = frame * shot.look_at
 	_trauma = maxf(_trauma - delta * SHAKE_DECAY_PER_SEC, 0.0)
@@ -95,15 +100,23 @@ func update_camera(beat: float, simulation: RunSimulation, delta: float) -> void
 	camera.fov = shot.fov + _fov_kick
 
 
-## x = 0..1 blend toward the low underside shot (flips, and rolls on LOW), y = camera roll around the track
-## (rolls on tiers with spectacle track shapes), eased so the swing is gentle.
+## x = 0..1 blend toward the low underside shot (flips, and rolls and underside runs on LOW), y = camera roll
+## around the track (rolls and underside runs on tiers with spectacle track shapes), eased so the swing is gentle.
 func _flip_pose(simulation: RunSimulation, beat: float) -> Vector2:
+	var turns: bool = QualityTier.uses_spectacle_track(_context.quality)
 	var action: ActionDefinition = simulation.active_action()
 	if action == null or action.kind != ActionDefinition.Kind.FLIP:
-		return Vector2.ZERO
+		if not simulation.is_underside():
+			return Vector2.ZERO
+		return Vector2(0.0, PI) if turns else Vector2(1.0, 0.0)
 	var progress: float = simulation.action_progress_at(beat)
-	if action.full_turn and QualityTier.uses_spectacle_track(_context.quality):
+	if turns and (action.full_turn or action.flip_part != ActionDefinition.FlipPart.ROUND_TRIP):
 		return Vector2(0.0, action.flip_angle(progress))
+	match action.flip_part:
+		ActionDefinition.FlipPart.DOWN:
+			return Vector2(smoothstep(0.0, 0.6, progress), 0.0)
+		ActionDefinition.FlipPart.UP:
+			return Vector2(1.0 - smoothstep(0.4, 1.0, progress), 0.0)
 	return Vector2(smoothstep(0.0, 0.3, progress) * (1.0 - smoothstep(0.75, 1.0, progress)), 0.0)
 
 
