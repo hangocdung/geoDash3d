@@ -17,7 +17,7 @@ Mobile Ads SDK thế hệ mới `ads-mobile-sdk` 1.4.0 + UMP), không cài mạn
 - Bản debug luôn dùng ad unit thử của Google.
 
 ## Việc người dùng làm trước khi phát hành
-1. Tạo tài khoản AdMob, thêm app Android (package `com.dunghn.geodash3d`), tạo 2 ad unit: Interstitial, Banner.
+1. Tạo tài khoản AdMob, thêm app Android (package `com.sntgames.beatglide`), tạo 2 ad unit: Interstitial, Banner.
 2. Project Settings → `admob/general/android/app_id` = App ID thật (`ca-app-pub-…~…`), và thêm
    `geodash/ads/interstitial_unit`, `geodash/ads/banner_unit` = ad unit ID thật (bản release đọc ở đây; thiếu thì
    không hiện quảng cáo và báo lỗi).

@@ -1,4 +1,4 @@
-# Kiến trúc GeoDash3D
+# Kiến trúc BeatGlide (mã nguồn: GeoDash3D)
 
 > Trạng thái: prototype chơi được với 1 bài (`the_dawn_assembly`). Mục 7 ghi những gì chưa làm.
 

@@ -10,11 +10,14 @@ config_version=5
 
 [application]
 
-config/name="GeoDash3D"
-config/description="One-tap 3D rhythm runner."
+config/name="BeatGlide"
+config/description="BeatGlide — Ride the Rhythm. One-tap 3D rhythm runner."
 run/main_scene="res://src/ui/menu/main_menu.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
-config/icon="res://icon.svg"
+boot_splash/bg_color=Color(0, 0, 0, 1)
+boot_splash/image="res://assets/brand/splash.png"
+config/icon="res://assets/brand/icon.png"
+boot_splash/minimum_display_time=1200
 
 [autoload]
 

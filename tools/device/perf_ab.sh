@@ -6,7 +6,7 @@
 # Usage: bash tools/device/perf_ab.sh <a.apk> <b.apk> ["level args"]   (default args: --start-beat=64)
 # Related: tools/device/perf_matrix.sh, src/core/perf_probe.gd
 ADB="${ADB:-$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe}"
-PKG="com.dunghn.geodash3d"
+PKG="com.sntgames.beatglide"
 ACTIVITY="$PKG/com.godot.game.GodotAppLauncher"
 APK_A="$1"
 APK_B="$2"

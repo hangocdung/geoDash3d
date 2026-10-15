@@ -38,6 +38,11 @@ Ghi công trong game (màn credits/cài đặt) và mô tả store: "Music gener
 
 ## GD3-201 — Tên game
 
+**Đã chốt 2026-10-15: BeatGlide — Ride the Rhythm** (người dùng chọn). Package Android `com.sntgames.beatglide`,
+nhà phát hành SNTgames. Logo/icon: `assets/brand/` (sinh bằng `tools/branding/generate_sources.sh` +
+`build_brand.py`). Việc còn lại của người dùng: tra "BeatGlide" trên hai store và cơ sở dữ liệu nhãn hiệu trước khi
+phát hành. Phần dưới là ghi chép lúc chọn tên.
+
 "GeoDash3D" chỉ là tên mã. Rủi ro: "Geometry Dash" là thương hiệu của RobTop; tên chứa "Geo"+"Dash" dễ bị khiếu nại
 hoặc bị store từ chối vì gây nhầm lẫn. Cũng tránh các từ "Geometry", "Dash" đứng cạnh nhau trong mô tả store.
 

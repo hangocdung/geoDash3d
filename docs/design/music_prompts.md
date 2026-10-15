@@ -1,4 +1,4 @@
-# Prompt tạo nhạc cho GeoDash3D (GD3-107, 2026-10-15)
+# Prompt tạo nhạc cho BeatGlide (GD3-107, 2026-10-15)
 
 ## 1. Vì sao cần prompt riêng cho game
 Cảm giác "chạm là trống nổ" chỉ có khi **mỗi lần chạm trùng một cú đánh to hơn hẳn mọi thứ xung quanh** (memory

@@ -7,7 +7,7 @@
 # EXTRA_ARGS adds level arguments to every run, e.g.
 #   EXTRA_ARGS="--chart=res://assets/music/the_dawn_assembly.classic.chart.json --start-beat=84" bash ... baseline
 ADB="${ADB:-$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe}"
-PACKAGE="com.dunghn.geodash3d"
+PACKAGE="com.sntgames.beatglide"
 ACTIVITY="$PACKAGE/com.godot.game.GodotAppLauncher"
 VARIANTS=("$@")
 if [ ${#VARIANTS[@]} -eq 0 ]; then

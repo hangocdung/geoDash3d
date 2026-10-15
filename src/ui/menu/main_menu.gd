@@ -9,6 +9,9 @@ extends Node
 
 const LEVEL_SCENE: PackedScene = preload("res://src/presentation/level/level.tscn")
 const PRACTICE_RATES: Array[float] = [1.0, 0.75, 0.5]
+## BeatGlide title logo (tools/branding/build_brand.py) and its width on the 1920×1080 / 1080×1920 UI canvas.
+const LOGO: Texture2D = preload("res://assets/brand/logo.png")
+const LOGO_WIDTH: float = 780.0
 
 enum SongMode { PLAY, PRACTICE, RECORD, AUTOPLAY }
 
@@ -79,9 +82,12 @@ func _build_menu() -> void:
 	_menu_column.alignment = BoxContainer.ALIGNMENT_CENTER
 	_menu_column.add_theme_constant_override("separation", 12)
 	_root.add_child(_menu_column)
-	var title: Label = UiTheme.make_label("GEODASH 3D", 104, UiTheme.ACCENT)
-	title.add_theme_color_override("font_outline_color", UiTheme.HOT)
-	title.add_theme_constant_override("outline_size", 6)
+	var title := TextureRect.new()
+	title.texture = LOGO
+	title.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	title.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	title.custom_minimum_size = Vector2(LOGO_WIDTH, LOGO_WIDTH * LOGO.get_height() / LOGO.get_width())
+	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_menu_column.add_child(title)
 	_menu_column.add_child(UiTheme.make_label("THE DAWN ASSEMBLY", 34, UiTheme.HOT))
 	var spacer := Control.new()

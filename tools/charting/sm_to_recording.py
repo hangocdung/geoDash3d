@@ -1,4 +1,4 @@
-"""Convert a StepMania / ArrowVortex .sm chart into a GeoDash3D recording (time + lane per tap).
+"""Convert a StepMania / ArrowVortex .sm chart into a BeatGlide recording (time + lane per tap).
 
 Usage: python tools/charting/sm_to_recording.py <song.sm> <out.recording.json> [--chart=N] [--song=res://...]
 

@@ -1,4 +1,4 @@
-# GeoDash3D — Agent Guide
+# BeatGlide (mã nguồn: GeoDash3D) — Agent Guide
 
 Game nhịp điệu 3D lấy cảm hứng từ Geometry Dash. Nhân vật tự chạy trên đường ray định sẵn (`Path3D`).
 Người chơi chỉ có **một thao tác: chạm/nhấn**, hành động thực hiện (nhảy, dash, …) do vùng hành động hiện tại quyết định.
@@ -93,8 +93,8 @@ trước lần export đầu, sau khi nâng Godot hoặc thêm `android_plugins/
 bash tools/android/setup_gradle_build.sh          # android/build từ template Godot + vá Gradle (không commit)
 bash tools/android/build_firebase_plugin.sh       # chỉ khi sửa android_plugins/geodash_firebase
 bash tools/android/build_release.sh 1.0.0         # AAB cho Play (cần biến môi trường keystore release)
-"$GODOT" --headless --path . --export-debug "Android" build/GeoDash3D.apk
-"$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe" install -r build/GeoDash3D.apk
+"$GODOT" --headless --path . --export-debug "Android" build/BeatGlide.apk
+"$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe" install -r build/BeatGlide.apk
 "$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe" logcat -s godot:V   # PERF / QUALITY / CALIBRATION lines
 bash tools/device/perf_matrix.sh baseline "tier=low" noglow            # A/B đo FPS trên máy (màn hình phải mở)
 bash tools/device/perf_ab.sh build/a.apk build/b.apk                    # so 2 APK ở tier LOW/MEDIUM thật, đo A-B-B-A

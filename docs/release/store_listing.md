@@ -1,11 +1,11 @@
 # Trang Google Play — bản nháp (GD3-261)
 
-`«Tên»` = tên game chưa chốt (GD3-201, đề xuất "Pulse Rail"). Giới hạn của Play: tên ≤ 30 ký tự, mô tả ngắn ≤ 80,
+Tên game: **BeatGlide** (chốt 2026-10-15, GD3-201); tên trên store: "BeatGlide — Ride the Rhythm" (27 ký tự). Giới hạn của Play: tên ≤ 30 ký tự, mô tả ngắn ≤ 80,
 mô tả đầy đủ ≤ 4000. Không dùng "Geometry Dash" hay tên game khác trong tên / mô tả / từ khóa (vi phạm chính sách
 metadata và nhãn hiệu).
 
 ## Tiếng Việt
-**Tên:** «Tên»: Nhịp Neon
+**Tên:** BeatGlide — Ride the Rhythm
 **Mô tả ngắn (≤ 80):** Chạm đúng nhịp, lao qua thành phố neon. Một chạm — nhảy, lách, lộn ngược theo nhạc.
 
 **Mô tả đầy đủ:**
@@ -23,8 +23,8 @@ metadata và nhãn hiệu).
 > Nhạc trong game được tạo bằng AI (Google Flow Music). Game có quảng cáo; có thể mua để bỏ quảng cáo hoặc mở mọi bài.
 
 ## English
-**Title:** «Name»: Neon Rhythm Run
-**Short description (≤ 80):** Tap to the beat and dash through a neon city. One tap: jump, dodge, flip.
+**Title:** BeatGlide — Ride the Rhythm
+**Short description (≤ 80):** Tap to the beat and glide through a neon city. One tap: jump, dodge, flip.
 
 **Full description:**
 > Your neon cube races along a rail through a city of light. You have one move: **tap on the beat**. Tap to jump over
@@ -43,7 +43,7 @@ metadata và nhãn hiệu).
 ## Hình ảnh cần có (người dùng duyệt, Claude dựng)
 | Mục | Kích thước | Nguồn |
 |---|---|---|
-| Icon | 512×512 PNG | sau khi chốt tên (icon adaptive cho app: 432×432 hai lớp) |
+| Icon | 512×512 PNG | `assets/brand/icon_512.png` (icon adaptive cho app: 432×432 hai lớp) |
 | Feature graphic | 1024×500 | ảnh màn chơi + tên |
 | Ảnh điện thoại (2–8) | 1080×1920 hoặc 1920×1080 | `bash tools/capture/screens.sh vi` + `--capture` ở đoạn đẹp |
 | Video (YouTube, tùy chọn) | 30 s | `bash tools/capture/record_clip.sh <bài> <beat> 30 landscape` |

@@ -3,7 +3,7 @@
 # version/name from the argument in the "Android Release" preset, prepares the Gradle build and exports a signed AAB.
 # The release keystore stays out of the repository: pass it through Godot's environment variables
 #   GODOT_ANDROID_KEYSTORE_RELEASE_PATH, GODOT_ANDROID_KEYSTORE_RELEASE_USER, GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD
-# Usage: bash tools/android/build_release.sh <version name, e.g. 1.0.0>   Output: build/GeoDash3D.aab
+# Usage: bash tools/android/build_release.sh <version name, e.g. 1.0.0>   Output: build/BeatGlide.aab
 # Related: export_presets.cfg (preset.2), tools/android/setup_gradle_build.sh, docs/release/android_release.md
 set -e
 GODOT="${GODOT:-D:/Godot_v4.6.1-stable_win64.exe/Godot_v4.6.1-stable_win64_console.exe}"
@@ -39,5 +39,5 @@ section = re.sub(r'version/name="[^"]*"', 'version/name="%s"' % name, section)
 open(path, "w", encoding="utf-8", newline="\n").write(text[:options] + section + text[end:])
 PYEOF
 bash "$ROOT/tools/android/setup_gradle_build.sh"
-"$GODOT" --headless --path "$ROOT" --export-release "Android Release" "$ROOT/build/GeoDash3D.aab"
-echo "built build/GeoDash3D.aab: version $NAME (code $CODE). Commit export_presets.cfg to record the version."
+"$GODOT" --headless --path "$ROOT" --export-release "Android Release" "$ROOT/build/BeatGlide.aab"
+echo "built build/BeatGlide.aab: version $NAME (code $CODE). Commit export_presets.cfg to record the version."

@@ -1,4 +1,4 @@
-# Roadmap GeoDash3D
+# Roadmap BeatGlide (mã nguồn: GeoDash3D)
 
 Trạng thái: `[ ]` chưa làm · `[~]` đang làm / làm một phần · `[x]` xong. Mỗi task kết thúc khi có test hoặc ảnh chụp kiểm chứng.
 
@@ -225,8 +225,9 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
 - [~] **GD3-200** Giấy phép nhạc: đã đọc Google Terms (2026-10-15), tóm tắt và việc cần làm ở
       `docs/release/legal_and_brand.md` (quyền thương mại của Flow Music gắn với gói trả phí; bài hdgstudio86 cần văn
       bản cho phép). **→ Người dùng: gom bằng chứng gói/ngày tạo cho từng bài, hoặc thay bài.**
-- [~] **GD3-201** Tên game: đề xuất "Pulse Rail" (+ Beat Rail, Rhythm Rail) trong `docs/release/legal_and_brand.md`.
-      **→ Người dùng chốt tên sau khi tra store + nhãn hiệu**; sau đó Claude đổi tên app, package, icon.
+- [x] **GD3-201** Tên game **BeatGlide — Ride the Rhythm** (người dùng chốt 2026-10-15): `config/name`, package
+      `com.sntgames.beatglide`, logo + icon tạo bằng Codex (`tools/branding/`), boot splash logo SNTgames thay logo Godot.
+      Tên mã nội bộ (thư mục, plugin `GeoDashFirebase`, setting `geodash/ads/*`) giữ nguyên.
 - [~] **GD3-202** Bản nháp chính sách quyền riêng tư vi/en: `docs/release/privacy_policy.md`. **→ Người dùng điền tên,
       email, đăng ở URL công khai** (khi có Firebase/AdMob).
 - [~] **GD3-203** Đề xuất 13+, không nhắm trẻ em, cấu hình AdMob/Play tương ứng (`legal_and_brand.md`). **→ Người dùng duyệt.**

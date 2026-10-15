@@ -2,12 +2,12 @@
 
 ## Đã có
 - Preset **"Android Release"** (`export_presets.cfg`, preset.2): Gradle build, xuất **AAB**, arm64-v8a, cùng package
-  `com.dunghn.geodash3d`, loại addon/tài liệu khỏi gói như bản debug.
+  `com.sntgames.beatglide`, loại addon/tài liệu khỏi gói như bản debug.
 - **Target API 36** cho mọi preset Android (Google Play bắt buộc với app mới và bản cập nhật từ 31/08/2026; gia hạn tới
   01/11/2026 phải xin trong Play Console). Template Godot 4.6.1 biên dịch với SDK 35 → `setup_gradle_build.sh` nâng
   `compileSdk` lên 36 (cần SDK Platform android-36 + build-tools 36.0.0). Đã thử: APK target 36 chạy trên Note10 Lite.
 - `bash tools/android/build_release.sh 1.0.0`: version code = số commit (luôn tăng), version name = tham số, dựng
-  Gradle, xuất `build/GeoDash3D.aab`. Chỉ chạy khi cây git sạch; sau đó commit `export_presets.cfg` để ghi version.
+  Gradle, xuất `build/BeatGlide.aab`. Chỉ chạy khi cây git sạch; sau đó commit `export_presets.cfg` để ghi version.
   Đã thử xuất AAB (65 MB) bằng keystore debug.
 
 ## Việc người dùng làm (một lần)

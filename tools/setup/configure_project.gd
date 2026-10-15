@@ -19,6 +19,18 @@ const EDITOR_PLUGINS: PackedStringArray = ["res://addons/geodash_firebase/plugin
 ## Phones start in any orientation; DisplayOrientation locks it while a level runs (GD3-210).
 const HANDHELD_ORIENTATION: DisplayServer.ScreenOrientation = DisplayServer.SCREEN_SENSOR
 
+## Branding (GD3-201): SNTgames boot splash on black and the BeatGlide icon (tools/branding/build_brand.py).
+## The splash is a square canvas so "Keep" shows the company logo at the same size in landscape and portrait.
+const PROJECT_ICON: String = "res://assets/brand/icon.png"
+const BOOT_SPLASH: Dictionary[String, Variant] = {
+	"image": "res://assets/brand/splash.png",
+	"bg_color": Color.BLACK,
+	"show_image": true,
+	"stretch_mode": 1,
+	"use_filter": true,
+	"minimum_display_time": 1200,
+}
+
 ## Import defaults for new images: the 3D detail textures (assets/textures) need mipmaps and VRAM compression
 ## (ETC2/ASTC on phones). Change a single 2D/UI image in the editor's Import dock if it should stay lossless.
 const TEXTURE_IMPORT_DEFAULTS: Dictionary[String, Variant] = {
@@ -67,6 +79,9 @@ func _init() -> void:
 	ProjectSettings.set_setting("editor_plugins/enabled", EDITOR_PLUGINS)
 	ProjectSettings.set_setting("display/window/handheld/orientation", HANDHELD_ORIENTATION)
 	ProjectSettings.set_setting("importer_defaults/texture", TEXTURE_IMPORT_DEFAULTS)
+	ProjectSettings.set_setting("application/config/icon", PROJECT_ICON)
+	for key: String in BOOT_SPLASH:
+		ProjectSettings.set_setting("application/boot_splash/%s" % key, BOOT_SPLASH[key])
 	var error: Error = ProjectSettings.save()
 	if error != OK:
 		push_error("configure_project: ProjectSettings.save() failed with %s" % error_string(error))

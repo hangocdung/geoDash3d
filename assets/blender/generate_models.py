@@ -1,4 +1,4 @@
-"""Generate GeoDash3D decor models with Blender (bpy) and export them as .glb.
+"""Generate BeatGlide decor models with Blender (bpy) and export them as .glb.
 
   blender -b --factory-startup -P assets/blender/generate_models.py -- --out assets/models [--preview DIR]
 

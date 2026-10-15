@@ -1,4 +1,4 @@
-# TODO — Kế hoạch phát hành GeoDash3D
+# TODO — Kế hoạch phát hành BeatGlide (mã nguồn: GeoDash3D)
 
 Danh sách việc **để lên kế hoạch**, chưa bắt đầu (lập 2026-10-15). Khi bắt đầu một mục, chuyển nó sang
 `docs/roadmap.md` (giữ nguyên mã `GD3-2xx`) và cập nhật trạng thái ở đó.
@@ -12,7 +12,7 @@ Danh sách việc **để lên kế hoạch**, chưa bắt đầu (lập 2026-10
 - [~] **GD3-200** (→ roadmap Phase 7) Giấy phép nhạc (Người dùng). Mọi bài trong `assets/music/` đang **chưa xác nhận dùng thương mại**
       (Google Flow Music, hdgstudio86 — CLAUDE.md §8). Phải có xác nhận quyền dùng trong game bán/quảng cáo, hoặc
       thay bài. Không lên store khi chưa xong.
-- [~] **GD3-201** (→ roadmap Phase 7) Tên game, icon, thương hiệu (Người dùng quyết, Claude gợi ý). "GeoDash" dễ bị coi là gần
+- [x] **GD3-201** (→ roadmap Phase 7, chốt **BeatGlide — Ride the Rhythm** 2026-10-15) Tên game, icon, thương hiệu (Người dùng quyết, Claude gợi ý). "GeoDash" dễ bị coi là gần
       "Geometry Dash" (RobTop) → rủi ro bị gỡ/khiếu nại; nên chọn tên riêng, kiểm tra trùng tên trên cả hai store.
 - [~] **GD3-202** (→ roadmap Phase 7) Chính sách quyền riêng tư + điều khoản sử dụng, có URL công khai (Cả hai, S). Bắt buộc khi có
       Firebase/quảng cáo/IAP; nội dung phải khớp với form Data safety (Play) và Privacy labels (Apple).
