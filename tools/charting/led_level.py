@@ -146,7 +146,8 @@ def select_taps(jumps, song, offset, phases, sections, end_beat):
     return hit_level.ramped(accepted, locked, phases, end_beat), bursts
 
 
-def build(song):
+def build(song, jumps=None):
+    """Writes the chart; `jumps`: led_jumps() of the song when the caller already has them. Returns a summary."""
     samples = decode(os.path.join(ROOT, "assets", "music", song["audio"] + ".mp3"))
     rms = envelope(samples)
     offset = song["offset"]
@@ -155,7 +156,7 @@ def build(song):
     sections = hit_level.sections_from_bars(levels, end_beat)
     phases = hit_level.choose_phases(sections, end_beat, song["palettes"],
                                      hit_level.DIFFICULTY[song["difficulty"]][3], hit_level.quiet_bars(levels))
-    taps, bursts = select_taps(led_jumps(samples), song, offset, phases, sections, end_beat)
+    taps, bursts = select_taps(jumps if jumps is not None else led_jumps(samples), song, offset, phases, sections, end_beat)
     header = {"speed": [{"beat": b, "units_per_beat": rate} for b, _, rate in phases],
               "sections": [{"beat": b, "energy": e} for b, _, e in sections], "end_beat": end_beat}
     warnings = []
@@ -172,3 +173,4 @@ def build(song):
     write_chart(chart_song, steps)
     print("bursts %d: %s" % (len(bursts), ", ".join("%g+%g" % (run[0], run[1] - run[0]) for run in bursts)))
     print("phases %s  taps chosen %d" % ([(b, p) for b, p, _ in phases], len(taps)))
+    return {"taps": len(taps), "bursts": len(bursts), "end_beat": end_beat, "warnings": len(warnings)}

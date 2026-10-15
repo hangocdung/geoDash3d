@@ -100,6 +100,13 @@ suy ra từ `speed`, game không bao giờ lưu tọa độ. Trình đọc: `src
 
 ## Quy trình làm chart cho một bài mới
 Tạo nhạc bằng các prompt ở `docs/design/music_prompts.md` (tempo cố định, cú đánh rời rạc, motif 1 / 2-và / 3).
+
+**Một lệnh (GD3-220):** `python tools/charting/auto_level.py <bài.mp3> --title "Tên" --artist "Nguồn"` chép nhạc vào
+`assets/music/<id>.mp3`, đo BPM/offset, kiểm tra độ hợp (≥ 50 % ô nhịp có "X"), sinh LED, chọn độ khó theo số cú đánh
+đáng chạm mỗi ô nhịp (< 1 → 2, < 2 → 3, còn lại 4; 1 và 5 chỉ qua `--difficulty`), chọn 4 bảng màu + `void`, ghi
+`tools/charting/levels/<id>.py` (sửa rồi chạy lại được), dựng level LED và tự kiểm tra (độ nổi, autoplay qua màn, dung
+sai). Mã thoát: 2 = BPM không chắc (chạy lại với `--bpm`), 3 = bài không hợp (`--force` để vẫn dựng), 1 = kiểm tra
+Godot hỏng. Các bước tay bên dưới dùng khi cần chăm chút.
 1. Đặt nhạc vào `assets/music/<id>.mp3`, chạy `python tools/audio/build_spectrum.py <id>` (dữ liệu dàn LED mặt hông). Kiểm tra bài bằng `python tools/charting/hit_grid.py assets/music/<id>.mp3
    <bpm> <offset>`: dòng cuối phải ≥ 50 % ô nhịp có "X" (cú đánh vừa nổi so với ±1 beat vừa có attack mạnh); lưới in
    ra chính là chỗ đặt chạm. Sau khi dựng chart, `python tools/charting/tap_salience.py assets/music/<id>.chart.json`

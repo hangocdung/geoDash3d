@@ -30,6 +30,34 @@ def slot_marks(strength, rms, time_sec, seconds_per_beat):
     return ".xX"[passes], attack
 
 
+def bar_marks(strength, rms, bpm, offset, bar):
+    """(marks of the bar's 16 slots grouped per beat, loudest attack among the marked slots)."""
+    seconds_per_beat = 60.0 / bpm
+    groups = []
+    peak = 0.0
+    for beat_in_bar in range(BEATS_PER_BAR):
+        marks = ""
+        for slot in range(SLOTS_PER_BEAT):
+            beat = bar * BEATS_PER_BAR + beat_in_bar + slot / SLOTS_PER_BEAT
+            mark, attack = slot_marks(strength, rms, offset + beat * seconds_per_beat, seconds_per_beat)
+            marks += mark + " "
+            peak = max(peak, attack if mark != "." else 0.0)
+        groups.append(marks.rstrip())
+    return groups, peak
+
+
+def bar_count(rms, bpm, offset):
+    return int((len(rms) * FRAME_SEC - offset) / (60.0 / bpm * BEATS_PER_BAR))
+
+
+def standout_share(rms, bpm, offset):
+    """Share of the song's bars holding at least one "X" slot (the fitness check of a new song)."""
+    strength = onset_strength(rms)
+    bars = bar_count(rms, bpm, offset)
+    hits = sum(1 for bar in range(bars) if "X" in "".join(bar_marks(strength, rms, bpm, offset, bar)[0]))
+    return hits / max(bars, 1)
+
+
 def main():
     if len(sys.argv) < 4:
         print(__doc__)
@@ -37,24 +65,13 @@ def main():
     song, bpm, offset = sys.argv[1], float(sys.argv[2]), float(sys.argv[3])
     rms = envelope(decode(song))
     strength = onset_strength(rms)
-    seconds_per_beat = 60.0 / bpm
-    duration = len(rms) * FRAME_SEC
-    bars = int((duration - offset) / (seconds_per_beat * BEATS_PER_BAR))
+    bars = bar_count(rms, bpm, offset)
     first = int(sys.argv[4]) if len(sys.argv) > 4 else 0
     last = int(sys.argv[5]) if len(sys.argv) > 5 else bars - 1
     standout_bars = 0
     shown = 0
     for bar in range(first, min(last, bars - 1) + 1):
-        groups = []
-        peak = 0.0
-        for beat_in_bar in range(BEATS_PER_BAR):
-            marks = ""
-            for slot in range(SLOTS_PER_BEAT):
-                beat = bar * BEATS_PER_BAR + beat_in_bar + slot / SLOTS_PER_BEAT
-                mark, attack = slot_marks(strength, rms, offset + beat * seconds_per_beat, seconds_per_beat)
-                marks += mark + " "
-                peak = max(peak, attack if mark != "." else 0.0)
-            groups.append(marks.rstrip())
+        groups, peak = bar_marks(strength, rms, bpm, offset, bar)
         print("bar %3d  beat %4d | %s |  peak x%.1f" % (bar, bar * BEATS_PER_BAR, " | ".join(groups), peak))
         shown += 1
         standout_bars += 1 if "X" in "".join(groups) else 0
