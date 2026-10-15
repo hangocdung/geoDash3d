@@ -184,8 +184,9 @@ Người dùng cho phép **trời tông ấm** ở vài phase; camera trong vòn
       lộn lên (cổng `gate_under`). `ActionState` (tách khỏi `RunSimulation` vì giới hạn 300 dòng), `HazardDefinition.face`,
       `LevelChart.underside_ranges`, loader kiểm tra đoạn chạy; camera xoay ngược ở MEDIUM/HIGH, góc nhìn dưới đường ở
       LOW. Tool đặt màn biến cổng `flip` ở đoạn mạnh thành đoạn chạy mặt dưới; sinh lại 6 màn hit-level và Pulse Drive
-      (LED). Test `test_underside.gd`. Thiết kế: `design/gameplay_v3.md` mục 12. **→ Chưa đo FPS trên máy (màn hình
-      điện thoại đang khóa khi thử).**
+      (LED). Test `test_underside.gd`. Thiết kế: `design/gameplay_v3.md` mục 12. Đo Note10 Lite (cùng APK, Pulse Drive (LED)
+      từ beat 142 so với bản đối chứng không có đoạn chạy mặt dưới, A-B-B-A, thermal 1): LOW 59.4 vs 59.3 FPS,
+      MEDIUM 45.3 vs 43.1 FPS → không tốn thêm (MEDIUM còn nhỉnh hơn khi camera lộn ngược).
 
 - [x] **GD3-113** Thêm 2 màn test theo LED: "The Dawn Assembly (LED)" (121 lần chạm, 4 đoạn chạy mặt dưới) và "Fault
       Line (LED)" (191 lần chạm, 3 đoạn), `tools/charting/levels/*_led.py`. **→ Cần người dùng chơi thử.**
