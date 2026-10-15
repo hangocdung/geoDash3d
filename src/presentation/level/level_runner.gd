@@ -83,6 +83,8 @@ func _ready() -> void:
 	if options.practice:
 		_practice = PracticeTracker.new(chart)
 		hud.show_mode("PRACTICE  %d%%" % roundi(options.playback_rate * 100.0))
+	elif options.autoplay and not options.attract_mode:
+		hud.show_mode("AUTOPLAY")
 	song_clock.song_finished.connect(_on_song_finished)
 	UserSettings.changed.connect(_apply_volume)
 	_apply_volume()

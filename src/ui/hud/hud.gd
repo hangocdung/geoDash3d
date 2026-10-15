@@ -59,6 +59,9 @@ func _ready() -> void:
 	root.add_child(_pause_button)
 	_mode_label = _make_label(root, 28, Control.PRESET_TOP_LEFT, Vector2(130, 34))
 	_mode_label.add_theme_color_override("font_color", Color(0.55, 1.0, 0.45))
+	# Starts right of the pause button and grows rightward (centred text would spill over the button).
+	_mode_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_mode_label.grow_horizontal = Control.GROW_DIRECTION_END
 	_build_shield_meter(root)
 	run_menu = RunMenu.new()
 	add_child(run_menu)

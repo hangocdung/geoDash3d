@@ -160,6 +160,9 @@ Người dùng cho phép **trời tông ấm** ở vài phase; camera trong vòn
       chỉ ×2.0–2.4 (nhạc vẫn dày, xem `music_prompts.md` mục 7). Menu xếp bài từ dễ đến khó (`ChartDifficulty`, nhãn
       EASY … EXPERT). **→ Cần người chơi thử cảm giác khớp nhạc của 6 màn mới.**
 
+- [x] **GD3-108** AUTOPLAY (DEV) trong menu bản debug (cùng hàng với RECORD (DEV)): bot chơi trọn màn đã chọn, HUD ghi
+      "AUTOPLAY". Sửa kèm: nhãn chế độ HUD (PRACTICE / AUTOPLAY) bị tràn đè lên nút tạm dừng.
+
 ## Phase 5 — Mobile
 - [x] **GD3-050** Export Android (`export_presets.cfg`, arm64, debug keystore), cài và đo trên Galaxy Note10 Lite
       (Mali-G72, Vulkan Mobile). Đo bằng `PerfProbe` + `tools/device/perf_matrix.sh`. Kết quả, khi máy đang ấm

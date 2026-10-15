@@ -124,6 +124,13 @@ static func chart_run(chart: String) -> LaunchOptions:
 	return options
 
 
+## Dev tool (AUTOPLAY (DEV) in debug builds): the bot plays the whole level, HUD and SFX on, taps ignored.
+static func autoplay_run(chart: String) -> LaunchOptions:
+	var options := chart_run(chart)
+	options.autoplay = true
+	return options
+
+
 ## Play-test from the recorder: starts at `beat`, MENU goes back to the recorder.
 static func recorder_test_run(chart: String, beat: float) -> LaunchOptions:
 	var options := chart_run(chart)

@@ -1,5 +1,6 @@
-# Title screen: the level runs in attract mode (autoplay, no HUD) behind the menu. PLAY, PRACTICE and
-# RECORD (DEV) first pick a song (SongListPanel); practice then picks a playback speed.
+# Title screen: the level runs in attract mode (autoplay, no HUD) behind the menu. PLAY, PRACTICE and the debug
+# build's RECORD (DEV) / AUTOPLAY (DEV) first pick a song (SongListPanel); practice then picks a playback speed;
+# autoplay plays the whole level by itself with the HUD on (checking a level, filming it).
 # If level arguments were passed on the command line (--autoplay, --capture, …) it jumps straight
 # into the level so tooling keeps working. Related: src/ui/scenes.gd, src/presentation/level/level_runner.gd
 class_name MainMenu
@@ -8,7 +9,7 @@ extends Node
 const LEVEL_SCENE: PackedScene = preload("res://src/presentation/level/level.tscn")
 const PRACTICE_RATES: Array[float] = [1.0, 0.75, 0.5]
 
-enum SongMode { PLAY, PRACTICE, RECORD }
+enum SongMode { PLAY, PRACTICE, RECORD, AUTOPLAY }
 
 var _menu_column: VBoxContainer
 var _settings_button: Button
@@ -17,6 +18,7 @@ var _practice_panel: PanelContainer
 var _play_button: Button
 var _practice_button: Button
 var _record_button: Button
+var _autoplay_button: Button
 var _song_list: SongListPanel
 ## Menu button that opened the current panel (focus returns to it).
 var _panel_opener: Button
@@ -75,16 +77,27 @@ func _build_menu() -> void:
 	_add_button("SYNC TEST", func() -> void: Scenes.go_to(get_tree(), Scenes.METRONOME))
 	_settings_button = _add_button("SETTINGS", _open_settings)
 	if OS.is_debug_build():
-		_record_button = _add_button("RECORD (DEV)", _open_songs.bind(SongMode.RECORD))
+		# Two dev tools share a row so the menu keeps its height.
+		var dev_row := HBoxContainer.new()
+		dev_row.alignment = BoxContainer.ALIGNMENT_CENTER
+		dev_row.add_theme_constant_override("separation", 12)
+		_menu_column.add_child(dev_row)
+		_record_button = _add_button("RECORD (DEV)", _open_songs.bind(SongMode.RECORD), &"ui.tap", dev_row)
+		_autoplay_button = _add_button("AUTOPLAY (DEV)", _open_songs.bind(SongMode.AUTOPLAY), &"ui.tap", dev_row)
 	if not OS.has_feature("mobile"):
 		_add_button("QUIT", func() -> void: get_tree().quit())
 	_play_button.grab_focus()
 
 
-func _add_button(text: String, action: Callable, sound_id: StringName = &"ui.tap") -> Button:
-	var button: Button = UiTheme.make_button(text, 420.0, 62.0, sound_id)
+## Full-width button in the menu column, or a half-width one in `row`.
+func _add_button(text: String, action: Callable, sound_id: StringName = &"ui.tap",
+		row: HBoxContainer = null) -> Button:
+	var button: Button = UiTheme.make_button(text, 420.0 if row == null else 204.0, 62.0, sound_id)
+	if row != null:
+		button.add_theme_font_size_override("font_size", 22)
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.pressed.connect(action)
-	_menu_column.add_child(button)
+	(_menu_column if row == null else row).add_child(button)
 	return button
 
 
@@ -106,10 +119,10 @@ func _close_settings() -> void:
 
 
 func _open_songs(mode: SongMode) -> void:
-	_panel_opener = [_play_button, _practice_button, _record_button][mode]
+	_panel_opener = [_play_button, _practice_button, _record_button, _autoplay_button][mode]
 	_menu_column.visible = false
 	_song_list = SongListPanel.new()
-	_song_list.heading = ["PLAY", "PRACTICE", "RECORD"][mode]
+	_song_list.heading = ["PLAY", "PRACTICE", "RECORD", "AUTOPLAY"][mode]
 	_center(_song_list)
 	_song_list.closed.connect(_close_songs)
 	_song_list.chosen.connect(func(chart: String) -> void:
@@ -119,6 +132,9 @@ func _open_songs(mode: SongMode) -> void:
 		elif mode == SongMode.RECORD:
 			Recorder.next_chart_path = chart
 			Scenes.go_to(get_tree(), Scenes.RECORDER)
+		elif mode == SongMode.AUTOPLAY:
+			LaunchOptions.set_next_run(LaunchOptions.autoplay_run(chart))
+			Scenes.go_to(get_tree(), Scenes.LEVEL)
 		else:
 			LaunchOptions.set_next_run(LaunchOptions.chart_run(chart))
 			Scenes.go_to(get_tree(), Scenes.LEVEL))

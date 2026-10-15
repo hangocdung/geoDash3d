@@ -1,4 +1,4 @@
-# Song menu order: easiest chart first by ChartDifficulty (weighted taps per minute x speed).
+# Song menu: easiest chart first by ChartDifficulty (weighted taps per minute x speed); AUTOPLAY (DEV) run options.
 # Related: src/ui/menu/song_list_panel.gd, src/gameplay/chart/chart_difficulty.gd
 extends TestCase
 
@@ -25,3 +25,11 @@ func test_song_list_is_sorted_easiest_first() -> void:
 	for index: int in range(1, entries.size()):
 		assert_true(entries[index - 1].difficulty <= entries[index].difficulty, "%s before %s" % [
 				entries[index - 1].title, entries[index].title])
+
+
+func test_autoplay_dev_run_plays_the_chosen_chart_by_itself() -> void:
+	var options: LaunchOptions = LaunchOptions.autoplay_run("res://assets/music/pulse_drive.chart.json")
+	assert_true(options.autoplay)
+	assert_false(options.attract_mode, "HUD, SFX and the run menu stay on")
+	assert_false(options.practice)
+	assert_eq(options.chart_path, "res://assets/music/pulse_drive.chart.json")

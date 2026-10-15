@@ -150,7 +150,9 @@ AudioStreamPlayer ─► SongClock ─ song_time ─► LevelRunner ── beat 
 ## 4b. UI và luồng màn hình
 - `MainMenu` (main scene): instance `level.tscn` với `LaunchOptions.attract()` (autoplay, ẩn HUD, lặp khi hết nhạc)
   làm nền, các nút PLAY / PRACTICE (đều qua `SongListPanel`: quét mọi `*.chart.json` trong `assets/music`, trừ
-  `*.classic.chart.json`) / CALIBRATE AUDIO / SYNC TEST / SETTINGS / QUIT (ẩn trên mobile).
+  `*.classic.chart.json`, xếp từ dễ đến khó theo `ChartDifficulty`) / CALIBRATE AUDIO / SYNC TEST / SETTINGS / QUIT
+  (ẩn trên mobile). Bản debug có thêm một hàng RECORD (DEV) | AUTOPLAY (DEV): AUTOPLAY chọn bài rồi để bot chơi trọn
+  màn với HUD, SFX và menu kết thúc như lượt thường (`LaunchOptions.autoplay_run`, HUD ghi "AUTOPLAY").
   Theme chung: `UiTheme`.
 - `CalibrationScreen`: click 100 BPM (`ClickTrack` sinh WAV trong code), đo lệch so với beat gần nhất,
   `CalibrationMath.estimate` (median + MAD loại outlier, cần ≥ 8 lần gõ hợp lệ) → lưu `audio_offset_sec`.
