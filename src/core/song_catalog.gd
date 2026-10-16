@@ -52,6 +52,15 @@ static func song_id(chart_path: String) -> String:
 	return chart_path.get_file().trim_suffix(".chart.json")
 
 
+## Paths of `entries` listed by the remote manifest but not downloaded yet (SongUnlocks skips them, GD3-300).
+static func pending(entries: Array[Entry]) -> Dictionary[String, bool]:
+	var result: Dictionary[String, bool] = {}
+	for entry: Entry in entries:
+		if not entry.downloaded:
+			result[entry.path] = true
+	return result
+
+
 static func merge_remote(entries: Array[Entry]) -> Array[Entry]:
 	var by_id: Dictionary[String, Entry] = {}
 	for entry: Entry in entries:

@@ -309,7 +309,8 @@ không áp dụng attract/autoplay/practice/capture/chết. Tách riêng lời m
 `ContentDownloader` là node **thuộc panel menu**: request chạy thread, hash từng khối64KB qua nhiều frame,
 `.part` → rename → marker khi đủ file/parse chart thành công. Rời menu hủy worker; không tải/băm trong gameplay.
 `SongCatalog` gộp với shipped, bản đã cài revision cao hơn thắng, bằng nhau ưu tiên shipped. Luật khóa/mở cũ vẫn
-áp dụng. `ContentPaths` nạp runtime mp3/cover và giải quyết đường dẫn chart, `SpectrumTexture` đọc LED cạnh nhạc.
+áp dụng; bài có trong manifest nhưng chưa tải (`SongCatalog.pending`) không chặn chuỗi, NEXT SONG bỏ qua, và mở khóa
+dùng kỷ lục tốt nhất qua mọi revision (`HighScores.best_any_revision`, GD3-300). `ContentPaths` nạp runtime mp3/cover và giải quyết đường dẫn chart, `SpectrumTexture` đọc LED cạnh nhạc.
 Các gói version bất biến giữ lượt chơi/kỷ lục không thay đổi giữa phiên; HighScores tách revision, telemetry ghi revision.
 
 Nguồn của bài chỉ để tải nằm ở `assets/music/remote/` (mp3, chart, spectrum; bìa vẫn ở `assets/covers/`): preset export

@@ -35,6 +35,24 @@ static func best(chart_path: String) -> Record:
 	return record
 
 
+## Best of every revision of the chart file (unlocks, GD3-300): a new revision keeps the song's unlock progress while
+## `best` (shown to the player) starts again.
+static func best_any_revision(chart_path: String) -> Record:
+	var record := Record.new()
+	var file := ConfigFile.new()
+	if file.load(path) != OK:
+		return record
+	var name: String = chart_path.get_file()
+	for section: String in file.get_sections():
+		if section != name and not section.begins_with(name + "@r"):
+			continue
+		record.score = maxi(record.score, int(file.get_value(section, "score", 0)))
+		record.progress = maxf(record.progress, float(file.get_value(section, "progress", 0.0)))
+		record.max_combo = maxi(record.max_combo, int(file.get_value(section, "max_combo", 0)))
+		record.completed = record.completed or bool(file.get_value(section, "completed", false))
+	return record
+
+
 ## Merges a finished (or died) run into the chart's record; returns the previous record for "new best" notes.
 static func submit(chart_path: String, score: int, progress: float, max_combo: int, completed: bool) -> Record:
 	var previous: Record = best(chart_path)

@@ -15,6 +15,8 @@ var _max_score: int
 var _ordered: PackedStringArray = []
 var _titles: Dictionary[String, String] = {}
 var _open: Dictionary[String, bool] = {}
+## Listed songs that are not downloaded yet: they never block unlocks and NEXT SONG skips them (GD3-300).
+var _pending: Dictionary[String, bool] = {}
 
 
 func _init(chart_path: String, options: LaunchOptions, chart: LevelChart, config: GameplayConfig) -> void:
@@ -23,10 +25,12 @@ func _init(chart_path: String, options: LaunchOptions, chart: LevelChart, config
 			or options.is_capture_run() or not is_equal_approx(options.playback_rate, 1.0))
 	_max_score = ScoreKeeper.max_score(chart.cues.size(), config)
 	if _counts:
-		for entry: SongCatalog.Entry in SongCatalog.list_songs():
+		var entries: Array[SongCatalog.Entry] = SongCatalog.list_songs()
+		for entry: SongCatalog.Entry in entries:
 			_ordered.append(entry.path)
 			_titles[entry.path] = entry.title
-		_open = SongUnlocks.unlocked(_ordered)
+		_pending = SongCatalog.pending(entries)
+		_open = SongUnlocks.unlocked(_ordered, _pending)
 
 
 func counts() -> bool:
@@ -54,14 +58,14 @@ func rank(simulation: RunSimulation) -> String:
 	return "C"
 
 
-## The next open song after this one (SongCatalog order), "" when there is none or the run did not count.
+## The next open, downloaded song after this one (SongCatalog order), "" when there is none or the run did not count.
 func next_song() -> String:
 	var index: int = _ordered.find(_chart_path)
 	if index < 0:
 		return ""
-	var open: Dictionary[String, bool] = SongUnlocks.unlocked(_ordered)
+	var open: Dictionary[String, bool] = SongUnlocks.unlocked(_ordered, _pending)
 	for path: String in _ordered.slice(index + 1):
-		if open.has(path):
+		if open.has(path) and not _pending.has(path):
 			return path
 	return ""
 
@@ -94,7 +98,7 @@ func on_died(simulation: RunSimulation, progress: float) -> String:
 func _unlock_note(separator: String) -> String:
 	if _ordered.is_empty():
 		return ""
-	var now: Dictionary[String, bool] = SongUnlocks.unlocked(_ordered)
+	var now: Dictionary[String, bool] = SongUnlocks.unlocked(_ordered, _pending)
 	var opened: PackedStringArray = []
 	for path: String in now:
 		if not _open.has(path):

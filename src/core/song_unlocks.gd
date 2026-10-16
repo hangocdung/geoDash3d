@@ -3,6 +3,8 @@
 # one opens when the one before it is open and was cleared or reached unlock_progress (0.8) (RemoteSettings). A variant or bonus song opens when its
 # base song is open and cleared. unlock_all_songs (IAP) or `-- --unlock-all` open everything; a rewarded "trial" opens
 # one locked song until the player leaves the level. Computed from HighScores each time, so nothing extra is saved.
+# Songs listed by the remote manifest but not downloaded yet ("pending", GD3-300) never block the chain: they take the
+# chain's state at their place without changing it. Unlocks use the best record over every chart revision of a song.
 # Related: src/core/song_catalog.gd, src/core/high_scores.gd, src/core/entitlements.gd, src/ui/menu/song_list_panel.gd
 class_name SongUnlocks
 extends RefCounted
@@ -16,8 +18,9 @@ const UNLOCK_ALL_ARGUMENT: String = "--unlock-all"
 static var trial_path: String = ""
 
 
-## Open song paths of `ordered` (SongCatalog order) as a set.
-static func unlocked(ordered: PackedStringArray) -> Dictionary[String, bool]:
+## Open song paths of `ordered` (SongCatalog order) as a set; `pending` = paths not downloaded yet
+## (SongCatalog.pending).
+static func unlocked(ordered: PackedStringArray, pending: Dictionary[String, bool] = {}) -> Dictionary[String, bool]:
 	var result: Dictionary[String, bool] = {}
 	var open_all: bool = Entitlements.has(Entitlements.UNLOCK_ALL_SONGS) \
 			or OS.get_cmdline_user_args().has(UNLOCK_ALL_ARGUMENT)
@@ -33,7 +36,9 @@ static func unlocked(ordered: PackedStringArray) -> Dictionary[String, bool]:
 		var open: bool = open_all or index < free_songs or (previous_open and previous_done)
 		if open:
 			result[path] = true
-		var record: HighScores.Record = HighScores.best(path)
+		if pending.has(path):
+			continue
+		var record: HighScores.Record = HighScores.best_any_revision(path)
 		previous_open = open
 		previous_done = record.completed or record.progress >= progress_needed
 		index += 1
@@ -47,14 +52,14 @@ static func unlocked(ordered: PackedStringArray) -> Dictionary[String, bool]:
 			if base.is_empty() or result.has(path):
 				continue
 			var base_path: String = by_id.get(base, "")
-			if open_all or (result.has(base_path) and HighScores.best(base_path).completed):
+			if open_all or (result.has(base_path) and HighScores.best_any_revision(base_path).completed):
 				result[path] = true
 				changed = true
 	return result
 
 
-static func is_unlocked(path: String, ordered: PackedStringArray) -> bool:
-	return unlocked(ordered).has(path) or path == trial_path
+static func is_unlocked(path: String, ordered: PackedStringArray, pending: Dictionary[String, bool] = {}) -> bool:
+	return unlocked(ordered, pending).has(path) or path == trial_path
 
 
 ## The main chain (no variants, no bonus songs), keeping `ordered`'s order.
@@ -75,8 +80,9 @@ static func base_song(id: String) -> String:
 	return ""
 
 
-## The song to clear (or reach unlock_progress on, for the main chain) to open `path` ("" when open or unknown).
-static func requirement(path: String, ordered: PackedStringArray) -> String:
+## The song to clear (or reach unlock_progress on, for the main chain) to open `path` ("" when open or unknown);
+## pending songs are skipped, as in `unlocked`.
+static func requirement(path: String, ordered: PackedStringArray, pending: Dictionary[String, bool] = {}) -> String:
 	var base: String = base_song(SongCatalog.song_id(path))
 	if not base.is_empty():
 		for candidate: String in ordered:
@@ -84,8 +90,10 @@ static func requirement(path: String, ordered: PackedStringArray) -> String:
 				return candidate
 		return ""
 	var chain: PackedStringArray = main_chain(ordered)
-	var index: int = chain.find(path)
-	return chain[index - 1] if index > 0 else ""
+	var index: int = chain.find(path) - 1
+	while index >= 0 and pending.has(chain[index]):
+		index -= 1
+	return chain[index] if index >= 0 else ""
 
 
 ## True when `requirement` needs a full clear (variants, bonus songs) rather than clear-or-80 %.

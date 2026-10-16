@@ -224,7 +224,7 @@ Android đã tải/chấm sao/chơi offline và thử ngắt mạng; menu LOW đ
 **Việc phát sinh sau review nhánh `codex/beatglide-online` (2026-10-16).** (Đánh số lại 2026-10-16: lúc đầu ghi
 GD3-280–282, trùng mã gameplay v4 ở roadmap Phase 4.10; commit `4448dfe` còn ghi số cũ.) Manifest prod hiện rỗng nên người chơi
 chưa bị ảnh hưởng; GD3-300 phải xong **trước khi đưa bất kỳ bài nào lên manifest prod**.
-- [ ] **GD3-300** Bug chặn: bài remote chưa tải phá chuỗi mở khóa (Claude, S):
+- [x] **GD3-300** Bug chặn: bài remote chưa tải phá chuỗi mở khóa (Claude, S; xong 2026-10-16):
       - Đã tái hiện: người chơi qua cả 12 bài, manifest thêm 1 bài chưa tải (độ khó 45) → `SongUnlocks.unlocked` chỉ
         còn 3/13 bài mở; NEXT SONG sau Temple Battle Taiko trỏ tới `user://content/new_song/…` chưa có file.
       - Nguyên nhân: `SongCatalog.list_songs()` trả cả bài chưa tải; `SongUnlocks` / `RunRecords` dùng danh sách đó làm
@@ -233,6 +233,12 @@ chưa bị ảnh hưởng; GD3-300 phải xong **trước khi đưa bất kỳ b
       - Bản revision mới thay bài có sẵn (kỷ lục chuyển sang khóa `@r2`) cũng làm mất tiến độ mở khóa: mở khóa phải tính
         kỷ lục tốt nhất qua mọi revision, còn kỷ lục hiển thị vẫn tách theo revision.
       - Test trong `tests/core/test_content.gd` (manifest giả + `HighScores.path` tạm).
+      - Đã sửa: `SongCatalog.pending()` = bài chưa tải; `SongUnlocks.unlocked/requirement` nhận tập này, bài chưa tải
+        nhận trạng thái chuỗi tại chỗ nhưng không đổi nó (không chiếm suất miễn phí, không chặn bài sau);
+        `RunRecords.next_song` bỏ qua bài chưa tải; mở khóa đọc `HighScores.best_any_revision` (tốt nhất qua mọi
+        `@rN`), hiển thị vẫn `HighScores.best`. Test tái hiện ca trên (13/13 bài mở, NEXT SONG nhảy qua bài mới) đạt;
+        178 test đạt. Còn ngỏ (ngoài phạm vi): sau khi **tải** bài mới chen giữa chuỗi, bài ngay sau nó bị khóa lại tới
+        khi qua bài mới (luật chuỗi hiện tại).
 - [ ] **GD3-301** Lag ở home khi tải nhạc; chỉ tải khi người chơi chọn, có giao diện loading (Claude, M; đo trên máy thật):
       - Hiện tượng: menu home giật trong lúc tải bài (người dùng báo 2026-10-16).
       - Khi nạp config (manifest), bài chưa có trên máy chỉ hiện trong danh sách kèm nút TẢI (dung lượng MB);

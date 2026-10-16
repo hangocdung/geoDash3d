@@ -431,4 +431,4 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
   tạo trên Flow Music, 14 phong cách → giữ 12 (bỏ festival_stabs, power_chord_run: WEAK sau 8 bản). Level `hit_level.py`,
   mọi bài salience OK, autoplay qua, dung sai ±90–120 ms; nguồn ở `assets/music/remote/` (ngoài APK). Đã đẩy lên R2
   staging mã hóa (version 1). **Còn lại:** chép `catalog/staging.json` lên sv129 để kích hoạt, thử tải trên máy;
-  production chờ giấy phép (GD3-200) và GD3-300.
+  production chờ giấy phép (GD3-200); GD3-300 (bài chưa tải chặn mở khóa/NEXT SONG) đã sửa 2026-10-16.
