@@ -229,7 +229,7 @@ def track_layout(sections, end_beat):
 
 
 def build(song):
-    path = os.path.join(ROOT, "assets", "music", song["id"] + ".mp3")
+    path = os.path.join(ROOT, song.get("dir", "assets/music"), song["id"] + ".mp3")
     samples = decode(path)
     table, rms = hit_table(samples, song["bpm"])
     offset = song.get("offset", fit_offset(table, song["bpm"]))

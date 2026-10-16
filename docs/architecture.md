@@ -312,6 +312,11 @@ không áp dụng attract/autoplay/practice/capture/chết. Tách riêng lời m
 áp dụng. `ContentPaths` nạp runtime mp3/cover và giải quyết đường dẫn chart, `SpectrumTexture` đọc LED cạnh nhạc.
 Các gói version bất biến giữ lượt chơi/kỷ lục không thay đổi giữa phiên; HighScores tách revision, telemetry ghi revision.
 
+Nguồn của bài chỉ để tải nằm ở `assets/music/remote/` (mp3, chart, spectrum; bìa vẫn ở `assets/covers/`): preset export
+bỏ thư mục này (`exclude_filter`), `SongCatalog` chỉ quét `assets/music` một cấp nên chúng không thành bài có sẵn.
+Script level ghi `"dir": "assets/music/remote"` (`handmade.py` / `hit_level.py`), `publish_song.py` tìm chart ở đó
+khi `assets/music` không có.
+
 Firebase `RemoteSettings` vẫn là nguồn tham số gameplay/A-B. R2 chỉ là catalog: thứ tự, featured, enabled,
 min_app_version, nội dung level và snapshot đánh giá. Không dựng nguồn gameplay config thứ hai.
 

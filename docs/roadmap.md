@@ -427,3 +427,8 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
 - [x] **GD3-276 / 277 / 278** Gói nhạc/chart/spectrum/cover, kiểm tra trước publish, staging mã hóa có token;
   tải menu/hash từng frame/kích hoạt nguyên gói, catalog remote; gameplay vẫn Firebase RemoteSettings.
 - [~] **GD3-279** Test parser/hash/merge/version, backend concurrency; 161 test game và 6 test backend đạt; staging tải 4 chart thành công. Android tải 4 chart/chấm sao/offline đạt; đã ngắt mạng và đo menu trước/sau cache. ENOSPC thực tế chưa thử; hạn mức cache 0 từ chối an toàn.
+- [~] **GD3-320** 12 bài mới chỉ để tải (2026-10-16): prompt `docs/design/music_prompts_batch2.md` (người dùng duyệt),
+  tạo trên Flow Music, 14 phong cách → giữ 12 (bỏ festival_stabs, power_chord_run: WEAK sau 8 bản). Level `hit_level.py`,
+  mọi bài salience OK, autoplay qua, dung sai ±90–120 ms; nguồn ở `assets/music/remote/` (ngoài APK). Đã đẩy lên R2
+  staging mã hóa (version 1). **Còn lại:** chép `catalog/staging.json` lên sv129 để kích hoạt, thử tải trên máy;
+  production chờ giấy phép (GD3-200) và GD3-300.

@@ -26,8 +26,12 @@ def check(command, required=None):
 def build(song_id, version, with_led=False):
     if not re.fullmatch(r"[a-z0-9_]+", song_id) or version < 1:
         raise ValueError("Invalid ID or version")
-    sources = [ROOT / "assets/music" / (song_id + ".chart.json")]
-    variant = ROOT / "assets/music" / (song_id + "_led.chart.json")
+    # Download-only songs live in assets/music/remote (left out of the APK and of the shipped song list).
+    music = ROOT / "assets/music"
+    if not (music / (song_id + ".chart.json")).exists():
+        music = music / "remote"
+    sources = [music / (song_id + ".chart.json")]
+    variant = music / (song_id + "_led.chart.json")
     if with_led and variant.exists():
         sources.append(variant)
     directory = ROOT / "tools/content/staging" / song_id / str(version)

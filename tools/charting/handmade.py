@@ -19,6 +19,8 @@ import sys
 import flight_patterns
 from terrain_patterns import Level, SpeedMap, fall_beats, PLAYER_HALF_LENGTH
 
+# Charts and songs live here; a song with "dir" (assets/music/remote) is published only as a download package.
+MUSIC_DIR = "assets/music"
 MAX_HEIGHT = 6.0
 # GameplayConfig.fly_exit_beats: the first ground tap after a flight comes this long after it (time to land).
 FLY_EXIT_BEATS = 2.0
@@ -217,7 +219,7 @@ def flight_events(song, checker):
     """Flap cues of every flight section (on the standout hits of the song) and its floating mines."""
     if not checker.fly:
         return []
-    audio = "assets/music/%s.mp3" % song.get("audio", song["id"])
+    audio = "%s/%s.mp3" % (song.get("dir", MUSIC_DIR), song.get("audio", song["id"]))
     standout = flight_patterns.standout_curve(audio, song["bpm"], song["offset"])
     events = []
     for start, end in checker.fly:
@@ -274,7 +276,7 @@ def build(song, steps, variety=True):
         "version": 1,
         "title": song["title"],
         "artist": song["artist"],
-        "song": "res://assets/music/%s.mp3" % song.get("audio", song["id"]),
+        "song": "res://%s/%s.mp3" % (song.get("dir", MUSIC_DIR), song.get("audio", song["id"])),
         "offset_sec": song["offset"],
         "end_beat": song["end_beat"],
         "tempo": [{"beat": 0, "bpm": song["bpm"]}],
@@ -290,7 +292,7 @@ def build(song, steps, variety=True):
     if "revision" in song:
         # Must beat the version of any downloaded package of this song (SongCatalog.merge_remote keeps the higher one).
         chart["chart_revision"] = song["revision"]
-    path = "assets/music/%s.chart.json" % song["id"]
+    path = "%s/%s.chart.json" % (song.get("dir", MUSIC_DIR), song["id"])
     with open(path, "w", encoding="utf-8", newline="\n") as handle:
         json.dump(chart, handle, indent="\t")
         handle.write("\n")

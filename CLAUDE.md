@@ -117,7 +117,7 @@ Menu truyền tùy chọn sang level qua `LaunchOptions.set_next_run()` (vd. pra
 
 ## 4. Cấu trúc thư mục
 ```
-assets/music/       nhạc + file chart (*.chart.json) cùng tên
+assets/music/       nhạc + file chart (*.chart.json) cùng tên; remote/ = bài chỉ tải từ R2 (không vào APK)
 assets/models/      .glb đã xuất (KHÔNG sửa tay)
 assets/textures/    texture chi tiết gộp kênh (sinh bằng tools/textures/build_textures.py, KHÔNG sửa tay)
 assets/blender/     script bpy sinh model (nguồn thật của model)
@@ -177,6 +177,9 @@ Mỗi feature để `.gd` và `.tscn` cạnh nhau trong cùng thư mục.
 | `assets/music/neon_rhythm_stabs_alt.mp3` | Người dùng cung cấp 2026-10-15 (AI, hdgstudio86) | **Chưa xác nhận** | 136 | 1.3565 s (khớp trên cú đánh) |
 | `assets/music/tribal_battle_rhythm.mp3` | Người dùng cung cấp 2026-10-15 (AI, hdgstudio86) | **Chưa xác nhận** | 150 (phân tích báo nhầm 100) | 0.6580 s (khớp trên cú đánh) |
 | `assets/music/tribal_battle_rhythm_alt.mp3` | Người dùng cung cấp 2026-10-15 (AI, hdgstudio86) | **Chưa xác nhận** | 150 (phân tích báo nhầm 100) | 0.0740 s (khớp trên cú đánh) |
+
+12 bài chỉ để tải (Flow Music, hdgstudio86, 2026-10-16, giấy phép **chưa xác nhận**) nằm ở `assets/music/remote/`:
+BPM/độ khó/kết quả kiểm tra ở `docs/design/music_prompts_batch2.md`; đẩy lên staging bằng `tools/content/publish_song.py`.
 
 Bản trùng audio (chỉ khác metadata) nằm ở `art_source/music_duplicates/` (không commit). Sáu bài cyber_rush(_take2),
 neon_arcade_dash(_take2), tribal_battle_awakening(_take2) đã bỏ 2026-10-15 vì lần chạm không trùng cú đánh nổi bật

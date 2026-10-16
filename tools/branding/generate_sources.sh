@@ -21,9 +21,23 @@ declare -A PROMPTS=(
   [cover_neon_rhythm_stabs_alt]="Album cover art: a neon city canyon of skyscrapers at night with glowing equalizer bars in the windows, magenta and cyan. $COVER"
   [cover_tribal_battle_rhythm]="Album cover art: tribal war drums glowing with neon patterns around a bonfire under a starry sky, sparks rising. $COVER"
   [cover_tribal_battle_rhythm_alt]="Album cover art: a glowing neon tribal mask floating in a dark jungle, bioluminescent leaves, rhythmic light rings. $COVER"
+  [cover_neon_highway]="Album cover art: a lone retro sports car racing along a neon coastal highway at night, glowing grid sun on the horizon, palm silhouettes. $COVER"
+  [cover_bass_reactor]="Album cover art: a glowing reactor core pulsing with bass shockwaves inside a dark futuristic chamber, cyan energy rings. $COVER"
+  [cover_pixel_rush]="Album cover art: a pixel-art hero jumping across glowing 8-bit platforms toward a giant boss castle, arcade glow. $COVER"
+  [cover_district_808]="Album cover art: a dark city street at night with a giant glowing speaker cone in a wall, bass ripples in rain puddles. $COVER"
+  [cover_brass_funk]="Album cover art: a gleaming trumpet and saxophone crossing like swords in neon light, disco ball reflections, groovy. $COVER"
+  [cover_carnival_drums]="Album cover art: a samba surdo drum with confetti and feather headdress silhouettes at a night carnival, bright lights. $COVER"
+  [cover_riddim_drop]="Album cover art: a huge cracked subwoofer emitting square bass waves that shatter the ground, dark underground club. $COVER"
+  [cover_titan_march]="Album cover art: giant armored titans marching across a misty valley under a glowing sky, banners, epic scale. $COVER"
+  [cover_idol_pulse]="Album cover art: a glowing pop stage with heart-shaped light and dancing silhouettes in sync, light sticks in the crowd. $COVER"
+  [cover_drift_phonk]="Album cover art: a drifting car with smoking tyres under neon signs in a dark rainy parking lot, cowbell glow. $COVER"
+  [cover_savanna_drums]="Album cover art: djembe drums under a huge sunset sky in the savanna, acacia tree silhouettes, glowing patterns. $COVER"
+  [cover_steel_factory]="Album cover art: a giant robotic arm hammering an anvil inside a dark steel factory, sparks and pistons. $COVER"
 )
 COVERS=(cover_the_dawn_assembly cover_fault_line cover_pulse_drive cover_temple_battle_taiko cover_temple_battle_taiko_alt
-  cover_neon_rhythm_stabs cover_neon_rhythm_stabs_alt cover_tribal_battle_rhythm cover_tribal_battle_rhythm_alt)
+  cover_neon_rhythm_stabs cover_neon_rhythm_stabs_alt cover_tribal_battle_rhythm cover_tribal_battle_rhythm_alt
+  cover_neon_highway cover_bass_reactor cover_pixel_rush cover_district_808 cover_brass_funk cover_carnival_drums
+  cover_riddim_drop cover_titan_march cover_idol_pulse cover_drift_phonk cover_savanna_drums cover_steel_factory)
 for NAME in logo_a logo_b icon_a icon_b "${COVERS[@]}"; do
   if [ -f "$OUT/$NAME.png" ]; then echo "skip $NAME"; continue; fi
   LOG="$WORK/$NAME.log"
