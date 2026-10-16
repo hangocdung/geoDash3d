@@ -9,7 +9,9 @@ Danh sách việc **để lên kế hoạch**, chưa bắt đầu (lập 2026-10
   và phải đo FPS/bộ nhớ trên máy thật sau khi thêm (ưu tiên tối thượng: giữ FPS).
 
 ## 0. Việc chặn phát hành — quyết định sớm
-- [~] **GD3-200** (→ roadmap Phase 7) Giấy phép nhạc (Người dùng). Mọi bài trong `assets/music/` đang **chưa xác nhận dùng thương mại**
+- [x] **GD3-200** (→ roadmap Phase 7) Giấy phép nhạc (Người dùng). 2026-10-16: người dùng xác nhận có toàn quyền dùng và
+      phát hành nhạc tạo trên Flow (tài khoản hdgstudio86, gói Member), áp dụng cho mọi bài Flow (CLAUDE.md §8 đã sửa);
+      12 bài GD3-320 đã lên production. Ghi chú cũ: mọi bài trong `assets/music/` từng **chưa xác nhận dùng thương mại**
       (Google Flow Music, hdgstudio86 — CLAUDE.md §8). Phải có xác nhận quyền dùng trong game bán/quảng cáo, hoặc
       thay bài. Không lên store khi chưa xong.
 - [x] **GD3-201** (→ roadmap Phase 7, chốt **BeatGlide — Ride the Rhythm** 2026-10-15) Tên game, icon, thương hiệu (Người dùng quyết, Claude gợi ý). "GeoDash" dễ bị coi là gần

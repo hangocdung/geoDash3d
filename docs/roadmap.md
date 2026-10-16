@@ -429,6 +429,9 @@ Kế hoạch phát hành (màn dọc, Firebase, quảng cáo, IAP, đánh giá a
 - [~] **GD3-279** Test parser/hash/merge/version, backend concurrency; 161 test game và 6 test backend đạt; staging tải 4 chart thành công. Android tải 4 chart/chấm sao/offline đạt; đã ngắt mạng và đo menu trước/sau cache. ENOSPC thực tế chưa thử; hạn mức cache 0 từ chối an toàn.
 - [~] **GD3-320** 12 bài mới chỉ để tải (2026-10-16): prompt `docs/design/music_prompts_batch2.md` (người dùng duyệt),
   tạo trên Flow Music, 14 phong cách → giữ 12 (bỏ festival_stabs, power_chord_run: WEAK sau 8 bản). Level `hit_level.py`,
-  mọi bài salience OK, autoplay qua, dung sai ±90–120 ms; nguồn ở `assets/music/remote/` (ngoài APK). Đã đẩy lên R2
-  staging mã hóa (version 1). **Còn lại:** chép `catalog/staging.json` lên sv129 để kích hoạt, thử tải trên máy;
-  production chờ giấy phép (GD3-200); GD3-300 (bài chưa tải chặn mở khóa/NEXT SONG) đã sửa 2026-10-16.
+  mọi bài salience OK, autoplay qua, dung sai ±90–120 ms; nguồn ở `assets/music/remote/` (ngoài APK). Đã lên staging
+  mã hóa và **production** (CDN `beatglide/prod/`, manifest catalog 13, version 1) sau khi người dùng xác nhận quyền dùng
+  nhạc Flow (2026-10-16); 48 file khớp sha256 trên CDN; GD3-300 đã sửa trước đó. **Còn lại:** exporter trên sv129 ghi
+  đè `beatglide/prod/manifest.json` từ `catalog/manifest.json` của server mỗi 5 phút → phải chép `catalog/manifest.json`
+  (và `staging.json`) của `D:/sntgames-api` lên sv129 thì bài mới hiện trong game; rồi chạy `tools/content/verify_online.gd`
+  không có token staging và thử tải trên điện thoại.

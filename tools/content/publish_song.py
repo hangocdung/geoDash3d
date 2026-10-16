@@ -1,5 +1,6 @@
 """Build and validate content packages; upload only through the backend publisher.
-Usage: python tools/content/publish_song.py pulse_drive --version 2 --backend D:/sntgames-api.
+Usage: python tools/content/publish_song.py pulse_drive --version 2 --backend D:/sntgames-api [--license-verified]
+(--license-verified: production CDN instead of encrypted staging).
 """
 import argparse
 import hashlib
@@ -12,6 +13,9 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[2]
+# --license-verified only once the owner has confirmed commercial rights and kept the evidence (art_source/licenses/).
+UNCONFIRMED_LICENSE = {"status": "unconfirmed", "distribution": "private_test_only"}
+VERIFIED_LICENSE = {"status": "verified", "distribution": "commercial", "source": "Google Flow Music (member plan)"}
 GODOT = os.environ.get("GODOT", "D:/Godot_v4.6.1-stable_win64.exe/Godot_v4.6.1-stable_win64_console.exe")
 
 
@@ -23,7 +27,7 @@ def check(command, required=None):
     return output
 
 
-def build(song_id, version, with_led=False):
+def build(song_id, version, with_led=False, license_verified=False):
     if not re.fullmatch(r"[a-z0-9_]+", song_id) or version < 1:
         raise ValueError("Invalid ID or version")
     # Download-only songs live in assets/music/remote (left out of the APK and of the shipped song list).
@@ -73,7 +77,7 @@ def build(song_id, version, with_led=False):
                         "bpm": bpm, "length": original["end_beat"] * 60 / bpm, "difficulty": scores[source.name],
                         "version": version, "schema_version": 1, "min_app_version": "1.0.0", "enabled": True,
                         "featured": False, "order": 100000, "unlock": "existing_chain",
-                        "license": {"status": "unconfirmed", "distribution": "private_test_only"},
+                        "license": VERIFIED_LICENSE if license_verified else UNCONFIRMED_LICENSE,
                         "chart": source.name, "files": files, "size": sum(f["size"] for f in files)})
     (directory / "package.json").write_text(json.dumps(entries, ensure_ascii=False, indent=2))
     (directory / "validation.json").write_text(json.dumps({"checks": ["salience", "tolerance", "full_autoplay"],
@@ -87,11 +91,14 @@ def main():
     parser.add_argument("--version", required=True, type=int)
     parser.add_argument("--backend", type=Path)
     parser.add_argument("--with-led", action="store_true")
+    parser.add_argument("--license-verified", action="store_true", help="owner confirmed commercial rights")
     args = parser.parse_args()
-    directory = build(args.song_id, args.version, args.with_led)
+    directory = build(args.song_id, args.version, args.with_led, args.license_verified)
     print("Validated package:", directory)
     if args.backend:
-        subprocess.run([str(args.backend / ".venv/Scripts/python.exe"), str(args.backend / "tools/publish.py"), str(directory)], check=True)
+        production = ["--production"] if args.license_verified else []
+        subprocess.run([str(args.backend / ".venv/Scripts/python.exe"), str(args.backend / "tools/publish.py"), str(directory),
+                        *production], check=True)
 
 
 if __name__ == "__main__":

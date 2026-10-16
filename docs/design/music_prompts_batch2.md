@@ -167,7 +167,8 @@ thời lượng dưới −40 dB), không phải bài rỗng.
 Bài chỉ để **tải về** (không nằm trong APK): `assets/music/remote/<id>.{mp3,chart.json,spectrum.json}` (bị
 `exclude_filter` của preset bỏ ra, `SongCatalog` không quét thư mục con), script level có `"dir": "assets/music/remote"`,
 ảnh bìa `assets/covers/<id>.jpg`. Bản gốc WAV của mọi lần tạo nằm ở `art_source/music_batch2/<id>/<clip id>.wav`
-(không commit). Giấy phép thương mại: **chưa xác nhận** (như các bài Flow khác), nên chỉ lên staging mã hóa.
+(không commit). Giấy phép: người dùng xác nhận toàn quyền dùng/phát hành (2026-10-16, gói Member), bằng chứng
+`art_source/licenses/batch2_flow_music.json`; đã lên staging mã hóa rồi production.
 
 ## 4. Ghi chú
 - Bảng mục 2 giữ BPM trong prompt; BPM thật lấy theo đo (`song_tempo.py`), Flow thường lệch 2–20 BPM.
