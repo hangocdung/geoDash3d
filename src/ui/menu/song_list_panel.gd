@@ -1,4 +1,5 @@
-# Song picker: the SongCatalog songs easiest first as SongRow rows under difficulty tabs. Pressing a row only selects it:
+# Song picker: the SongCatalog songs easiest first as SongRow rows under difficulty tabs. Pressing a row (locked ones too,
+# to listen) only selects it:
 # `previewed` lets the menu demo play that song behind the page (list side dark, demo side clear in landscape), and the
 # SongDetailCard's big button emits `chosen`. With `apply_locks` (PLAY, PRACTICE) locked songs (SongUnlocks, GD3-242)
 # show what opens them, a TRY (AD) button (PLAY, main-chain songs: a rewarded ad opens the song until the player
@@ -98,13 +99,13 @@ func _build_body() -> void:
 	_status.add_theme_font_size_override("font_size", 24)
 	_status.add_theme_color_override("font_color", UiTheme.HOT)
 	body.add_child(_status)
-	if not _is_playable(selected_path):
+	if not _is_selectable(selected_path):
 		selected_path = ""
 		for entry: SongCatalog.Entry in _entries:
 			if _is_playable(entry.path):
 				selected_path = entry.path
 				break
-	_card.show_song(_entry(selected_path))
+	_card.show_song(_entry(selected_path), _lock_text(selected_path))
 	if not selected_path.is_empty():
 		previewed.emit(selected_path)
 
@@ -138,21 +139,7 @@ func _build_filters() -> HBoxContainer:
 
 ## Landscape: dark behind the list, clear over the demo (like the home page). Portrait: the even shade.
 func _build_backdrop() -> void:
-	var gradient := Gradient.new()
-	gradient.set_color(0, Color(BACKDROP_COLOR, 0.9))
-	gradient.set_color(1, Color(BACKDROP_COLOR, 0.0))
-	gradient.add_point(LIST_SHARE, Color(BACKDROP_COLOR, 0.75))
-	gradient.add_point(LIST_SHARE + 0.12, Color(BACKDROP_COLOR, 0.1))
-	var texture := GradientTexture2D.new()
-	texture.gradient = gradient
-	texture.width = 256
-	texture.height = 4
-	_backdrop = TextureRect.new()
-	_backdrop.texture = texture
-	_backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_backdrop.stretch_mode = TextureRect.STRETCH_SCALE
-	_backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_backdrop = SongListBackdrop.create(LIST_SHARE, BACKDROP_COLOR)
 	add_child(_backdrop)
 	move_child(_backdrop, shade.get_index() + 1)
 
@@ -182,17 +169,15 @@ func _fill(portrait: bool) -> void:
 		if not entry.remote.is_empty() and entry.revision < int(entry.remote["version"]) \
 				and not ContentCatalog.installed(entry.remote):
 			_songs.add_child(_online.download_row(entry))
-		if _is_playable(entry.path):
-			var row: Button = SongRow.playable(entry)
-			row.button_group = _rows
-			row.button_pressed = entry.path == selected_path
-			row.pressed.connect(_select.bind(entry.path))
-			_songs.add_child(row)
-			if focus == null or row.button_pressed:
-				focus = row
-		else:
-			any_locked = true
-			_songs.add_child(SongRow.locked(entry, _requirement(entry), _locked_actions(entry), portrait))
+		var open: bool = _is_playable(entry.path)
+		var row: Button = SongRow.playable(entry) if open 				else SongRow.locked(entry, _requirement(entry), _locked_actions(entry), portrait)
+		any_locked = any_locked or not open
+		row.button_group = _rows
+		row.button_pressed = entry.path == selected_path
+		row.pressed.connect(_select.bind(entry.path))
+		_songs.add_child(row)
+		if focus == null or row.button_pressed:
+			focus = row
 	_scroll.make_draggable(_songs)
 	if focus != null:
 		focus.grab_focus()
@@ -209,8 +194,18 @@ func title_of(path: String) -> String:
 	return _titles.get(path, "")
 
 
+## Selectable (the demo can play it): listed and on the device. Playable: also open (or the dev tools).
+func _is_selectable(path: String) -> bool:
+	return _titles.has(path) and _entry(path).downloaded
+
+
 func _is_playable(path: String) -> bool:
-	return _titles.has(path) and _entry(path).downloaded and (not apply_locks or _open.has(path))
+	return _is_selectable(path) and (not apply_locks or _open.has(path))
+
+
+## What opens the song for the card, or "" when it can be started.
+func _lock_text(path: String) -> String:
+	return "" if not _is_selectable(path) or _is_playable(path) else _requirement(_entry(path))
 
 
 func _entry(path: String) -> SongCatalog.Entry:
@@ -225,12 +220,12 @@ func _select(path: String) -> void:
 	if path == selected_path:
 		return
 	selected_path = path
-	_card.show_song(_entry(path))
+	_card.show_song(_entry(path), _lock_text(path))
 	previewed.emit(path)
 
 
 func _on_action() -> void:
-	if selected_path.is_empty() or _online.downloader.busy:
+	if not _is_playable(selected_path) or _online.downloader.busy:
 		return
 	Telemetry.log_event("song_select", {"song_id": SongCatalog.song_id(selected_path)})
 	chosen.emit(selected_path)
@@ -288,13 +283,13 @@ func _reload_content() -> void:
 	var downloaded: String = _online.take_installed(_entries)
 	if _is_playable(downloaded):
 		selected_path = downloaded
-	if not _is_playable(selected_path):
+	if not _is_selectable(selected_path):
 		selected_path = ""
 		for entry: SongCatalog.Entry in _entries:
 			if _is_playable(entry.path):
 				selected_path = entry.path
 				break
-	_card.show_song(_entry(selected_path))
+	_card.show_song(_entry(selected_path), _lock_text(selected_path))
 	if selected_path != previous_path and not selected_path.is_empty():
 		previewed.emit(selected_path)
 	_fill(UiKit.is_portrait(self))

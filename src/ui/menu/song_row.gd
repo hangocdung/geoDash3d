@@ -1,5 +1,6 @@
 # One song in the song list: cover, title, difficulty badge, BPM · length and best result (the whole row selects the
-# song), or for a locked song the unlock requirement with TRY (AD) / UNLOCK ALL.
+# song), for a locked song the unlock requirement with TRY (AD) / UNLOCK ALL (the row still selects it to listen), or for
+# a song not downloaded yet its cover and size (the row downloads it).
 # Related: src/ui/menu/song_list_panel.gd, src/ui/menu/song_detail_card.gd, tools/branding/build_brand.py (covers)
 class_name SongRow
 extends RefCounted
@@ -30,15 +31,39 @@ static func playable(entry: SongCatalog.Entry) -> Button:
 	return row
 
 
-## Locked song: dimmed cover with a lock, what opens it, and the actions (`actions` holds TRY / UNLOCK ALL buttons).
-static func locked(entry: SongCatalog.Entry, requirement: String, actions: Array[Button], portrait: bool) -> PanelContainer:
-	var row := PanelContainer.new()
-	row.theme_type_variation = "Row"
-	row.custom_minimum_size = Vector2(0, HEIGHT)
+## Song on the manifest but not on the device: the cover (shipped in assets/covers when the APK has it) under a
+## download arrow, title, difficulty, BPM · length and the size; pressing it downloads the song.
+static func download(entry: SongCatalog.Entry, megabytes: float) -> Button:
+	var row: Button = UiTheme.make_button("", 0.0, HEIGHT, &"ui.tap")
+	row.theme_type_variation = "RowButton"
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var layout := HBoxContainer.new()
-	layout.add_theme_constant_override("separation", 22)
-	row.add_child(layout)
+	var layout: HBoxContainer = _layout(row)
+	var art: Control = cover(entry)
+	art.modulate = Color(0.7, 0.7, 0.8)
+	var arrow: TextureRect = UiKit.icon_rect(&"download", 44, Color.WHITE)
+	arrow.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	art.add_child(arrow)
+	layout.add_child(art)
+	var info: VBoxContainer = _info(entry)
+	var amount: Label = UiKit.label(Locale.t("DOWNLOAD %.1f MB") % megabytes, "Muted")
+	amount.add_theme_font_size_override("font_size", 22)
+	amount.add_theme_color_override("font_color", UiTheme.ACCENT)
+	info.add_child(amount)
+	layout.add_child(info)
+	return row
+
+
+## Locked song: dimmed cover with a lock, what opens it, and the actions (`actions` holds TRY / UNLOCK ALL buttons).
+## Like a playable row it is a toggle RowButton: pressing it selects the song so the menu demo plays it (listen only).
+static func locked(entry: SongCatalog.Entry, requirement: String, actions: Array[Button], portrait: bool) -> Button:
+	var row: Button = UiTheme.make_button("", 0.0, HEIGHT, &"ui.tap")
+	row.theme_type_variation = "RowButton"
+	row.toggle_mode = true
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var layout: HBoxContainer = _layout(row)
+	# The layout is anchored inside the button, so the row grows with the wrapped requirement and stacked actions.
+	layout.minimum_size_changed.connect(func() -> void:
+		row.custom_minimum_size.y = maxf(HEIGHT, layout.get_combined_minimum_size().y + 28.0))
 	var art: Control = cover(entry)
 	art.modulate = Color(0.45, 0.45, 0.6)
 	var lock: TextureRect = UiKit.icon_rect(&"lock", 44, Color.WHITE)
@@ -50,12 +75,14 @@ static func locked(entry: SongCatalog.Entry, requirement: String, actions: Array
 	how.add_theme_font_size_override("font_size", 22)
 	how.add_theme_color_override("font_color", UiTheme.HOT)
 	how.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	how.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	info.add_child(how)
 	layout.add_child(info)
 	var buttons := BoxContainer.new()
 	buttons.vertical = not portrait or actions.size() > 1
 	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
 	buttons.add_theme_constant_override("separation", 10)
+	buttons.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for button: Button in actions:
 		button.custom_minimum_size = Vector2(200 if portrait else 230, UiTheme.touch_height(52.0, 80.0))
 		buttons.add_child(button)

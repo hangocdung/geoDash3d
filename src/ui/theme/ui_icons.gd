@@ -20,6 +20,7 @@ const SHAPES: Dictionary[StringName, String] = {
 	&"chevron": "M9 5l7 7-7 7",
 	&"chevron_down": "M5 9l7 7 7-7",
 	&"music": "M9 18V5l11-2v13|C6.5,18,2.5|C17.5,16,2.5",
+	&"download": "M12 3v12|M7 10l5 5 5-5|M4 20h16",
 	&"star": "F:M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.3L12 17.1l-5.7 3.1 1.2-6.3-4.7-4.4 6.4-.8z",
 	&"lock": "M5 11h14v10H5z|M8 11V7.5a4 4 0 0 1 8 0V11|F:C12,16,1.4",
 	&"unlock": "M5 11h14v10H5z|M8 11V7.5a4 4 0 0 1 7.6-1.7|F:C12,16,1.4",

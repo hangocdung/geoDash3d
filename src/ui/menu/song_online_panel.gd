@@ -29,8 +29,7 @@ func _ready() -> void:
 
 
 func download_row(entry: SongCatalog.Entry) -> Control:
-	var button: Button = UiKit.button("%s · Download %.1f MB" % [entry.title,
-			float(entry.remote.get("size", 0)) / 1048576.0], &"music", "", false, Vector2(0, 96))
+	var button: Button = SongRow.download(entry, float(entry.remote.get("size", 0)) / 1048576.0)
 	button.pressed.connect(func() -> void:
 		if not downloader.busy:
 			_requested = entry.id

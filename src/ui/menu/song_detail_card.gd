@@ -1,6 +1,6 @@
 # The selected song in the song list: cover, title, difficulty, BPM · length, best result, a spinner while the menu
 # demo loads it, and the big pulsing action button (PLAY / PRACTICE / …) that starts it. Selecting a row only previews
-# the song in the menu demo; this button is the way into the level.
+# the song in the menu demo; this button is the way into the level (off for a locked song, which shows what opens it).
 # Related: src/ui/menu/song_list_panel.gd, src/ui/menu/song_row.gd, src/ui/loading/loading_spinner.gd
 class_name SongDetailCard
 extends PanelContainer
@@ -64,10 +64,11 @@ func _ready() -> void:
 	pulse.tween_property(_button, "self_modulate", Color.WHITE, PULSE_SEC).set_trans(Tween.TRANS_SINE)
 
 
-func show_song(entry: SongCatalog.Entry) -> void:
+## `locked`: what opens the song (empty when it is open); a locked song can be listened to but not started.
+func show_song(entry: SongCatalog.Entry, locked: String = "") -> void:
 	for child: Node in _cover_slot.get_children() + _info_slot.get_children():
 		child.queue_free()
-	_button.disabled = entry == null
+	_button.disabled = entry == null or not locked.is_empty()
 	if entry == null:
 		return
 	var art: Control = SongRow.cover(entry)
@@ -91,6 +92,12 @@ func show_song(entry: SongCatalog.Entry) -> void:
 	if best.text.is_empty():
 		best.text = Locale.t("NOT PLAYED YET")
 	_info_slot.add_child(best)
+	if not locked.is_empty():
+		var how: Label = UiKit.label("%s · %s" % [Locale.t("LOCKED"), locked], "Muted")
+		how.add_theme_font_size_override("font_size", 22)
+		how.add_theme_color_override("font_color", UiTheme.HOT)
+		how.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_info_slot.add_child(how)
 	var rating := SongRatingWidget.new()
 	rating.song_id = entry.id
 	_info_slot.add_child(rating)
