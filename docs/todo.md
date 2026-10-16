@@ -75,10 +75,18 @@ Android (Godot Android plugin v2 bọc Firebase Android SDK), iOS làm sau (GD3-
 
 ## 4. Kiếm tiền
 - [~] **GD3-240** (→ roadmap Phase 7) Quảng cáo AdMob (Claude, L; ứng viên plugin: Poing Studios `godot-admob-plugin`, cần duyệt):
-      - Interstitial chỉ **giữa các lượt**: sau khi qua màn hoặc khi về menu, giới hạn tần suất (vd. ≥ 3 phút chơi
-        giữa 2 lần), **không** hiện sau mỗi lần chết (game tự chơi lại sau 0.9 s).
+      - **Chính sách mới (người dùng quyết 2026-10-16, thay hai dòng dưới):**
+        - Không quảng cáo nào (banner, interstitial) trước khi người chơi **đã được mời đánh giá app** (GD3-244 đã gọi
+          hộp thoại đánh giá ít nhất một lần, lưu cờ trong `UserSettings`). Rewarded tự nguyện không bị chặn.
+        - Banner **chỉ trong gameplay** (màn chơi), không ở home, danh sách bài, cài đặt, cửa hàng hay màn khác. Đặt ở
+          mép không che đường/HUD (trên cùng hoặc dưới cùng tùy hướng màn), tôn trọng safe area; đo FPS trên máy
+          LOW trước/sau (memory `fps-is-top-priority`). Bỏ chỗ chừa banner ở menu (`UiKit` margins, `banner_height_pixels`).
+        - Interstitial chỉ ở **hộp thoại Game Over / kết quả** (GD3-245), hiện **trước khi** chuyển trạng thái theo
+          nút người chơi bấm; vẫn giữ giới hạn tần suất `ads_interstitial_gap_sec` (180 s chơi). Bỏ interstitial khi về menu.
+      - ~~Interstitial chỉ giữa các lượt: sau khi qua màn hoặc khi về menu … không hiện sau mỗi lần chết (game tự chơi
+        lại sau 0.9 s).~~ (thay bằng chính sách trên)
       - Rewarded (tự nguyện): vd. mở thử 1 bài bị khóa, hoặc bắt đầu lượt với 1 lá chắn.
-      - Banner: chỉ ở menu, không bao giờ trong lúc chơi.
+      - ~~Banner: chỉ ở menu, không bao giờ trong lúc chơi.~~ (thay bằng chính sách trên)
       - Khi quảng cáo mở: dừng nhạc và `SongClock`, khôi phục đúng khi quay lại. Không bao giờ chen giữa lượt chơi.
       - Đồng ý dữ liệu: Google UMP (bắt buộc với EEA/UK), ATT trên iOS. Đo FPS và bộ nhớ trước/sau khi thêm SDK.
 - [~] **GD3-241** (→ roadmap Phase 7) IAP (Claude, L; Google Play Billing — plugin chính thức Godot; iOS StoreKit — cần duyệt):
@@ -94,6 +102,26 @@ Android (Godot Android plugin v2 bọc Firebase Android SDK), iOS làm sau (GD3-
       (Apple chỉ hiện tối đa 3 lần/365 ngày; Google có quota, có thể không hiện). Chỉ gọi sau khoảnh khắc vui
       (qua màn lần đầu, NEW BEST, ≥ 3 phiên), không bao giờ sau khi chết. **Không** hỏi "bạn thích game không?" để lọc
       trước khi mời (review gating bị cấm).
+      - **Hiện chưa làm gì** (2026-10-16): chưa có plugin In-App Review, chưa có mã gọi hộp thoại đánh giá app. Thứ duy
+        nhất đang có là chấm sao **từng bài** trong game (GD3-271/272, `SongRatingWidget`), không liên quan store.
+      - Từ chính sách quảng cáo mới (GD3-240): mọi banner/interstitial chỉ bật **sau** lần mời đánh giá đầu tiên → cần
+        cờ `review_prompted` (lưu khi đã gọi API, kể cả khi Google/Apple không hiện hộp thoại vì quota) và hàm
+        `Ads.allowed()` kiểm tra cờ này cùng `enabled` (remove_ads).
+      - Cần duyệt: plugin Google Play In-App Review cho Godot (thêm vào `android_plugins/` hoặc mở rộng plugin
+        `geodash_firebase`), bản iOS sau.
+
+- [ ] **GD3-245** Hộp thoại Game Over và interstitial khi chuyển trạng thái (Claude, M; người dùng yêu cầu 2026-10-16):
+      - Hiện tại: chết thì game **tự chơi lại sau 0,9 s** (`LevelRunner.RESTART_DELAY_SEC`), không có hộp thoại; chỉ khi
+        qua màn mới có thẻ kết quả (`RunMenu.open_results`: hạng, điểm, NEXT SONG, RESTART, MENU).
+      - Mới: khi chết hiện hộp thoại Game Over: điểm, % tiến độ, kỷ lục, và các nút **CHƠI LẠI**, **VỀ TRANG CHỦ**,
+        **CHỌN BÀI KHÁC** (mở thẳng danh sách bài). Thẻ kết quả khi qua màn dùng cùng bộ nút (+ BÀI TIẾP).
+      - Khi người chơi bấm một nút: nếu được phép (GD3-240: đã mời đánh giá, chưa mua remove_ads, đủ khoảng cách tần
+        suất) và interstitial đã tải sẵn thì hiện interstitial **trước**, đóng quảng cáo xong mới chuyển trạng thái;
+        không tải được thì chuyển ngay, không bắt chờ.
+      - Đây là thay đổi cảm giác chơi lớn (mất nhịp "chết là chơi lại ngay" kiểu Geometry Dash): cân nhắc giữ tự chơi
+        lại trong practice, và/hoặc chỉ hiện hộp thoại sau N lần chết liên tiếp / sau K giây chơi. Cần người dùng chốt.
+      - Telemetry: `level_end` đã có; thêm event nút được chọn (`game_over_action`) và `ad_shown` placement `game_over`.
+      - Test: luồng hộp thoại (không quảng cáo trong test), bất biến SongClock dừng khi quảng cáo mở và chơi lại đúng.
 
 ## 5. Tối ưu UI/UX
 - [~] **GD3-250** (→ roadmap Phase 7) Lần chơi đầu (Claude, M): hướng dẫn 1 thao tác chạm (nhảy, né, lộn, chạy mặt dưới) trong một màn ngắn,
