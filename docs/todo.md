@@ -118,8 +118,8 @@ Android (Godot Android plugin v2 bọc Firebase Android SDK), iOS làm sau (GD3-
       - Khi người chơi bấm một nút: nếu được phép (GD3-240: đã mời đánh giá, chưa mua remove_ads, đủ khoảng cách tần
         suất) và interstitial đã tải sẵn thì hiện interstitial **trước**, đóng quảng cáo xong mới chuyển trạng thái;
         không tải được thì chuyển ngay, không bắt chờ.
-      - Đây là thay đổi cảm giác chơi lớn (mất nhịp "chết là chơi lại ngay" kiểu Geometry Dash): cân nhắc giữ tự chơi
-        lại trong practice, và/hoặc chỉ hiện hộp thoại sau N lần chết liên tiếp / sau K giây chơi. Cần người dùng chốt.
+      - **Đã chốt (người dùng, 2026-10-16):** mỗi lần chết đều hiện hộp thoại Game Over, bỏ tự chơi lại sau 0,9 s;
+        riêng **practice** giữ tự chơi lại từ checkpoint như hiện tại.
       - Telemetry: `level_end` đã có; thêm event nút được chọn (`game_over_action`) và `ad_shown` placement `game_over`.
       - Test: luồng hộp thoại (không quảng cáo trong test), bất biến SongClock dừng khi quảng cáo mở và chơi lại đúng.
 
