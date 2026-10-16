@@ -272,6 +272,20 @@ chưa bị ảnh hưởng; GD3-300 phải xong **trước khi đưa bất kỳ b
       - `main_menu.gd` / `SongOnlinePanel` đọc thành viên private (`_song_list._online.downloader`, `downloader._http`)
         → thêm API công khai (đang tải, tiến độ).
       - `chart_loader.gd`, `level_runner.gd` bị xóa dòng trống giữa các hàm (đổi định dạng ngoài phạm vi) → trả lại.
+- [~] **GD3-303** Lỗi thấy khi thử 12 bài mới trên điện thoại (SM-N770F, màn dọc, 2026-10-16) (Claude, S):
+      - [x] Bài đã tải vẫn hiện "Download" và bấm vào thì tải lại thay vì chơi: `ContentCatalog.installed` so cả URL
+        của file, nên gói tải qua prod bị coi là chưa cài khi manifest đổi URL (staging ↔ prod). Sửa: chỉ so tên, dung
+        lượng, sha256; tải xong thì chọn sẵn bài vừa tải và phát demo của nó.
+      - Danh sách đổi thứ tự ngay lúc bấm (manifest nạp xong → `_reload_content` dựng lại các dòng): định bấm Neon
+        Highway nhưng lại tải Steel Factory. Giữ vị trí cuộn và dòng dưới ngón tay, hoặc khóa chạm trong lúc dựng lại
+        (gần với GD3-301).
+      - Chuỗi chưa dịch nhìn thấy trên máy: "Refresh songs", "Delete downloads", "%s · Download %.1f MB", "Rate this
+        song", "FAVORITES", "★ Favorite", "Download complete" (cùng mục chuỗi của GD3-302).
+      - Màn dọc: dòng gợi ý "Xoay ngang điện thoại để có trải nghiệm tốt nhất" chồng lên tiêu đề "CHƠI" ở trang danh
+        sách bài (trang chủ thì không chồng).
+      - Nhãn độ khó lấy từ điểm `ChartDifficulty` của chart, không theo độ khó 1–5 của script level (Steel Factory đặt 3
+        nhưng hiện EASY). Xem lại cách chọn `difficulty` cho `hit_level.py` hoặc ghi rõ bảng trong
+        `docs/design/music_prompts_batch2.md` là độ khó trong script.
 
 ## 7c. Playable ad (thêm 2026-10-16)
 Quảng cáo chơi được ~20–30 giây từ một đoạn màn thật, chạy trong WebView của mạng quảng cáo. Hướng dẫn chi tiết:

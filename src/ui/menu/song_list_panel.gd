@@ -285,6 +285,9 @@ func _reload_content() -> void:
 		if entry.id == selected_id and entry.downloaded:
 			selected_path = entry.path
 	_open = SongUnlocks.unlocked(_ordered, SongCatalog.pending(_entries))
+	var downloaded: String = _online.take_installed(_entries)
+	if _is_playable(downloaded):
+		selected_path = downloaded
 	if not _is_playable(selected_path):
 		selected_path = ""
 		for entry: SongCatalog.Entry in _entries:

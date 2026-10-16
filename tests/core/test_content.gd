@@ -106,6 +106,9 @@ func test_high_scores_do_not_mix_revisions() -> void:
 
 ## The todo case: every shipped song cleared, the manifest adds one song (difficulty 45) that is not downloaded.
 func test_pending_remote_song_keeps_everything_unlocked() -> void:
+	# Count the shipped songs alone: the machine may hold a real cached manifest.
+	ContentCatalog.manifest = {}
+	ContentCatalog.loaded = true
 	var shipped: int = SongCatalog.list_songs().size()
 	ContentCatalog.manifest = {"schema_version": 1, "catalog_version": 1, "songs": [{"id": "new_song",
 			"package_id": "new_song", "chart": "new_song.chart.json", "version": 1, "difficulty": 45.0,
@@ -171,3 +174,30 @@ func _catalog() -> Dictionary:
 	return {"schema_version": 1, "catalog_version": 1, "min_app_version": "1.0.0", "songs": [{
 			"id": "a", "package_id": "a", "chart": "a.chart.json", "version": 2, "files": files,
 			"license": {"status": "verified"}}]}
+
+
+func test_installed_package_ignores_urls_but_not_hashes() -> void:
+	var files: Array = [{"name": "song.mp3", "size": 3, "sha256": "a".repeat(64), "url": "https://cdn.sntgames.com/x"},
+			{"name": "cover.jpg", "size": 2, "sha256": "b".repeat(64), "url": "https://cdn.sntgames.com/y"}]
+	var song: Dictionary = {"package_id": "test_installed_pkg", "version": 1, "files": files}
+	var directory: String = ContentCatalog.directory(song)
+	DirAccess.make_dir_recursive_absolute(directory)
+	for item: Dictionary in files:
+		var file := FileAccess.open(directory.path_join(str(item["name"])), FileAccess.WRITE)
+		file.store_string("x".repeat(int(item["size"])))
+		file.close()
+	# A marker written by an older build (full entries, staging URLs) still counts on the production manifest.
+	var staged: Array = files.duplicate(true)
+	for item: Dictionary in staged:
+		item["url"] = "https://api.sntgames.com/v1/beatglide/staging/files/" + str(item["name"])
+	var marker := FileAccess.open(directory.path_join("installed.json"), FileAccess.WRITE)
+	marker.store_string(JSON.stringify(staged))
+	marker.close()
+	assert_true(ContentCatalog.installed(song))
+	var changed: Dictionary = song.duplicate(true)
+	changed["files"][0]["sha256"] = "c".repeat(64)
+	assert_false(ContentCatalog.installed(changed))
+	for name: String in DirAccess.get_files_at(directory):
+		DirAccess.remove_absolute(directory.path_join(name))
+	DirAccess.remove_absolute(directory)
+	DirAccess.remove_absolute(directory.get_base_dir())

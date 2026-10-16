@@ -96,7 +96,10 @@ func download(song: Dictionary) -> void:
 	if marker == null:
 		_finish("Cannot save content index")
 		return
-	marker.store_string(JSON.stringify(song["files"]))
+	var index: Array[Dictionary] = []
+	for item: Dictionary in song["files"]:
+		index.append({"name": item["name"], "size": item["size"], "sha256": item["sha256"]})
+	marker.store_string(JSON.stringify(index))
 	marker.close()
 	_finish("Download complete")
 

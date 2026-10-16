@@ -6,6 +6,8 @@ extends VBoxContainer
 signal changed
 var downloader: ContentDownloader
 var _status: Label
+## Song id the player asked to download; once installed the list selects it (SongListPanel._reload_content).
+var _requested: String = ""
 
 
 func _ready() -> void:
@@ -29,8 +31,20 @@ func _ready() -> void:
 func download_row(entry: SongCatalog.Entry) -> Control:
 	var button: Button = UiKit.button("%s · Download %.1f MB" % [entry.title,
 			float(entry.remote.get("size", 0)) / 1048576.0], &"music", "", false, Vector2(0, 96))
-	button.pressed.connect(func() -> void: downloader.download(entry.remote))
+	button.pressed.connect(func() -> void:
+		if not downloader.busy:
+			_requested = entry.id
+			downloader.download(entry.remote))
 	return button
+
+
+## The chart of the song the player downloaded, once it is installed (then forgotten); "" otherwise.
+func take_installed(entries: Array[SongCatalog.Entry]) -> String:
+	for entry: SongCatalog.Entry in entries:
+		if not _requested.is_empty() and entry.id == _requested and entry.downloaded:
+			_requested = ""
+			return entry.path
+	return ""
 
 
 func _process(_delta: float) -> void:

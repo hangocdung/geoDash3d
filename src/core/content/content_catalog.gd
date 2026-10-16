@@ -62,7 +62,20 @@ static func installed(song: Dictionary) -> bool:
 		var file := FileAccess.open(directory(song).path_join(str(item["name"])), FileAccess.READ)
 		if file == null or file.get_length() != int(item["size"]):
 			return false
-	return FileAccess.get_file_as_string(marker) == JSON.stringify(song["files"])
+	var saved: Variant = JSON.parse_string(FileAccess.get_file_as_string(marker))
+	return saved is Array and file_index(saved) == file_index(song["files"])
+
+
+## What makes a package the same download: names, sizes and hashes, not URLs (the staging and production manifests
+## point the same files at different hosts, and older markers stored the full entries).
+static func file_index(files: Array) -> String:
+	var index: Array[String] = []
+	for item: Variant in files:
+		if not item is Dictionary:
+			return ""
+		index.append("%s:%d:%s" % [item.get("name", ""), int(item.get("size", 0)), item.get("sha256", "")])
+	index.sort()
+	return ",".join(index)
 
 
 static func cover_path(id: String) -> String:
